@@ -4,13 +4,12 @@ from altwalker.__version__ import VERSION
 
 
 NAME = 'altwalker'
-DESCRIPTION = """Altwalker is an open source, Model-based testing framework for automating
-your test execution. You design your tests as a directional graph and altwalker executes
-them. It relies on Graphwalker to generate paths through your tests graph."""
+DESCRIPTION = """Altwalker is an open source, Model-based testing framework."""
 URL = 'https://gitlab.com/altom/altwalker/altwalker'
 EMAIL = ''
 AUTHOR = 'Altom Consulting'
 REQUIRES_PYTHON = '>=3.4.0'
+LICENSE = 'GNU GPLv3'
 
 with open('requirements.txt') as f:
     required = f.read()
@@ -18,9 +17,6 @@ with open('requirements.txt') as f:
 
 with open('README.md') as f:
     README = f.read()
-
-with open('LICENSE') as f:
-    LICENSE = f.read()
 
 setup(
     name=NAME,
