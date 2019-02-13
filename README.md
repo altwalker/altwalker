@@ -38,3 +38,19 @@ Then from any command line you can access:
 ```
 $ altwalker --help
 ```
+
+### Documentation
+
+After you install the python dependencies to generate the documentation run:
+
+```
+$ cd docs && \
+  make clean && \
+  make html
+```
+
+To see the documentation run:
+
+```
+open _build/html/index.html
+```
