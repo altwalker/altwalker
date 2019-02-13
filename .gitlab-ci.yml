@@ -38,7 +38,7 @@ pages:
   image: alpine:latest
   stage: docs
   tags:
-    - altwalker
+    - docker
   artifacts:
     paths:
     - public
