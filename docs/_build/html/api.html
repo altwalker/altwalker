@@ -1,0 +1,393 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>API Documentation &#8212; AltWalker 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contributing Guide" href="contributing.html" />
+    <link rel="prev" title="Command Line Interface" href="cli.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="api-documentation">
+<h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="walker">
+<h2>Walker<a class="headerlink" href="#walker" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="altwalker.walker.Walker">
+<em class="property">class </em><code class="descclassname">altwalker.walker.</code><code class="descname">Walker</code><span class="sig-paren">(</span><em>planner</em>, <em>executor</em>, <em>data</em>, <em>reporter</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.walker.Walker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="altwalker.walker.create_walker">
+<code class="descclassname">altwalker.walker.</code><code class="descname">create_walker</code><span class="sig-paren">(</span><em>planner</em>, <em>executor</em>, <em>data=None</em>, <em>reporter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.walker.create_walker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="executor">
+<h2>Executor<a class="headerlink" href="#executor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="altwalker.executor.Executor">
+<em class="property">class </em><code class="descclassname">altwalker.executor.</code><code class="descname">Executor</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.executor.Executor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="altwalker.executor.Executor.execute_step">
+<code class="descname">execute_step</code><span class="sig-paren">(</span><em>class_name</em>, <em>name</em>, <em>*args</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.executor.Executor.execute_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the callable and returns the output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>class_name</strong> – the name of the class.</li>
+<li><strong>name</strong> – the name of the method/function.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The output of the callable.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="altwalker.executor.Executor.has_step">
+<code class="descname">has_step</code><span class="sig-paren">(</span><em>class_name</em>, <em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.executor.Executor.has_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the module has a callable. If class_name is not None it will check
+for a method, and if class_name is None it will check for a function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cls_name</strong> – the name of the class.</li>
+<li><strong>name</strong> – the name of the method/function.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns true if the module has the callable.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="altwalker.executor.create_executor">
+<code class="descclassname">altwalker.executor.</code><code class="descname">create_executor</code><span class="sig-paren">(</span><em>path</em>, <em>package='tests'</em>, <em>module='test'</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.executor.create_executor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="planner">
+<h2>Planner<a class="headerlink" href="#planner" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="altwalker.planner.OnlinePlanner">
+<em class="property">class </em><code class="descclassname">altwalker.planner.</code><code class="descname">OnlinePlanner</code><span class="sig-paren">(</span><em>service</em>, <em>client</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.planner.OnlinePlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plan a path using the GraphWalker REST service.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="altwalker.planner.OfflinePlanner">
+<em class="property">class </em><code class="descclassname">altwalker.planner.</code><code class="descname">OfflinePlanner</code><span class="sig-paren">(</span><em>steps</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.planner.OfflinePlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plan a path from a list of steps.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="altwalker.planner.create_planner">
+<code class="descclassname">altwalker.planner.</code><code class="descname">create_planner</code><span class="sig-paren">(</span><em>models=None</em>, <em>steps=None</em>, <em>port=8887</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.planner.create_planner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="section" id="data">
+<h3>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="altwalker.data.GraphData">
+<em class="property">class </em><code class="descclassname">altwalker.data.</code><code class="descname">GraphData</code><span class="sig-paren">(</span><em>planner</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.data.GraphData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="reporter">
+<h2>Reporter<a class="headerlink" href="#reporter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="altwalker.reporter.Reporter">
+<em class="property">class </em><code class="descclassname">altwalker.reporter.</code><code class="descname">Reporter</code><a class="headerlink" href="#altwalker.reporter.Reporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default reporter.</p>
+<dl class="method">
+<dt id="altwalker.reporter.Reporter.end">
+<code class="descname">end</code><span class="sig-paren">(</span><em>message=None</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.Reporter.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the end of a run.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="altwalker.reporter.Reporter.error">
+<code class="descname">error</code><span class="sig-paren">(</span><em>message</em>, <em>trace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.Reporter.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report an error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="altwalker.reporter.Reporter.start">
+<code class="descname">start</code><span class="sig-paren">(</span><em>message=None</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.Reporter.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the start of a run.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="altwalker.reporter.Reporter.step_start">
+<code class="descname">step_start</code><span class="sig-paren">(</span><em>step</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.Reporter.step_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the starting execution of a step.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="altwalker.reporter.Reporter.step_status">
+<code class="descname">step_status</code><span class="sig-paren">(</span><em>step</em>, <em>failure=False</em>, <em>output=''</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.Reporter.step_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the status of a step.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="altwalker.reporter.PrintReporter">
+<em class="property">class </em><code class="descclassname">altwalker.reporter.</code><code class="descname">PrintReporter</code><a class="headerlink" href="#altwalker.reporter.PrintReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output reports to stdout.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="altwalker.reporter.FileReporter">
+<em class="property">class </em><code class="descclassname">altwalker.reporter.</code><code class="descname">FileReporter</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.FileReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output reports to a file.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="altwalker.reporter.ClickReporter">
+<em class="property">class </em><code class="descclassname">altwalker.reporter.</code><code class="descname">ClickReporter</code><a class="headerlink" href="#altwalker.reporter.ClickReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output reports using the click.echo function.</p>
+<dl class="method">
+<dt id="altwalker.reporter.ClickReporter.error">
+<code class="descname">error</code><span class="sig-paren">(</span><em>message</em>, <em>trace=False</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.ClickReporter.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report an error.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="altwalker.reporter.ClickReporter.step_status">
+<code class="descname">step_status</code><span class="sig-paren">(</span><em>step</em>, <em>failure=False</em>, <em>output=''</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.reporter.ClickReporter.step_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the status of a step.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="graphwalker">
+<h2>GraphWalker<a class="headerlink" href="#graphwalker" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="altwalker.graphwalker.GraphWalkerClient">
+<em class="property">class </em><code class="descclassname">altwalker.graphwalker.</code><code class="descname">GraphWalkerClient</code><span class="sig-paren">(</span><em>host='127.0.0.1'</em>, <em>port=8887</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.graphwalker.GraphWalkerClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>A client for the GraphWalker REST service.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="altwalker.graphwalker.GraphWalkerService">
+<em class="property">class </em><code class="descclassname">altwalker.graphwalker.</code><code class="descname">GraphWalkerService</code><span class="sig-paren">(</span><em>models=None</em>, <em>port=8887</em>, <em>verbose=True</em>, <em>unvisited=False</em>, <em>blocked=False</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.graphwalker.GraphWalkerService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops and kills a proccess running the GraphWalker REST service.</p>
+<dl class="method">
+<dt id="altwalker.graphwalker.GraphWalkerService.kill">
+<code class="descname">kill</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.graphwalker.GraphWalkerService.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send the SIGINT signal to the GraphWalker service to kill the process and free the port.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="altwalker.graphwalker.check">
+<code class="descclassname">altwalker.graphwalker.</code><code class="descname">check</code><span class="sig-paren">(</span><em>models</em>, <em>blocked=None</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.graphwalker.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the check command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>models</strong> – A sequence of tuples containing the model_path and the stop_condition</li>
+<li><strong>blocked</strong> – Run the command with the blcoked flag.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Returns the output form GraphWalker check.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="altwalker.graphwalker.methods">
+<code class="descclassname">altwalker.graphwalker.</code><code class="descname">methods</code><span class="sig-paren">(</span><em>model_path</em>, <em>blocked=False</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.graphwalker.methods" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the methods command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>model_path</strong> – A path to a model.</li>
+<li><strong>blcked</strong> – Run the command with the blcoked flag.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of unique names of vertices and edges in the model.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="altwalker.graphwalker.offline">
+<code class="descclassname">altwalker.graphwalker.</code><code class="descname">offline</code><span class="sig-paren">(</span><em>models</em>, <em>start_element=None</em>, <em>verbose=False</em>, <em>unvisited=False</em>, <em>blocked=None</em><span class="sig-paren">)</span><a class="headerlink" href="#altwalker.graphwalker.offline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the offline command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>models</strong> – A sequence of tuples containing the model_path and the stop_condition</li>
+<li><strong>start_element</strong> – A starting element for the first model.</li>
+<li><strong>verbose</strong> – Run the command with the verbose flag.</li>
+<li><strong>unvisited</strong> – Run the command with the unvisited flag.</li>
+<li><strong>blocked</strong> – Run the command with the blcoked flag.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return a list of steps.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="utils">
+<h2>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AltWalker</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modeling.html">Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests-structure.html">Tests Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#walker">Walker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#executor">Executor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#planner">Planner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporter">Reporter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#graphwalker">GraphWalker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#utils">Utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exceptions">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Useful Links:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.com/altom/altwalker/altwalker/issues">PyPI Releases</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.com/altom/altwalker/altwalker">Source Code</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://gitlab.com/altom/altwalker/altwalker/issues">Issue Tracker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="cli.html" title="previous chapter">Command Line Interface</a></li>
+      <li>Next: <a href="contributing.html" title="next chapter">Contributing Guide</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Altom Consulting.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

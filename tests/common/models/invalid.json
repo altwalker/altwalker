@@ -1,0 +1,8 @@
+{
+  "name": "This is an invalid model example for the load route",
+  "models": [
+    {
+      "name": "Invalid Model"
+    }
+  ]
+}

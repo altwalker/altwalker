@@ -1,0 +1,63 @@
+{
+  "name": "This is a more complex example using two models for the integration tests",
+  "models": [
+    {
+      "name": "Complex_A",
+      "generator": "random(edge_coverage(100) && vertex_coverage(100))",
+      "startElementId": "v0",
+      "vertices": [
+        {
+          "id": "v0",
+          "name": "vertex_0"
+        },
+        {
+          "id": "v1",
+          "name": "vertex_1"
+        },
+        {
+          "id": "v2",
+          "name": "vertex_2",
+          "sharedState": "link"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e0",
+          "name": "edge_0",
+          "sourceVertexId": "v0",
+          "targetVertexId": "v1"
+        },
+        {
+          "id": "e1",
+          "name": "edge_1",
+          "sourceVertexId": "v1",
+          "targetVertexId": "v2"
+        }
+      ]
+    },
+    {
+      "name": "Complex_B",
+      "generator": "random(edge_coverage(100) && vertex_coverage(100))",
+      "startElementId": "v0",
+      "vertices": [
+        {
+          "id": "v3",
+          "name": "vertex_3",
+          "sharedState": "link"
+        },
+        {
+          "id": "v4",
+          "name": "vertex_4"
+        }
+      ],
+      "edges": [
+        {
+          "id": "e2",
+          "name": "edge_2",
+          "sourceVertexId": "v3",
+          "targetVertexId": "v4"
+        }
+      ]
+    }
+  ]
+}

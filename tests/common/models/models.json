@@ -1,0 +1,14 @@
+{
+  "name": "Models",
+  "models": [
+    {
+      "name": "FirstModel"
+    },
+    {
+      "path": "login.json"
+    },
+    {
+      "path": "login.json"
+    }
+  ]
+}

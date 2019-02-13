@@ -1,0 +1,53 @@
+stages:
+  - test
+  - docs
+
+unit tests:
+  image: robert96/graphwalker-cli:4.0.0
+  stage: test
+  tags:
+    - docker
+    - python3
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - htmlcov/
+  before_script:
+    - pip3 install -r requirements.txt --user
+    - pip3 install -r requirements-dev.txt
+    - pytest --version
+  script:
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html altwalker/
+
+integration test:
+  image: robert96/graphwalker-cli:4.0.0
+  stage: test
+  tags:
+    - docker
+    - python3
+  before_script:
+    - pip3 install -r requirements.txt --user
+    - pip3 install -r requirements-dev.txt
+    - pytest --version
+  script:
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - pytest -x -s -v tests/integration
+
+pages:
+  image: alpine:latest
+  stage: docs
+  tags:
+    - altwalker
+  artifacts:
+    paths:
+    - public
+  only:
+    - master
+  script:
+    - pip3 install -r requirements-dev.txt
+    - cd docs
+    - make html
+    - cp -r _build/html ../public
