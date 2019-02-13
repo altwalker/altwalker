@@ -1,0 +1,20 @@
+# python
+__pycache__/
+*.pyc
+*.egg-info
+
+# pytest
+.pytest_cache/
+
+# pytest coverage
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+
+# vsCode
+.vscode/
+
+# docs
+docs/_build
