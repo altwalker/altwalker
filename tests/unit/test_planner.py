@@ -129,7 +129,6 @@ class TestOnlinePlanner(unittest.TestCase):
     def test_fail_on_step(self):
         step = {
             "id": "0",
-            "type": "vertex",
             "name": "VertexA",
             "modelName": "ModelName"
         }

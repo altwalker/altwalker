@@ -4,10 +4,7 @@ import os
 
 import altwalker.graphwalker as graphwalker
 from altwalker.executor import create_executor
-
-
-class ValidationException(Exception):
-    pass
+from altwalker.exceptions import ValidationException
 
 
 def _read_json(path):

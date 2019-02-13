@@ -7,9 +7,7 @@ import os
 import psutil
 import requests
 
-
-class GraphWalkerException(Exception):
-    pass
+from altwalker.exceptions import GraphWalkerException
 
 
 def _kill(pid):
@@ -20,126 +18,6 @@ def _kill(pid):
         os.kill(child.pid, signal.SIGINT)
 
     os.kill(process.pid, signal.SIGINT)
-
-
-class GraphWalkerService:
-    """Stops and kills a proccess running the GraphWalker REST service."""
-
-    def __init__(self, models=None, port=8887, verbose=True, unvisited=False, blocked=False, output_file=None):
-        command = _create_command("online", models=models, port=port, service="RESTFUL",
-                                  verbose=verbose, unvisited=unvisited, blocked=blocked)
-
-        self._process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=-1)
-        self._wait_for_process_to_start(output_file)
-
-    def _wait_for_process_to_start(self, output_file):
-        success = False
-
-        while True:
-            # if gw process keeps on running and does not print `[HttpServer] Started` readline will hang
-            line = self._process.stdout.readline().decode("utf-8")
-            if output_file:
-                output_file.write(line)
-
-            if "[HttpServer] Started" in line:
-                success = True
-                break
-
-            if line == "":
-                break
-
-        if not success:
-            raise GraphWalkerException("Could not start GraphWalker Service")
-
-    def kill(self):
-        """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
-        _kill(self._process.pid)
-
-
-class GraphWalkerClient:
-    """A client for the GraphWalker REST service."""
-
-    def __init__(self, host="127.0.0.1", port=8887):
-        self.host = host
-        self.port = port
-
-        self.base = "http://" + host + ":" + str(port) + "/graphwalker"
-
-    def _validate_response(self, response):
-        if response.status_code is not 200:
-            raise GraphWalkerException(
-                "GraphWalker responded with status code: {}.".format(str(response.status_code)))
-
-    def _get_body(self, response):
-        body = response.json()
-
-        if body["result"] == "ok":
-            body.pop("result")
-            return body
-
-        if "error" in body:
-            raise GraphWalkerException(
-                "GraphWalker responded with the error: {}.".format(body["error"]))
-
-        if body["result"] == "nok":
-            raise GraphWalkerException(
-                "GraphWalker responded with an nok status.")
-
-        raise GraphWalkerException(
-            "GraphWalker did not respond with an ok status.")
-
-    def _get(self, path):
-        response = requests.get(self.base + path)
-        self._validate_response(response)
-        return self._get_body(response)
-
-    def _put(self, path):
-        response = requests.put(self.base + path)
-        self._validate_response(response)
-        return self._get_body(response)
-
-    def _post(self, path, data=None):
-        response = requests.post(self.base + path, data=data)
-        self._validate_response(response)
-        return self._get_body(response)
-
-    def load(self, model):
-        self._post("/load", data=json.dumps(model))
-
-    def has_next(self):
-        body = self._get("/hasNext")
-        return body["hasNext"] == "true"
-
-    def get_next(self):
-        body = self._get("/getNext")
-
-        return {
-            "modelName": body["modelName"],
-            "name": body["currentElementName"],
-            "id": body["currentElementID"],
-        }
-
-    def get_data(self):
-        body = self._get("/getData")
-        return body["data"]
-
-    def set_data(self, key, value):
-        if isinstance(value, str):
-            normalize = "\"" + value + "\""
-        else:
-            normalize = str(value)
-
-        self._put("/setData/" + key + "=" + normalize)
-
-    def restart(self):
-        self._put("/restart")
-
-    def fail(self, message):
-        requests.put(self.base + "/fail/" + message)
-
-    def get_statistics(self):
-        return self._get("/getStatistics")
 
 
 def _get_graphwalker_executable():
@@ -286,3 +164,138 @@ def methods(model_path, blocked=False):
     """
     output = _execute_command("methods", model_path=model_path, blocked=blocked)
     return output.strip("\n").split("\n")
+
+
+class GraphWalkerService:
+    """Stops and kills a proccess running the GraphWalker REST service."""
+
+    def __init__(self, models=None, port=8887, unvisited=False, blocked=False, output_file=None):
+        # Always call the commmand with the verbose flag to get the modelName for each step
+        command = _create_command("online", models=models, port=port, service="RESTFUL",
+                                  verbose=True, unvisited=unvisited, blocked=blocked)
+
+        self._process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=-1)
+        self._wait_for_process_to_start(output_file)
+
+    def _wait_for_process_to_start(self, output_file):
+        success = False
+
+        if output_file:
+            fp = open(output_file, "w")
+
+        while True:
+            # if gw process keeps on running and does not print `[HttpServer] Started` readline will hang
+            line = self._process.stdout.readline().decode("utf-8")
+            if output_file:
+                fp.write(line)
+
+            if "[HttpServer] Started" in line:
+                success = True
+                break
+
+            if line == "":
+                break
+
+        if output_file:
+            fp.close()
+
+        if not success:
+            raise GraphWalkerException("Could not start GraphWalker Service.")
+
+    def kill(self):
+        """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
+        _kill(self._process.pid)
+
+
+class GraphWalkerClient:
+    """A client for the GraphWalker REST service."""
+
+    def __init__(self, host="127.0.0.1", port=8887, verbose=False):
+        self.host = host
+        self.port = port
+
+        self.verbose = verbose
+
+        self.base = "http://" + host + ":" + str(port) + "/graphwalker"
+
+    def _validate_response(self, response):
+        if response.status_code is not 200:
+            raise GraphWalkerException(
+                "GraphWalker responded with status code: {}.".format(str(response.status_code)))
+
+    def _get_body(self, response):
+        body = response.json()
+
+        if body["result"] == "ok":
+            body.pop("result")
+            return body
+
+        if "error" in body:
+            raise GraphWalkerException(
+                "GraphWalker responded with the error: {}.".format(body["error"]))
+
+        if body["result"] == "nok":
+            raise GraphWalkerException(
+                "GraphWalker responded with an nok status.")
+
+        raise GraphWalkerException(
+            "GraphWalker did not respond with an ok status.")
+
+    def _get(self, path):
+        response = requests.get(self.base + path)
+        self._validate_response(response)
+        return self._get_body(response)
+
+    def _put(self, path):
+        response = requests.put(self.base + path)
+        self._validate_response(response)
+        return self._get_body(response)
+
+    def _post(self, path, data=None):
+        response = requests.post(self.base + path, data=data)
+        self._validate_response(response)
+        return self._get_body(response)
+
+    def load(self, model):
+        self._post("/load", data=json.dumps(model))
+
+    def has_next(self):
+        body = self._get("/hasNext")
+        return body["hasNext"] == "true"
+
+    def get_next(self):
+        step = self._get("/getNext")
+
+        if not self.verbose:
+            step.pop("data", None)
+            step.pop("properties", None)
+
+        if self.verbose:
+            step["data"] = {k: v for data in step["data"] for k, v in data.items()}
+
+        step["id"] = step.pop("currentElementID")
+        step["name"] = step.pop("currentElementName")
+
+        return step
+
+    def get_data(self):
+        body = self._get("/getData")
+        return body["data"]
+
+    def set_data(self, key, value):
+        if isinstance(value, str):
+            normalize = "\"" + value + "\""
+        else:
+            normalize = str(value)
+
+        self._put("/setData/" + key + "=" + normalize)
+
+    def restart(self):
+        self._put("/restart")
+
+    def fail(self, message):
+        requests.put(self.base + "/fail/" + message)
+
+    def get_statistics(self):
+        return self._get("/getStatistics")

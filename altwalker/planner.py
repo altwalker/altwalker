@@ -25,7 +25,11 @@ class OnlinePlanner:
 
     def get_next(self):
         step = self._client.get_next()
-        self.steps.append(step)
+        self.steps.append({
+            "id": step["id"],
+            "name": step["name"],
+            "modelName": step["modelName"]
+        })
 
         return step
 
@@ -45,7 +49,11 @@ class OnlinePlanner:
 
     def fail(self, step, message):
         if "id" in step:
-            self.failed_step = step
+            self.failed_step = {
+                "id": step["id"],
+                "name": step["name"],
+                "modelName": step["modelName"]
+            }
         else:
             self.failed_fixtures.append(step)
 
@@ -91,7 +99,7 @@ class OfflinePlanner:
         step = self._path[self._position]
         self._position += 1
 
-        return step
+        return dict(step)
 
     def get_data(self):
         warnings.warn(
@@ -121,11 +129,13 @@ class OfflinePlanner:
         }
 
 
-def create_planner(models=None, steps=None, port=8887):
+def create_planner(models=None, steps=None, port=8887, verbose=False, unvisited=False,
+                   blocked=False):
     if steps:
         return OfflinePlanner(steps)
 
-    service = GraphWalkerService(port=port, models=models)
-    client = GraphWalkerClient(port=port)
+    service = GraphWalkerService(port=port, models=models,
+                                 unvisited=unvisited, blocked=blocked)
+    client = GraphWalkerClient(port=port, verbose=verbose)
 
     return OnlinePlanner(service, client)

@@ -7,8 +7,7 @@ import importlib.util
 from contextlib import redirect_stdout
 
 
-class ExecutorException(Exception):
-    pass
+from altwalker.exceptions import ExecutorException
 
 
 def get_output(callable, *args, **kargs):

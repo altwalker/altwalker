@@ -34,7 +34,7 @@ Planner
 .. autofunction:: altwalker.planner.create_planner
 
 Data
-____
+----
 
 .. autoclass:: altwalker.data.GraphData
     :members:
@@ -47,13 +47,15 @@ Reporter
 
 .. autoclass:: altwalker.reporter.PrintReporter
     :members:
+    :inherited-members:
 
 .. autoclass:: altwalker.reporter.FileReporter
     :members:
+    :inherited-members:
 
 .. autoclass:: altwalker.reporter.ClickReporter
     :members:
-
+    :inherited-members:
 
 GraphWalker
 -----------

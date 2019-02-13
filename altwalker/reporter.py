@@ -23,11 +23,11 @@ def _format_step_info(step):
 
     if step.get("data"):
         data = json.dumps(step["data"], sort_keys=True, indent=4)
-        string += "Data:\n{}\n".format(data)
+        string += "\nData:\n{}\n".format(data)
 
     if step.get("unvisitedElements"):
         unvisited_elements = json.dumps(step["unvisitedElements"], sort_keys=True, indent=4)
-        string += "Unvisited Elements:\n{}\n".format(unvisited_elements)
+        string += "\nUnvisited Elements:\n{}\n".format(unvisited_elements)
 
     return string
 
@@ -58,12 +58,16 @@ class Formater(Reporter):
     """Format the message for reporting."""
 
     def step_start(self, step):
+        """Report the starting execution of a step."""
+
         message = "{} Running".format(_format_step(step))
         message += _format_step_info(step)
 
         self._log(_add_timestamp(message))
 
     def step_status(self, step, failure=False, output=""):
+        """Report the status of a step."""
+
         status = "PASSED" if not failure else "FAIL"
         message = "{} Status: {}".format(_format_step(step), status)
 
@@ -73,6 +77,8 @@ class Formater(Reporter):
         self._log(_add_timestamp(message))
 
     def error(self, message, trace=False):
+        """Report an error followed by the stack trace."""
+
         if trace:
             message += "\n{}".format(traceback.format_exc())
 

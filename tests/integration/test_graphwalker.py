@@ -9,6 +9,7 @@ from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, Graph
 
 
 class TestGraphWalkerService(unittest.TestCase):
+
     def test_create(self):
         service = GraphWalkerService(port=9001)
 
@@ -39,11 +40,12 @@ class TestGraphWalkerService(unittest.TestCase):
         g1.kill()
 
     def test_write_gw_output_to_file(self):
-        with open("gwoutput", "w") as output_file:
-            g1 = GraphWalkerService(port=9001, output_file=output_file)
-            g1.kill()
+        g1 = GraphWalkerService(port=9001, output_file="gwoutput")
+        g1.kill()
+
         with open("gwoutput", "r") as output_file:
             self.assertIn("[HttpServer] Started", output_file.read())
+
         os.remove("gwoutput")
 
 
