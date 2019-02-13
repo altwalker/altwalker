@@ -2,8 +2,9 @@ stages:
   - test
   - docs
 
+image: robert96/graphwalker-cli:4.0.0
+
 unit tests:
-  image: robert96/graphwalker-cli:4.0.0
   stage: test
   tags:
     - docker
@@ -21,7 +22,6 @@ unit tests:
     - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html altwalker/
 
 integration test:
-  image: robert96/graphwalker-cli:4.0.0
   stage: test
   tags:
     - docker
@@ -35,7 +35,6 @@ integration test:
     - pytest -x -s -v tests/integration
 
 pages:
-  image: alpine:latest
   stage: docs
   tags:
     - docker
