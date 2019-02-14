@@ -92,6 +92,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     Raises:
         GraphWalkerException: If GraphWalker return an error.
     """
+
     command = _create_command(command, model_path=model_path, models=models, start_element=start_element, verbose=verbose, unvisited=unvisited, blocked=blocked)
     process = subprocess.Popen(
         command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -122,6 +123,7 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
         GraphWalkerException: If an error occured while running the command, or
             the command outputs to ``stderr``.
     """
+
     # Always call the commmand with the verbose flag to get the modelName for each step
     output = _execute_command("offline", models=models, start_element=start_element,
                               verbose=True, unvisited=unvisited, blocked=blocked)
@@ -157,6 +159,7 @@ def check(models, blocked=None):
         GraphWalkerException: If an error occured while running the command, or
             the command outputs to ``stderr``.
     """
+
     return _execute_command("check", models=models, blocked=blocked)
 
 
@@ -174,6 +177,7 @@ def methods(model_path, blocked=False):
         GraphWalkerException: If an error occured while running the command, or
             the command outputs to ``stderr``.
     """
+
     output = _execute_command("methods", model_path=model_path, blocked=blocked)
     return output.strip("\n").split("\n")
 

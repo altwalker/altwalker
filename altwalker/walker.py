@@ -5,9 +5,9 @@ from altwalker.reporter import Reporter
 
 
 class Walker:
-    """Cordonates the execution of a tests path aking a ``Planner`` for the next step,
-    executing the step using an ``Executor``, if needed passes a ``GraphData`` object
-    to the test code, and reports the progress using a ``Reporter``.
+    """Cordonates the execution of a test asking a ``Planner`` for the next step,
+    executing the step using an ``Executor``, if needed passing a ``GraphData`` object
+    to the test code, and reporting the progress using a ``Reporter``.
     """
 
     def __init__(self, planner, executor, data, reporter):
@@ -149,7 +149,7 @@ class Walker:
 
 def create_walker(planner, executor, data=None, reporter=None):
     """Create a Walker object, and if no ``data`` or ``reporter`` is provided
-    initializes them with the default options.
+    initialize them with the default options.
     """
 
     if not data:

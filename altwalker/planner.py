@@ -9,7 +9,7 @@ class OnlinePlanner:
     The path generation is done at run-time, one step at a time, using
     the GraphWalker REST Service. This adds a bit of complexity, but
     the advantages is that you can interact with the grpah data using
-    ``get_data`` and ``set_data``.
+    :func:`get_data` and :func:`set_data` methods.
 
     Attributes:
         steps: The sequence of executed steps.

@@ -48,8 +48,7 @@ class GraphData:
         """Set data in the current model.
 
         Args:
-            *args: The key followed by the new value. The method
-                must be called with an evan number of ``*args``
+            *args: A ``dict`` or a two ``*args`` a key followed by the new value.
             **kargs: Each key will be set equal to it's value.
         """
 

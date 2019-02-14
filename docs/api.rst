@@ -14,12 +14,12 @@ Walker
     :members:
 
 
-You can run the test using the `run` method::
+You can run the tests using the :func:`Walker.run` method::
 
     walker = Walker(...)
     walker.run()
 
-Or iterating over a `Walker` object::
+Or iterating over a :class:`Walker` object::
 
     walker = Walker(...)
     for step in walker:
@@ -35,6 +35,26 @@ Planner
 
 .. currentmodule:: altwalker.planner
 
+The role of a ``Planner`` is to determin the next step to be executed by the ``Executor``.
+
+There are two Planners:
+
+    * :class:`OnlinePlanner`
+
+        Uses GraphWalker online mode to generate the test path.
+
+        This method allows the test code to directly interact with GraphWalker
+        and modify the model data using the :class:`altwalker.data.GraphData`
+        class wich will be passed as a the first argument to any method/function
+        form the test code by :class:`altwalker.walker.Walker` class.
+
+    * :class:`OfflinePlanner`
+
+        Uses a already generated sequence of steps to generate the test path.
+
+        The sequense of path can be generated using the :func:`altwalker.graphwalker.offline`
+        function.
+
 .. autoclass:: OnlinePlanner
     :members:
 
@@ -42,7 +62,7 @@ Planner
 
     .. automethod:: get_next
 
-        Step Example::
+        Step example::
 
             {
                 "id": step_id,
@@ -83,8 +103,50 @@ Graph Data
 .. currentmodule:: altwalker.data
 
 .. autoclass:: GraphData
-    :members:
 
+    .. automethod:: get
+
+        **Examples:**
+
+        Get all data::
+
+            >>> data.get()
+            {}
+
+            >>> data.get()
+            {'key': 'value'}
+
+        Get a key::
+
+            >>> data.get("key")
+            'value'
+
+        Get multiple keys::
+
+            >>> data.get("key1", "key2")
+            {'key1': 'value1', 'key2': 'value2'}
+
+    .. automethod:: set
+
+        **Examples:**
+
+        Set a single key::
+
+            >>> data.set("key", "value")
+            >>> data.get()
+            {'key': 'value'}
+
+        Set multiple keys using ``**kargs``::
+
+            >>> data.set(key1="value1", key2="value2")
+            >>> data.get()
+            {'key1': 'value1', 'key2': 'value2'}
+
+        Set multiple keys using a ``dict``::
+
+            >>> data.set({"key1": "value1", "key2": "value2"})
+            >>> data.get()
+            {'key1': 'value1', 'key2': 'value2'}
 
 Executor
 --------

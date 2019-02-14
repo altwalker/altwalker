@@ -25,6 +25,8 @@ def get_output(callable, *args, **kargs):
 
 
 def load(path, package, module):
+    """Load a module form a package at a given path."""
+
     # load package
     spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
     loaded_module = importlib.util.module_from_spec(spec)
@@ -123,7 +125,7 @@ class Executor:
 
 
 def create_executor(path, package="tests", module="test"):
-    """Load a module form a package a a given path, and return an Executor."""
+    """Load a module form a package at a given path, and return an Executor."""
 
     module = load(path, package, module)
     return Executor(module)
