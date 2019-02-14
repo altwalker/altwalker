@@ -5,6 +5,10 @@ from altwalker.reporter import Reporter
 
 
 class Walker:
+    """Cordonates the execution of a tests path aking a ``Planner`` for the next step,
+    executing the step using an ``Executor``, if needed passes a ``GraphData`` object
+    to the test code, and reports the progress using a ``Reporter``.
+    """
 
     def __init__(self, planner, executor, data, reporter):
         self._planner = planner
@@ -53,6 +57,8 @@ class Walker:
 
     @property
     def status(self):
+        """The status of the current run."""
+
         return self._status
 
     def _setUpRun(self):
@@ -133,6 +139,8 @@ class Walker:
             return False
 
     def run(self):
+        """Run tests."""
+
         for _ in self:
             pass
 
@@ -140,6 +148,10 @@ class Walker:
 
 
 def create_walker(planner, executor, data=None, reporter=None):
+    """Create a Walker object, and if no ``data`` or ``reporter`` is provided
+    initializes them with the default options.
+    """
+
     if not data:
         data = GraphData(planner)
 

@@ -2,8 +2,8 @@
 class GraphData:
     """Read and update the current data values for the current model.
 
-    Uses Planner's get_data and set_data to read and update the current
-    data for the model.
+    Uses Planner's ``get_data`` and ``set_data`` to read and update the
+    current data for the model.
     """
 
     def __init__(self, planner):

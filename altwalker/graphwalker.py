@@ -117,6 +117,10 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
 
     Returns:
         Return a list of steps.
+
+    Raises:
+        GraphWalkerException: If an error occured while running the command, or
+            the command outputs to ``stderr``.
     """
     # Always call the commmand with the verbose flag to get the modelName for each step
     output = _execute_command("offline", models=models, start_element=start_element,
@@ -148,6 +152,10 @@ def check(models, blocked=None):
 
     Returns:
         Returns the output form GraphWalker check.
+
+    Raises:
+        GraphWalkerException: If an error occured while running the command, or
+            the command outputs to ``stderr``.
     """
     return _execute_command("check", models=models, blocked=blocked)
 
@@ -161,6 +169,10 @@ def methods(model_path, blocked=False):
 
     Returns:
         A list of unique names of vertices and edges in the model.
+
+    Raises:
+        GraphWalkerException: If an error occured while running the command, or
+            the command outputs to ``stderr``.
     """
     output = _execute_command("methods", model_path=model_path, blocked=blocked)
     return output.strip("\n").split("\n")
@@ -170,7 +182,19 @@ class GraphWalkerService:
     """Stops and kills a proccess running the GraphWalker REST service."""
 
     def __init__(self, models=None, port=8887, unvisited=False, blocked=False, output_file=None):
-        # Always call the commmand with the verbose flag to get the modelName for each step
+        """Will run the GraphWalker online command and start the GraphWalker REST service.
+
+        Note:
+            The GraphWalker REST Service is always started with the verbose flag to get the
+            ``modelName`` for each step.
+
+        Args:
+            port: Will start the service on the given port.
+            unvisited: Will start the service with the blocked flag set to True.
+            blocked: Will start the service with the blocked flag set to True.
+            output_file: If set will save the output of the command in a file.
+        """
+
         command = _create_command("online", models=models, port=port, service="RESTFUL",
                                   verbose=True, unvisited=unvisited, blocked=blocked)
 
@@ -205,6 +229,7 @@ class GraphWalkerService:
 
     def kill(self):
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
+
         _kill(self._process.pid)
 
 
@@ -212,6 +237,20 @@ class GraphWalkerClient:
     """A client for the GraphWalker REST service."""
 
     def __init__(self, host="127.0.0.1", port=8887, verbose=False):
+        """Inits the GeaphWalkerClient.
+
+        Note:
+            Because the GraphWalkerServices is always started with the verbouse flag,
+            the client by default will filter out the ``data`` and ``properties``
+            for ``get_next``.
+
+        Args:
+            host: The ip address of the GraphWalker REST service.
+            port: The port of the GraphWalker REST servie.
+            verbose: If set will not filter out the ``data`` and ``properties``
+                for ``get_net``.
+        """
+
         self.host = host
         self.port = port
 
@@ -258,13 +297,19 @@ class GraphWalkerClient:
         return self._get_body(response)
 
     def load(self, model):
+        """Call POST/load."""
+
         self._post("/load", data=json.dumps(model))
 
     def has_next(self):
+        """Call GET/hasNext, and return the response."""
+
         body = self._get("/hasNext")
         return body["hasNext"] == "true"
 
     def get_next(self):
+        """Call GET/getNext, and return the next step."""
+
         step = self._get("/getNext")
 
         if not self.verbose:
@@ -280,10 +325,14 @@ class GraphWalkerClient:
         return step
 
     def get_data(self):
+        """Call GET/getData, and return the data."""
+
         body = self._get("/getData")
         return body["data"]
 
     def set_data(self, key, value):
+        """Call PUT/setData."""
+
         if isinstance(value, str):
             normalize = "\"" + value + "\""
         else:
@@ -292,10 +341,16 @@ class GraphWalkerClient:
         self._put("/setData/" + key + "=" + normalize)
 
     def restart(self):
+        """Call PUT/restart."""
+
         self._put("/restart")
 
     def fail(self, message):
+        """Call PUT/fail."""
+
         requests.put(self.base + "/fail/" + message)
 
     def get_statistics(self):
+        """Call GET/getStatistcs, and return the statistcs."""
+
         return self._get("/getStatistics")

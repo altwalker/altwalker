@@ -1,3 +1,5 @@
+"""A collection of util functions for validating model(s) and code."""
+
 import re
 import json
 import os
@@ -162,7 +164,7 @@ def get_models(model_paths):
     Args:
         model_paths: A sequence of path to model files.
 
-    Retruns:
+    Returns:
         A json object containing all models.
     """
 
