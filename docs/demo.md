@@ -8,15 +8,6 @@ The tests in this example are written in python with selenium and to python page
 The website is hosted in [Gitlab Pages](https://gitlab.com/altom/altwalker/snipcart-jekyll-ecommerce-demo) and its forked from [snipcart on github](https://github.com/snipcart/snipcart-jekyll-integration)
 
 
-### Prerequisites
-
-`python3`
-`graphwalker`
-`altwalker`
-`Java 8`
-
-See [altwalker installation](installation)
-
 ### Setup
 
 ```
