@@ -71,7 +71,7 @@ Altwalker verifies that your model and tests are valid, and that all names refer
 
 ## Modeling
 
-![ecommerce altwalker model](img/ecommerce-model.png)
+![ecommerce altwalker model](_static/ecommerce-model.png)
 
 We have modeled our ecommerce website as a directional graph. In our model file we specify wihch function is executed by altwalker when we reach a vertex or an edge.
 
@@ -80,7 +80,7 @@ _Each vertex in the graph represents a state_ (e.g. cart_not_empty). This is whe
 _Each edge in the graph represents an action_ (e.g. add_to_cart, go_to_product_page ). This is where we put our page interaction code.
 
 
-[models/default.json](models/default.json) contains NavigationModel and CheckoutModel. 
+`models/default.json` contains NavigationModel and CheckoutModel. 
 NavigationModel contains edges and models that verify homepage and product page behaviour.
 CheckoutModel contains edges and models that verify cart checkout process.
 
