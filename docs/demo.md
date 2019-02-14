@@ -93,3 +93,10 @@ cart_open_and_not_empty in NavigationModel has 4 edges linked into it. All of th
 "guard": "global.itemsInCart>0"
 ```
 
+### Tests
+
+The tests can be found inside `tests` package. We use selenium and pypom to interact with the ecommerce website. The code that interacts with the page, inside `test/pages`. 
+
+Each model defined in `models/default.json` has an associated class in `tests/test.py`. `tests/test.py` contains `NavigationModel` and `CheckoutModel` classes. 
+
+During execution of tests, when the path reaches vertex with id `v_homepage` defined in NavigationModel, altwalker will execute the method `tests/test.py::NavigationModel::homepage`
