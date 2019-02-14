@@ -53,6 +53,12 @@ class GraphData:
             **kargs: Each key will be set equal to it's value.
         """
 
+        if len(args) == 1 and type(args[0]) is dict:
+            for key, value in args[0].items():
+                self._planner.set_data(key, value)
+
+            return
+
         if (len(args) == 2):
             self._planner.set_data(args[0], args[1])
 
