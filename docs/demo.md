@@ -1,4 +1,6 @@
-# Altwalker ecommerce demo
+# Demo
+
+## Altwalker ecommerce demo
 
 In this example you will learn how to model your ecommerce website tests as a directional graph, how to use Actions, Guards and Shared State in your graph model. You will learn how to use altwalker's `online`, `offline`, `walk`, `check` and `verify` commands.
 
@@ -6,7 +8,7 @@ The tests in this example are written in python with selenium and to python page
 The website is hosted in [Gitlab Pages](https://gitlab.com/altom/altwalker/snipcart-jekyll-ecommerce-demo) and its forked from [snipcart on github](https://github.com/snipcart/snipcart-jekyll-integration)
 
 
-## Prerequisites
+### Prerequisites
 
 `python3`
 `graphwalker`
@@ -15,7 +17,7 @@ The website is hosted in [Gitlab Pages](https://gitlab.com/altom/altwalker/snipc
 
 See [altwalker installation](installation)
 
-## Setup
+### Setup
 
 ```
 git clone git@gitlab.com:altom/altwalker/altwalker-examples.git
@@ -25,9 +27,9 @@ source .virtualenv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Run tests
+### Run tests
 
-### online
+#### online
 
 `altwalker online -m models/default.json "random(edge_coverage(100))" tests`
 
@@ -40,7 +42,7 @@ Altwalker walks randomly through the graph until all edges have been passed.
 
 ---
 
-### offline and walk
+#### offline and walk
 
 `altwalker offline -m models/default.json "random(edge_coverage(100) && vertex_coverage(100))" > steps`
 
@@ -54,7 +56,7 @@ Altwalker walks on the steps in `./steps` file.
 
 ---
 
-### check
+#### check
 
 `altwalker check -m models/default.json "random(edge_coverage(100) && vertex_coverage(100))"`
 Checks the integity of the model.
@@ -62,14 +64,14 @@ Checks the integity of the model.
 - runs altwalker checks on json models interity
 
 
-### verify
+#### verify
 
 `altwalker verify -m models/default.json  tests`
 
 Altwalker verifies that your model and tests are valid, and that all names referred in the model are implemented in `tests` package
 
 
-## Modeling
+### Modeling
 
 ![ecommerce altwalker model](_static/ecommerce-model.png)
 

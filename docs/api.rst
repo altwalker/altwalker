@@ -72,9 +72,19 @@ GraphWalker
 
 .. autofunction:: altwalker.graphwalker.offline
 
+
 Utils
 -----
 
 
 Exceptions
 ----------
+
+.. autoclass:: altwalker.exceptions.FailedTestsError
+    :members:
+
+.. autoclass:: altwalker.exceptions.GraphWalkerError
+    :members:
+    
+.. autoclass:: altwalker.exceptions.AltWalkerError
+    :members:
