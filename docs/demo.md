@@ -4,8 +4,11 @@
 
 In this example you will learn how to model your ecommerce website tests as a directional graph, how to use Actions, Guards and Shared State in your graph model. You will learn how to use altwalker's `online`, `offline`, `walk`, `check` and `verify` commands.
 
-The tests in this example are written in python with selenium and to python page object model. The ecommerce website beeing tested is written in markdown and uses jekyll to generate static files. For cart and order management it uses snipcart. 
+The tests are written in python with selenium and to python page object model. The ecommerce website beeing tested is written in markdown and uses jekyll to generate static files. For cart and order management it uses snipcart. 
 The website is hosted in [Gitlab Pages](https://gitlab.com/altom/altwalker/snipcart-jekyll-ecommerce-demo) and its forked from [snipcart on github](https://github.com/snipcart/snipcart-jekyll-integration)
+
+
+The code for this example is hosted at [https://gitlab.com/altom/altwalker/altwalker-examples](https://gitlab.com/altom/altwalker/altwalker-examples)
 
 
 ### Setup
