@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 Altwalker walks randomly through the graph until all edges have been passed.
 
-- starts graphwalker service on default port 8887.
+- starts graphwalker REST service on default port 8887.
 - initializes graphwalker with `models/default.json` model and `random(edge_coverage(100))` generator stop condition.
 - communicates with graphwalker to get next step to be executed
 - executes the test in `tests` package associated with the step
@@ -38,13 +38,13 @@ Altwalker walks randomly through the graph until all edges have been passed.
 
 #### offline and walk
 
-`altwalker offline -m models/default.json "random(edge_coverage(100) && vertex_coverage(100))" > steps`
+`altwalker offline -m models/default.json "random(edge_coverage(100) && vertex_coverage(100))" -f steps.json`
 
 Altwalker generates a valid path throgh the test graph.
-- starts graphwalker services and runs offline command to generate a list of valid steps through the graph.
+- runs graphwalker offline command to generate a list of valid steps through the graph.
 
-`altwalker walk tests ./steps`
-Altwalker walks on the steps in `./steps` file.
+`altwalker walk tests ./steps.json`
+Altwalker walks on the steps in `./steps.json` file.
 - reads steps from file
 - executes, in the order from file, the tests in `tests` package associated with each step
 
@@ -54,7 +54,7 @@ Altwalker walks on the steps in `./steps` file.
 
 `altwalker check -m models/default.json "random(edge_coverage(100) && vertex_coverage(100))"`
 Checks the integity of the model.
-- starts a graphwalker service and runs graphwalker check command
+- runs graphwalker check command
 - runs altwalker checks on json models interity
 
 
