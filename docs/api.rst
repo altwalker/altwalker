@@ -1,90 +1,307 @@
 API Documentation
 =================
 
+.. module:: altwalker
+
 Walker
 ------
 
-.. autoclass:: altwalker.walker.Walker
-   :members:
+.. module:: altwalker.walker
 
-.. autofunction:: altwalker.walker.create_walker
+.. currentmodule:: altwalker.walker
 
-
-Executor
---------
-
-.. autoclass:: altwalker.executor.Executor
+.. autoclass:: Walker
     :members:
 
 
-.. autofunction:: altwalker.executor.create_executor
+You can run the tests using the :func:`Walker.run` method::
+
+    walker = Walker(...)
+    walker.run()
+
+Or iterating over a :class:`Walker` object::
+
+    walker = Walker(...)
+    for step in walker:
+        # do someting with the step
+
+.. autofunction:: create_walker
 
 
 Planner
 -------
 
-.. autoclass:: altwalker.planner.OnlinePlanner
+.. module:: altwalker.planner
+
+.. currentmodule:: altwalker.planner
+
+The role of a ``Planner`` is to determin the next step to be executed by the ``Executor``.
+
+There are two Planners:
+
+    * :class:`OnlinePlanner`
+
+        Uses GraphWalker online mode to generate the test path.
+
+        This method allows the test code to directly interact with GraphWalker
+        and modify the model data using the :class:`altwalker.data.GraphData`
+        class wich will be passed as a the first argument to any method/function
+        form the test code by :class:`altwalker.walker.Walker` class.
+
+    * :class:`OfflinePlanner`
+
+        Uses a already generated sequence of steps to generate the test path.
+
+        The sequense of path can be generated using the :func:`altwalker.graphwalker.offline`
+        function.
+
+.. autoclass:: OnlinePlanner
     :members:
 
+    .. automethod:: __init__
 
-.. autoclass:: altwalker.planner.OfflinePlanner
+    .. automethod:: get_next
+
+        Step example::
+
+            {
+                "id": step_id,
+                "name": step_name,
+                "modelName": model_name
+            }
+
+.. autoclass:: OfflinePlanner
     :members:
 
+    .. automethod:: __init__
 
-.. autofunction:: altwalker.planner.create_planner
+        Step example::
 
-Data
-----
+            {
+                "name": step_name,
+                "modelName": model_name
+            }
 
-.. autoclass:: altwalker.data.GraphData
+    .. automethod:: get_statistics
+
+        For the OfflinePlanner ``get_statistics`` will only return::
+
+            {
+                "steps": [],
+                "failedStep": {},
+                "failedFixtures": {}
+            }
+
+.. autofunction:: create_planner
+
+
+Graph Data
+----------
+
+.. module:: altwalker.data
+
+.. currentmodule:: altwalker.data
+
+.. autoclass:: GraphData
+
+    .. automethod:: get
+
+        **Examples:**
+
+        Get all data::
+
+            >>> data.get()
+            {}
+
+            >>> data.get()
+            {'key': 'value'}
+
+        Get a key::
+
+            >>> data.get("key")
+            'value'
+
+        Get multiple keys::
+
+            >>> data.get("key1", "key2")
+            {'key1': 'value1', 'key2': 'value2'}
+
+    .. automethod:: set
+
+        **Examples:**
+
+        Set a single key::
+
+            >>> data.set("key", "value")
+            >>> data.get()
+            {'key': 'value'}
+
+        Set multiple keys using ``**kargs``::
+
+            >>> data.set(key1="value1", key2="value2")
+            >>> data.get()
+            {'key1': 'value1', 'key2': 'value2'}
+
+        Set multiple keys using a ``dict``::
+
+            >>> data.set({"key1": "value1", "key2": "value2"})
+            >>> data.get()
+            {'key1': 'value1', 'key2': 'value2'}
+
+Executor
+--------
+
+.. currentmodule:: altwalker.executor
+
+.. autoclass:: Executor
     :members:
+
+.. autofunction:: create_executor
+
 
 Reporter
 --------
 
-.. autoclass:: altwalker.reporter.Reporter
+.. module:: altwalker.reporter
+
+.. currentmodule:: altwalker.reporter
+
+.. autoclass:: Reporter
     :members:
 
-.. autoclass:: altwalker.reporter.PrintReporter
+.. autoclass:: PrintReporter
     :members:
     :inherited-members:
 
-.. autoclass:: altwalker.reporter.FileReporter
+.. autoclass:: FileReporter
     :members:
     :inherited-members:
 
-.. autoclass:: altwalker.reporter.ClickReporter
+.. autoclass:: ClickReporter
     :members:
     :inherited-members:
+
 
 GraphWalker
 -----------
 
-.. autoclass:: altwalker.graphwalker.GraphWalkerClient
+.. module:: altwalker.graphwalker
+
+.. currentmodule:: altwalker.graphwalker
+
+
+REST Service
+~~~~~~~~~~~~
+
+For more informations check out the `GraphWalker REST API Documentation <http://graphwalker.github.io/rest-overview/>`_.
+
+.. autoclass:: GraphWalkerService
     :members:
 
-.. autoclass:: altwalker.graphwalker.GraphWalkerService
+    .. automethod:: __init__
+
+
+.. autoclass:: GraphWalkerClient
     :members:
 
-.. autofunction:: altwalker.graphwalker.check
+    .. automethod:: __init__
 
-.. autofunction:: altwalker.graphwalker.methods
+    .. automethod:: get_next
 
-.. autofunction:: altwalker.graphwalker.offline
+        Depending of how the GraphWalker Service was started ``get_next`` will return diffrent responses.
+
+        With the verbose flag::
+
+            {
+                "id": step_id,
+                "name": step_name,
+                "modelName": model_name,
+                "data": [],
+                "properties": {}
+            }
+
+        With the unvisted flag::
+
+            {
+                "id": step_id,
+                "name": step_name,
+                "modelName": model_name,
+                "numberOfElements": number_of_element,
+                "numberOfUnvisitedElements": number_of_unvisted_elements,
+                "unvisitedElements": []
+            }
+
+CLI
+~~~
+
+For more informations check out the `GraphWalker CLI Documentation <http://graphwalker.github.io/cli-overview/>`_.
+
+.. autofunction:: check
+
+.. autofunction:: methods
+
+.. autofunction:: offline
 
 
-Utils
------
+Models
+------
+
+.. automodule:: altwalker.model
+
+.. currentmodule:: altwalker.model
+
+.. autofunction:: validate_model
+
+.. autofunction:: validate_models
+
+.. autofunction:: check_models
+
+.. autofunction:: get_methods
+
+.. autofunction:: validate_code
+
+.. autofunction:: verify_code
+
+.. autofunction:: get_models
 
 
 Exceptions
 ----------
 
-.. autoclass:: altwalker.exceptions.FailedTestsError
+.. module:: altwalker.exceptions
+
+.. currentmodule:: altwalker.exceptions
+
+.. autoexception:: GraphWalkerException
     :members:
 
-.. autoclass:: altwalker.exceptions.GraphWalkerError
+.. autoexception:: AltWalkerException
     :members:
-    
-.. autoclass:: altwalker.exceptions.AltWalkerError
+
+.. autoexception:: ValidationException
     :members:
+
+.. autoexception:: ExecutorException
+    :members:
+
+
+Click Exceptions
+~~~~~~~~~~~~~~~~
+
+This exceptions are used in the cli to handel the ``exit_code`` and the display of
+:class:`GraphWalkerException` and :class:`AltWalkerException`.
+
+.. autoexception:: FailedTestsError
+    :members:
+
+    .. autoattribute:: exit_code
+
+.. autoexception:: GraphWalkerError
+    :members:
+
+    .. autoattribute:: exit_code
+
+.. autoexception:: AltWalkerError
+    :members:
+
+    .. autoattribute:: exit_code
