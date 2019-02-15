@@ -194,7 +194,7 @@ class GraphWalkerService:
 
         Args:
             port: Will start the service on the given port.
-            unvisited: Will start the service with the blocked flag set to True.
+            unvisited: Will start the service with the unvisited flag set to True.
             blocked: Will start the service with the blocked flag set to True.
             output_file: If set will save the output of the command in a file.
         """
@@ -252,7 +252,7 @@ class GraphWalkerClient:
             host: The ip address of the GraphWalker REST service.
             port: The port of the GraphWalker REST servie.
             verbose: If set will not filter out the ``data`` and ``properties``
-                for ``get_net``.
+                for ``get_next``.
         """
 
         self.host = host
