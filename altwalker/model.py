@@ -34,7 +34,11 @@ def validate_element(element):
 
 
 def validate_model(model_json):
-    """Validate modules, vertices and edges as python identifiers."""
+    """Validate modules, vertices and edges as python identifiers.
+
+    Raises:
+        ValidationException: If the model is not a valid model.
+    """
 
     message = ""
     error = "Invalid {} name: {}.\n"
@@ -56,13 +60,26 @@ def validate_model(model_json):
 
 
 def validate_models(models_path):
+    """Validate models from a list of paths.
+
+    Args:
+        model_paths: A sequence of path to model files.
+
+    Raises:
+        ValidationException: If the model is not a valid model.
+    """
+
     for model_path in models_path:
         model = _read_json(model_path)
         validate_model(model)
 
 
 def validate_code(executor, methods):
-    """Validate a model agains a module."""
+    """Validate code against a dict of methods.
+
+    Raises:
+        ValidationException: If the code is not valid.
+    """
 
     message = ""
 
@@ -80,7 +97,17 @@ def validate_code(executor, methods):
 
 
 def verify_code(path, package, model_paths):
-    """Verify test code against the model(s)."""
+    """Verify test code against the model(s).
+
+    Args:
+        path: The path to the project root.
+        package: The name of the package inside the project root.
+        model_paths: A sequence of path to model files.
+
+    Raises:
+        GraphWalkerException: If an error is raised by the methods command.
+        ValidationException: If the model(s) or the code are not a valid.
+    """
 
     executor = create_executor(path, package=package)
 
@@ -148,7 +175,11 @@ def check_models(models, blocked=False):
     """Check and analyze the model(s) for issues.
 
     Args:
-        models: A sequence of tuples containing the model_path and the stop_condition.
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+
+    Raises:
+        GraphWalkerException: If an error is raised by the check command.
+        ValidationException: If the model is not a valid model.
     """
 
     validate_models([model_path for model_path, _ in models if model_path.endswith(".json")])
@@ -159,13 +190,16 @@ def check_models(models, blocked=False):
 
 
 def get_models(model_paths):
-    """Combine all models in one json object for GraphWalker /load.
+    """Combine all models in one json object for GraphWalker REST /load.
 
     Args:
-        model_paths: A sequence of path to model files.
+        model_paths: A sequence of path to model files, only ``.json`` files.
 
     Returns:
         A json object containing all models.
+
+    Raises:
+        ValidationException: If the model is not a valid model.
     """
 
     models = {

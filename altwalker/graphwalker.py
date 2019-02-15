@@ -32,7 +32,7 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
     Args:
         command_name: The name of the GraphWalker command.
         model_path: A path to a model.
-        models: A sequence of tuples containing the model_path and the stop_condition.
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
         port: The port number.
         services: The type of service to run, RESTFUL or WEBSOCKET.
         start_element: A starting element for the first model.
@@ -80,7 +80,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
 
     Args:
         command: The name of the GraphWalker command.
-        models: A sequence of tuples containing the model_path and the stop_condition.
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
         start_element: A starting element for the first model.
         verbose: Run the command with the verbose flag.
         unvisited: Run the command with the unvisited flag.
@@ -110,7 +110,7 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
     """Execute the offline command.
 
     Args:
-        models: A sequence of tuples containing the model_path and the stop_condition
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
         start_element: A starting element for the first model.
         verbose: Run the command with the verbose flag.
         unvisited: Run the command with the unvisited flag.
@@ -149,7 +149,7 @@ def check(models, blocked=None):
     """Execute the check command.
 
     Args:
-        models: A sequence of tuples containing the model_path and the stop_condition
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
         blocked: Run the command with the blcoked flag.
 
     Returns:
