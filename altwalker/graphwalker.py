@@ -244,7 +244,7 @@ class GraphWalkerClient:
         """Inits the GeaphWalkerClient.
 
         Note:
-            Because the GraphWalkerServices is always started with the verbouse flag,
+            Because the GraphWalker REST service is always started with the verbouse flag,
             the client by default will filter out the ``data`` and ``properties``
             for ``get_next``.
 

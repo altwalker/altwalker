@@ -5,7 +5,7 @@ from altwalker.reporter import Reporter
 
 
 class Walker:
-    """Cordonates the execution of a test asking a ``Planner`` for the next step,
+    """Coordinates the execution of a test asking a ``Planner`` for the next step,
     executing the step using an ``Executor``, if needed passing a ``GraphData`` object
     to the test code, and reporting the progress using a ``Reporter``.
     """
