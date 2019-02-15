@@ -25,6 +25,8 @@ def get_output(callable, *args, **kargs):
 
 
 def load(path, package, module):
+    """Load a module form a package at a given path."""
+
     # load package
     spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
     loaded_module = importlib.util.module_from_spec(spec)
@@ -40,6 +42,7 @@ def load(path, package, module):
 
 
 class Executor:
+    """Execute methods/functions from a model like object."""
 
     def __init__(self, module):
         self._module = module
@@ -81,16 +84,15 @@ class Executor:
         return False
 
     def has_step(self, class_name, name):
-        """
-            Check if the module has a callable. If class_name is not None it will check
-            for a method, and if class_name is None it will check for a function.
+        """Check if the module has a callable. If class_name is not None it will check
+        for a method, and if class_name is None it will check for a function.
 
-            Args:
-                cls_name: the name of the class.
-                name: the name of the method/function.
+        Args:
+            cls_name: The name of the class.
+            name: The name of the method/function.
 
-            Returns:
-                Returns true if the module has the callable.
+        Returns:
+            Returns true if the module has the callable.
         """
         if class_name is None:
             return self.has_function(name)
@@ -98,15 +100,16 @@ class Executor:
         return self.has_method(class_name, name)
 
     def execute_step(self, class_name, name, *args):
-        """
-            Execute the callable and returns the output.
+        """Execute the callable and returns the output.
 
-            Args:
-                class_name: the name of the class.
-                name: the name of the method/function.
+        Args:
+            class_name: The name of the class, if None will execute
+                a function.
+            name: The name of the method/function.
+            *args: The args will be passed to the callable.
 
-            Returns:
-                The output of the callable.
+        Returns:
+            The output of the callable.
         """
         if class_name is None:
             func = getattr(self._module, name)
@@ -122,5 +125,7 @@ class Executor:
 
 
 def create_executor(path, package="tests", module="test"):
+    """Load a module form a package at a given path, and return an Executor."""
+
     module = load(path, package, module)
     return Executor(module)
