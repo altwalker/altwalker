@@ -2,3 +2,4 @@ pytest
 pytest-cov
 Sphinx
 recommonmark
+sphinx-click

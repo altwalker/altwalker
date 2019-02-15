@@ -21,7 +21,7 @@ class ExecutorException(AltWalkerException):
 
 
 class FailedTestsError(click.ClickException):
-    """An exception that handels the tests failure in the command line."""
+    """An exception that handles the tests failure in the command line."""
 
     exit_code = 1
 
@@ -33,7 +33,7 @@ class FailedTestsError(click.ClickException):
 
 
 class GraphWalkerError(click.ClickException):
-    """An exception that handels the display of an GraphWalker error in the command line."""
+    """An exception that handles the display of an GraphWalker error in the command line."""
 
     exit_code = 3
 
@@ -44,7 +44,7 @@ class GraphWalkerError(click.ClickException):
 
 
 class AltWalkerError(click.ClickException):
-    """An exception that handels the display of an AltWalker error in the command line."""
+    """An exception that handles the display of an AltWalker error in the command line."""
 
     exit_code = 4
 

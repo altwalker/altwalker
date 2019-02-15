@@ -80,7 +80,7 @@ def verify(test_package, models):
               help="If set it will not initialize a git repository.")
 @handle_errors
 def init(dest_dir, models, no_git):
-    """Initiate an AltWalker project."""
+    """Initialize an AltWalker project."""
 
     init_repo(dest_dir, models, no_git)
 
@@ -92,7 +92,7 @@ def init(dest_dir, models, no_git):
               help="The model, as a graphml/json file.")
 @handle_errors
 def generate(dest_dir, models):
-    """Generate a template for the test code based on the given model(s)."""
+    """Generate test code template based on the given model(s)."""
 
     generate_tests(dest_dir, models)
 
@@ -119,7 +119,7 @@ def online(test_package, **options):
 @add_options([model_option, start_element_option, verbose_option, unvisted_option, blocked_option])
 @handle_errors
 def offline(**options):
-    """Generate a test path once, that can be later run."""
+    """Generate a test path once, that can be runned later."""
 
     for _, stop_condition in options["models"]:
         if "never" in stop_condition:
@@ -143,7 +143,7 @@ def offline(**options):
 @click.argument("steps_path", type=click.Path(exists=True, dir_okay=False))
 @handle_errors
 def walk(test_package, steps_path):
-    """Run an test path."""
+    """Run a test path."""
 
     with open(steps_path) as f:
         steps = json.load(f)
