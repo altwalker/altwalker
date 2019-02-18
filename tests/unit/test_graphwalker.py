@@ -216,7 +216,7 @@ class TestOffline(unittest.TestCase):
         output = """{"modelName":"Example","data":[],"currentElementID":"v0","currentElementName":"start_vertex","properties":[]}"""
         command_mock.return_value = output
 
-        step = {"name": "start_vertex", "modelName": "Example", "id": "v0", "data": [], "properties": []}
+        step = {"name": "start_vertex", "modelName": "Example", "id": "v0", "data": {}, "properties": []}
 
         steps = offline([], verbose=True)
         self.assertListEqual(steps, [step])
