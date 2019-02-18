@@ -137,6 +137,9 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
                 step.pop("data", None)
                 step.pop("properties", None)
 
+            if verbose:
+                step["data"] = {k: v for data in step["data"] for k, v in data.items()}
+
             step["id"] = step.pop("currentElementID")
             step["name"] = step.pop("currentElementName")
 
