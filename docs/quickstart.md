@@ -17,13 +17,12 @@ The online command runs your tests inside `tests` package based on the path gene
 
 ## Start from an existing model
 
-Download [login-model.json](./_static/login-model.json)
+`altwalker generate -m <your-model-path.json> <your-tests-package-name>`
 
-`altwalker generate -m login-model.json login-tests`
+The generate command creates a  python tests package containing a definition for all methods in your model  
+After you generate the tests package, run your tests.
 
-The generate command creates a `login-tests/tests` python package containing a definition for all methods in your `login-model.json`
-
-`altwalker online login-tests/tests -m login-model.json "random(edge_coverage(100) && vertex_coverage(100))"`
+`altwalker online <your-tests-package-name>/tests -m <your-model-path.json> "random(edge_coverage(100) && vertex_coverage(100))"`
 
 
 ## Next steps
