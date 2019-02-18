@@ -5,7 +5,7 @@ Command Line Interface
 Help
 ----
 
-Getting help on version, available command, arguments or option names:
+Getting help on version, available commands, arguments or option names:
 
 .. code-block:: console
 
@@ -57,7 +57,7 @@ The command will create a directory named ``test-project`` with the following st
             test.py
 
 * **test-project**: The project root directory.
-* **models**: A direcotry containing the models files (``.json`` or ``.graphml``)
+* **models**: A direcotry containing the models files (``.json`` or ``.graphml``).
 * **tests**: A python package containing the test code.
 * **tests/tests.py**: A python module containing the code for the models.
 
@@ -72,7 +72,7 @@ If you don't want ``test-project`` to be git repository run the command with ``-
     If you don't have ``git`` installed on your machine use the ``--no-git`` flag.
 
 
-If you specifie models (with the ``-m/--models`` option) ``init`` will copy the
+If you specify models (with the ``-m/--models`` option) ``init`` will copy the
 models in the  ``models`` directoryand ``test.py`` will contain a template
 with all the classes and methods needed for
 the models:
@@ -320,7 +320,7 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_con
 * **stop_condition**: Is a string that specifies the generator and the stop condition.
 
     For example ``random(reached_vertex(vertex_name))``, ``a_star(reached_edge(edge_name))``, where ``random``
-    , ``a_star`` are the generators and ``never``, ``reached_edge(edge_name)`` are the
+    , ``a_star`` are the generators and ``reached_vertex(vertex_name)``, ``reached_edge(edge_name)`` are the
     stop conditions.
 
     For more details and a list of all available options read the
@@ -329,8 +329,8 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_con
 
 .. note::
 
-    The ``never`` stop condition is not usable with the ``offline`` command only with
-    the ``online`` command.
+    The ``never`` and ``time_duration`` stop condition is not usable with the ``offline``
+    command only with the ``online`` command.
 
 
 The ``-m/--model`` is required but you can use it multiple times to provide multiple models.
