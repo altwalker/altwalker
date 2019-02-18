@@ -122,10 +122,10 @@ def offline(**options):
     """Generate a test path once, that can be runned later."""
 
     for _, stop_condition in options["models"]:
-        if "never" in stop_condition:
+        if "never" in stop_condition or "time_duration" in stop_condition:
             raise click.BadOptionUsage(
                 "model",
-                "Invalid stop condition: {}, never is not allowed with offline.".format(stop_condition))
+                "Invalid stop condition: {}, never and time_duration are not allowed with offline.".format(stop_condition))
 
     steps = graphwalker.offline(
         models=options["models"],

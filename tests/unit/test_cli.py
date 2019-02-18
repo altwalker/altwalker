@@ -244,7 +244,7 @@ class TestOffline(unittest.TestCase):
             result = self.runner.invoke(
                 offline, ["-e", "start", "-m", "models.json", "random(never)"])
             self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn("Invalid stop condition: random(never), never is not allowed with offline.", result.output)
+            self.assertIn("Invalid stop condition: random(never), never and time_duration are not allowed with offline.", result.output)
 
     def test_verbose(self, offline_mock):
         offline_mock.return_value = {}
