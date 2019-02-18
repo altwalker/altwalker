@@ -40,7 +40,7 @@ $ setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
   powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar' -outfile 'graphwalker-cli-4.0.0-SNAPSHOT.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
   @echo off
   @echo @echo off> gw.bat
-  @echo java -jar C:\graph-walker\graphwalker-cli-4.0.0-SNAPSHOT.jar %*>> gw.bat
+  @echo java -jar C:\graphwalker\graphwalker-cli-4.0.0-SNAPSHOT.jar %*>> gw.bat
   @echo on
 ```
 
