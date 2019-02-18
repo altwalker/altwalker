@@ -7,7 +7,7 @@ AltWalker requires a python package (usualy name ``tests``) and inside a
 python module named ``test.py``:
 
 ```
-root/
+project-root/
     tests/
         __init__.py
         test.py
