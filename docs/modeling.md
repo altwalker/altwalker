@@ -10,9 +10,10 @@ For a deeper dive into model design check [Graphwalker -> Documentation -> The r
 
 ## Tooling
 
-For creating or modifying json model you can use [Altwalker model editor](https://robert-dezmerean.gitlab.io/model-editor/)  
+For creating or modifying json model you can use [Altwalker model editor](https://robert-dezmerean.gitlab.io/model-editor/)
+
 For creating or modifying graphml models you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html)
 
-## Json model format 
+## Json model format
 
 For documentation about json model format check [Graphwalker -> File formats](http://graphwalker.github.io/json-overview/)

@@ -41,7 +41,7 @@ def add_options(options):
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@click.version_option(prog_name="AltWalker")
+@click.version_option(None, "-v", "--version", prog_name="AltWalker")
 def cli():
     """A command line tool for running model-based tests."""
 

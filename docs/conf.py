@@ -17,7 +17,7 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 from recommonmark.parser import CommonMarkParser
-
+from recommonmark.transform import AutoStructify
 
 # -- Project information -----------------------------------------------------
 
@@ -179,3 +179,8 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
+
+
+# config AutoStructify
+def setup(app):
+    app.add_transform(AutoStructify)
