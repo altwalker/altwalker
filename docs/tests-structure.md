@@ -68,19 +68,18 @@ class ModelA:
         """Will be executed before executing any step from this model."""
 
     def tearDownModel(self):
-        """Will be executed after executing all step from this model."""
+        """Will be executed after executing all steps from this model."""
 
     def vertex_a(self):
         pass
 
     def edge_a(self):
         pass
-
 ```
 
 ## Graph Data
 
-If you are using the `online` mode your test code has direct access to the  graphs
+If you are using the `online` command your test code has direct access to the  graphs
 execution context provided by GraphWalker.
 
 In order to read/update the graph data from you tests, you need to define the function with
