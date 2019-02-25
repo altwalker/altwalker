@@ -13,7 +13,7 @@ class TestGetOutput(unittest.TestCase):
         message = get_output(func)
 
         # Should call the function and return the std output
-        func.assert_called_once()
+        func.assert_called_once_with()
         self.assertEqual(message, "message\n")
 
     def test_get_output_args(self):
@@ -50,7 +50,7 @@ class TestExecutor(unittest.TestCase):
         result = self.executor._get_instance("object")
 
         # Should call the object callable and return the output
-        self.module.object.assert_called_once()
+        self.module.object.assert_called_once_with()
         self.assertTrue(result)
 
     def test_setup_class(self):
@@ -124,12 +124,12 @@ class TestExecutor(unittest.TestCase):
 
         # Should execute a function
         self.executor.execute_step(None, "function")
-        self.module.function.assert_called_once()
+        self.module.function.assert_called_once_with()
 
         # Should executre a method
         self.executor.execute_step("class_name", "method")
         self.executor._setup_class.assert_called_once_with("class_name")
-        self.executor._instances["class_name"].method.assert_called_once()
+        self.executor._instances["class_name"].method.assert_called_once_with()
 
     def test_execute_step_function_args(self):
         with mock.patch("altwalker.executor.inspect.getfullargspec") as inspect:

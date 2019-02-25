@@ -54,13 +54,13 @@ class TestOnlinePlanner(unittest.TestCase):
         self.planner.kill()
 
         # Should call the kill method from the service
-        self.service.kill.assert_called_once()
+        self.service.kill.assert_called_once_with()
 
     def test_restart(self):
         self.planner.restart()
 
         # Should call the restart method from the client
-        self.client.restart.assert_called_once()
+        self.client.restart.assert_called_once_with()
         self.assertDictEqual(self.planner.failed_step, {})
         self.assertListEqual(self.planner.failed_fixtures, [])
 
@@ -85,7 +85,7 @@ class TestOnlinePlanner(unittest.TestCase):
         self.planner.get_data()
 
         # Should call the get_data method from the client
-        self.client.get_data.assert_called_once()
+        self.client.get_data.assert_called_once_with()
 
     def test_set_data(self):
         self.planner.set_data("key", "value")
@@ -97,7 +97,7 @@ class TestOnlinePlanner(unittest.TestCase):
         self.planner.get_statistics()
 
         # Should call the get_statistics method from the client
-        self.client.get_statistics.assert_called_once()
+        self.client.get_statistics.assert_called_once_with()
 
     def test_get_statistics_steps(self):
         # Should add the steps to the statistics
@@ -179,7 +179,7 @@ class TestOnlinePlanner(unittest.TestCase):
         self.planner.has_next()
 
         # Should call the has_next method from the client
-        self.client.has_next.assert_called_once()
+        self.client.has_next.assert_called_once_with()
 
     def test_get_next(self):
         self.setModels()
@@ -194,7 +194,7 @@ class TestOnlinePlanner(unittest.TestCase):
         actual_step = self.planner.get_next()
 
         # Sould call the get_next method from the client
-        self.client.get_next.assert_called_once()
+        self.client.get_next.assert_called_once_with()
 
         # The steps should be correct and in the steps list
         self.assertDictEqual(actual_step, step)

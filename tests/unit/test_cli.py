@@ -138,7 +138,7 @@ class TestOnline(unittest.TestCase):
             result = self.runner.invoke(
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))"])
 
-            run_mock.assert_called_once()
+            run_mock.assert_called_once_with('', 'package', blocked=False, models=(('models.json', 'random(vertex_coverage(100))'),), port=8887, steps=None, unvisited=False, verbose=False)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_multiple_models(self, run_mock):
@@ -328,7 +328,7 @@ class TestWalk(unittest.TestCase):
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(walk, ["package", "steps.json"])
 
-            run_mock.assert_called_once()
+            run_mock.assert_called_once_with('', 'package', blocked=False, models=None, port=None, steps=[], unvisited=False, verbose=False)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_error(self, run_mock):

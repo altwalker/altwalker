@@ -191,9 +191,9 @@ class TestItter(unittest.TestCase):
         for _ in self.walker:
             pass
 
-        self.walker._setUpRun.assert_called_once()
-        self.walker._tearDownModels.assert_called_once()
-        self.walker._tearDownRun.assert_called_once()
+        self.walker._setUpRun.assert_called_once_with()
+        self.walker._tearDownModels.assert_called_once_with()
+        self.walker._tearDownRun.assert_called_once_with()
 
     def test_setUpRun_fail(self):
         self.walker._setUpRun.return_value = False
@@ -202,7 +202,7 @@ class TestItter(unittest.TestCase):
         for _ in self.walker:
             pass
 
-        self.walker._setUpRun.assert_called_once()
+        self.walker._setUpRun.assert_called_once_with()
         self.walker._tearDownRun.assert_not_called()
         self.assertFalse(self.walker._status)
 
