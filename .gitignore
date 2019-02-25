@@ -8,16 +8,21 @@ __pycache__/
 
 # pytest coverage
 .coverage
+.coverage.*
+.coverage.xml
 htmlcov/
 
-# macOS
-.DS_Store
-
-# vsCode
-.vscode/
-
-# docs
+# sphinx docs
 docs/_build
 
 # logs
 gwoutput
+
+# vsCode
+.vscode/
+
+# pyCharm
+.idea/
+
+# macOS
+.DS_Store
