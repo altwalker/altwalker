@@ -12,11 +12,11 @@ __pycache__/
 .coverage.xml
 htmlcov/
 
+# tox
+.tox/
+
 # sphinx docs
 docs/_build
-
-# logs
-gwoutput
 
 # vsCode
 .vscode/
