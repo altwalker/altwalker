@@ -15,7 +15,7 @@ def _read_json(path):
     with open(path) as fp:
         try:
             data = json.load(fp)
-        except Exception as error:
+        except ValueError as error:
             raise ValidationException("Invalid json file: {}: {}.".format(path, str(error)))
 
     return data
