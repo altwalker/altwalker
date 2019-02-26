@@ -1,5 +1,6 @@
 stages:
   - test
+  - lint
   - docs
   - deploy
 
@@ -41,15 +42,23 @@ tox:
   script:
     - tox
 
+lint:
+  stage: lint
+  tags:
+    - docker
+  script:
+    - flake8 altwalker tests
+
 docs:
   stage: docs
   artifacts:
     paths:
       - docs
   script:
-  - cd docs
-  - make html
-  - cp -r _build/html ../docs
+    - cd docs
+    - make html
+  after_script:
+    - cp -r _build/html ../docs
 
 pages:
   stage: deploy
