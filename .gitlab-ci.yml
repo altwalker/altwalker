@@ -54,6 +54,8 @@ docs:
   artifacts:
     paths:
       - docs
+  only:
+    - master
   script:
     - cd docs
     - make html
