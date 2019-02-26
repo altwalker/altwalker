@@ -19,12 +19,10 @@ unit tests:
     paths:
       - coverage/
   script:
-    - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html altwalker/
+    - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
   after_script:
     - pip3 install coverage-badge
-    - coverage-badge -o coverage.svg
-    - cp -r htmlcov ../coverage
-    - cp coverage.svg ../coverage/coverage.svg
+    - coverage-badge -o coverage/coverage.svg
 
 integration test:
   stage: test
