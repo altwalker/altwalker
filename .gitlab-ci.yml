@@ -32,7 +32,7 @@ integration test:
     - pytest -x -s -v tests/integration
 
 tox:
-  image: robert96/tox:latest
+  image: robert96/graphwalker-cli:tox
   stage: test
   tags:
     - docker
