@@ -59,7 +59,7 @@ class TestGenerateTests(unittest.TestCase):
             self.assertEqual(
                 code, "\nclass ModelName:\n\n\tdef vertex_A(self):\n\t\tpass\n\n\tdef vertex_B(self):\n\t\tpass\n\n\tdef edge_A(self):\n\t\tpass\n\n")
 
-    @mock.patch("altwalker.init.open")
+    @mock.patch("builtins.open")
     def test_cleanup(self, open_mock, get_methods_mock):
         message = "Error message"
         open_mock.side_effect = Exception(message)
