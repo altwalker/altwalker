@@ -34,6 +34,14 @@ integration test:
     - export LANG=C.UTF-8
     - pytest -x -s -v tests/integration
 
+tox:
+  image: robert96/tox:latest
+  stage: test
+  tags:
+    - docker
+  script:
+    - tox
+
 pages:
   stage: docs
   tags:
