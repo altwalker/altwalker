@@ -1,37 +1,36 @@
 stages:
   - test
   - docs
+  - deploy
 
 image: robert96/graphwalker-cli:4.0.0
+
+before_script:
+  - export LC_ALL=C.UTF-8
+  - export LANG=C.UTF-8
+  - pip3 install -r requirements.txt --user
+  - pip3 install -r requirements-dev.txt
 
 unit tests:
   stage: test
   tags:
     - docker
   artifacts:
-    expire_in: 1 week
     paths:
-      - htmlcov/
-  before_script:
-    - pip3 install -r requirements.txt --user
-    - pip3 install -r requirements-dev.txt
-    - pytest --version
+      - coverage/
   script:
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
     - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html altwalker/
+  after_script:
+    - pip3 install coverage-badge
+    - coverage-badge -o coverage.svg
+    - cp -r htmlcov ../coverage
+    - cp coverage.svg ../coverage/coverage.svg
 
 integration test:
   stage: test
   tags:
     - docker
-  before_script:
-    - pip3 install -r requirements.txt --user
-    - pip3 install -r requirements-dev.txt
-    - pytest --version
   script:
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
     - pytest -x -s -v tests/integration
 
 tox:
@@ -39,11 +38,26 @@ tox:
   stage: test
   tags:
     - docker
+  before_script:
+    - tox --version
   script:
     - tox
 
-pages:
+docs:
   stage: docs
+  artifacts:
+    paths:
+      - docs
+  script:
+  - cd docs
+  - make html
+  - cp -r _build/html ../docs
+
+pages:
+  stage: deploy
+  dependencies:
+    - unit tests
+    - docs
   tags:
     - docker
   artifacts:
@@ -52,8 +66,5 @@ pages:
   only:
     - master
   script:
-    - pip3 install -r requirements.txt
-    - pip3 install -r requirements-dev.txt
-    - cd docs
-    - make html
-    - cp -r _build/html ../public
+    - cp -r docs/ public/
+    - cp -r coverage/ public/coverage/
