@@ -87,6 +87,7 @@ def generate_tests(output_dir, model_paths, package_name="tests"):
                     fp.write("\tdef {}(self):\n".format(method))
                     fp.write("\t\tpass\n")
                     fp.write("\n")
+
     except Exception:
         shutil.rmtree(output_dir)
         raise

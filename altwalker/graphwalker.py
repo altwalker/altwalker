@@ -269,7 +269,7 @@ class GraphWalkerClient:
         self.base = "http://" + host + ":" + str(port) + "/graphwalker"
 
     def _validate_response(self, response):
-        if response.status_code == 200:
+        if not response.status_code == 200:
             raise GraphWalkerException(
                 "GraphWalker responded with status code: {}.".format(str(response.status_code)))
 

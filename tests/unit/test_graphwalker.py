@@ -214,13 +214,13 @@ class TestOffline(unittest.TestCase):
             blocked=True)
 
     def test_step(self, command_mock):
-        output = """{
-            "modelName": "Example",
-            "data": [],
-            "currentElementID": "v0",
-            "currentElementName": "start_vertex",
-            "properties": []
-        }"""
+        output = "{" \
+            '"modelName": "Example",' \
+            '"data": [],' \
+            '"currentElementID": "v0",' \
+            '"currentElementName": "start_vertex",' \
+            '"properties": []' \
+            "}"
 
         command_mock.return_value = output
 
@@ -230,13 +230,13 @@ class TestOffline(unittest.TestCase):
         self.assertListEqual(steps, [step])
 
     def test_steps(self, command_mock):
-        output = """{
-            "modelName": "Example",
-            "data": [],
-            "currentElementID": "v0",
-            "currentElementName": "start_vertex",
-            "properties": []
-        }"""
+        output = "{" \
+            '"modelName": "Example",' \
+            '"data": [],' \
+            '"currentElementID": "v0",' \
+            '"currentElementName": "start_vertex",' \
+            '"properties": []' \
+            "}"
 
         command_mock.return_value = output + "\n" + output + "\n"
 
@@ -246,13 +246,13 @@ class TestOffline(unittest.TestCase):
         self.assertListEqual(steps, [step, step])
 
     def test_verbose(self, command_mock):
-        output = """{
-            "modelName": "Example",
-            "data": [],
-            "currentElementID": "v0",
-            "currentElementName": "start_vertex",
-            "properties": []
-        }"""
+        output = "{" \
+            '"modelName": "Example",' \
+            '"data": [],' \
+            '"currentElementID": "v0",' \
+            '"currentElementName": "start_vertex",' \
+            '"properties": []' \
+            "}"
 
         command_mock.return_value = output
 
