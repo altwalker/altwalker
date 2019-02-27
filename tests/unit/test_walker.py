@@ -31,7 +31,9 @@ class TestWalker(unittest.TestCase):
 
         self.walker._setUpModel("modelName")
 
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpModel", "modelName": "modelName"}, optional=True)
+        self.walker._run_step.assert_called_once_with(
+            {"type": "fixture", "name": "setUpModel", "modelName": "modelName"},
+            optional=True)
         self.assertListEqual(self.walker._models, ["modelName"])
 
     def test_setUpModel_fail(self):
@@ -40,7 +42,9 @@ class TestWalker(unittest.TestCase):
 
         status = self.walker._setUpModel("modelName")
 
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpModel", "modelName": "modelName"}, optional=True)
+        self.walker._run_step.assert_called_once_with(
+            {"type": "fixture", "name": "setUpModel", "modelName": "modelName"},
+            optional=True)
         self.assertListEqual(self.walker._models, [])
         self.assertFalse(status)
 
@@ -48,7 +52,9 @@ class TestWalker(unittest.TestCase):
         self.walker._run_step = mock.Mock()
 
         self.walker._tearDownModel("modelName")
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "tearDownModel", "modelName": "modelName"}, optional=True)
+        self.walker._run_step.assert_called_once_with(
+            {"type": "fixture", "name": "tearDownModel", "modelName": "modelName"},
+            optional=True)
 
     def test_tearDownModels(self):
         self.walker._tearDownModel = mock.Mock()

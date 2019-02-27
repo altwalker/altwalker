@@ -35,7 +35,7 @@ class TestLoad(unittest.TestCase):
 
     def test_load(self):
         # Should import a module from a package
-        module = load("tests/common/", "example" ,"simple")
+        module = load("tests/common/", "example", "simple")
         self.assertTrue(hasattr(module, "Simple"))
 
 

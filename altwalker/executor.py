@@ -7,9 +7,6 @@ import importlib.util
 from contextlib import redirect_stdout
 
 
-from altwalker.exceptions import ExecutorException
-
-
 def get_output(callable, *args, **kargs):
     """Call a callable object and return the output from stdout."""
 

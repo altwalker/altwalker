@@ -211,7 +211,7 @@ class TestJsonMethods(unittest.TestCase):
                         {
                             "name": "vertex_blocked",
                             "properties": {
-			                    "blocked": True
+                                "blocked": True
                             }
                         },
                         {
@@ -222,7 +222,7 @@ class TestJsonMethods(unittest.TestCase):
                         {
                             "name": "edge_bloked",
                             "properties": {
-			                    "blocked": True
+                                "blocked": True
                             }
                         },
                         {
@@ -236,7 +236,7 @@ class TestJsonMethods(unittest.TestCase):
                         {
                             "name": "vertex_name",
                             "properties": {
-			                    "blocked": False
+                                "blocked": False
                             }
                         }
                     ],
@@ -244,7 +244,7 @@ class TestJsonMethods(unittest.TestCase):
                         {
                             "name": "edge_name",
                             "properties": {
-			                    "blocked": False
+                                "blocked": False
                             }
                         }
                     ]
@@ -262,7 +262,9 @@ class TestJsonMethods(unittest.TestCase):
         read_mock.return_value = self.models
 
         output = _json_methods("model_path")
-        self.assertListEqual(output["ModelA"], ["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])
+        self.assertListEqual(
+            output["ModelA"],
+            ["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])
         self.assertListEqual(output["ModelB"], ["vertex_name", "edge_name"])
 
     def test_blocked_enable(self, read_mock):
@@ -347,7 +349,11 @@ class TestGetMetohds(unittest.TestCase):
 class TestCheckModels(unittest.TestCase):
 
     def setUp(self):
-        self.models = [("first.json", "stop_condition"), ("second.graphml", "stop_condition"), ("third.json", "stop_condition")]
+        self.models = [
+            ("first.json", "stop_condition"),
+            ("second.graphml", "stop_condition"),
+            ("third.json", "stop_condition")
+        ]
 
     def test_validate_models(self, check_mock, validate_mock):
         check_mock.return_value = "No issues found with the model(s)"

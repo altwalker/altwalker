@@ -68,5 +68,5 @@ class TestGraphData(unittest.TestCase):
 
         value = self.data["key1"]
 
-        self.assertEqual(value,"value1")
+        self.assertEqual(value, "value1")
         self.planner.get_data.assert_called_once_with()

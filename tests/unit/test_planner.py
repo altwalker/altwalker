@@ -103,10 +103,10 @@ class TestOnlinePlanner(unittest.TestCase):
         # Should add the steps to the statistics
         self.client.get_statistics.return_value = {}
 
-        steps = [ {"id": 1, "name": "vertexName"} ]
+        steps = [{"id": 1, "name": "vertexName"}]
         self.planner.steps = steps
 
-        self.assertEqual(self.planner.get_statistics(), { "steps": steps, "failedStep": {}, "failedFixtures": [] })
+        self.assertEqual(self.planner.get_statistics(), {"steps": steps, "failedStep": {}, "failedFixtures": []})
 
     def test_get_statistics_failed_step(self):
         # Should add the failed_step to the statistics
@@ -115,16 +115,18 @@ class TestOnlinePlanner(unittest.TestCase):
         failed_step = {"id": 1, "name": "vertexName", "modelName": "ModelName"}
         self.planner.failed_step = failed_step
 
-        self.assertEqual(self.planner.get_statistics(), { "steps": [], "failedStep": failed_step, "failedFixtures": [] })
+        self.assertEqual(self.planner.get_statistics(), {"steps": [], "failedStep": failed_step, "failedFixtures": []})
 
     def test_get_statistics_failed_fixtures(self):
         # Should add the failed_fixtures to the statistics
         self.client.get_statistics.return_value = {}
 
-        failed_fixtures = [ {"name": "setUpModel", "modelName": "ModelName"} ]
+        failed_fixtures = [{"name": "setUpModel", "modelName": "ModelName"}]
         self.planner.failed_fixtures = failed_fixtures
 
-        self.assertEqual(self.planner.get_statistics(), { "steps": [], "failedStep": {}, "failedFixtures": failed_fixtures })
+        self.assertEqual(
+            self.planner.get_statistics(),
+            {"steps": [], "failedStep": {}, "failedFixtures": failed_fixtures})
 
     def test_fail_on_step(self):
         step = {
@@ -225,11 +227,13 @@ class TestOfflinePlanner(unittest.TestCase):
         self.assertListEqual(self.planner.path, self.steps)
 
     def test_get_data(self):
-        with self.assertWarnsRegex(UserWarning, "The set_data and get_data are not supported in offline mode so calls to them have no effect."):
+        message = "The set_data and get_data are not supported in offline mode so calls to them have no effect."
+        with self.assertWarnsRegex(UserWarning, message):
             self.planner.get_data()
 
     def test_set_data(self):
-        with self.assertWarnsRegex(UserWarning, "The set_data and get_data are not supported in offline mode so calls to them have no effect."):
+        message = "The set_data and get_data are not supported in offline mode so calls to them have no effect."
+        with self.assertWarnsRegex(UserWarning, message):
             self.planner.set_data("key", "value")
 
     def test_has_next(self):

@@ -26,7 +26,8 @@ def _get_graphwalker_executable():
     return command
 
 
-def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None, verbose=False, unvisited=False, blocked=None):
+def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None,
+                    verbose=False, unvisited=False, blocked=None):
     """Create a list containing the executable, command and the list of options for a GraphWalker command.
 
     Args:
@@ -75,7 +76,8 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
     return command
 
 
-def _execute_command(command, model_path=None, models=None, start_element=None, verbose=False, unvisited=False, blocked=None):
+def _execute_command(command, model_path=None, models=None, start_element=None, verbose=False, unvisited=False,
+                     blocked=None):
     """Execute a GraphWalker commands that return output like offline and check.
 
     Args:
@@ -93,9 +95,10 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
         GraphWalkerException: If GraphWalker return an error.
     """
 
-    command = _create_command(command, model_path=model_path, models=models, start_element=start_element, verbose=verbose, unvisited=unvisited, blocked=blocked)
-    process = subprocess.Popen(
-        command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
+                              verbose=verbose, unvisited=unvisited, blocked=blocked)
+
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
 
     if error:
@@ -266,7 +269,7 @@ class GraphWalkerClient:
         self.base = "http://" + host + ":" + str(port) + "/graphwalker"
 
     def _validate_response(self, response):
-        if response.status_code is not 200:
+        if response.status_code == 200:
             raise GraphWalkerException(
                 "GraphWalker responded with status code: {}.".format(str(response.status_code)))
 
