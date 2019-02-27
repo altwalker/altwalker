@@ -59,7 +59,6 @@ docs:
   script:
     - cd docs
     - make html
-  after_script:
     - cp -r _build/html ../docs
 
 pages:
