@@ -53,13 +53,13 @@ docs:
   stage: docs
   artifacts:
     paths:
-      - docs
+      - documentation
   only:
     - master
   script:
     - cd docs
     - make html
-    - cp -r _build/html ../docs
+    - cp -r _build/html ../documentation
 
 pages:
   stage: deploy
@@ -74,5 +74,5 @@ pages:
   only:
     - master
   script:
-    - cp -r docs/ public/
+    - cp -r documentation/ public/
     - cp -r coverage/ public/coverage/
