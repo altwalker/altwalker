@@ -31,7 +31,9 @@ class TestWalker(unittest.TestCase):
 
         self.walker._setUpModel("modelName")
 
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpModel", "modelName": "modelName"}, optional=True)
+        self.walker._run_step.assert_called_once_with(
+            {"type": "fixture", "name": "setUpModel", "modelName": "modelName"},
+            optional=True)
         self.assertListEqual(self.walker._models, ["modelName"])
 
     def test_setUpModel_fail(self):
@@ -40,7 +42,9 @@ class TestWalker(unittest.TestCase):
 
         status = self.walker._setUpModel("modelName")
 
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpModel", "modelName": "modelName"}, optional=True)
+        self.walker._run_step.assert_called_once_with(
+            {"type": "fixture", "name": "setUpModel", "modelName": "modelName"},
+            optional=True)
         self.assertListEqual(self.walker._models, [])
         self.assertFalse(status)
 
@@ -48,7 +52,9 @@ class TestWalker(unittest.TestCase):
         self.walker._run_step = mock.Mock()
 
         self.walker._tearDownModel("modelName")
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "tearDownModel", "modelName": "modelName"}, optional=True)
+        self.walker._run_step.assert_called_once_with(
+            {"type": "fixture", "name": "tearDownModel", "modelName": "modelName"},
+            optional=True)
 
     def test_tearDownModels(self):
         self.walker._tearDownModel = mock.Mock()
@@ -191,9 +197,9 @@ class TestItter(unittest.TestCase):
         for _ in self.walker:
             pass
 
-        self.walker._setUpRun.assert_called_once()
-        self.walker._tearDownModels.assert_called_once()
-        self.walker._tearDownRun.assert_called_once()
+        self.walker._setUpRun.assert_called_once_with()
+        self.walker._tearDownModels.assert_called_once_with()
+        self.walker._tearDownRun.assert_called_once_with()
 
     def test_setUpRun_fail(self):
         self.walker._setUpRun.return_value = False
@@ -202,7 +208,7 @@ class TestItter(unittest.TestCase):
         for _ in self.walker:
             pass
 
-        self.walker._setUpRun.assert_called_once()
+        self.walker._setUpRun.assert_called_once_with()
         self.walker._tearDownRun.assert_not_called()
         self.assertFalse(self.walker._status)
 

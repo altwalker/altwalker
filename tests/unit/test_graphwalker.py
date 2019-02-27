@@ -8,8 +8,9 @@ from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, _crea
 
 
 class TestGetGraphwalkerExecutable(unittest.TestCase):
+
     def test_get_executable(self):
-        if platform.system () == "Windows":
+        if platform.system() == "Windows":
             self.assertListEqual(_get_graphwalker_executable(), ["cmd.exe", "/C", "gw"])
         else:
             self.assertListEqual(_get_graphwalker_executable(), ["gw"])
@@ -87,7 +88,7 @@ def get_graphwalker_side_effect():
     return ["gw"]
 
 
-@mock.patch("altwalker.graphwalker._get_graphwalker_executable",side_effect = get_graphwalker_side_effect)
+@mock.patch("altwalker.graphwalker._get_graphwalker_executable", side_effect=get_graphwalker_side_effect)
 class TestCreateCommand(unittest.TestCase):
     def test_method(self, get_gw):
         command = _create_command("online")
@@ -107,7 +108,10 @@ class TestCreateCommand(unittest.TestCase):
 
         models = [("model_path_1", "stop_condition_1"), ("model_path_2", "stop_condition_2")]
         command = _create_command("online", models=models)
-        self.assertListEqual(["--model", "model_path_1", "stop_condition_1", "--model", "model_path_2", "stop_condition_2"], command[2:])
+
+        self.assertListEqual(
+            ["--model", "model_path_1", "stop_condition_1", "--model", "model_path_2", "stop_condition_2"],
+            command[2:])
 
     def test_port(self, get_gw):
         command = _create_command("online")
@@ -167,10 +171,19 @@ class TestExecuteCommand(unittest.TestCase):
         popen_mock.return_value.communicate.return_value = (b"output", None)
 
         _execute_command("offline")
-        if platform.system () == "Windows":
-            popen_mock.assert_called_once_with(["cmd.exe", "/C", "gw", "offline"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if platform.system() == "Windows":
+            popen_mock.assert_called_once_with(
+                ["cmd.exe", "/C", "gw", "offline"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
         else:
-            popen_mock.assert_called_once_with(["gw", "offline"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            popen_mock.assert_called_once_with(
+                ["gw", "offline"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
 
     def test_error(self, popen_mock):
         popen_mock.return_value.communicate.return_value = (None, b"error message")
@@ -192,10 +205,23 @@ class TestOffline(unittest.TestCase):
         models = [("model_path", "stop_condition")]
         offline(models, start_element="start_element", unvisited=True, blocked=True)
 
-        command_mock.assert_called_once_with("offline", models=models, start_element="start_element", verbose=True, unvisited=True, blocked=True)
+        command_mock.assert_called_once_with(
+            "offline",
+            models=models,
+            start_element="start_element",
+            verbose=True,
+            unvisited=True,
+            blocked=True)
 
     def test_step(self, command_mock):
-        output = """{"modelName":"Example","data":[],"currentElementID":"v0","currentElementName":"start_vertex","properties":[]}"""
+        output = "{" \
+            '"modelName": "Example",' \
+            '"data": [],' \
+            '"currentElementID": "v0",' \
+            '"currentElementName": "start_vertex",' \
+            '"properties": []' \
+            "}"
+
         command_mock.return_value = output
 
         step = {"name": "start_vertex", "modelName": "Example", "id": "v0"}
@@ -204,7 +230,14 @@ class TestOffline(unittest.TestCase):
         self.assertListEqual(steps, [step])
 
     def test_steps(self, command_mock):
-        output = """{"modelName":"Example","data":[],"currentElementID":"v0","currentElementName":"start_vertex","properties":[]}"""
+        output = "{" \
+            '"modelName": "Example",' \
+            '"data": [],' \
+            '"currentElementID": "v0",' \
+            '"currentElementName": "start_vertex",' \
+            '"properties": []' \
+            "}"
+
         command_mock.return_value = output + "\n" + output + "\n"
 
         step = {"name": "start_vertex", "modelName": "Example", "id": "v0"}
@@ -213,7 +246,14 @@ class TestOffline(unittest.TestCase):
         self.assertListEqual(steps, [step, step])
 
     def test_verbose(self, command_mock):
-        output = """{"modelName":"Example","data":[],"currentElementID":"v0","currentElementName":"start_vertex","properties":[]}"""
+        output = "{" \
+            '"modelName": "Example",' \
+            '"data": [],' \
+            '"currentElementID": "v0",' \
+            '"currentElementName": "start_vertex",' \
+            '"properties": []' \
+            "}"
+
         command_mock.return_value = output
 
         step = {"name": "start_vertex", "modelName": "Example", "id": "v0", "data": {}, "properties": []}

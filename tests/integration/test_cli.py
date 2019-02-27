@@ -50,10 +50,20 @@ class TestCliInit(unittest.TestCase):
             self.verify_file_structure(packagename)
             self.verify_git_repo(packagename)
 
+            expected_code = "\nclass ModelName:\n\n" \
+                "\tdef vertex_A(self):\n" \
+                "\t\tpass\n\n" \
+                "\tdef vertex_B(self):\n" \
+                "\t\tpass\n\n" \
+                "\tdef edge_A(self):\n" \
+                "\t\tpass\n\n"
+
             with open(packagename + "/tests/test.py", "r") as f:
-               testpy = f.read()
-               self.assertEqual(
-                   testpy,"\nclass ModelName:\n\n\tdef vertex_A(self):\n\t\tpass\n\n\tdef vertex_B(self):\n\t\tpass\n\n\tdef edge_A(self):\n\t\tpass\n\n")
+                code = f.read()
+
+                self.assertEqual(
+                    code,
+                    expected_code)
 
     def test_init_model(self):
         with run_isolation(self.runner, self.files):

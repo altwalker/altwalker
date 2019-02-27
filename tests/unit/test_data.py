@@ -45,7 +45,7 @@ class TestGraphData(unittest.TestCase):
         data = self.data.get()
 
         self.assertDictEqual(data, {"key": "value"})
-        self.planner.get_data.assert_called_once()
+        self.planner.get_data.assert_called_once_with()
 
     def test_get_arg(self):
         self.planner.get_data.return_value = {"key1": "value1", "key2": "value2", "key3": "value3"}
@@ -53,7 +53,7 @@ class TestGraphData(unittest.TestCase):
         value = self.data.get("key1")
 
         self.assertEqual(value, "value1")
-        self.planner.get_data.assert_called_once()
+        self.planner.get_data.assert_called_once_with()
 
     def test_get_args(self):
         self.planner.get_data.return_value = {"key1": "value", "key2": "value", "key3": "value"}
@@ -61,12 +61,12 @@ class TestGraphData(unittest.TestCase):
         data = self.data.get("key1", "key3")
 
         self.assertDictEqual(data, {"key1": "value", "key3": "value"})
-        self.planner.get_data.assert_called_once()
+        self.planner.get_data.assert_called_once_with()
 
     def test_getitem(self):
         self.planner.get_data.return_value = {"key1": "value1", "key2": "value2", "key3": "value3"}
 
         value = self.data["key1"]
 
-        self.assertEqual(value,"value1")
-        self.planner.get_data.assert_called_once()
+        self.assertEqual(value, "value1")
+        self.planner.get_data.assert_called_once_with()

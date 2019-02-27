@@ -54,12 +54,19 @@ class TestGenerateTests(unittest.TestCase):
         get_methods_mock.return_value = {"ModelName": ["vertex_A", "vertex_B", "edge_A"]}
         generate_tests("output_dir", ["model.json"])
 
+        expected_code = "\nclass ModelName:\n\n" \
+            "\tdef vertex_A(self):\n" \
+            "\t\tpass\n\n" \
+            "\tdef vertex_B(self):\n" \
+            "\t\tpass\n\n" \
+            "\tdef edge_A(self):\n" \
+            "\t\tpass\n\n"
+
         with open("output_dir" + "/tests/test.py", "r") as f:
             code = f.read()
-            self.assertEqual(
-                code, "\nclass ModelName:\n\n\tdef vertex_A(self):\n\t\tpass\n\n\tdef vertex_B(self):\n\t\tpass\n\n\tdef edge_A(self):\n\t\tpass\n\n")
+            self.assertEqual(code, expected_code)
 
-    @mock.patch("altwalker.init.open")
+    @mock.patch("builtins.open")
     def test_cleanup(self, open_mock, get_methods_mock):
         message = "Error message"
         open_mock.side_effect = Exception(message)

@@ -1,11 +1,10 @@
-import os.path
 import unittest
 import unittest.mock as mock
 
 from click.testing import CliRunner
 
 from tests.common.utils import run_isolation
-from altwalker.cli import check, verify, init, generate, online, offline, walk
+from altwalker.cli import check, init, generate, online, offline, walk
 
 
 @mock.patch("altwalker.cli.check_models")
@@ -138,7 +137,15 @@ class TestOnline(unittest.TestCase):
             result = self.runner.invoke(
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))"])
 
-            run_mock.assert_called_once()
+            run_mock.assert_called_once_with(
+                '', 'package',
+                blocked=False,
+                models=(('models.json', 'random(vertex_coverage(100))'),),
+                port=8887,
+                steps=None,
+                unvisited=False,
+                verbose=False)
+
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_multiple_models(self, run_mock):
@@ -147,7 +154,7 @@ class TestOnline(unittest.TestCase):
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))",
-                        "-m", "models.json", "random(vertex_coverage(100))"])
+                         "-m", "models.json", "random(vertex_coverage(100))"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
@@ -156,11 +163,13 @@ class TestOnline(unittest.TestCase):
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
-                online, ["package", "--start-element", "Start", "-m", "models.json", "random(vertex_coverage(100))"])
+                online, ["package", "--start-element", "start",
+                         "-m", "models.json", "random(vertex_coverage(100))"])
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
             result = self.runner.invoke(
-                online, ["package", "-e", "start", "-m", "models.json", "random(vertex_coverage(100))"])
+                online, ["package", "-e", "start",
+                         "-m", "models.json", "random(vertex_coverage(100))"])
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_verbose(self, run_mock):
@@ -244,7 +253,9 @@ class TestOffline(unittest.TestCase):
             result = self.runner.invoke(
                 offline, ["-e", "start", "-m", "models.json", "random(never)"])
             self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn("Invalid stop condition: random(never), never and time_duration are not allowed with offline.", result.output)
+            self.assertIn(
+                "Invalid stop condition: random(never), never and time_duration are not allowed with offline.",
+                result.output)
 
     def test_verbose(self, offline_mock):
         offline_mock.return_value = {}
@@ -328,7 +339,15 @@ class TestWalk(unittest.TestCase):
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(walk, ["package", "steps.json"])
 
-            run_mock.assert_called_once()
+            run_mock.assert_called_once_with(
+                '', 'package',
+                blocked=False,
+                models=None,
+                port=None,
+                steps=[],
+                unvisited=False,
+                verbose=False)
+
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_error(self, run_mock):

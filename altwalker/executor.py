@@ -7,9 +7,6 @@ import importlib.util
 from contextlib import redirect_stdout
 
 
-from altwalker.exceptions import ExecutorException
-
-
 def get_output(callable, *args, **kargs):
     """Call a callable object and return the output from stdout."""
 
@@ -29,13 +26,14 @@ def load(path, package, module):
 
     # load package
     spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
-    loaded_module = importlib.util.module_from_spec(spec)
+    loaded_module = spec.loader.load_module()
     spec.loader.exec_module(loaded_module)
+
     sys.modules[spec.name] = loaded_module
 
     # load module
     spec = importlib.util.spec_from_file_location(package + "." + module, os.path.join(path, package, module + ".py"))
-    loaded_module = importlib.util.module_from_spec(spec)
+    loaded_module = spec.loader.load_module()
     spec.loader.exec_module(loaded_module)
 
     return loaded_module

@@ -1,5 +1,3 @@
-import sys
-
 from altwalker.data import GraphData
 from altwalker.reporter import Reporter
 
