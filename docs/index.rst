@@ -29,6 +29,7 @@ usage patterns.
     cli
     api
     contributing
+    changelog
     license
 
 .. toctree::
