@@ -4,6 +4,7 @@ __pycache__/
 
 # builds
 *.egg-info/
+.eggs/
 wheels/
 build/
 sdist/
