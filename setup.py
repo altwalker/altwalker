@@ -4,45 +4,64 @@ from altwalker.__version__ import VERSION
 
 
 NAME = 'altwalker'
-DESCRIPTION = """Altwalker is an open source, Model-based testing framework."""
+DESCRIPTION = '''Altwalker is an open source, Model-based testing framework.'''
 URL = 'https://gitlab.com/altom/altwalker/altwalker'
-EMAIL = ''
+EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'
 REQUIRES_PYTHON = '>=3.4.0'
 LICENSE = 'GNU GPLv3'
 
+
 with open('requirements.txt') as f:
-    required = f.read()
-    REQUIRED = required.split("\n")
+    REQUIRED = f.read().splitlines()
+
 
 with open('README.md') as f:
     README = f.read()
+
 
 setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
     long_description=README,
+    long_description_content_type='text/markdown',
+    license=LICENSE,
+    url=URL,
+    project_urls={
+        "Bug Tracker": "https://gitlab.com/altom/altwalker/altwalker/issues?label_name=Bug",
+        "Documentation": "https://altom.gitlab.io/altwalker/altwalker/",
+        "Source Code": "https://gitlab.com/altom/altwalker/altwalker",
+    },
+
     author=AUTHOR,
     author_email=EMAIL,
+
     python_requires=REQUIRES_PYTHON,
-    url=URL,
-    license=LICENSE,
-    packages=find_packages(),
+    setup_requires=REQUIRED,
     install_requires=REQUIRED,
+    packages=find_packages(),
     entry_points='''
         [console_scripts]
         altwalker=altwalker.cli:cli
     ''',
+
     classifiers=[
+        "Development Status :: 4 - Beta",
+
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+
         "Topic :: Software Development :: Testing",
-        "Development Status :: 4 - Beta",
+        "Topic :: Software Development :: Libraries"
     ],
+    keywords="model-based-testing testing tests",
 )

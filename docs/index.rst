@@ -29,12 +29,13 @@ usage patterns.
     cli
     api
     contributing
+    changelog
     license
 
 .. toctree::
     :caption: Useful Links:
 
-    PyPI Releases <https://gitlab.com/altom/altwalker/altwalker/issues>
+    PyPI Releases <https://pypi.org/project/altwalker/>
     Source Code <https://gitlab.com/altom/altwalker/altwalker>
     Issue Tracker <https://gitlab.com/altom/altwalker/altwalker/issues>
 

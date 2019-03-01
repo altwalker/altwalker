@@ -1,7 +1,15 @@
 # python
 __pycache__/
 *.pyc
-*.egg-info
+
+# builds
+*.egg-info/
+.eggs/
+wheels/
+build/
+sdist/
+dist/
+lib/
 
 # pytest
 .pytest_cache/

@@ -2,4 +2,3 @@ requests
 psutil
 GitPython
 click
-setuptools
