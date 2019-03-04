@@ -44,4 +44,4 @@ The `generate` command will generate a test package named `tests` containig the 
 
 ## Next steps
 
-Depending on how new you are to Altwalker you can checkout a  [demo](./demo), understand how to [design your models](./modeling), how to [structure your tests](./tests-structure) or dig deeper into [altwalker cli](./cli).
+Depending on how new you are to Altwalker you can checkout a [demo](./demo), understand how to [design your models](./modeling), how to [structure your tests](./tests-structure) or dig deeper into [altwalker cli](./cli).
