@@ -188,7 +188,7 @@ class TestExecuteCommand(unittest.TestCase):
     def test_error(self, popen_mock):
         popen_mock.return_value.communicate.return_value = (None, b"error message")
 
-        with self.assertRaisesRegex(GraphWalkerException, "GraphWalker responded with the error: error message."):
+        with self.assertRaisesRegex(GraphWalkerException, "GraphWalker responded with the error: `error message`."):
             _execute_command("offline")
 
     def test_output(self, popen_mock):

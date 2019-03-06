@@ -21,6 +21,8 @@ source .virtualenv/bin/activate
 pip install -r requirements.txt
 ```
 
+For installing altwalker follow [installation](installation.md) guide.
+
 ### Run tests
 
 #### online
