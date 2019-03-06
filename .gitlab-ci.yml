@@ -27,6 +27,10 @@ unit tests:
 
 integration test:
   stage: test
+  artifacts:
+    paths:
+      - altwalker.log
+      - graphwalker-service.log
   tags:
     - docker
   script:

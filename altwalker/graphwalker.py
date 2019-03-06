@@ -1,13 +1,18 @@
 import subprocess
 import platform
-import json
+import logging
 import signal
+import time
+import json
 import os
 
 import psutil
 import requests
 
 from altwalker.exceptions import GraphWalkerException
+
+
+logger = logging.getLogger("graphwalker")
 
 
 def _kill(pid):
@@ -191,7 +196,7 @@ def methods(model_path, blocked=False):
 class GraphWalkerService:
     """Stops and kills a proccess running the GraphWalker REST service."""
 
-    def __init__(self, models=None, port=8887, unvisited=False, blocked=False, output_file=None):
+    def __init__(self, models=None, port=8887, unvisited=False, blocked=False, output_file="graphwalker-service.log"):
         """Will run the GraphWalker online command and start the GraphWalker REST service.
 
         Note:
@@ -205,41 +210,42 @@ class GraphWalkerService:
             output_file: If set will save the output of the command in a file.
         """
 
+        self.port = port
+        self.output_file = output_file
+
         command = _create_command("online", models=models, port=port, service="RESTFUL",
                                   verbose=True, unvisited=unvisited, blocked=blocked)
 
+        logger.debug("Starting GraphWalker Service on port: {}".format(self.port))
+        logger.debug("Command: {}".format(command))
+
         self._process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=-1)
-        self._wait_for_process_to_start(output_file)
+            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
 
-    def _wait_for_process_to_start(self, output_file):
-        success = False
+        self._read_logs()
 
-        if output_file:
-            fp = open(output_file, "w")
+    def _read_logs(self):
+        """Read logs to check if the service started correctly."""
 
-        while True:
-            # if gw process keeps on running and does not print `[HttpServer] Started` readline will hang
-            line = self._process.stdout.readline().decode("utf-8")
-            if output_file:
-                fp.write(line)
+        fp = open(self.output_file)
 
-            if "[HttpServer] Started" in line:
-                success = True
-                break
+        while 1:
+            where = fp.tell()
+            line = fp.readline()
+            if not line:
+                time.sleep(0.1)
+                fp.seek(where)
+            else:
+                if "[HttpServer] Started" in line:
+                    break
 
-            if line == "":
-                break
-
-        if output_file:
-            fp.close()
-
-        if not success:
-            raise GraphWalkerException("Could not start GraphWalker Service.")
+                if "An error occurred when running command:" in line:
+                    raise GraphWalkerException("Could not start GraphWalker Service on port {}.".format(self.port))
 
     def kill(self):
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
 
+        logger.debug("Kill the GraphWalker Service on port: {}".format(self.port))
         _kill(self._process.pid)
 
 
