@@ -85,18 +85,18 @@ def validate_code(executor, methods):
 
     for model, elements in methods.items():
 
-        if not executor.has_class(model):
+        if not executor.has_model(model):
             message += "Expected to find class {}.\n".format(model)
 
         for element in elements:
-            if not executor.has_method(model, element):
+            if not executor.has_step(model, element):
                 message += "Expected to find {} method in class {}.\n".format(element, model)
 
     if message:
         raise ValidationException(message)
 
 
-def verify_code(path, package, model_paths):
+def verify_code(path, language, model_paths):
     """Verify test code against the model(s).
 
     Args:
@@ -109,12 +109,15 @@ def verify_code(path, package, model_paths):
         ValidationException: If the model(s) or the code are not a valid.
     """
 
-    executor = create_executor(path, package=package)
+    try:
+        executor = create_executor(path, language)
 
-    validate_models(model_paths)
-    methods = get_methods(model_paths)
+        validate_models(model_paths)
+        methods = get_methods(model_paths)
 
-    validate_code(executor, methods)
+        validate_code(executor, methods)
+    finally:
+        executor.kill()
 
 
 def _is_element_blocked(element, blocked=False):

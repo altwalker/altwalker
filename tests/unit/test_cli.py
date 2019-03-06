@@ -49,7 +49,7 @@ class TestCheck(unittest.TestCase):
             check_mock.assert_called_once_with((("models.json", "stop_condition"), ), blocked=False)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
-    def test_erorr(self, check_mock):
+    def test_error(self, check_mock):
         message = "Error message"
         check_mock.side_effect = Exception(message)
 
@@ -78,7 +78,7 @@ class TestGenerate(unittest.TestCase):
             generate_test_mock.assert_called_once_with("output_dir", ("models.json", ))
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
-    def test_erorr(self, generate_tests_mock):
+    def test_error(self, generate_tests_mock):
         message = "Error message"
         generate_tests_mock.side_effect = Exception(message)
 
@@ -110,7 +110,7 @@ class TestInit(unittest.TestCase):
             init_repo_mock.assert_called_once_with(".", ("models.json", ), False)
 
     def test_error(self, init_repo_mock):
-        message = "Erorr messaage"
+        message = "Error messaage"
         init_repo_mock.side_effect = Exception(message)
 
         with run_isolation(self.runner, self.files):
@@ -138,7 +138,7 @@ class TestOnline(unittest.TestCase):
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))"])
 
             run_mock.assert_called_once_with(
-                '', 'package',
+                'package', 'python',
                 blocked=False,
                 models=(('models.json', 'random(vertex_coverage(100))'),),
                 port=8887,
@@ -209,7 +209,7 @@ class TestOnline(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_error(self, run_mock):
-        message = "Erorr messaage"
+        message = "Error message"
         run_mock.side_effect = Exception(message)
 
         with run_isolation(self.runner, self.files, folders=["package"]):
@@ -340,7 +340,7 @@ class TestWalk(unittest.TestCase):
             result = self.runner.invoke(walk, ["package", "steps.json"])
 
             run_mock.assert_called_once_with(
-                '', 'package',
+                'package', 'python',
                 blocked=False,
                 models=None,
                 port=None,

@@ -30,7 +30,17 @@ integration test:
   tags:
     - docker
   script:
-    - pytest -x -s -v tests/integration
+    - pytest -x -s -v -m "not dotnet" tests/integration
+
+dotnet tests:
+  stage: test
+  image: mcr.microsoft.com/dotnet/core/sdk:2.2
+  before_script:
+    - apt-get update && apt-get install -y python3 python3-pip
+    - pip3 install -r requirements.txt --user
+    - pip3 install -r requirements-dev.txt
+  script: 
+    - pytest -x -s -v -m dotnet tests/integration
 
 tox:
   image: robert96/graphwalker-cli:tox

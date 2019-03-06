@@ -34,3 +34,10 @@ docs/_build
 
 # macOS
 .DS_Store
+
+# logs
+gwoutput
+
+#dotnet
+obj/
+bin/

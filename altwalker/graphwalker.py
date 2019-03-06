@@ -104,7 +104,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     if error:
         error = error.decode("utf-8")
         raise GraphWalkerException(
-            "GraphWalker responded with the error: {}.".format(error))
+            "GraphWalker responded with the error: `{}`.".format(error))
 
     return output.decode("utf-8")
 
@@ -247,7 +247,7 @@ class GraphWalkerClient:
     """A client for the GraphWalker REST service."""
 
     def __init__(self, host="127.0.0.1", port=8887, verbose=False):
-        """Inits the GeaphWalkerClient.
+        """Inits the GraphWalkerClient.
 
         Note:
             Because the GraphWalker REST service is always started with the verbouse flag,
