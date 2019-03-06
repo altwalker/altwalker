@@ -30,23 +30,24 @@ class TestGraphWalkerService(unittest.TestCase):
             requests.get("http://127.0.0.1:9001/graphwalker/getStatistics")
 
     def test_address_already_in_use(self):
-        g1 = GraphWalkerService(port=9001)
+        service = GraphWalkerService(port=9001)
 
         with self.assertRaises(GraphWalkerException) as context:
             GraphWalkerService(port=9001)
 
         self.assertIn("Could not start GraphWalker Service", str(context.exception))
 
-        g1.kill()
+        service.kill()
 
-    def test_write_gw_output_to_file(self):
-        g1 = GraphWalkerService(port=9001, output_file="gwoutput")
-        g1.kill()
+    def test_logs(self):
+        output_file = "graphwalker-test.log"
+        service = GraphWalkerService(port=9001, output_file=output_file)
+        service.kill()
 
-        with open("gwoutput", "r") as output_file:
-            self.assertIn("[HttpServer] Started", output_file.read())
+        with open(output_file, "r") as fp:
+            self.assertIn("[HttpServer] Started", fp.read())
 
-        os.remove("gwoutput")
+        os.remove(output_file)
 
 
 class TestGraphWalkerClient(unittest.TestCase):

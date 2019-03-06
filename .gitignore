@@ -36,8 +36,10 @@ docs/_build
 .DS_Store
 
 # logs
+altwalker.log
+graphwalker-service.log
 gwoutput
 
-#dotnet
+# dotnet
 obj/
 bin/
