@@ -3,8 +3,8 @@
 __Pythons__: Python 3.4, 3.5, 3.6, 3.7
 
 On Windows, make sure you add Python in the Path from System Variables:
-* `C:\Python37\`
-* `C:\Python37\Scripts\`
+* `C:\Python<version>\` (e.g., `C:\Python37`)
+* `C:\Python<version>\Scripts` (e.g., `C:\Python37\Scripts\`)
 
 And in the Path from User Variables:
 * `C:\Users\user.name\AppData\Local\Programs\Python\Python37\Scripts`

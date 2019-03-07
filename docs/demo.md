@@ -13,7 +13,9 @@ The code for this example is hosted at [https://gitlab.com/altom/altwalker/altwa
 
 ### Setup
 
-For this Demo we used [geckodriver](https://github.com/mozilla/geckodriver) to launch the Firefox browser. After you download it, add the executable in the python parent folder. (e.g., C:\Python37)
+For this Demo we used [geckodriver](https://github.com/mozilla/geckodriver) to launch the Firefox browser. 
+After you download and extract the executable, make sure you set the path to the geckodriver executable in the Path Variable
+`$ set PATH=%PATH%;C:\bin\geckodriver`
 
 ```
 git clone git@gitlab.com:altom/altwalker/altwalker-examples.git
