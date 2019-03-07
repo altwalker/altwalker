@@ -2,6 +2,13 @@
 
 __Pythons__: Python 3.4, 3.5, 3.6, 3.7
 
+On Windows, make sure you add Python in the Path from System Variables:
+* `C:\Python37\`
+* `C:\Python37\Scripts\`
+
+And in the Path from User Variables:
+* `C:\Users\user.name\AppData\Local\Programs\Python\Python37\Scripts`
+
 __Platforms__: Unix/Posix and Windows
 
 ## Prerequisites
@@ -48,14 +55,14 @@ After installing GraphWalker check that you installed the correct version:
 
 ```
 $ gw --version
-org.graphwalker version: 4.0.0-SNAPSHOT-58b6659
+org.graphwalker version: 4.0.0-SNAPSHOT-8aaa1f6
 
 org.graphwalker is open source software licensed under MIT license
 The software (and it's source) can be downloaded from http://graphwalker.org
 For a complete list of this package software dependencies, see http://graphwalker.org/archive/site/graphwalker-cli/dependencies.html
 ```
 
-Currently the latest version is `4.0.0-SNAPSHOT-58b6659`.
+Currently the latest version is `4.0.0-SNAPSHOT-8aaa1f6`.
 
 ## Install `altwalker`
 

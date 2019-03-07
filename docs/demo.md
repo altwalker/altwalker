@@ -13,11 +13,13 @@ The code for this example is hosted at [https://gitlab.com/altom/altwalker/altwa
 
 ### Setup
 
+For this Demo we used [geckodriver](https://github.com/mozilla/geckodriver) to launch the Firefox browser. After you download it, add the executable in the python parent folder. (e.g., C:\Python37)
+
 ```
 git clone git@gitlab.com:altom/altwalker/altwalker-examples.git
 cd altwalker-examples/ecommerce-snipcart-jekyll-example
 python3 -m venv .virtualenv
-source .virtualenv/bin/activate
+source .virtualenv/bin/activate (use '.virtualenv\Scripts\activate' on Windows)
 pip install -r requirements.txt
 ```
 
