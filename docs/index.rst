@@ -8,7 +8,7 @@ your tests graph.
 
 Welcome to AltWalker's documentation. Get started with :doc:`installation` and
 then get an quick overview with the :doc:`quickstart`. There is also a
-detailed :doc:`demo` that shows how to create a samall test project for a
+detailed :doc:`demo` that shows how to create a small test project for a
 mock e-commerce website. The rest of the documentation describes how to
 use each feature of AltWalker in more details.
 

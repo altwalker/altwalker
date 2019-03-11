@@ -1,15 +1,16 @@
 # Installation
 
-__Pythons__: Python 3.4, 3.5, 3.6, 3.7
+__Pythons__: Python 3.4, 3.5, 3.6, 3.7, PyPy3
+__Platforms__: Unix/Posix and Windows
 
 On Windows, make sure you add Python in the Path from System Variables:
+
 * `C:\Python<version>\` (e.g., `C:\Python37`)
 * `C:\Python<version>\Scripts` (e.g., `C:\Python37\Scripts\`)
 
 And in the Path from User Variables:
-* `C:\Users\user.name\AppData\Local\Programs\Python\Python37\Scripts`
 
-__Platforms__: Unix/Posix and Windows
+* `C:\Users\user.name\AppData\Local\Programs\Python\Python<version>\Scripts`
 
 ## Prerequisites
 
@@ -29,10 +30,11 @@ For macOS/linux you can run the following command:
 
 ```bash
 $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar && \
-  cp graphwalker-cli-4.0.0-SNAPSHOT.jar / && \
-  echo '#!/bin/bash\njava -jar /graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' >> /graphwalker-cli && \
-  chmod 777 /graphwalker-cli && \
-  ln -s /graphwalker-cli /usr/bin/gw
+  mkdir -p ~/graphwalker && \
+  mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
+  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
+  chmod 777 ~/graphwalker/graphwalker-cli.sh && \
+  ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
 
 Here is a more detailed [tutorial](http://graphwalker.github.io/cli-overview/#creating-a-script-facilitating-command-line-handling-on-a-linux-machine) for macOS/linux.
@@ -66,10 +68,16 @@ Currently the latest version is `4.0.0-SNAPSHOT-8aaa1f6`.
 
 ## Install `altwalker`
 
-Run the following command in your command line:
+To install `altwalker` run the following command in your command line:
 
 ```
-$ pip install altwalker
+$ pip3 install altwalker
+```
+
+Or:
+
+```
+$ python<version> -m pip install altwalker
 ```
 
 Check that you installed the correct version:
