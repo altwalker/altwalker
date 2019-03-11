@@ -23,9 +23,9 @@ usage patterns.
 
     installation
     quickstart
-    demo
     modeling
     tests-structure
+    demo
     cli
     api
     contributing
