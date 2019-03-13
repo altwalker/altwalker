@@ -5,7 +5,7 @@ from altwalker.__version__ import VERSION
 
 NAME = 'altwalker'
 DESCRIPTION = '''Altwalker is an open source, Model-based testing framework.'''
-URL = 'https://gitlab.com/altom/altwalker/altwalker'
+URL = 'https://gitlab.com/altom/altwalker/altwalker/'
 EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'
 REQUIRES_PYTHON = '>=3.4.0'
@@ -31,7 +31,7 @@ setup(
     project_urls={
         "Bug Tracker": "https://gitlab.com/altom/altwalker/altwalker/issues?label_name=Bug",
         "Documentation": "https://altom.gitlab.io/altwalker/altwalker/",
-        "Source Code": "https://gitlab.com/altom/altwalker/altwalker",
+        "Source Code": "https://gitlab.com/altom/altwalker/altwalker/",
     },
 
     author=AUTHOR,
