@@ -10,11 +10,23 @@ class TestGetOutput(unittest.TestCase):
         func = mock.MagicMock()
         func.side_effect = lambda: print("message")
 
-        message = get_output(func)
+        result = get_output(func)
 
         # Should call the function and return the std output
         func.assert_called_once_with()
-        self.assertEqual(message, "message\n")
+        self.assertEqual(result["output"], "message\n")
+        self.assertFalse("error" in result)
+
+    def test_get_output_error(self):
+        func = mock.MagicMock()
+        func.side_effect = Exception("Error message.")
+
+        result = get_output(func)
+
+        # Should call the function and return the std output
+        func.assert_called_once_with()
+        self.assertEqual(result["output"], "")
+        self.assertTrue("error" in result)
 
     def test_get_output_args(self):
         func = mock.MagicMock()

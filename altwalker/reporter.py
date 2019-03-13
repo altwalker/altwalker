@@ -1,6 +1,5 @@
 import json
 import datetime
-import traceback
 
 import click
 
@@ -47,7 +46,7 @@ class Reporter:
     def step_status(self, step, failure=False, output=""):
         """Report the status of a step."""
 
-    def error(self, message, trace=False):
+    def error(self, message, trace=None):
         """Report an error."""
 
     def _log(self, string):
@@ -76,11 +75,11 @@ class Formater(Reporter):
 
         self._log(_add_timestamp(message))
 
-    def error(self, message, trace=False):
+    def error(self, message, trace=None):
         """Report an error followed by the stack trace."""
 
         if trace:
-            message += "\n{}".format(traceback.format_exc())
+            message += "\n{}".format(trace)
 
         self._log(_add_timestamp(message))
 
@@ -121,9 +120,9 @@ class ClickReporter(Formater):
 
         self._log(_add_timestamp(message))
 
-    def error(self, message, trace=False):
+    def error(self, message, trace=None):
         if trace:
-            trace_string = click.style(traceback.format_exc(), fg="red")
+            trace_string = click.style(trace, fg="red")
             message += "\n{}".format(trace_string)
 
         self._log(_add_timestamp(message))

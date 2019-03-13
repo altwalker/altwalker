@@ -1,3 +1,5 @@
+import traceback
+
 from altwalker.data import GraphData
 from altwalker.reporter import Reporter
 
@@ -124,15 +126,23 @@ class Walker:
 
         try:
             self._reporter.step_start(step)
-            output = self._executor.execute_step(model, name, self._data)
-            self._reporter.step_status(step, output=output)
 
-            return True
+            result = self._executor.execute_step(model, name, self._data)
+
+            error = result.get("error", None)
+            output = result["output"]
+
+            self._reporter.step_status(step, output=output, failure=error is not None)
+
+            if error:
+                self._reporter.error(error["message"], trace=error["trace"])
+
+            return error is None
         except Exception as e:
             self._planner.fail(step, str(e))
 
             self._reporter.step_status(step, failure=True)
-            self._reporter.error(str(e), trace=True)
+            self._reporter.error(str(e), trace=str(traceback.format_exc()))
 
             return False
 

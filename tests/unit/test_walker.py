@@ -99,7 +99,7 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.executor.execute_step.return_value = ""
+        self.executor.execute_step.return_value = {"output": ""}
 
         status = self.walker._run_step(step)
 
@@ -142,12 +142,12 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.executor.execute_step.return_value = ""
+        self.executor.execute_step.return_value = {"output": ""}
 
         self.walker._run_step(step)
 
         self.reporter.step_start.assert_called_once_with(step)
-        self.reporter.step_status.assert_called_once_with(step, output="")
+        self.reporter.step_status.assert_called_once_with(step, output="", failure=False)
 
     def test_report_fail(self):
         step = {
@@ -170,10 +170,10 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.executor.execute_step.return_value = "output"
+        self.executor.execute_step.return_value = {"output": "output"}
 
         self.walker._run_step(step)
-        self.reporter.step_status.assert_called_once_with(step, output="output")
+        self.reporter.step_status.assert_called_once_with(step, output="output", failure=False)
 
 
 class TestItter(unittest.TestCase):

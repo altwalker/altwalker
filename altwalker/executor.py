@@ -2,23 +2,33 @@ import os
 import io
 import sys
 import inspect
+import traceback
 import importlib
 import importlib.util
 from contextlib import redirect_stdout
 
 
 def get_output(callable, *args, **kargs):
-    """Call a callable object and return the output from stdout."""
+    """Call a callable object and return the output from stdout, error message and
+    traceback if an error occurred.
+    """
 
+    result = {}
     output = io.StringIO()
 
     with redirect_stdout(output):
-        callable(*args, **kargs)
+        try:
+            callable(*args, **kargs)
+        except Exception as e:
+            result["error"] = {
+                "message": str(e),
+                "trace": str(traceback.format_exc())
+            }
 
-    string = output.getvalue()
+    result["output"] = output.getvalue()
     output.close()
 
-    return string
+    return result
 
 
 def load(path, package, module):
