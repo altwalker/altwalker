@@ -180,6 +180,9 @@ class OfflinePlanner:
             "failedFixtures": self.failed_fixtures
         }
 
+    def kill(self):
+        pass
+
 
 def create_planner(models=None, steps=None, port=8887, verbose=False, unvisited=False,
                    blocked=False):

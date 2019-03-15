@@ -1,17 +1,15 @@
-from altwalker.data import GraphData
 from altwalker.reporter import Reporter
 
 
 class Walker:
     """Coordinates the execution of a test asking a ``Planner`` for the next step,
-    executing the step using an ``Executor``, if needed passing a ``GraphData`` object
+    executing the step using an ``Executor``, if needed passing a ``dict`` object
     to the test code, and reporting the progress using a ``Reporter``.
     """
 
-    def __init__(self, planner, executor, data, reporter):
+    def __init__(self, planner, executor, reporter):
         self._planner = planner
         self._executor = executor
-        self._data = data
         self._reporter = reporter
 
         self._status = None
@@ -109,6 +107,21 @@ class Walker:
 
         return status
 
+    def _set_step_data(self, before_step_data, step_data):
+        if not step_data:
+            return
+
+        for key, value in step_data.items():
+            if key not in before_step_data or before_step_data[key] != value:
+                self._planner.set_data(key, value)
+
+    def _execute_step(self, model, name):
+        data = self._planner.get_data()
+        step_result = self._executor.execute_step(model, name, data)
+        self._set_step_data(data, step_result["data"])
+
+        return step_result["output"]
+
     def _run_step(self, step, optional=False):
         model = step.get("modelName", None)
         name = step.get("name")
@@ -124,7 +137,7 @@ class Walker:
 
         try:
             self._reporter.step_start(step)
-            output = self._executor.execute_step(model, name, self._data)
+            output = self._execute_step(model, name)
             self._reporter.step_status(step, output=output)
 
             return True
@@ -145,15 +158,12 @@ class Walker:
         return self._status
 
 
-def create_walker(planner, executor, data=None, reporter=None):
-    """Create a Walker object, and if no ``data`` or ``reporter`` is provided
-    initialize them with the default options.
+def create_walker(planner, executor, reporter=None):
+    """Create a Walker object, and if no ``reporter`` is provided
+    initialize it with the default options.
     """
-
-    if not data:
-        data = GraphData(planner)
 
     if not reporter:
         reporter = Reporter()
 
-    return Walker(planner, executor, data, reporter)
+    return Walker(planner, executor, reporter)

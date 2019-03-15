@@ -1,7 +1,8 @@
 # Tests Structure
 
+## Python
 
-## Structure
+### Structure
 
 AltWalker requires a python package (usualy name ``tests``) and inside a
 python module named ``test.py``:
@@ -39,8 +40,7 @@ class ModelB:
         """The implementation of the edge named edge_b form ModelB."""
 ```
 
-
-## Fixtures
+### Fixtures
 
 Altwalker implements four test fixtures inspired by JUnit and the python unittest
 module:
@@ -77,13 +77,13 @@ class ModelA:
         pass
 ```
 
-## Graph Data
+### Graph Data
 
 If you are using the `online` command your test code has direct access to the  graphs
 execution context provided by GraphWalker.
 
 In order to read/update the graph data from you tests, you need to define the function with
-a parameter, and AltWalker will pass a [`GraphData`](./api.html#module-altwalker.data) object,
+a parameter, and AltWalker will pass a `dict` object,
 that object allows you to read and update the graph data.
 
 ```python
@@ -91,15 +91,91 @@ def element_method(self, data):
     """A simple example of a method for a vertex/edge inside a model.
 
     Args:
-        data: AltWalker will pass an GraphData object.
+        data: AltWalker will pass a dict object.
     """
-
-    # to get all available data
-    graph_data = data.get()
-
     # to get the value for a single key
-    value = data.get("key")
+    value = data["key"]
 
     # to set a new value for a key
     data.set("key", "new_value")
+```
+
+
+## C#
+
+### Structure
+
+To run C# tests, Altwalker requires a c# console application that depends on [`altwalker.executor`](https://gitlab.com/altom/altwalker/dotnet-executor) nuget and runs the `ExecutorService`.
+
+
+```c#
+/// The implementation of the model named ModelA.
+public class ModelA{
+    /// The implementation of the vertex named vertex_a.
+    public void vertex_a() {}
+
+    /// The implementation of the edge named edge_a
+    public void edge_a() {}
+}
+
+public class Program {
+        public static void Main (string[] args) {
+            ExecutorService service = new ExecutorService();
+            service.RegisterSetup<Setup>();
+            service.Start(args);
+        }
+    }
+```
+`altwalker.executor` targets .netstandard 2.0
+
+### Fixtures
+
+Define `setUpModel`  and `tearDownModel` inside the model class. This methods will run before and after all steps from model have run.
+
+Define `setUpRun` and `tearDownRun` inside a Setup class, and register it inside the executor service: `ExecutorService.RegisterSetup<T>();`
+
+
+```c#
+/// The implementation of the model named ModelA.
+public class ModelA{
+    /// Will be executed before executing all steps from this model
+    public void setUpModel() {}
+
+    /// Will be executed after executing all steps from this model
+    public void tearDownModel() {}
+}
+
+public class Startup{
+    ///Will be executed first, before anything else.
+    public void setUpRun() {}
+
+    ///Will be executed first, after anything else.
+    public void tearDownRun() {}
+}
+
+public class Program {
+        public static void Main (string[] args) {
+            ExecutorService service = new ExecutorService();
+            service.RegisterModel<MyModel>(); 
+            service.RegisterSetup<Setup>();
+            service.Start(args);
+        }
+    }
+```
+
+### Graph Data
+
+If you are using the `online` command your test code has direct access to the  graphs
+execution context provided by GraphWalker.
+
+
+In order to read/update the graph data from you tests, you need to define the function with
+a parameter, and AltWalker will pass a `IDictionary<string, dynamic>` object,
+that object allows you to read and update the graph data.
+
+```c#
+public void vertex_a(IDictionary<string, dynamic> data)
+{
+    data["passed_vertex_a"]=true;
+}
 ```

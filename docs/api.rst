@@ -44,8 +44,7 @@ There are two Planners:
         Uses GraphWalker online mode to generate the test path.
 
         This method allows the test code to directly interact with GraphWalker
-        and modify the model data using the :class:`altwalker.data.GraphData`
-        class wich will be passed as a the first argument to any method/function
+        and modify the model data. A dictionary with model data will be passed as a the first argument to any method/function
         form the test code by :class:`altwalker.walker.Walker` class.
 
     * :class:`OfflinePlanner`
@@ -95,66 +94,63 @@ There are two Planners:
 .. autofunction:: create_planner
 
 
-Graph Data
-----------
-
-.. module:: altwalker.data
-
-.. currentmodule:: altwalker.data
-
-.. autoclass:: GraphData
-
-    .. automethod:: get
-
-        **Examples:**
-
-        Get all data::
-
-            >>> data.get()
-            {}
-
-            >>> data.get()
-            {'key': 'value'}
-
-        Get a key::
-
-            >>> data.get("key")
-            'value'
-
-        Get multiple keys::
-
-            >>> data.get("key1", "key2")
-            {'key1': 'value1', 'key2': 'value2'}
-
-    .. automethod:: set
-
-        **Examples:**
-
-        Set a single key::
-
-            >>> data.set("key", "value")
-            >>> data.get()
-            {'key': 'value'}
-
-        Set multiple keys using ``**kargs``::
-
-            >>> data.set(key1="value1", key2="value2")
-            >>> data.get()
-            {'key1': 'value1', 'key2': 'value2'}
-
-        Set multiple keys using a ``dict``::
-
-            >>> data.set({"key1": "value1", "key2": "value2"})
-            >>> data.get()
-            {'key1': 'value1', 'key2': 'value2'}
-
 Executor
 --------
 
+.. module:: altwalker.executor
+
 .. currentmodule:: altwalker.executor
 
-.. autoclass:: Executor
+The role of the executor is handle the test execution.
+The executor that is needed by the Walker needs to implement the following methods:
+
+
+.. code-block:: python
+
+    execute_step(model_name, name, data=None)
+
+    has_step(model_name, name)
+
+    has_model(name)
+
+    reset()
+
+    kill()
+
+
+.. autoclass:: PythonExecutor
+
+    .. automethod:: __init__
+
+    .. automethod:: has_model
+
+    .. automethod:: has_step
+
+    .. automethod:: execute_step
+
+    .. automethod:: reset
+
+    .. automethod:: kill
+
+.. autoclass:: HttpExecutor
+
+    .. automethod:: __init__
+
+    .. automethod:: has_model
+
+    .. automethod:: has_step
+
+    .. automethod:: execute_step
+
+    .. automethod:: reset
+
+    .. automethod:: kill
+
+.. autoclass:: DotnetExecutorService
     :members:
+
+    .. automethod:: __init__
+
 
 .. autofunction:: create_executor
 

@@ -109,9 +109,8 @@ def verify_code(path, language, model_paths):
         ValidationException: If the model(s) or the code are not a valid.
     """
 
+    executor = create_executor(path, language)
     try:
-        executor = create_executor(path, language)
-
         validate_models(model_paths)
         methods = get_methods(model_paths)
 

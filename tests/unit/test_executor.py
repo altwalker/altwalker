@@ -3,7 +3,7 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.executor import create_executor, _create_python_executor
-from altwalker.executor import get_output, load, PythonExecutor, HttpExecutorClient
+from altwalker.executor import get_output, load, PythonExecutor, HttpExecutorClient, HttpExecutor
 
 
 class TestGetOutput(unittest.TestCase):
@@ -120,41 +120,49 @@ class TestPythonExecutor(unittest.TestCase):
         self.executor.has_step("class_name", "method")
         self.executor._has_method.assert_called_once_with("class_name", "method")
 
-    def test_execute_step(self):
+    @mock.patch("altwalker.executor.inspect.getfullargspec")
+    def test_execute_step(self, getfullargspec):
         self.executor._setup_class = mock.MagicMock()
         self.executor._instances["class_name"] = mock.MagicMock()
 
         # Should execute a function
+        spec_mock = mock.MagicMock()
+        spec_mock.args = []
+        getfullargspec.return_value = spec_mock
+
         self.executor.execute_step(None, "function")
         self.module.function.assert_called_once_with()
 
         # Should executre a method
+        spec_mock.args = [1]
+        getfullargspec.return_value = spec_mock
+        getfullargspec.return_value = spec_mock
         self.executor.execute_step("class_name", "method")
         self.executor._setup_class.assert_called_once_with("class_name")
         self.executor._instances["class_name"].method.assert_called_once_with()
 
-    def test_execute_step_function_args(self):
+    def test_execute_step_function_with_data(self):
         with mock.patch("altwalker.executor.inspect.getfullargspec") as inspect:
             spec_mock = mock.MagicMock()
-            spec_mock.args = ["arg1", "arg2"]
+            spec_mock.args = ["data"]
             inspect.return_value = spec_mock
 
             # should call the function with the right args
-            self.executor.execute_step(None, "function", "arg1", "arg2", "arg3")
-            self.module.function.assert_called_once_with("arg1", "arg2")
+            self.executor.execute_step(None, "function", data={"key": "value"})
+            self.module.function.assert_called_once_with({"key": "value"})
 
-    def test_execute_step_method_args(self):
+    def test_execute_step_method_with_data(self):
         with mock.patch("altwalker.executor.inspect.getfullargspec") as inspect:
             self.executor._setup_class = mock.MagicMock()
             self.executor._instances["class_name"] = mock.MagicMock()
 
             spec_mock = mock.MagicMock()
-            spec_mock.args = ["self", "arg1", "arg2"]
+            spec_mock.args = ["self", "data"]
             inspect.return_value = spec_mock
 
             # should call the method with the right args
-            self.executor.execute_step("class_name", "method", "arg1", "arg2", "arg3")
-            self.executor._instances["class_name"].method.assert_called_once_with("arg1", "arg2")
+            self.executor.execute_step("class_name", "method", data={"key": "value"})
+            self.executor._instances["class_name"].method.assert_called_once_with({"key": "value"})
 
 
 class TestHttpExecutorClient(unittest.TestCase):
@@ -181,13 +189,15 @@ class TestHttpExecutorClient(unittest.TestCase):
 
     def test_execute_step(self):
         self.executor._post = mock.MagicMock()
-        self.executor.execute_step("model", "step")
-        self.executor._post.assert_called_once_with("executeStep", params=(("modelName", "model"), ("name", "step")))
+        self.executor.execute_step("model", "step", {})
+        self.executor._post.assert_called_once_with("executeStep", params=(
+            ("modelName", "model"), ("name", "step")), data={})
 
     def test_execute_setup_step(self):
         self.executor._post = mock.MagicMock()
-        self.executor.execute_step(None, "step")
-        self.executor._post.assert_called_once_with("executeStep", params=(("modelName", None), ("name", "step")))
+        self.executor.execute_step(None, "step", {})
+        self.executor._post.assert_called_once_with(
+            "executeStep", params=(("modelName", None), ("name", "step")), data={})
 
     def test_restart(self):
         self.executor._get = mock.MagicMock()
@@ -221,21 +231,27 @@ class TestCreateExecutor(unittest.TestCase):
     @mock.patch("altwalker.executor.DotnetExecutorService", return_value="service")
     @mock.patch("altwalker.executor.HttpExecutor", return_value="executor")
     def test_create_executor_dotnet(self, http_executor, dotnet_executor_service, create_python_executor):
-        executor = create_executor("path/to/pacakge", "dotnet", port=1111, host="1.1.1.1")
+        executor = create_executor("path/to/pacakge", "c#", port=1111, host="1.1.1.1")
         self.assertEqual(executor, "executor")
         dotnet_executor_service.assert_called_once_with("path/to/pacakge", "1.1.1.1", 1111)
         http_executor.assert_called_once_with("service", "1.1.1.1", 1111)
         create_python_executor.assert_not_called()
 
     @mock.patch("altwalker.executor.load", return_value="module")
-    @mock.patch("altwalker.executor.Executor")
-    def test_create_python_executor(self, executor, load):
+    @mock.patch("altwalker.executor.PythonExecutor")
+    def test_create_python_executor(self, python_executor, load):
         _create_python_executor("path/to/package")
         load.assert_called_once_with("path/to", "package", "test")
-        executor.assert_called_once_with("module")
+        python_executor.assert_called_once_with("module")
 
     def test_create_executor_service_not_implemented(self):
         with self.assertRaises(ValueError) as error:
             create_executor("path/to/pacakge", "mylanguage", "1.1.1.1", 1111)
 
         self.assertEqual("mylanguage is not supported.", str(error.exception))
+
+
+class TestHttpExecutor(unittest.TestCase):
+    def test_init(self):
+        executor = HttpExecutor("service", "host", 2000)
+        self.assertEqual(executor.base, "http://host:2000/altwalker/")

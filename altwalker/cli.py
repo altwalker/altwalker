@@ -30,7 +30,7 @@ unvisted_option = click.option("--unvisited", "-u", default=False, is_flag=True,
 blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
                               help="Will fiter out elements with the keyword BLOCKED. Default is False.")
 
-language_option = click.option('--language', "-l", type=click.Choice(['python', 'dotnet']), default="python",
+language_option = click.option('--language', "-l", type=click.Choice(['python', 'c#']), default="python",
                                help="The programming language of the tests", show_default=True)
 
 
@@ -162,17 +162,17 @@ def run_tests(path, language, models=None, steps=None, port=None,
 
     try:
         executor = create_executor(path, language)
+        try:
+            reporter = ClickReporter()
 
-        reporter = ClickReporter()
+            walker = create_walker(planner, executor, reporter=reporter)
+            walker.run()
 
-        walker = create_walker(planner, executor, reporter=reporter)
-        walker.run()
-
-        statistics = planner.get_statistics()
+            statistics = planner.get_statistics()
+        finally:
+            executor.kill()
     finally:
-        if port:
-            planner.kill()
-        executor.kill()
+        planner.kill()
 
     return walker.status, statistics
 

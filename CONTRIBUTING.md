@@ -2,6 +2,7 @@
 
 First off, thank you for considering contributing to AltWalker.
 
+
 ## Did you find a bug?
 
 * Ensure the bug was not already reported by searching all [issues](https://gitlab.com/altom/altwalker/altwalker/issues).
@@ -26,3 +27,16 @@ If you find yourself wishing for a feature that doesn't exist in AltWalker:
 * Open an issue on our [issues list](https://gitlab.com/altom/altwalker/altwalker/issues) and label it with the enhancement lable. Be sure to include a clear description of the feature you would like to see, as much relevant information as possible:
     * Why you need it?
     * How it should work?
+
+## You need your custom test executor ? 
+
+You can implement your own custom test execution framework by implementing the executor http protocol.
+
+Altwalker communicates with an http executor through GET and POST. To implement a test executor you need to create an http server that implements the protocol used by altwalker. 
+
+Check [altwalker.executor.HttpExecutor](https://altom.gitlab.io/altwalker/altwalker/api.html#altwalker.executor.HttpExecutor) for communication protocol and [altwalker.executor.DotnetExecutorService](https://altom.gitlab.io/altwalker/altwalker/api.html#altwalker.executor.DotnetExecutorService) for managing the server.
+
+
+## Contribute to altwalker and submit test executor in another language ?
+
+If you've implemented your own custom test executor in a language that is not already supported by altwalker [contact us](mailto:altwalker@altom.com) and will help you integrate it.

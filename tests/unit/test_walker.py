@@ -10,9 +10,8 @@ class TestWalker(unittest.TestCase):
         self.planner = mock.MagicMock()
         self.executor = mock.MagicMock()
         self.reporter = mock.MagicMock()
-        self.data = mock.MagicMock()
 
-        self.walker = Walker(self.planner, self.executor, self.data, self.reporter)
+        self.walker = Walker(self.planner, self.executor, self.reporter)
 
     def test_setUpRun(self):
         self.walker._run_step = mock.Mock()
@@ -89,22 +88,24 @@ class TestRunStep(unittest.TestCase):
         self.planner = mock.MagicMock()
         self.executor = mock.MagicMock()
         self.reporter = mock.MagicMock()
-        self.data = mock.MagicMock()
 
-        self.walker = Walker(self.planner, self.executor, self.data, reporter=self.reporter)
+        self.walker = Walker(self.planner, self.executor, reporter=self.reporter)
 
-    def test_execute_step(self):
+    def test_run_step(self):
         step = {
             "name": "name",
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.executor.execute_step.return_value = ""
+        self.planner.get_data.return_value = {"key": "val"}
+        self.walker._execute_step = mock.MagicMock(return_value="")
 
         status = self.walker._run_step(step)
 
         self.executor.has_step.assert_called_once_with(step["modelName"], step["name"])
-        self.executor.execute_step.assert_called_once_with(step["modelName"], step["name"], self.data)
+        self.reporter.step_start.assert_called_once_with(step)
+        self.walker._execute_step.assert_called_once_with("modelName", "name")
+        self.reporter.step_status.assert_called_once_with(step, output="")
         self.assertTrue(status)
 
     def test_optional(self):
@@ -142,7 +143,7 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.executor.execute_step.return_value = ""
+        self.walker._execute_step = mock.MagicMock(return_value="")
 
         self.walker._run_step(step)
 
@@ -170,10 +171,48 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.executor.execute_step.return_value = "output"
+        self.walker._execute_step = mock.MagicMock(return_value="output")
 
         self.walker._run_step(step)
         self.reporter.step_status.assert_called_once_with(step, output="output")
+
+    def test_execute_step(self):
+        self.planner.get_data.return_value = "before_step_data"
+        step_result = {
+            "data": "after_step_data",
+            "output": "output"
+        }
+
+        self.executor.execute_step.return_value = step_result
+        self.walker._set_step_data = mock.MagicMock()
+
+        output = self.walker._execute_step("model", "name")
+
+        self.planner.get_data.assert_called_once_with()
+        self.executor.execute_step.assert_called_once_with("model", "name", "before_step_data")
+        self.walker._set_step_data.assert_called_once_with("before_step_data", "after_step_data")
+        self.assertEqual(output, "output")
+
+    def test_set_step_data(self):
+        self.walker._set_step_data(
+            {
+                "1": "one",
+                "2": "two",
+                "3": "three"
+            },
+            {
+                "1": "one",
+                "2": "2",
+                "4": "four"
+            }
+        )
+        self.planner.set_data.assert_any_call("2", "2")
+        self.planner.set_data.assert_any_call("4", "four")
+        self.assertEqual(2, self.planner.set_data.call_count)
+
+    def test_set_step_data_no_data(self):
+        self.walker._set_step_data("", None)
+        self.planner.set_data.assert_not_called()
 
 
 class TestItter(unittest.TestCase):
@@ -182,9 +221,8 @@ class TestItter(unittest.TestCase):
         self.planner = mock.MagicMock()
         self.executor = mock.MagicMock()
         self.reporter = mock.MagicMock()
-        self.data = mock.MagicMock()
 
-        self.walker = Walker(self.planner, self.executor, self.data, reporter=self.reporter)
+        self.walker = Walker(self.planner, self.executor, reporter=self.reporter)
 
         self.walker._setUpRun = mock.MagicMock()
         self.walker._setUpModel = mock.MagicMock()
