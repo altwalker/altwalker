@@ -35,7 +35,7 @@ Planner
 
 .. currentmodule:: altwalker.planner
 
-The role of a ``Planner`` is to determin the next step to be executed by the ``Executor``.
+The role of a ``Planner`` is to determine the next step to be executed by the ``Executor``.
 
 There are two Planners:
 
@@ -45,14 +45,14 @@ There are two Planners:
 
         This method allows the test code to directly interact with GraphWalker
         and modify the model data using the :class:`altwalker.data.GraphData`
-        class wich will be passed as a the first argument to any method/function
+        class which will be passed as a the first argument to any method/function
         form the test code by :class:`altwalker.walker.Walker` class.
 
     * :class:`OfflinePlanner`
 
         Uses a already generated sequence of steps to generate the test path.
 
-        The sequense of path can be generated using the :func:`altwalker.graphwalker.offline`
+        The path can be generated using the :func:`altwalker.graphwalker.offline`
         function.
 
 .. autoclass:: OnlinePlanner
@@ -208,7 +208,7 @@ For more informations check out the `GraphWalker REST API Documentation <http://
 
     .. automethod:: get_next
 
-        Depending of how the GraphWalker Service was started ``get_next`` will return diffrent responses.
+        Depending of how the GraphWalker Service was started ``get_next`` will return different responses.
 
         With the verbose flag::
 
@@ -220,7 +220,7 @@ For more informations check out the `GraphWalker REST API Documentation <http://
                 "properties": {}
             }
 
-        With the unvisted flag::
+        With the unvisited flag::
 
             {
                 "id": step_id,
@@ -288,7 +288,7 @@ Exceptions
 Click Exceptions
 ~~~~~~~~~~~~~~~~
 
-This exceptions are used in the cli to handel the ``exit_code`` and the display of
+This exceptions are used in the cli to handle the ``exit_code`` and the display of
 :class:`GraphWalkerException` and :class:`AltWalkerException`.
 
 .. autoexception:: FailedTestsError

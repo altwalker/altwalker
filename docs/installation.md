@@ -19,7 +19,7 @@ And in the Path from User Variables:
 
 ### GraphWalker
 
-Altwalker relies on [Graphwalker](http://graphwalker.github.io/) to generate paths through your model(s).
+AltWalker relies on [Graphwalker](http://graphwalker.github.io/) to generate paths through your model(s).
 
 AltWalker uses the GraphWalker CLI, the CLI is a standalone jar file. You need to have Java 8 installed to be able to execute the jar file.
 
