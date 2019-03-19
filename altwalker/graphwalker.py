@@ -1,34 +1,14 @@
 import subprocess
-import platform
 import logging
-import signal
 import time
 import json
-import os
 
-import psutil
 import requests
 
+from altwalker._utils import kill, get_command
 from altwalker.exceptions import GraphWalkerException
 
-
 logger = logging.getLogger("graphwalker")
-
-
-def _kill(pid):
-    """Send the SIGINT signal to a process and all its children."""
-    process = psutil.Process(pid)
-
-    for child in process.children(recursive=True):
-        os.kill(child.pid, signal.SIGINT)
-
-    os.kill(process.pid, signal.SIGINT)
-
-
-def _get_graphwalker_executable():
-    command = ["cmd.exe", "/C"] if platform.system() == "Windows" else []
-    command.append("gw")
-    return command
 
 
 def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None,
@@ -50,7 +30,7 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
         A list containing the executable followed command and options.
     """
 
-    command = _get_graphwalker_executable()
+    command = get_command("gw")
     command.append(command_name)
 
     if model_path:
@@ -246,7 +226,7 @@ class GraphWalkerService:
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
 
         logger.debug("Kill the GraphWalker Service on port: {}".format(self.port))
-        _kill(self._process.pid)
+        kill(self._process.pid)
 
 
 class GraphWalkerClient:

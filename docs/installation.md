@@ -72,12 +72,11 @@ Check that you installed the correct version:
 $ altwalker --version
 ```
 
-
 ## Install .NET Core (Optional)
 
-.NET Core is required by AltWalker when you want to write your tests in a dotnet supported language.  
+.NET Core is required by AltWalker when you want to write your tests in a dotnet supported language.
 
 * Install .NET Core Runtime - enables AltWalker to execute compiled tests. Preferred in production environment
 * Install .NET Core SDK -  enables AltWalker to use dotnet to compile and run your tests. Preferred in development environment
 
-dotnet command needs to be available under `/usr/bin/dotnet`. Installing .NET Core with snap makes the `dotnet` command available under a different path. In this case create a symbolic link `ln -s /path/to/dotnet /usr/bin/dotnet` 
+The `dotnet` command needs to be available under `/usr/bin/dotnet`. Installing .NET Core with snap makes the `dotnet` command available under a different path. In this case create a symbolic link `ln -s /path/to/dotnet /usr/bin/dotnet`

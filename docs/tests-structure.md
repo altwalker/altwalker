@@ -137,7 +137,7 @@ Define `setUpRun` and `tearDownRun` inside a Setup class, and register it inside
 
 ```c#
 /// The implementation of the model named ModelA.
-public class ModelA{
+public class ModelA {
     /// Will be executed before executing all steps from this model
     public void setUpModel() {}
 
@@ -145,18 +145,18 @@ public class ModelA{
     public void tearDownModel() {}
 }
 
-public class Startup{
-    ///Will be executed first, before anything else.
+public class Startup {
+    /// Will be executed first, before anything else.
     public void setUpRun() {}
 
-    ///Will be executed first, after anything else.
+    /// Will be executed first, after anything else.
     public void tearDownRun() {}
 }
 
 public class Program {
         public static void Main (string[] args) {
             ExecutorService service = new ExecutorService();
-            service.RegisterModel<MyModel>(); 
+            service.RegisterModel<MyModel>();
             service.RegisterSetup<Setup>();
             service.Start(args);
         }
@@ -167,7 +167,6 @@ public class Program {
 
 If you are using the `online` command your test code has direct access to the  graphs
 execution context provided by GraphWalker.
-
 
 In order to read/update the graph data from you tests, you need to define the function with
 a parameter, and AltWalker will pass a `IDictionary<string, dynamic>` object,

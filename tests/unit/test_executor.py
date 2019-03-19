@@ -2,8 +2,8 @@ from altwalker.exceptions import ExecutorException
 import unittest
 import unittest.mock as mock
 
-from altwalker.executor import create_executor, _create_python_executor
-from altwalker.executor import get_output, load, PythonExecutor, HttpExecutorClient, HttpExecutor
+from altwalker.executor import create_executor, create_python_executor
+from altwalker.executor import get_output, load, PythonExecutor, HttpExecutor
 
 
 class TestGetOutput(unittest.TestCase):
@@ -165,42 +165,49 @@ class TestPythonExecutor(unittest.TestCase):
             self.executor._instances["class_name"].method.assert_called_once_with({"key": "value"})
 
 
-class TestHttpExecutorClient(unittest.TestCase):
+class TestHttpExecutor(unittest.TestCase):
+
     def setUp(self):
-        self.executor = HttpExecutorClient("1.2.3.4", 1234)
+        self.executor = HttpExecutor("1.2.3.4", 1234)
 
     def test_base(self):
         self.assertEqual(self.executor.base, "http://1.2.3.4:1234/altwalker/")
 
     def test_has_model(self):
         self.executor._get = mock.MagicMock()
+
         self.executor.has_model("model")
         self.executor._get.assert_called_once_with("hasModel", params=(("name", "model")))
 
     def test_has_step(self):
         self.executor._get = mock.MagicMock()
+
         self.executor.has_step("model", "step")
         self.executor._get.assert_called_once_with("hasStep", params=(("modelName", "model"), ("name", "step")))
 
     def test_has_setup_run_step(self):
         self.executor._get = mock.MagicMock()
+
         self.executor.has_step(None, "step")
         self.executor._get.assert_called_once_with("hasStep", params=(("modelName", None), ("name", "step")))
 
     def test_execute_step(self):
         self.executor._post = mock.MagicMock()
+
         self.executor.execute_step("model", "step", {})
         self.executor._post.assert_called_once_with("executeStep", params=(
             ("modelName", "model"), ("name", "step")), data={})
 
     def test_execute_setup_step(self):
         self.executor._post = mock.MagicMock()
+
         self.executor.execute_step(None, "step", {})
         self.executor._post.assert_called_once_with(
             "executeStep", params=(("modelName", None), ("name", "step")), data={})
 
     def test_restart(self):
         self.executor._get = mock.MagicMock()
+
         self.executor.reset()
         self.executor._get.assert_called_once_with("reset")
 
@@ -222,25 +229,27 @@ class TestHttpExecutorClient(unittest.TestCase):
 
 
 class TestCreateExecutor(unittest.TestCase):
-    @mock.patch("altwalker.executor._create_python_executor")
+
+    @mock.patch("altwalker.executor.create_python_executor")
     def test_create_executor_python(self, create_python_executor):
         create_executor("path/to/pacakge", "python")
         create_python_executor.assert_called_once_with("path/to/pacakge")
 
-    @mock.patch("altwalker.executor._create_python_executor")
+    @mock.patch("altwalker.executor.create_python_executor")
     @mock.patch("altwalker.executor.DotnetExecutorService", return_value="service")
     @mock.patch("altwalker.executor.HttpExecutor", return_value="executor")
     def test_create_executor_dotnet(self, http_executor, dotnet_executor_service, create_python_executor):
         executor = create_executor("path/to/pacakge", "c#", port=1111, host="1.1.1.1")
+
         self.assertEqual(executor, "executor")
         dotnet_executor_service.assert_called_once_with("path/to/pacakge", "1.1.1.1", 1111)
-        http_executor.assert_called_once_with("service", "1.1.1.1", 1111)
+        http_executor.assert_called_once_with("1.1.1.1", 1111)
         create_python_executor.assert_not_called()
 
     @mock.patch("altwalker.executor.load", return_value="module")
     @mock.patch("altwalker.executor.PythonExecutor")
     def test_create_python_executor(self, python_executor, load):
-        _create_python_executor("path/to/package")
+        create_python_executor("path/to/package")
         load.assert_called_once_with("path/to", "package", "test")
         python_executor.assert_called_once_with("module")
 
@@ -249,9 +258,3 @@ class TestCreateExecutor(unittest.TestCase):
             create_executor("path/to/pacakge", "mylanguage", "1.1.1.1", 1111)
 
         self.assertEqual("mylanguage is not supported.", str(error.exception))
-
-
-class TestHttpExecutor(unittest.TestCase):
-    def test_init(self):
-        executor = HttpExecutor("service", "host", 2000)
-        self.assertEqual(executor.base, "http://host:2000/altwalker/")

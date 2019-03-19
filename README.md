@@ -62,7 +62,7 @@ Make a sample project and run the tests.
 ```
 $ altwalker init test-project
 $ cd test-project
-$ altwalker online tests -m models/default.json "ramndom(vertex_coverage(100))"
+$ altwalker online tests -m models/default.json "random(vertex_coverage(100))"
 Running:
 [2019-02-28 11:49:21.803956] ModelName.vertex_A Running
 [2019-02-28 11:49:21.804709] ModelName.vertex_A Status: PASSED

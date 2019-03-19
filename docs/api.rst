@@ -35,7 +35,8 @@ Planner
 
 .. currentmodule:: altwalker.planner
 
-The role of a ``Planner`` is to determin the next step to be executed by the ``Executor``.
+The role of a ``Planner`` is to determin the next step to be executed by
+the ``Executor``.
 
 There are two Planners:
 
@@ -44,15 +45,16 @@ There are two Planners:
         Uses GraphWalker online mode to generate the test path.
 
         This method allows the test code to directly interact with GraphWalker
-        and modify the model data. A dictionary with model data will be passed as a the first argument to any method/function
-        form the test code by :class:`altwalker.walker.Walker` class.
+        and modify the model data. A dictionary with model data will be passed
+        as a the first argument to any method/function form the test code
+        by :class:`altwalker.walker.Walker` class.
 
     * :class:`OfflinePlanner`
 
         Uses a already generated sequence of steps to generate the test path.
 
-        The sequense of path can be generated using the :func:`altwalker.graphwalker.offline`
-        function.
+        The sequense of path can be generated using
+        the :func:`altwalker.graphwalker.offline` function.
 
 .. autoclass:: OnlinePlanner
     :members:
@@ -101,36 +103,15 @@ Executor
 
 .. currentmodule:: altwalker.executor
 
-The role of the executor is handle the test execution.
-The executor that is needed by the Walker needs to implement the following methods:
+The role of the executor is to handle the test execution. Every executor
+should have all the methos form the :class:`altwalker.executor.Executor`.
+If some of the methods are not needed by the exexcutor the methods shoud
+just do nothing.
 
 
-.. code-block:: python
+.. autoclass:: Executor
+    :members:
 
-    execute_step(model_name, name, data=None)
-
-    has_step(model_name, name)
-
-    has_model(name)
-
-    reset()
-
-    kill()
-
-
-.. autoclass:: PythonExecutor
-
-    .. automethod:: __init__
-
-    .. automethod:: has_model
-
-    .. automethod:: has_step
-
-    .. automethod:: execute_step
-
-    .. automethod:: reset
-
-    .. automethod:: kill
 
 .. autoclass:: HttpExecutor
 
@@ -145,6 +126,13 @@ The executor that is needed by the Walker needs to implement the following metho
     .. automethod:: reset
 
     .. automethod:: kill
+
+
+.. autoclass:: PythonExecutor
+    :members:
+
+    .. automethod:: __init__
+
 
 .. autoclass:: DotnetExecutorService
     :members:
@@ -284,8 +272,8 @@ Exceptions
 Click Exceptions
 ~~~~~~~~~~~~~~~~
 
-This exceptions are used in the cli to handel the ``exit_code`` and the display of
-:class:`GraphWalkerException` and :class:`AltWalkerException`.
+This exceptions are used in the cli to handel the ``exit_code`` and the d
+isplay of :class:`GraphWalkerException` and :class:`AltWalkerException`.
 
 .. autoexception:: FailedTestsError
     :members:

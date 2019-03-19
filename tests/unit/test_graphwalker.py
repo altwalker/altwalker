@@ -4,16 +4,7 @@ import unittest.mock as mock
 import platform
 
 from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, _create_command, \
-    _execute_command, offline, methods, check, _get_graphwalker_executable
-
-
-class TestGetGraphwalkerExecutable(unittest.TestCase):
-
-    def test_get_executable(self):
-        if platform.system() == "Windows":
-            self.assertListEqual(_get_graphwalker_executable(), ["cmd.exe", "/C", "gw"])
-        else:
-            self.assertListEqual(_get_graphwalker_executable(), ["gw"])
+    _execute_command, offline, methods, check
 
 
 class TestGraphWalkerClient(unittest.TestCase):
@@ -84,12 +75,9 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.client._put.assert_called_once_with("/setData/key=\"str\"")
 
 
-def get_graphwalker_side_effect():
-    return ["gw"]
-
-
-@mock.patch("altwalker.graphwalker._get_graphwalker_executable", side_effect=get_graphwalker_side_effect)
+@mock.patch("altwalker._utils.get_command", side_effect=lambda command: [command])
 class TestCreateCommand(unittest.TestCase):
+
     def test_method(self, get_gw):
         command = _create_command("online")
         self.assertEqual(command[1], "online")
