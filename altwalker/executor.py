@@ -2,6 +2,7 @@ import os
 import io
 import sys
 import inspect
+import traceback
 import importlib
 import importlib.util
 import subprocess
@@ -15,17 +16,26 @@ from altwalker.exceptions import ExecutorException
 
 
 def get_output(callable, *args, **kargs):
-    """Call a callable object and return the output from stdout."""
+    """Call a callable object and return the output from stdout, error message and
+    traceback if an error occurred.
+    """
 
+    result = {}
     output = io.StringIO()
 
     with redirect_stdout(output):
-        callable(*args, **kargs)
+        try:
+            callable(*args, **kargs)
+        except Exception as e:
+            result["error"] = {
+                "message": str(e),
+                "trace": str(traceback.format_exc())
+            }
 
-    string = output.getvalue()
+    result["output"] = output.getvalue()
     output.close()
 
-    return string
+    return result
 
 
 def load(path, package, module):
@@ -250,6 +260,7 @@ class PythonExecutor(Executor):
         Returns:
             The data changed by callable and output of the callable.
         """
+
         if model_name is None:
             func = getattr(self._module, name)
             nr_args = len(inspect.getfullargspec(func).args)
@@ -270,10 +281,8 @@ class PythonExecutor(Executor):
         if nr_args > 1:
             raise ExecutorException("{} {} takes 0 or 1 parameters but more than 1 were given".format(model_name, name))
 
-        return {
-            "output": output,
-            "data": data
-        }
+        output["data"] = data
+        return output
 
     def reset(self):
         self._instances = {}

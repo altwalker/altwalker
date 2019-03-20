@@ -4,7 +4,7 @@
 
 ### Structure
 
-AltWalker requires a python package (usualy name ``tests``) and inside a
+AltWalker requires a python package (usually name ``tests``) and inside a
 python module named ``test.py``:
 
 ```
@@ -42,7 +42,7 @@ class ModelB:
 
 ### Fixtures
 
-Altwalker implements four test fixtures inspired by JUnit and the python unittest
+AltWalker implements four test fixtures inspired by JUnit and the python unittest
 module:
 
 * `setUpRun`
@@ -99,7 +99,6 @@ def element_method(self, data):
     # to set a new value for a key
     data.set("key", "new_value")
 ```
-
 
 ## C#
 

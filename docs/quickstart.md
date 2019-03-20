@@ -10,7 +10,7 @@ In this quickstart you will learn how to create your tests project from scratch,
 $ altwalker init test-project
 ```
 
-The `init` command creates tests directory and initializez a git repository. The tests directory contains a sample model (`test-project/models/default.json`) and a python package package containing the template code for the model (`test-poject/tests`).
+The `init` command creates tests directory and initialize a git repository. The tests directory contains a sample model (`test-project/models/default.json`) and a python package package containing the template code for the model (`test-poject/tests`).
 
 To run the tests for the `default.json` model, run the following commands:
 
@@ -27,7 +27,7 @@ The online command runs your tests inside `tests` with the `default.json` model 
 $ altwalker init test-project -m path/to/model.json
 ```
 
-The `init` command creates a tests directory with your model(s), generates the code template for the modele(s) and initializez a git repository.
+The `init` command creates a tests directory with your model(s), generates the code template for the model(s) and initialize a git repository.
 
 After you create a tests directory, you can run your tests:
 
@@ -42,7 +42,7 @@ $ altwalker online tests -m models/model.json "random(vertex_coverage(100))"
 $ altwalker generate path/for/package/ -m path/to/models.json
 ```
 
-The `generate` command will generate a test package named `tests` containig the code template for the modele(s), inside the `path/for/package/` directory.
+The `generate` command will generate a test package named `tests` containing the code template for the modele(s), inside the `path/for/package/` directory.
 
 ## C#
 

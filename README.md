@@ -18,12 +18,13 @@ Install GraphWalker:
 
 * MacOS/Linux:
 
-```
+```bash
 $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar && \
-  cp graphwalker-cli-4.0.0-SNAPSHOT.jar / && \
-  echo '#!/bin/bash\njava -jar /graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' >> /graphwalker-cli && \
-  chmod 777 /graphwalker-cli && \
-  ln -s /graphwalker-cli /usr/bin/gw
+  mkdir -p ~/graphwalker && \
+  mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
+  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
+  chmod 777 ~/graphwalker/graphwalker-cli.sh && \
+  ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
 
 * Windows:

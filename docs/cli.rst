@@ -57,7 +57,7 @@ The command will create a directory named ``test-project`` with the following st
             test.py
 
 * **test-project**: The project root directory.
-* **models**: A direcotry containing the models files (``.json`` or ``.graphml``).
+* **models**: A directory containing the models files (``.json`` or ``.graphml``).
 * **tests**: A python package containing the test code.
 * **tests/tests.py**: A python module containing the code for the models.
 
@@ -73,7 +73,7 @@ If you don't want ``test-project`` to be git repository run the command with ``-
 
 
 If you specify models (with the ``-m/--models`` option) ``init`` will copy the
-models in the  ``models`` directoryand ``test.py`` will contain a template
+models in the  ``models`` directory and ``test.py`` will contain a template
 with all the classes and methods needed for
 the models:
 
@@ -148,7 +148,7 @@ For the ``model`` option you need to pass a ``model_path`` and a ``stop_condtion
     stop conditions.
 
     For more details and a list of all available options read the
-    `GraphWalker Documention <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
+    `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
 
 The ``-m/--model`` is required but you can use it multiple times to provide multiple models:
 
@@ -209,7 +209,7 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_con
     stop conditions.
 
     For more details and a list of all available options read the
-    `GraphWalker Documention <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
+    `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
 
 
 The ``-m/--model`` is required but you can use it multiple times to provide multiple models.
@@ -265,7 +265,7 @@ For example:
     Status: True
 
 If you use the ``-o/--verbose`` flag, the command will print for each step the ``data``
-(the data for the current module) and ``properies`` (the properties of the current step
+(the data for the current module) and ``properties`` (the properties of the current step
 defined in the model):
 
 .. code-block:: console
@@ -277,7 +277,7 @@ defined in the model):
         "b": "0",
         "itemsInCart": "0"
     }
-    Properies:
+    Properties:
     {
         "x": 1,
         "y": 2
@@ -324,7 +324,7 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_con
     stop conditions.
 
     For more details and a list of all available options read the
-    `GraphWalker Documention <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
+    `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
 
 
 .. note::
@@ -371,7 +371,7 @@ option:
 
 
 If you use the ``-o/--verbose`` flag, the command will add for each step
-``data`` (the data for the current module) and ``properies``
+``data`` (the data for the current module) and ``properties``
 (the properties of the current step defined in the model)::
 
     {

@@ -1,3 +1,5 @@
+import traceback
+
 from altwalker.reporter import Reporter
 
 
@@ -117,10 +119,10 @@ class Walker:
 
     def _execute_step(self, model, name):
         data = self._planner.get_data()
-        step_result = self._executor.execute_step(model, name, data)
-        self._set_step_data(data, step_result["data"])
+        result = self._executor.execute_step(model, name, data)
+        self._set_step_data(data, result["data"])
 
-        return step_result["output"]
+        return result
 
     def _run_step(self, step, optional=False):
         model = step.get("modelName", None)
@@ -137,15 +139,23 @@ class Walker:
 
         try:
             self._reporter.step_start(step)
-            output = self._execute_step(model, name)
-            self._reporter.step_status(step, output=output)
 
-            return True
+            result = self._execute_step(model, name)
+
+            error = result.get("error", None)
+            output = result["output"]
+
+            self._reporter.step_status(step, output=output, failure=error is not None)
+
+            if error:
+                self._reporter.error(error["message"], trace=error["trace"])
+
+            return error is None
         except Exception as e:
             self._planner.fail(step, str(e))
 
             self._reporter.step_status(step, failure=True)
-            self._reporter.error(str(e), trace=True)
+            self._reporter.error(str(e), trace=str(traceback.format_exc()))
 
             return False
 

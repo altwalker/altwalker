@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.1.1
+-------------
+
+(bugfix release)
+
+- Fix issue where output of a failed step is not reported. (`#20`_)
+
+.. _#20: https://gitlab.com/altom/altwalker/altwalker/issues/20
+
 Version 0.1.0
 -------------
 

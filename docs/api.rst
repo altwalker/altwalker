@@ -192,7 +192,7 @@ For more informations check out the `GraphWalker REST API Documentation <http://
 
     .. automethod:: get_next
 
-        Depending of how the GraphWalker Service was started ``get_next`` will return diffrent responses.
+        Depending of how the GraphWalker Service was started ``get_next`` will return different responses.
 
         With the verbose flag::
 
@@ -204,7 +204,7 @@ For more informations check out the `GraphWalker REST API Documentation <http://
                 "properties": {}
             }
 
-        With the unvisted flag::
+        With the unvisited flag::
 
             {
                 "id": step_id,

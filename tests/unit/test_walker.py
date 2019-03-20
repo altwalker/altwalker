@@ -98,14 +98,14 @@ class TestRunStep(unittest.TestCase):
         }
         self.executor.has_step.return_value = True
         self.planner.get_data.return_value = {"key": "val"}
-        self.walker._execute_step = mock.MagicMock(return_value="")
+        self.walker._execute_step = mock.MagicMock(return_value={"output": ""})
 
         status = self.walker._run_step(step)
 
         self.executor.has_step.assert_called_once_with(step["modelName"], step["name"])
         self.reporter.step_start.assert_called_once_with(step)
         self.walker._execute_step.assert_called_once_with("modelName", "name")
-        self.reporter.step_status.assert_called_once_with(step, output="")
+        self.reporter.step_status.assert_called_once_with(step, output="", failure=False)
         self.assertTrue(status)
 
     def test_optional(self):
@@ -143,12 +143,12 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.walker._execute_step = mock.MagicMock(return_value="")
+        self.executor.execute_step.return_value = {"output": "", "data": {}}
 
         self.walker._run_step(step)
 
         self.reporter.step_start.assert_called_once_with(step)
-        self.reporter.step_status.assert_called_once_with(step, output="")
+        self.reporter.step_status.assert_called_once_with(step, output="", failure=False)
 
     def test_report_fail(self):
         step = {
@@ -171,10 +171,10 @@ class TestRunStep(unittest.TestCase):
             "modelName": "modelName"
         }
         self.executor.has_step.return_value = True
-        self.walker._execute_step = mock.MagicMock(return_value="output")
+        self.executor.execute_step.return_value = {"output": "output", "data": {}}
 
         self.walker._run_step(step)
-        self.reporter.step_status.assert_called_once_with(step, output="output")
+        self.reporter.step_status.assert_called_once_with(step, output="output", failure=False)
 
     def test_execute_step(self):
         self.planner.get_data.return_value = "before_step_data"
@@ -191,7 +191,7 @@ class TestRunStep(unittest.TestCase):
         self.planner.get_data.assert_called_once_with()
         self.executor.execute_step.assert_called_once_with("model", "name", "before_step_data")
         self.walker._set_step_data.assert_called_once_with("before_step_data", "after_step_data")
-        self.assertEqual(output, "output")
+        self.assertEqual(output, {'data': 'after_step_data', 'output': 'output'})
 
     def test_set_step_data(self):
         self.walker._set_step_data(
