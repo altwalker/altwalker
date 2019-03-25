@@ -14,9 +14,16 @@ from altwalker.init import init_repo, generate_tests
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-model_option = click.option("--model", "-m", "models", type=(click.Path(exists=True, dir_okay=False), str),
-                            required=True, multiple=True,
-                            help="The model, as a graphml/json file followed by generator with stop condition.")
+model_and_generator_option = click.option(
+    "--model", "-m", "models",
+    type=(click.Path(exists=True, dir_okay=False), str),
+    required=True,
+    multiple=True,
+    help="The model, as a graphml/json file followed by generator with stop condition.")
+
+required_model_file_option = click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
+                                          required=True, multiple=True,
+                                          help="The model, as a graphml/json file.")
 
 start_element_option = click.option("--start-element", "-e",
                                     help="Sets the starting element in the first model.")
@@ -49,7 +56,7 @@ def cli():
 
 
 @cli.command()
-@add_options([model_option, blocked_option])
+@add_options([model_and_generator_option, blocked_option])
 @handle_errors
 def check(models, blocked):
     """Check and analyze model(s) for issues."""
@@ -60,10 +67,7 @@ def check(models, blocked):
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
-@click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
-              required=True, multiple=True,
-              help="The model, as a graphml/json file.")
-@add_options([language_option])
+@add_options([required_model_file_option, language_option])
 @handle_errors
 def verify(test_package, models, language):
     """Verify test code against the model(s)."""
@@ -79,30 +83,30 @@ def verify(test_package, models, language):
               help="The model, as a graphml/json file.")
 @click.option("--no-git", "-n", "no_git", default=False, is_flag=True,
               help="If set it will not initialize a git repository.")
+@add_options([language_option])
 @handle_errors
-def init(dest_dir, models, no_git):
+def init(dest_dir, models, no_git, language):
     """Initialize an AltWalker project."""
 
-    init_repo(dest_dir, models, no_git)
+    init_repo(dest_dir, language, models, no_git)
 
 
 @cli.command()
 @click.argument("dest_dir", type=click.Path(exists=False))
-@click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
-              required=True, multiple=True,
-              help="The model, as a graphml/json file.")
+@add_options([required_model_file_option, language_option])
 @handle_errors
-def generate(dest_dir, models):
+def generate(dest_dir, models, language):
     """Generate test code template based on the given model(s)."""
 
-    generate_tests(dest_dir, models)
+    generate_tests(dest_dir, models, language)
 
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
 @click.option("--port", "-p", default=8887,
               help="Sets the port of the GraphWalker service.")
-@add_options([model_option, start_element_option, verbose_option, unvisted_option, blocked_option, language_option])
+@add_options([model_and_generator_option, start_element_option, verbose_option,
+              unvisted_option, blocked_option, language_option])
 @handle_errors
 def online(test_package, **options):
     """Run a test path using the GraphWalker online RESTFUL service."""
@@ -117,7 +121,7 @@ def online(test_package, **options):
 @cli.command()
 @click.option("--output-file", "-f", type=click.File(mode="w", lazy=True, atomic=True),
               help="Output file.")
-@add_options([model_option, start_element_option, verbose_option, unvisted_option, blocked_option])
+@add_options([model_and_generator_option, start_element_option, verbose_option, unvisted_option, blocked_option])
 @handle_errors
 def offline(**options):
     """Generate a test path once, that can be runned later."""

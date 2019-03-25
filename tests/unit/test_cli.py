@@ -75,7 +75,7 @@ class TestGenerate(unittest.TestCase):
             result = self.runner.invoke(
                 generate, ["output_dir", "-m", "models.json"])
 
-            generate_test_mock.assert_called_once_with("output_dir", ("models.json", ))
+            generate_test_mock.assert_called_once_with("output_dir", ("models.json", ), "python")
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_error(self, generate_tests_mock):
@@ -102,12 +102,12 @@ class TestInit(unittest.TestCase):
     def test_init(self, init_repo_mock):
         with run_isolation(self.runner, self.files):
             self.runner.invoke(init, ["."])
-            init_repo_mock.assert_called_once_with(".", (), False)
+            init_repo_mock.assert_called_once_with(".", "python", (), False)
 
     def test_model(self, init_repo_mock):
         with run_isolation(self.runner, self.files):
             self.runner.invoke(init, ["-m", "models.json", "."])
-            init_repo_mock.assert_called_once_with(".", ("models.json", ), False)
+            init_repo_mock.assert_called_once_with(".", "python", ("models.json", ), False)
 
     def test_error(self, init_repo_mock):
         message = "Error messaage"

@@ -262,15 +262,15 @@ class TestJsonMethods(unittest.TestCase):
         output = _json_methods("model_path")
         self.assertListEqual(
             output["ModelA"],
-            ["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])
-        self.assertListEqual(output["ModelB"], ["vertex_name", "edge_name"])
+            sorted(set(["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])))
+        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
 
     def test_blocked_enable(self, read_mock):
         read_mock.return_value = self.models
 
         output = _json_methods("model_path", blocked=True)
-        self.assertListEqual(output["ModelA"], ["vertex_not_blocked", "edge_not_blocked"])
-        self.assertListEqual(output["ModelB"], ["vertex_name", "edge_name"])
+        self.assertListEqual(output["ModelA"], sorted(set(["vertex_not_blocked", "edge_not_blocked"])))
+        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
 
 
 @mock.patch("altwalker.graphwalker.methods")

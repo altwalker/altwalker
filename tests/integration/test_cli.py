@@ -51,11 +51,11 @@ class TestCliInit(unittest.TestCase):
             self.verify_git_repo(packagename)
 
             expected_code = "\nclass ModelName:\n\n" \
+                "\tdef edge_A(self):\n" \
+                "\t\tpass\n\n" \
                 "\tdef vertex_A(self):\n" \
                 "\t\tpass\n\n" \
                 "\tdef vertex_B(self):\n" \
-                "\t\tpass\n\n" \
-                "\tdef edge_A(self):\n" \
                 "\t\tpass\n\n"
 
             with open(packagename + "/tests/test.py", "r") as f:

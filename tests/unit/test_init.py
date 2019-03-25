@@ -3,7 +3,8 @@ import shutil
 import unittest
 import unittest.mock as mock
 
-from altwalker.init import _copy_models, _create_default_model, generate_tests, init_repo
+from altwalker.init import _copy_models, _create_default_model, init_repo
+from altwalker.init import generate_tests,  generate_tests_python, generate_tests_csharp
 
 
 class TestCopyModels(unittest.TestCase):
@@ -40,7 +41,6 @@ class TestCreateDefaultModel(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.output_dir + "/default.json"))
 
 
-@mock.patch("altwalker.init.get_methods")
 class TestGenerateTests(unittest.TestCase):
 
     def setUp(self):
@@ -50,9 +50,8 @@ class TestGenerateTests(unittest.TestCase):
         if os.path.exists(self.output_dir):
             shutil.rmtree(self.output_dir)
 
-    def test_generate(self, get_methods_mock):
-        get_methods_mock.return_value = {"ModelName": ["vertex_A", "vertex_B", "edge_A"]}
-        generate_tests("output_dir", ["model.json"])
+    def test_generate_python(self):
+        generate_tests_python(self.output_dir, {"ModelName": ["vertex_A", "vertex_B", "edge_A"]})
 
         expected_code = "\nclass ModelName:\n\n" \
             "\tdef vertex_A(self):\n" \
@@ -62,19 +61,44 @@ class TestGenerateTests(unittest.TestCase):
             "\tdef edge_A(self):\n" \
             "\t\tpass\n\n"
 
-        with open("output_dir" + "/tests/test.py", "r") as f:
+        with open(self.output_dir + "/tests/test.py", "r") as f:
             code = f.read()
             self.assertEqual(code, expected_code)
 
-    @mock.patch("builtins.open")
-    def test_cleanup(self, open_mock, get_methods_mock):
+    def test_generate_csharp(self):
+        generate_tests_csharp(self.output_dir, {"ModelName": ["vertex_A", "vertex_B", "edge_A"]})
+
+        self.assertTrue(os.path.exists("output_dir/output_dir.Tests"))
+
+        files = [
+            "output_dir.Tests/output_dir.Tests.csproj",
+            "output_dir.Tests/Program.cs",
+            "output_dir.Tests/ModelName.cs"
+        ]
+
+        for file in files:
+            with open("tests/common/dotnet/" + file, "r") as expected:
+                expected = expected.read()
+                with open(self.output_dir + "/" + file, "r") as generated:
+                    generated = generated.read()
+                    self.assertEqual(expected, generated, file)
+
+    @mock.patch("altwalker.init.get_methods")
+    def test_generate_unsupported_language(self, get_methods):
+        get_methods.return_value = []
+        with self.assertRaisesRegex(Exception, "unsupportedlanguage is not supported."):
+            generate_tests("output_dir", ["model.json"], "unsupportedlanguage")
+
+    @mock.patch("altwalker.init.get_methods")
+    @mock.patch("altwalker.init.generate_tests_python")
+    def test_cleanup(self, generate_tests_python_mock, get_methods):
+        get_methods.return_value = []
         message = "Error message"
-        open_mock.side_effect = Exception(message)
+        generate_tests_python_mock.side_effect = Exception(message)
 
-        get_methods_mock.return_value = {"ModelName": ["vertex_A", "vertex_B", "edge_A"]}
-
+        os.makedirs("output_dir")
         with self.assertRaisesRegex(Exception, message):
-            generate_tests("output_dir", ["model.json"])
+            generate_tests("output_dir", ["model.json"], "python")
 
         self.assertEqual(False, os.path.isdir(self.output_dir))
 
@@ -112,13 +136,13 @@ class TestInit(unittest.TestCase):
     @mock.patch("altwalker.init._copy_models")
     @mock.patch("altwalker.init.check_models")
     def test_check_models(self, check_mock, copy_mock, generate_tests_mock, git_init_mock):
-        init_repo(self.output_dir, ["first.json", "second.json"])
+        init_repo(self.output_dir, "python", ["first.json", "second.json"])
         check_mock.assert_called_once_with([("first.json", "random(never)"), ("second.json", "random(never)")])
 
     @mock.patch("altwalker.init._copy_models")
     @mock.patch("altwalker.init.check_models")
     def test_copy_models(self, check_mock, copy_mock, generate_tests_mock, git_init_mock):
-        init_repo(self.output_dir, ["first.json", "second.json"])
+        init_repo(self.output_dir, "python", ["first.json", "second.json"])
         copy_mock.assert_called_once_with(self.output_dir + "/models", ["first.json", "second.json"])
 
     def test_git_init(self, generate_tests_mock, git_init_mock):
@@ -126,5 +150,5 @@ class TestInit(unittest.TestCase):
         git_init_mock.assert_called_once_with(self.output_dir)
 
     def test_no_git_init(self, generate_tests_mock, git_init_mock):
-        init_repo(self.output_dir, None, True)
+        init_repo(self.output_dir, "python", None, True)
         git_init_mock.assert_not_called()

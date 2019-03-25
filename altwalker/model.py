@@ -135,7 +135,7 @@ def _json_methods(model_path, blocked=False):
         vertices = [vertex["name"] for vertex in model["vertices"] if _is_element_blocked(vertex, blocked=blocked)]
         edges = [edge["name"] for edge in model["edges"] if _is_element_blocked(edge, blocked=blocked)]
 
-        result[name] = vertices + edges
+        result[name] = sorted(set(vertices + edges))
 
     return result
 
@@ -147,7 +147,7 @@ def _graphml_methods(model_path, blocked=False):
     model_name = file_name.replace(".graphml", "")
 
     result = dict()
-    result[model_name] = graphwalker.methods(model_path, blocked=blocked)
+    result[model_name] = sorted(set(graphwalker.methods(model_path, blocked=blocked)))
 
     return result
 
