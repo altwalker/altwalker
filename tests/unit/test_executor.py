@@ -1,56 +1,167 @@
-from altwalker.exceptions import ExecutorException
 import unittest
 import unittest.mock as mock
 
-from altwalker.executor import create_executor, create_python_executor
-from altwalker.executor import get_output, load, PythonExecutor, HttpExecutor
+from altwalker.exceptions import ExecutorException
+from altwalker.executor import get_output, load, create_executor, \
+    PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
 class TestGetOutput(unittest.TestCase):
 
-    def test_get_output(self):
+    def test_output(self):
         func = mock.MagicMock()
         func.side_effect = lambda: print("message")
 
         result = get_output(func)
 
-        # Should call the function and return the std output
         func.assert_called_once_with()
         self.assertEqual(result["output"], "message\n")
+
+    def test_not_error(self):
+        func = mock.MagicMock()
+
+        result = get_output(func)
+
+        func.assert_called_once_with()
         self.assertFalse("error" in result)
 
-    def test_get_output_error(self):
+    def test_error(self):
         func = mock.MagicMock()
         func.side_effect = Exception("Error message.")
 
         result = get_output(func)
 
-        # Should call the function and return the std output
         func.assert_called_once_with()
-        self.assertEqual(result["output"], "")
         self.assertTrue("error" in result)
 
-    def test_get_output_args(self):
+    def test_args(self):
         func = mock.MagicMock()
         get_output(func, "argument_1", "argument_2")
 
-        # Should call the function with args
         func.assert_called_once_with("argument_1", "argument_2")
 
-    def test_get_output_kargs(self):
+    def test_kargs(self):
         func = mock.MagicMock()
         get_output(func, key="value")
 
-        # Should call the function with kargs
         func.assert_called_once_with(key="value")
 
 
 class TestLoad(unittest.TestCase):
 
     def test_load(self):
-        # Should import a module from a package
         module = load("tests/common/", "example", "simple")
         self.assertTrue(hasattr(module, "Simple"))
+
+
+class TestHttpExecutor(unittest.TestCase):
+
+    def setUp(self):
+        self.executor = HttpExecutor(host="localhost", port=5000)
+
+    def test_base(self):
+        self.assertEqual(self.executor.base, "http://localhost:5000/altwalker/")
+
+    def test_valid_response(self):
+        response = mock.MagicMock()
+        response.status_code = 200
+
+        self.executor._validate_response(response)
+
+    def test_invalid_response(self):
+        response = mock.MagicMock()
+        response.status_code = 404
+        response.json.return_value = {}
+
+        error_message_reqex = "The executor from http://.*/altwalker/ responded with status code: .*"
+
+        with self.assertRaisesRegex(ExecutorException, error_message_reqex):
+            self.executor._validate_response(response)
+
+    def test_response_error(self):
+        response = mock.MagicMock()
+        response.status_code = 404
+        response.json.return_value = {
+            "error": {
+                "message": "Error message.",
+                "trace": "Trace."
+            }
+        }
+
+        with self.assertRaisesRegex(ExecutorException, ".*\nMessage: Error message.\nTrace: Trace."):
+            self.executor._validate_response(response)
+
+    def test_get_body(self):
+        body = mock.MagicMock()
+        body.json.return_value = {
+            "payload": {
+                "data": "data"
+            }
+        }
+
+        self.assertEqual(self.executor._get_body(body), {"data": "data"})
+
+    def test_load(self):
+        self.executor._post = mock.MagicMock(return_value={})
+
+        self.executor.load("path/to/code")
+        self.executor._post.assert_called_once_with("load", data={"path": "path/to/code"})
+
+    def test_restet(self):
+        self.executor._put = mock.MagicMock(return_value={})
+
+        self.executor.reset()
+        self.executor._put.assert_called_once_with("reset")
+
+    def test_has_model(self):
+        self.executor._get = mock.MagicMock(return_value={"hasModel": True})
+
+        self.executor.has_model("model")
+        self.executor._get.assert_called_once_with("hasModel", params=(("name", "model")))
+
+    def test_has_model_invalid_response(self):
+        self.executor._get = mock.MagicMock(return_value={})
+
+        with self.assertRaises(ExecutorException):
+            self.executor.has_model("model")
+
+    def test_has_step(self):
+        self.executor._get = mock.MagicMock(return_value={"hasStep": True})
+
+        self.executor.has_step("model", "step")
+        self.executor._get.assert_called_once_with("hasStep", params=(("modelName", "model"), ("name", "step")))
+
+    def test_has_setup_run_step(self):
+        self.executor._get = mock.MagicMock({"hasStep": True})
+
+        self.executor.has_step(None, "step")
+        self.executor._get.assert_called_once_with("hasStep", params=(("modelName", None), ("name", "step")))
+
+    def test_has_step_invalid_response(self):
+        self.executor._get = mock.MagicMock(return_value={})
+
+        with self.assertRaises(ExecutorException):
+            self.executor.has_step("model", "step")
+
+    def test_execute_step(self):
+        self.executor._post = mock.MagicMock({"output": ""})
+
+        self.executor.execute_step("model", "step", {})
+        self.executor._post.assert_called_once_with("executeStep", params=(
+            ("modelName", "model"), ("name", "step")), data={})
+
+    def test_execute_setup_step(self):
+        self.executor._post = mock.MagicMock({"output": ""})
+
+        self.executor.execute_step(None, "step", {})
+        self.executor._post.assert_called_once_with(
+            "executeStep", params=(("modelName", None), ("name", "step")), data={})
+
+    def test_execute_invalid_response(self):
+        self.executor._post = mock.MagicMock(return_value={})
+
+        with self.assertRaises(ExecutorException):
+            self.executor.execute_step("model", "step", {})
 
 
 class TestPythonExecutor(unittest.TestCase):
@@ -176,68 +287,21 @@ class TestPythonExecutor(unittest.TestCase):
             self.executor.execute_step("class_name", "method", data={"key": "value"})
             self.executor._instances["class_name"].method.assert_called_once_with({"key": "value"})
 
-
-class TestHttpExecutor(unittest.TestCase):
-
-    def setUp(self):
-        self.executor = HttpExecutor("1.2.3.4", 1234)
-
-    def test_base(self):
-        self.assertEqual(self.executor.base, "http://1.2.3.4:1234/altwalker/")
-
-    def test_has_model(self):
-        self.executor._get = mock.MagicMock()
-
-        self.executor.has_model("model")
-        self.executor._get.assert_called_once_with("hasModel", params=(("name", "model")))
-
-    def test_has_step(self):
-        self.executor._get = mock.MagicMock()
-
-        self.executor.has_step("model", "step")
-        self.executor._get.assert_called_once_with("hasStep", params=(("modelName", "model"), ("name", "step")))
-
-    def test_has_setup_run_step(self):
-        self.executor._get = mock.MagicMock()
-
-        self.executor.has_step(None, "step")
-        self.executor._get.assert_called_once_with("hasStep", params=(("modelName", None), ("name", "step")))
-
-    def test_execute_step(self):
-        self.executor._post = mock.MagicMock()
-
-        self.executor.execute_step("model", "step", {})
-        self.executor._post.assert_called_once_with("executeStep", params=(
-            ("modelName", "model"), ("name", "step")), data={})
-
-    def test_execute_setup_step(self):
-        self.executor._post = mock.MagicMock()
-
-        self.executor.execute_step(None, "step", {})
-        self.executor._post.assert_called_once_with(
-            "executeStep", params=(("modelName", None), ("name", "step")), data={})
-
-    def test_restart(self):
-        self.executor._get = mock.MagicMock()
-
+    def test_reset(self):
+        self.executor._instances = {"Class": None}
         self.executor.reset()
-        self.executor._get.assert_called_once_with("reset")
 
-    def test_get_body(self):
-        body = mock.MagicMock()
+        self.assertDictEqual(self.executor._instances, {})
 
-        # if no error should return body
-        body.json.return_value = {"data": "data"}
 
-        self.assertEqual(self.executor._get_body(body), {"data": "data"})
+class TestDotnetExecutorService(unittest.TestCase):
 
-        # Should raise exception if the error key is present
-        body.json.return_value = {"error": "error message."}
+    def test_create_command(self):
+        command = DotnetExecutorService._create_command("path", "localhost", 5000)
+        self.assertEqual(command, ['dotnet', 'path', '--server.urls=http://localhost:5000'])
 
-        with self.assertRaises(ExecutorException) as error:
-            self.executor._get_body(body)
-
-        self.assertEqual(str(error.exception), "error message.")
+        command = DotnetExecutorService._create_command("tests/", "localhost", 5000)
+        self.assertEqual(command, ['dotnet', 'run', '-p', 'tests/', '--server.urls=http://localhost:5000'])
 
 
 class TestCreateExecutor(unittest.TestCase):
@@ -247,26 +311,30 @@ class TestCreateExecutor(unittest.TestCase):
         create_executor("path/to/pacakge", "python")
         create_python_executor.assert_called_once_with("path/to/pacakge")
 
-    @mock.patch("altwalker.executor.create_python_executor")
-    @mock.patch("altwalker.executor.DotnetExecutorService", return_value="service")
-    @mock.patch("altwalker.executor.HttpExecutor", return_value="executor")
-    def test_create_executor_dotnet(self, http_executor, dotnet_executor_service, create_python_executor):
+    @mock.patch("altwalker.executor.create_dotnet_executor", return_value="service")
+    def test_create_dotnet(self, dotnet_executor):
         executor = create_executor("path/to/pacakge", "c#", port=1111, host="1.1.1.1")
+        self.assertEqual(executor, "service")
 
-        self.assertEqual(executor, "executor")
-        dotnet_executor_service.assert_called_once_with("path/to/pacakge", "1.1.1.1", 1111)
-        http_executor.assert_called_once_with("1.1.1.1", 1111)
-        create_python_executor.assert_not_called()
+        dotnet_executor.assert_called_once_with("path/to/pacakge", "1.1.1.1", 1111)
 
-    @mock.patch("altwalker.executor.load", return_value="module")
-    @mock.patch("altwalker.executor.PythonExecutor")
-    def test_create_python_executor(self, python_executor, load):
-        create_python_executor("path/to/package")
-        load.assert_called_once_with("path/to", "package", "test")
-        python_executor.assert_called_once_with("module")
+    @mock.patch("altwalker.executor.create_python_executor")
+    def test_create_python(self, python_executor):
+        path = "path/to/package"
+        create_executor(path, language="python")
 
-    def test_create_executor_service_not_implemented(self):
-        with self.assertRaises(ValueError) as error:
+        python_executor.assert_called_once_with(path)
+
+    @mock.patch("altwalker.executor.create_http_executor")
+    def test_create_http(self, http_executor):
+        path = "path/to/code"
+        host = "localhost"
+        port = 4200
+
+        create_executor(path, host=host, port=port)
+
+        http_executor.assert_called_once_with(path, host, port)
+
+    def test_create_invalid_language(self):
+        with self.assertRaisesRegex(ValueError, "mylanguage is not supported."):
             create_executor("path/to/pacakge", "mylanguage", "1.1.1.1", 1111)
-
-        self.assertEqual("mylanguage is not supported.", str(error.exception))

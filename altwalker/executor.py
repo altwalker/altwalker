@@ -1,6 +1,7 @@
 import os
 import io
 import sys
+import copy
 import inspect
 import traceback
 import importlib
@@ -97,7 +98,7 @@ class Executor:
                     }
                 }
 
-            If no error occured the ``error`` key is not pressent of set to ``None``.
+            If no error occured the ``error`` key can be omitted or set to ``None``.
 
             If the graph data is not used or modiffied the ``data`` key can be omitted or set to ``None``.
         """
@@ -106,74 +107,124 @@ class Executor:
 class HttpExecutor(Executor):
     """Http client for an executor service."""
 
-    def __init__(self, host, port):
+    ERROR_CODES = {
+        404: "Not Found",
+        460: "Model Not Found",
+        461: "Step Not Found",
+        462: "Invalid Step Handler",
+        463: "Path Not Found",
+        464: "Load Error",
+        465: "Test Code Not Loaded"
+    }
+
+    def __init__(self, host="127.0.0.1", port=5000):
         """Initialize an HttpExecutor with the ``host`` and ``port`` of the executor service."""
 
         self.host = host
         self.port = port
 
-        self.base = "http://" + host + ":" + str(port) + "/altwalker/"
+        self.base = "http://{}:{}/altwalker/".format(host, port)
+
+    def _validate_response(self, response):
+        if not response.status_code == 200:
+            status_code = response.status_code
+            error = response.json().get("error", None)
+
+            error_type = self.ERROR_CODES.get(status_code, "Unknown Error")
+            error_message = "The executor from {} responded with status code: {} {}.".format(
+                self.base, status_code, error_type)
+
+            if error:
+                error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error["trace"])
+
+            raise ExecutorException(error_message)
 
     def _get_body(self, response):
         body = response.json()
-
-        if "error" in body:
-            raise ExecutorException(body["error"])
-
-        return body
+        return body.get("payload", {})
 
     def _get(self, path, params=None):
         response = requests.get(self.base + path, params=params)
+        self._validate_response(response)
+
         return self._get_body(response)
 
     def _put(self, path):
         response = requests.put(self.base + path)
+        self._validate_response(response)
+
         return self._get_body(response)
 
     def _post(self, path, params=None, data=None):
         HEADERS = {'Content-Type': 'application/json'}
         response = requests.post(self.base + path, params=params, json=data, headers=HEADERS)
+        self._validate_response(response)
+
         return self._get_body(response)
 
-    def has_model(self, name):
-        """Makes a HTTP GET  request at ``/altwalker/hasModel?name=<name>``.
+    def load(self, path):
+        """Makes a POST request at ``/altwalker/load```."""
 
-        Returns:
-            True, if response["hasModel"] is True, where response is the json body returned by the api
-            False, otherwise
-        """
-
-        response = self._get("hasModel", params=(("name", name)))
-        return response["hasModel"]
-
-    def has_step(self, model_name, name):
-        """Makes a HTTP GET request at ``/altwalker/hasStep?modelName=<model_name>&name=<name>``.
-
-        Returns:
-            True, if response["hasStep"] is True, where response is the json body returned by the api
-            False, otherwise
-        """
-        response = self._get("hasStep", params=(("modelName", model_name), ("name", name)))
-        return response["hasStep"]
-
-    def execute_step(self, model_name, name, data=None):
-        """Makes a HTTP POST request at ``/altwalker/executeStep?modelName=<model_name>&name=<name>``.
-
-        Returns:
-            The data and the step execution output as returned by the api in json body.
-        """
-
-        response = self._post("executeStep", params=(("modelName", model_name), ("name", name)), data=data)
-
-        return {
-            "output": response["output"],
-            "data": response["data"]
-        }
+        self._post("load", data={"path": path})
 
     def reset(self):
-        """Makes an HTTP GET at ``/altwalker/reset``."""
+        """Makes an PUT at ``/altwalker/reset``."""
 
-        self._get("reset")
+        self._put("reset")
+
+    def has_model(self, name):
+        """Makes a GET  request at ``/altwalker/hasModel?name=<name>``.
+
+        Returns:
+            True, if the executor has the model, False otherwise.
+        """
+
+        payload = self._get("hasModel", params=(("name", name)))
+        has_model = payload.get("hasModel", None)
+
+        if has_model is None:
+            raise ExecutorException("Invaild response. The payload must include the key: hasModel.")
+
+        return payload["hasModel"]
+
+    def has_step(self, model_name, name):
+        """Makes a GET request at ``/altwalker/hasStep?modelName=<model_name>&name=<name>``.
+
+        Returns:
+            True, if the executor has the step, False otherwise.
+        """
+
+        payload = self._get("hasStep", params=(("modelName", model_name), ("name", name)))
+        has_step = payload.get("hasStep", None)
+
+        if has_step is None:
+            raise ExecutorException("Invaild response. The payload must include the key: hasStep.")
+
+        return has_step
+
+    def execute_step(self, model_name, name, data=None):
+        """Makes a POST request at ``/altwalker/executeStep?modelName=<model_name>&name=<name>``.
+
+        Returns:
+            A ``dict`` containing the graph data, the output of the step, and the error message with the
+            trace if an error occurred::
+
+                {
+                    "output": "",
+                    "data: {},
+                    "error": {
+                        "message": "",
+                        "trace": ""
+                    }
+                }
+        """
+
+        payload = self._post("executeStep", params=(("modelName", model_name), ("name", name)), data=data)
+
+        if payload.get("output", None) is None:
+            raise ExecutorException("Invaild response. The payload must include the key: output.")
+
+        return payload
 
 
 class PythonExecutor(Executor):
@@ -216,6 +267,9 @@ class PythonExecutor(Executor):
         path, package = os.path.split(path)
         self._module = load(path, package, "test")
 
+    def reset(self):
+        self._instances = {}
+
     def has_model(self, name):
         """Check if the module has a class named ``name``.
 
@@ -252,7 +306,7 @@ class PythonExecutor(Executor):
         """Execute the callable and returns the output.
 
         Args:
-            model_name: The name of the class, if None will execute
+            model_name: The name of the class, if ``None`` will execute
                 a function.
             name: The name of the method/function.
             data: The data will be passed to the callable.
@@ -268,27 +322,24 @@ class PythonExecutor(Executor):
             self._setup_class(model_name)
 
             func = getattr(self._instances[model_name], name)
-            # substract the self argument of the method
-            nr_args = len(inspect.getfullargspec(func).args) - 1
+            nr_args = len(inspect.getfullargspec(func).args) - 1  # substract the self argument of the method
 
         if data is None:
             data = {}
+        else:
+            data = copy.deepcopy(data)
 
         if nr_args == 0:
             output = get_output(func)
-        if nr_args == 1:
+        elif nr_args == 1:
             output = get_output(func, data)
-        if nr_args > 1:
-            raise ExecutorException("{} {} takes 0 or 1 parameters but more than 1 were given".format(model_name, name))
+        else:
+            raise ExecutorException(
+                "The {}.{} function must take 0 or 1 parameters but it expects more than one parameter."
+                .format(model_name, name))
 
         output["data"] = data
         return output
-
-    def reset(self):
-        self._instances = {}
-
-    def kill(self):
-        pass
 
 
 class DotnetExecutorService:
@@ -326,23 +377,27 @@ class DotnetExecutorService:
 
             raise ExecutorException("Service stopped. Stdout: {}".format(output))
 
-    def _create_command(self, path, host, port):
+    @staticmethod
+    def _create_command(path, host, port):
         command = get_command("dotnet")
 
         if os.path.isdir(path):
             command.append("run")
             command.append("-p")
-            self.dotnet_run = True
 
         command.append(path)
-        command.append("--server.urls=http://{}:{}".format(self.host, self.port))
+        command.append("--server.urls=http://{}:{}".format(host, port))
 
         return command
 
     def kill(self):
-        """Kill the dotnet service. If the path given was a project path and the service was started with
-        `dotnet run` kills the main process and child process, because `dotnet run` starts the service
-        in a child process."""
+        """Kill the dotnet service.
+
+        Note:
+            If the path given was a project path and the service was started with `dotnet run`
+            kills the main process and child process, because `dotnet run` starts the service
+            in a child process.
+        """
 
         kill(self._process.pid)
 
@@ -355,25 +410,42 @@ class DotnetExecutor(HttpExecutor):
         self._service = DotnetExecutorService(path, host, port)
 
     def load(self, path):
+        """Kill the executor service and start a new one with the given path."""
+
         self._service.kill()
         self._service = DotnetExecutorService(path, self.host, self.port)
 
     def kill(self):
+        """Kill the executor service."""
+
         self._service.kill()
 
 
+def create_http_executor(path, host, port):
+    """Creates a HTTP executor."""
+
+    executor = HttpExecutor(host=host, port=port)
+    executor.load(path)
+
+    return executor
+
+
 def create_dotnet_executor(path, host, port):
+    """Creates a .NET executor."""
+
     return DotnetExecutor(path, host, port)
 
 
 def create_python_executor(path):
+    """Creates a Python executor."""
+
     path, package = os.path.split(path)
     module = load(path, package, "test")
 
     return PythonExecutor(module)
 
 
-def create_executor(path, language="python", host="127.0.0.1", port=5000):
+def create_executor(path, language=None, host="127.0.0.1", port=5000):
     """Creates an executor.
 
     Args:
@@ -383,11 +455,11 @@ def create_executor(path, language="python", host="127.0.0.1", port=5000):
         port: The port for the executor to listen.
     """
 
-    if language == "python":
+    if not language:
+        return create_http_executor(path, host, port)
+    elif language == "python":
         return create_python_executor(path)
-    if language == "c#":
-        DotnetExecutor(path, host, port)
+    elif language == "c#":
+        return create_dotnet_executor(path, host, port)
     else:
         raise ValueError("{} is not supported.".format(language))
-
-    return HttpExecutor(host, port)

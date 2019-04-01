@@ -1,6 +1,7 @@
 # Installation
 
 __Pythons__: Python 3.4, 3.5, 3.6, 3.7, PyPy3
+
 __Platforms__: Unix/Posix and Windows
 
 On Windows, make sure you add Python in the Path from System Variables:
