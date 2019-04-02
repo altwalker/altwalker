@@ -38,6 +38,7 @@ docs/_build
 # logs
 altwalker.log
 graphwalker-service.log
+dotnet-executor.log
 gwoutput
 
 # dotnet

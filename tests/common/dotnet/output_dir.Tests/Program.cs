@@ -4,7 +4,7 @@ namespace output_dir.Tests {
 		public static void Main (string[] args) {
 			ExecutorService service = new ExecutorService();
 			service.RegisterModel<ModelName>();
-			service.Start(args);
+			service.Run(args);
 		}
 	}
 }

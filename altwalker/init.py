@@ -5,6 +5,7 @@ from os.path import join as path_join
 from git import Repo
 
 from altwalker.model import get_methods, check_models
+from altwalker.__version__ import VERSION
 
 
 _DEFAULT_MODEL = """{
@@ -98,9 +99,9 @@ def generate_tests_csharp(output_dir, methods):
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Altwalker.Executor" />
+    <PackageReference Include="Altwalker.Executor" Version="{}" />
   </ItemGroup>
-</Project>""".format(tests_proj_name))
+</Project>""".format(tests_proj_name, VERSION))
 
     with open(path_join(tests_proj_path, "Program.cs"), "w") as program:
         program.write("using Altom.Altwalker;\n")
@@ -122,7 +123,7 @@ def generate_tests_csharp(output_dir, methods):
 
                 model.write("\t}\n")
                 model.write("}\n")
-        program.write("\t\t\tservice.Start(args);\n")
+        program.write("\t\t\tservice.Run(args);\n")
         program.write("\t\t}\n")
         program.write("\t}\n")
         program.write("}\n")

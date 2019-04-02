@@ -221,6 +221,7 @@ class GraphWalkerService:
 
                 if "An error occurred when running command:" in line:
                     raise GraphWalkerException("Could not start GraphWalker Service on port {}.".format(self.port))
+        fp.close()
 
     def kill(self):
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""

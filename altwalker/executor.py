@@ -1,5 +1,6 @@
 import os
 import io
+import time
 import sys
 import copy
 import inspect
@@ -7,7 +8,6 @@ import traceback
 import importlib
 import importlib.util
 import subprocess
-from time import sleep
 from contextlib import redirect_stdout
 
 import requests
@@ -345,7 +345,7 @@ class PythonExecutor(Executor):
 class DotnetExecutorService:
     """Starts a dotnet executor service."""
 
-    def __init__(self, path, host, port):
+    def __init__(self, path, host, port, output_file="dotnet-executor.log"):
         """Starts a dotnet tests execution service.
 
         ``dotnet run -p <path>`` is used to compile and run the console app project
@@ -360,22 +360,32 @@ class DotnetExecutorService:
 
         self.host = host
         self.port = port
+        self.output_file = output_file
 
         command = self._create_command(path, host, port)
-        self._process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("Starting dotnet executor {} on http://{}:{}".format(path, host, port))
+        self._process = subprocess.Popen(command, stdin=subprocess.PIPE,
+                                         stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
 
-        sleep(5)
+        self._read_logs()
 
-        # the process should be running and expecting http requests
-        if self._process.poll() is not None:
-            output, error = self._process.communicate()
+    def _read_logs(self):
+        """Read logs to check if the service started correctly."""
 
-            if error:
-                error = error.decode("utf-8")
-                output = output.decode("utf-8")
-                raise ExecutorException("Service exited with error. Stderr: {}. Stdout: {}".format(error, output))
+        fp = open(self.output_file)
 
-            raise ExecutorException("Service stopped. Stdout: {}".format(output))
+        while 1:
+            where = fp.tell()
+            line = fp.readline()
+            if not line:
+                time.sleep(0.1)
+                fp.seek(where)
+            else:
+                if "Now listening on:" in line:
+                    break
+
+            if self._process.poll() is not None:
+                raise ExecutorException("Could not start dotnet Executor. Check {}".format(self.output_file))
 
     @staticmethod
     def _create_command(path, host, port):

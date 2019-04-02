@@ -38,13 +38,29 @@ integration test:
 
 dotnet tests:
   stage: test
-  image: mcr.microsoft.com/dotnet/core/sdk:2.2
+  image: altwalker/tests:dotnet-v2.2
   before_script:
-    - apt-get update && apt-get install -y python3 python3-pip
     - pip3 install -r requirements.txt --user
     - pip3 install -r requirements-dev.txt
   script: 
     - pytest -x -s -v -m dotnet tests/integration
+
+functional tests:
+  stage: test
+  image: altwalker/tests:dotnet-v2.2
+  before_script:
+    - apt-get update && apt-get install -y unzip
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - pip3 install -r requirements.txt --user
+  script: 
+    - pip3 install --editable .
+    - cd ..
+    - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
+    - unzip artifacts.zip
+    - altwalker init -l c# -n dotnetexample
+    - dotnet restore dotnetexample/dotnetexample.Tests/dotnetexample.Tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+    - altwalker online -l c# -m dotnetexample/models/default.json "random(vertex_coverage(100))" dotnetexample/dotnetexample.Tests/
 
 tox:
   image: robert96/graphwalker-cli:tox
