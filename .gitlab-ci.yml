@@ -31,6 +31,7 @@ integration test:
     paths:
       - altwalker.log
       - graphwalker-service.log
+    when: always
   tags:
     - docker
   script:
@@ -39,21 +40,31 @@ integration test:
 dotnet tests:
   stage: test
   image: altwalker/tests:dotnet-v2.2
+  artifacts:
+    paths:
+      - altwalker.log
+      - dotnet-executor.log
+    when: always
   before_script:
     - pip3 install -r requirements.txt --user
     - pip3 install -r requirements-dev.txt
-  script: 
+  script:
     - pytest -x -s -v -m dotnet tests/integration
 
 functional tests:
   stage: test
   image: altwalker/tests:dotnet-v2.2
+  artifacts:
+    paths:
+      - altwalker.log
+      - dotnet-executor.log
+    when: always
   before_script:
     - apt-get update && apt-get install -y unzip
     - export LC_ALL=C.UTF-8
     - export LANG=C.UTF-8
     - pip3 install -r requirements.txt --user
-  script: 
+  script:
     - pip3 install --editable .
     - cd ..
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip

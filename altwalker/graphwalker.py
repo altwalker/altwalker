@@ -174,7 +174,7 @@ def methods(model_path, blocked=False):
 
 
 class GraphWalkerService:
-    """Stops and kills a proccess running the GraphWalker REST service."""
+    """Starts and kills a proccess running the GraphWalker REST service."""
 
     def __init__(self, models=None, port=8887, unvisited=False, blocked=False, output_file="graphwalker-service.log"):
         """Will run the GraphWalker online command and start the GraphWalker REST service.
@@ -219,8 +219,14 @@ class GraphWalkerService:
                 if "[HttpServer] Started" in line:
                     break
 
-                if "An error occurred when running command:" in line:
-                    raise GraphWalkerException("Could not start GraphWalker Service on port {}.".format(self.port))
+            if self._process.poll() is not None:
+                logger.debug("Could not start GraphWalker Service on port: {}.".format(self.port))
+                logger.debug("Process exit code: {}".format(self._process.poll()))
+
+                raise GraphWalkerException(
+                        "Could not start GraphWalker Service on port: {}\nCheck the log file at: {}"
+                        .format(self.port, self.output_file))
+
         fp.close()
 
     def kill(self):

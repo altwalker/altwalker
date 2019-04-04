@@ -5,15 +5,18 @@ import sys
 import copy
 import inspect
 import traceback
+import logging
+import subprocess
 import importlib
 import importlib.util
-import subprocess
 from contextlib import redirect_stdout
 
 import requests
 
 from altwalker._utils import kill, get_command
 from altwalker.exceptions import ExecutorException
+
+logger = logging.getLogger("executor")
 
 
 def get_output(callable, *args, **kargs):
@@ -124,6 +127,7 @@ class HttpExecutor(Executor):
         self.port = port
 
         self.base = "http://{}:{}/altwalker/".format(host, port)
+        logging.debug("Initate a HTTP Executor lisening on: {}".format(self.base))
 
     def _validate_response(self, response):
         if not response.status_code == 200:
@@ -343,7 +347,7 @@ class PythonExecutor(Executor):
 
 
 class DotnetExecutorService:
-    """Starts a dotnet executor service."""
+    """Starts a .NET Executor service."""
 
     def __init__(self, path, host, port, output_file="dotnet-executor.log"):
         """Starts a dotnet tests execution service.
@@ -358,14 +362,18 @@ class DotnetExecutorService:
             port: The port for the service to listen.
         """
 
+        self.path = path
         self.host = host
         self.port = port
         self.output_file = output_file
 
         command = self._create_command(path, host, port)
-        print("Starting dotnet executor {} on http://{}:{}".format(path, host, port))
-        self._process = subprocess.Popen(command, stdin=subprocess.PIPE,
-                                         stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
+
+        logger.debug("Starting .NET Executor Service from {} on http://{}:{}".format(path, host, port))
+        logger.debug("Command: {}".format(command))
+
+        self._process = subprocess.Popen(
+            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
 
         self._read_logs()
 
@@ -385,7 +393,16 @@ class DotnetExecutorService:
                     break
 
             if self._process.poll() is not None:
-                raise ExecutorException("Could not start dotnet Executor. Check {}".format(self.output_file))
+                logger.debug(
+                    "Could not start .NET Executor service from {} on http://{}:{}"
+                    .format(self.path, self.host, self.port))
+                logger.debug("Process exit code: {}".format(self._process.poll()))
+
+                raise ExecutorException(
+                    "Could not start .NET Executor service from {} on http://{}:{}\nCheck the log file at: {}"
+                    .format(self.path, self.host, self.port, self.output_file))
+
+        fp.close()
 
     @staticmethod
     def _create_command(path, host, port):
@@ -401,7 +418,7 @@ class DotnetExecutorService:
         return command
 
     def kill(self):
-        """Kill the dotnet service.
+        """Kill the .NET executor service process.
 
         Note:
             If the path given was a project path and the service was started with `dotnet run`
@@ -409,6 +426,7 @@ class DotnetExecutorService:
             in a child process.
         """
 
+        logger.debug("Kill the .NET Executor Service from {} on http://{}:{}".format(self.path, self.host, self.port))
         kill(self._process.pid)
 
 
@@ -421,6 +439,8 @@ class DotnetExecutor(HttpExecutor):
 
     def load(self, path):
         """Kill the executor service and start a new one with the given path."""
+
+        logger.debug("Restart the .NET Executor service from {} on {}:{}".format(path, self.host, self.port))
 
         self._service.kill()
         self._service = DotnetExecutorService(path, self.host, self.port)

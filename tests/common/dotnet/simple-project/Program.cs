@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace simple_project
 {
@@ -7,7 +8,7 @@ namespace simple_project
         static void Main(string[] args)
         {
             Console.WriteLine("Now listening on:");
-            Console.ReadLine();
+            Thread.Sleep(2000);
         }
     }
 }
