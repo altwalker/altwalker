@@ -29,11 +29,8 @@ If you find yourself wishing for a feature that doesn't exist in AltWalker:
 
 ## You need your custom test executor?
 
-You can implement your own custom test execution by implementing a server for the executor's http protocol.
+You can implement your own custom test execution by implementing a server for the executor's http protocol. Check [how to write your own executor](how-to.html#write-your-own-executor)
 
-In order to run tests (for other languages except Python) AltWalker communicates with an http executor. To implement a test executor you need to create a http server that implements the protocol used by AltWalker.
-
-Check [altwalker.executor.HttpExecutor](https://altom.gitlab.io/altwalker/altwalker/api.html#altwalker.executor.HttpExecutor) for communication protocol.
 
 ## Submit a test executor in another language?
 

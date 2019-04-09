@@ -26,6 +26,7 @@ usage patterns.
     modeling
     tests-structure
     demo
+    how-to
     cli
     api
     contributing
