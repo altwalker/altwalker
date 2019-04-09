@@ -51,8 +51,6 @@ class Walker:
 
         self._reporter.end()
 
-        return
-
     @property
     def status(self):
         """The status of the current run."""
@@ -109,18 +107,21 @@ class Walker:
 
         return status
 
-    def _set_step_data(self, before_step_data, step_data):
-        if not step_data:
+    def _update_data(self, data_before, data_after):
+        if not data_after:
             return
 
-        for key, value in step_data.items():
-            if key not in before_step_data or before_step_data[key] != value:
+        for key, value in data_after.items():
+            if key not in data_before or data_before[key] != value:
                 self._planner.set_data(key, value)
 
     def _execute_step(self, model, name):
-        data = self._planner.get_data()
-        result = self._executor.execute_step(model, name, data)
-        self._set_step_data(data, result["data"])
+        data_before = self._planner.get_data()
+
+        result = self._executor.execute_step(model, name, data_before)
+        data_after = result.get("data", None)
+
+        self._update_data(data_before, data_after)
 
         return result
 
@@ -148,6 +149,7 @@ class Walker:
             self._reporter.step_status(step, output=output, failure=error is not None)
 
             if error:
+                self._planner.fail(step, error["message"])
                 self._reporter.error(error["message"], trace=error["trace"])
 
             return error is None
