@@ -77,7 +77,7 @@ To run the tests for the `default.json` model, run the following commands:
 
 ```
 $ cd test-project
-$ altwalker online -l c# test-project -m models/default.json "random(edge_coverage(100))"
+$ altwalker online -x dotnet test-project -m models/default.json "random(edge_coverage(100))"
 ```
 
 The `online` command runs the tests using AltWalker's .NET executor with the `default.json` model using the `random(edge_coverage(100))` stop condtion.
@@ -106,7 +106,7 @@ After you create a tests directory, you can run your tests:
 
 ```
 $ cd test-project
-$ altwalker online -l c# test-project -m models/model.json "random(vertex_coverage(100))"
+$ altwalker online -x dotnet test-project -m models/model.json "random(vertex_coverage(100))"
 ```
 
 ### Generate a code template for your models

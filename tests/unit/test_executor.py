@@ -57,10 +57,10 @@ class TestLoad(unittest.TestCase):
 class TestHttpExecutor(unittest.TestCase):
 
     def setUp(self):
-        self.executor = HttpExecutor(host="localhost", port=5000)
+        self.executor = HttpExecutor(url="http://localhost:5000/")
 
     def test_base(self):
-        self.assertEqual(self.executor.base, "http://localhost:5000/altwalker/")
+        self.assertEqual(self.executor.base, "http://localhost:5000/")
 
     def test_valid_response(self):
         response = mock.MagicMock()
@@ -73,7 +73,7 @@ class TestHttpExecutor(unittest.TestCase):
         response.status_code = 404
         response.json.return_value = {}
 
-        error_message_reqex = "The executor from http://.*/altwalker/ responded with status code: .*"
+        error_message_reqex = "The executor from http://.*/ responded with status code: .*"
 
         with self.assertRaisesRegex(ExecutorException, error_message_reqex):
             self.executor._validate_response(response)
@@ -297,10 +297,10 @@ class TestPythonExecutor(unittest.TestCase):
 class TestDotnetExecutorService(unittest.TestCase):
 
     def test_create_command(self):
-        command = DotnetExecutorService._create_command("path", "localhost", 5000)
-        self.assertEqual(command, ['dotnet', 'path', '--server.urls=http://localhost:5000'])
+        command = DotnetExecutorService._create_command("path", "http://localhost:4200")
+        self.assertEqual(command, ['dotnet', 'path', '--server.urls=http://localhost:4200'])
 
-        command = DotnetExecutorService._create_command("tests/", "localhost", 5000)
+        command = DotnetExecutorService._create_command("tests/", "http://localhost:5000")
         self.assertEqual(command, ['dotnet', 'run', '-p', 'tests/', '--server.urls=http://localhost:5000'])
 
 
@@ -308,33 +308,32 @@ class TestCreateExecutor(unittest.TestCase):
 
     @mock.patch("altwalker.executor.create_python_executor")
     def test_create_executor_python(self, create_python_executor):
-        create_executor("path/to/pacakge", "python")
+        create_executor("path/to/pacakge", "python", None)
         create_python_executor.assert_called_once_with("path/to/pacakge")
 
     @mock.patch("altwalker.executor.create_dotnet_executor", return_value="service")
     def test_create_dotnet(self, dotnet_executor):
-        executor = create_executor("path/to/pacakge", "c#", port=1111, host="1.1.1.1")
+        executor = create_executor("path/to/pacakge", "dotnet", "http://1.2.3.4:5678")
         self.assertEqual(executor, "service")
 
-        dotnet_executor.assert_called_once_with("path/to/pacakge", "1.1.1.1", 1111)
+        dotnet_executor.assert_called_once_with("path/to/pacakge", "http://1.2.3.4:5678")
 
     @mock.patch("altwalker.executor.create_python_executor")
     def test_create_python(self, python_executor):
         path = "path/to/package"
-        create_executor(path, language="python")
+        create_executor(path, "python", None)
 
         python_executor.assert_called_once_with(path)
 
     @mock.patch("altwalker.executor.create_http_executor")
     def test_create_http(self, http_executor):
         path = "path/to/code"
-        host = "localhost"
-        port = 4200
+        url = "http://localhost:4200"
 
-        create_executor(path, host=host, port=port)
+        create_executor(path, "http", url)
 
-        http_executor.assert_called_once_with(path, host, port)
+        http_executor.assert_called_once_with(path, url)
 
     def test_create_invalid_language(self):
-        with self.assertRaisesRegex(ValueError, "mylanguage is not supported."):
-            create_executor("path/to/pacakge", "mylanguage", "1.1.1.1", 1111)
+        with self.assertRaisesRegex(ValueError, "myexecutortype is not a supported executor type."):
+            create_executor("path/to/package", "myexecutortype", "http://1.1.1.1:1111")

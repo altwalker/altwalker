@@ -96,7 +96,7 @@ def validate_code(executor, methods):
         raise ValidationException(message)
 
 
-def verify_code(path, language, model_paths):
+def verify_code(path, executor, model_paths, url):
     """Verify test code against the model(s).
 
     Args:
@@ -109,7 +109,7 @@ def verify_code(path, language, model_paths):
         ValidationException: If the model(s) or the code are not a valid.
     """
 
-    executor = create_executor(path, language)
+    executor = create_executor(path, executor, url)
     try:
         validate_models(model_paths)
         methods = get_methods(model_paths)

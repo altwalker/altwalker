@@ -158,8 +158,8 @@ class TestVerifyCode(unittest.TestCase):
     def test_verify_code(self, create_executor_mock, validate_models_mock, methods_mock, validate_code_mock):
         executor = mock.MagicMock()
         create_executor_mock.return_value = executor
-        verify_code("/path/to/package", "executorname", ["models.json"])
-        create_executor_mock.assert_called_once_with("/path/to/package", "executorname")
+        verify_code("/path/to/package", "executorname", ["models.json"], None)
+        create_executor_mock.assert_called_once_with("/path/to/package", "executorname", None)
         validate_models_mock.assert_called_once_with(["models.json"])
         methods_mock.assert_called_once_with(["models.json"])
         executor.kill.assert_called_once_with()
@@ -173,7 +173,7 @@ class TestVerifyCode(unittest.TestCase):
         }
         methods_mock.return_value = methods
 
-        verify_code("/path/to/package", "executorname", ["models.json"])
+        verify_code("/path/to/package", "executorname", ["models.json"], None)
         validate_code_mock.assert_called_once_with(executor, methods)
         executor.kill.assert_called_once_with()
 

@@ -138,7 +138,7 @@ class TestOnline(unittest.TestCase):
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))"])
 
             run_mock.assert_called_once_with(
-                'package', 'python',
+                'package', 'python', 'http://localhost:5000/',
                 blocked=False,
                 models=(('models.json', 'random(vertex_coverage(100))'),),
                 port=8887,
@@ -340,7 +340,7 @@ class TestWalk(unittest.TestCase):
             result = self.runner.invoke(walk, ["package", "steps.json"])
 
             run_mock.assert_called_once_with(
-                'package', 'python',
+                'package', 'python', 'http://localhost:5000/',
                 blocked=False,
                 models=None,
                 port=None,
