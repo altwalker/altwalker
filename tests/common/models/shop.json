@@ -3,7 +3,7 @@
   "models":[
     {
       "name": "UC01_GW2",
-      "generator":"random(edge_coverage(100))",
+      "generator":"quick_random(edge_coverage(100))",
       "startElementId": "e0",
       "vertices": [
         {

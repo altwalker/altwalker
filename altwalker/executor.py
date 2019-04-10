@@ -137,32 +137,35 @@ class HttpExecutor(Executor):
                 self.base, status_code, error_type)
 
             if error:
-                error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error["trace"])
+                error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error.get("trace", None))
 
             raise ExecutorException(error_message)
 
-    def _get_body(self, response):
-        body = response.json()
+    def _get_body_payload(self, response):
+        if response.headers.get("content-length", None) == '0':
+            body = {}
+        else:
+            body = response.json()
         return body.get("payload", {})
 
     def _get(self, path, params=None):
         response = requests.get(urljoin(self.base, path), params=params)
         self._validate_response(response)
 
-        return self._get_body(response)
+        return self._get_body_payload(response)
 
     def _put(self, path):
         response = requests.put(urljoin(self.base, path))
         self._validate_response(response)
 
-        return self._get_body(response)
+        return self._get_body_payload(response)
 
     def _post(self, path, params=None, data=None):
         HEADERS = {'Content-Type': 'application/json'}
         response = requests.post(urljoin(self.base, path), params=params, json=data, headers=HEADERS)
         self._validate_response(response)
 
-        return self._get_body(response)
+        return self._get_body_payload(response)
 
     def load(self, path):
         """Makes a POST request at ``load``."""
@@ -181,7 +184,7 @@ class HttpExecutor(Executor):
             True, if the executor has the model, False otherwise.
         """
 
-        payload = self._get("hasModel", params=(("name", name)))
+        payload = self._get("hasModel", params={"name": name})
         has_model = payload.get("hasModel", None)
 
         if has_model is None:
@@ -196,7 +199,7 @@ class HttpExecutor(Executor):
             True, if the executor has the step, False otherwise.
         """
 
-        payload = self._get("hasStep", params=(("modelName", model_name), ("name", name)))
+        payload = self._get("hasStep", params={"modelName": model_name, "name": name})
         has_step = payload.get("hasStep", None)
 
         if has_step is None:
@@ -221,7 +224,7 @@ class HttpExecutor(Executor):
                 }
         """
 
-        payload = self._post("executeStep", params=(("modelName", model_name), ("name", name)), data=data)
+        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, data=data)
 
         if payload.get("output", None) is None:
             raise ExecutorException("Invaild response. The payload must include the key: output.")

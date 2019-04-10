@@ -99,7 +99,7 @@ class TestHttpExecutor(unittest.TestCase):
             }
         }
 
-        self.assertEqual(self.executor._get_body(body), {"data": "data"})
+        self.assertEqual(self.executor._get_body_payload(body), {"data": "data"})
 
     def test_load(self):
         self.executor._post = mock.MagicMock(return_value={})
@@ -117,7 +117,7 @@ class TestHttpExecutor(unittest.TestCase):
         self.executor._get = mock.MagicMock(return_value={"hasModel": True})
 
         self.executor.has_model("model")
-        self.executor._get.assert_called_once_with("hasModel", params=(("name", "model")))
+        self.executor._get.assert_called_once_with("hasModel", params=({"name": "model"}))
 
     def test_has_model_invalid_response(self):
         self.executor._get = mock.MagicMock(return_value={})
@@ -129,13 +129,13 @@ class TestHttpExecutor(unittest.TestCase):
         self.executor._get = mock.MagicMock(return_value={"hasStep": True})
 
         self.executor.has_step("model", "step")
-        self.executor._get.assert_called_once_with("hasStep", params=(("modelName", "model"), ("name", "step")))
+        self.executor._get.assert_called_once_with("hasStep", params=({"modelName": "model", "name": "step"}))
 
     def test_has_setup_run_step(self):
         self.executor._get = mock.MagicMock({"hasStep": True})
 
         self.executor.has_step(None, "step")
-        self.executor._get.assert_called_once_with("hasStep", params=(("modelName", None), ("name", "step")))
+        self.executor._get.assert_called_once_with("hasStep", params=({"modelName": None, "name": "step"}))
 
     def test_has_step_invalid_response(self):
         self.executor._get = mock.MagicMock(return_value={})
@@ -148,14 +148,14 @@ class TestHttpExecutor(unittest.TestCase):
 
         self.executor.execute_step("model", "step", {})
         self.executor._post.assert_called_once_with("executeStep", params=(
-            ("modelName", "model"), ("name", "step")), data={})
+            {"modelName": "model", "name": "step"}), data={})
 
     def test_execute_setup_step(self):
         self.executor._post = mock.MagicMock({"output": ""})
 
         self.executor.execute_step(None, "step", {})
         self.executor._post.assert_called_once_with(
-            "executeStep", params=(("modelName", None), ("name", "step")), data={})
+            "executeStep", params=({"modelName": None, "name": "step"}), data={})
 
     def test_execute_invalid_response(self):
         self.executor._post = mock.MagicMock(return_value={})
