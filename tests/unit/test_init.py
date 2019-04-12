@@ -4,7 +4,7 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.init import _copy_models, _create_default_model, init_repo
-from altwalker.init import generate_tests,  generate_tests_python, generate_tests_csharp
+from altwalker.init import generate_tests,  generate_tests_python, generate_tests_csharp, _proj_name_to_namespace
 
 
 class TestCopyModels(unittest.TestCase):
@@ -101,6 +101,9 @@ class TestGenerateTests(unittest.TestCase):
             generate_tests("output_dir", ["model.json"], "python")
 
         self.assertEqual(False, os.path.isdir(self.output_dir))
+
+    def test_proj_name_to_namespace(self):
+        self.assertEqual("a.b_c.d.e_f", _proj_name_to_namespace("a-b_c d--e_f"))
 
 
 @mock.patch("altwalker.init._git_init")

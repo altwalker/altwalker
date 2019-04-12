@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 from os.path import join as path_join
 
@@ -82,10 +83,17 @@ def generate_tests(output_dir, model_paths, language):
     raise ValueError("{} is not supported.".format(language))
 
 
+def _proj_name_to_namespace(proj_name):
+    proj_name = re.sub(r'[\-\ ]', ".", proj_name)
+    proj_name = re.sub(r'\.+', ".", proj_name)
+    return proj_name
+
+
 def generate_tests_csharp(output_dir, methods):
     """Generate a c# test package from the models."""
     _, tests_proj_name = os.path.split(output_dir)
     tests_proj_name = tests_proj_name+".Tests"
+    namespace = _proj_name_to_namespace(tests_proj_name)
     tests_proj_path = path_join(output_dir, tests_proj_name)
     os.makedirs(tests_proj_path)
 
@@ -99,13 +107,13 @@ def generate_tests_csharp(output_dir, methods):
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Altwalker.Executor" Version="{}" />
+    <PackageReference Include="AltWalker.Executor" Version="{}" />
   </ItemGroup>
-</Project>""".format(tests_proj_name, VERSION))
+</Project>""".format(namespace, VERSION))
 
     with open(path_join(tests_proj_path, "Program.cs"), "w") as program:
-        program.write("using Altom.Altwalker;\n")
-        program.write("namespace {} {{\n".format(tests_proj_name))
+        program.write("using Altom.AltWalker;\n")
+        program.write("namespace {} {{\n".format(namespace))
         program.write("\tpublic class Program {\n")
         program.write("\t\tpublic static void Main (string[] args) {\n")
         program.write("\t\t\tExecutorService service = new ExecutorService();\n")
@@ -113,7 +121,7 @@ def generate_tests_csharp(output_dir, methods):
             program.write("\t\t\tservice.RegisterModel<{}>();\n".format(model_name))
 
             with open(path_join(tests_proj_path, "{}.cs".format(model_name)), "w") as model:
-                model.write("namespace {} {{\n".format(tests_proj_name))
+                model.write("namespace {} {{\n".format(namespace))
                 model.write("\tpublic class {} {{\n".format(model_name))
 
                 for method in methods:

@@ -1,4 +1,4 @@
-using Altom.Altwalker;
+using Altom.AltWalker;
 namespace output_dir.Tests {
 	public class Program {
 		public static void Main (string[] args) {
