@@ -92,7 +92,6 @@ def _proj_name_to_namespace(proj_name):
 def generate_tests_csharp(output_dir, methods):
     """Generate a c# test package from the models."""
     _, tests_proj_name = os.path.split(output_dir)
-    tests_proj_name = tests_proj_name+".Tests"
     namespace = _proj_name_to_namespace(tests_proj_name)
     tests_proj_path = path_join(output_dir, tests_proj_name)
     os.makedirs(tests_proj_path)

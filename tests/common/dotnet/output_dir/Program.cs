@@ -1,5 +1,5 @@
 using Altom.AltWalker;
-namespace output_dir.Tests {
+namespace output_dir {
 	public class Program {
 		public static void Main (string[] args) {
 			ExecutorService service = new ExecutorService();

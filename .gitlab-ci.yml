@@ -70,8 +70,8 @@ functional tests:
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
     - unzip artifacts.zip
     - altwalker init -l c# --no-git dotnetexample
-    - dotnet restore dotnetexample/dotnetexample.Tests/dotnetexample.Tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
-    - altwalker online -x dotnet --url http://localhost:5001/ -m dotnetexample/models/default.json "random(vertex_coverage(100))" dotnetexample/dotnetexample.Tests/
+    - dotnet restore dotnetexample/dotnetexample/dotnetexample.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+    - altwalker online -x dotnet --url http://localhost:5001/ -m dotnetexample/models/default.json "random(vertex_coverage(100))" dotnetexample/dotnetexample/
 
 tox:
   image: robert96/graphwalker-cli:tox

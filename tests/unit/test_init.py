@@ -68,12 +68,12 @@ class TestGenerateTests(unittest.TestCase):
     def test_generate_csharp(self):
         generate_tests_csharp(self.output_dir, {"ModelName": ["vertex_A", "vertex_B", "edge_A"]})
 
-        self.assertTrue(os.path.exists("output_dir/output_dir.Tests"))
+        self.assertTrue(os.path.exists("output_dir/output_dir"))
 
         files = [
-            "output_dir.Tests/output_dir.Tests.csproj",
-            "output_dir.Tests/Program.cs",
-            "output_dir.Tests/ModelName.cs"
+            "output_dir/output_dir.csproj",
+            "output_dir/Program.cs",
+            "output_dir/ModelName.cs"
         ]
 
         for file in files:

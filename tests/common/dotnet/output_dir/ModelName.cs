@@ -1,4 +1,4 @@
-namespace output_dir.Tests {
+namespace output_dir {
 	public class ModelName {
 		public void vertex_A(){
 		}
