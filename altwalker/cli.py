@@ -40,8 +40,9 @@ blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
 language_option = click.option('--language', "-l", type=click.Choice(['python', 'c#']),
                                help="The programming language of the tests", show_default=True)
 
-executor_option = click.option('--executor', "-x", type=click.Choice(['python', 'dotnet', 'http']), default="python",
-                               help="Configure the executor to be used.", show_default=True)
+executor_option = click.option('--executor', '--language', '-x', '-l', "executor",
+                               type=click.Choice(['python', 'dotnet', 'http', 'c#']),
+                               help="Configure the executor to be used.", show_default=True, default='python')
 
 url_option = click.option('--url', help='The url for the executor.', default="http://localhost:5000/")
 
@@ -74,8 +75,9 @@ def check(models, blocked):
 @click.argument("test_package", type=click.Path(exists=True))
 @add_options([required_model_file_option, executor_option, url_option])
 @handle_errors
-def verify(test_package, models, executor, url):
+def verify(test_package, models, url, **options):
     """Verify test code against the model(s)."""
+    executor = options["executor"]
 
     verify_code(test_package, executor, models, url)
     click.echo("No issues found with the code.")
@@ -116,8 +118,9 @@ def generate(dest_dir, models, language):
 @handle_errors
 def online(test_package, **options):
     """Run a test path using the GraphWalker online RESTFUL service."""
+    executor = options["executor"]
 
-    run_command(test_package, options["executor"], options["url"], models=options["models"],
+    run_command(test_package, executor, options["url"], models=options["models"],
                 port=options["port"],
                 verbose=options["verbose"],
                 unvisited=options["unvisited"],
@@ -155,8 +158,9 @@ def offline(**options):
 @click.argument("steps_path", type=click.Path(exists=True, dir_okay=False))
 @add_options([executor_option, url_option])
 @handle_errors
-def walk(test_package, steps_path, executor, url):
+def walk(test_package, steps_path, url, **options):
     """Run a test path."""
+    executor = options["executor"]
 
     with open(steps_path) as f:
         steps = json.load(f)

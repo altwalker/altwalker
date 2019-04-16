@@ -488,7 +488,7 @@ def create_executor(path, type_, url):
         return create_http_executor(path, url)
     elif type_ == "python":
         return create_python_executor(path)
-    elif type_ == "dotnet":
+    elif type_ == "dotnet" or type_ == "c#":
         return create_dotnet_executor(path, url)
     else:
         raise ValueError("{} is not a supported executor type.".format(type_))

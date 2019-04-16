@@ -318,6 +318,13 @@ class TestCreateExecutor(unittest.TestCase):
 
         dotnet_executor.assert_called_once_with("path/to/pacakge", "http://1.2.3.4:5678")
 
+    @mock.patch("altwalker.executor.create_dotnet_executor", return_value="service")
+    def test_create_csharp(self, dotnet_executor):
+        executor = create_executor("path/to/pacakge", "c#", "http://1.2.3.4:5678")
+        self.assertEqual(executor, "service")
+
+        dotnet_executor.assert_called_once_with("path/to/pacakge", "http://1.2.3.4:5678")
+
     @mock.patch("altwalker.executor.create_python_executor")
     def test_create_python(self, python_executor):
         path = "path/to/package"

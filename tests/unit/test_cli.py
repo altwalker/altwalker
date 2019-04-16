@@ -145,7 +145,6 @@ class TestOnline(unittest.TestCase):
                 steps=None,
                 unvisited=False,
                 verbose=False)
-
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_multiple_models(self, run_mock):
@@ -218,6 +217,32 @@ class TestOnline(unittest.TestCase):
 
             self.assertNotEqual(result.exit_code, 0, msg=result.output)
             self.assertIn(message, result.output)
+
+    def test_executor(self, run_mock):
+        with run_isolation(self.runner, self.files, folders=["package"]):
+            self.runner.invoke(
+                online, ["package", "-m", "models.json", "random(vertex_coverage(100))", "-x", "http"])
+        run_mock.assert_called_once_with(
+            'package', 'http', 'http://localhost:5000/',
+            blocked=False,
+            models=(('models.json', 'random(vertex_coverage(100))'),),
+            port=8887,
+            steps=None,
+            unvisited=False,
+            verbose=False)
+
+    def test_language(self, run_mock):
+        with run_isolation(self.runner, self.files, folders=["package"]):
+            self.runner.invoke(
+                online, ["package", "-m", "models.json", "random(vertex_coverage(100))", "-l", "c#"])
+        run_mock.assert_called_once_with(
+            'package', 'c#', 'http://localhost:5000/',
+            blocked=False,
+            models=(('models.json', 'random(vertex_coverage(100))'),),
+            port=8887,
+            steps=None,
+            unvisited=False,
+            verbose=False)
 
 
 @mock.patch("altwalker.graphwalker.offline")
