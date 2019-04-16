@@ -1,10 +1,11 @@
-import os
 import shutil
-import unittest
-import unittest.mock as mock
+import os
 
-from altwalker.init import _copy_models, _create_default_model, init_repo
-from altwalker.init import generate_tests,  generate_tests_python, generate_tests_csharp, _proj_name_to_namespace
+import unittest.mock as mock
+import unittest
+
+from altwalker.init import _copy_models, _create_default_model, init_repo, _proj_name_to_namespace
+from altwalker.init import generate_tests,  generate_tests_python, generate_tests_csharp, generate_tests_empty
 
 
 class TestCopyModels(unittest.TestCase):
@@ -83,6 +84,10 @@ class TestGenerateTests(unittest.TestCase):
                     generated = generated.read()
                     self.assertEqual(expected, generated, file)
 
+    def test_generate_empty(self):
+        generate_tests_empty(self.output_dir)
+        self.assertTrue(os.path.exists("output_dir/tests"))
+
     @mock.patch("altwalker.init.get_methods")
     def test_generate_unsupported_language(self, get_methods):
         get_methods.return_value = []
@@ -104,6 +109,14 @@ class TestGenerateTests(unittest.TestCase):
 
     def test_proj_name_to_namespace(self):
         self.assertEqual("a.b_c.d.e_f", _proj_name_to_namespace("a-b_c d--e_f"))
+
+    @mock.patch("altwalker.init.get_methods")
+    @mock.patch("altwalker.init.generate_tests_empty")
+    def test_generate_tests(self, generate_empty, get_methods):
+        get_methods.return_value = None
+        generate_tests("output_dir", ["model.json"], None)
+
+        generate_empty.assert_called_once_with("output_dir")
 
 
 @mock.patch("altwalker.init._git_init")

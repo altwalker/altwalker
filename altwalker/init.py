@@ -72,9 +72,10 @@ def generate_tests(output_dir, model_paths, language):
     try:
         if language == "python":
             return generate_tests_python(output_dir, methods)
-
         if language == "c#":
             return generate_tests_csharp(output_dir, methods)
+        if language is None:
+            return generate_tests_empty(output_dir)
     except Exception:
         if os.path.isdir(output_dir):
             shutil.rmtree(output_dir)
@@ -87,6 +88,10 @@ def _proj_name_to_namespace(proj_name):
     proj_name = re.sub(r'[\-\ ]', ".", proj_name)
     proj_name = re.sub(r'\.+', ".", proj_name)
     return proj_name
+
+
+def generate_tests_empty(output_dir, tests_dir="tests"):
+    os.makedirs(path_join(output_dir, tests_dir))
 
 
 def generate_tests_csharp(output_dir, methods):

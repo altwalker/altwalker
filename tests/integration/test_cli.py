@@ -42,7 +42,7 @@ class TestCliInit(unittest.TestCase):
     def test_init(self):
         with run_isolation(self.runner, self.files):
             packagename = "example"
-            result = self.runner.invoke(init, [packagename])
+            result = self.runner.invoke(init, [packagename, "-l", "python"])
 
             self.assertIsNone(result.exception, msg=result.exception)
             self.assertEqual(result.exit_code, 0, msg=result.output)
@@ -68,7 +68,7 @@ class TestCliInit(unittest.TestCase):
     def test_init_model(self):
         with run_isolation(self.runner, self.files):
             packagename = "example"
-            result = self.runner.invoke(init, ["-m", "simple.json", packagename])
+            result = self.runner.invoke(init, ["-m", "simple.json", packagename, "-l", "python"])
             self.assertIsNone(result.exception, msg=result.exception)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 

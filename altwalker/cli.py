@@ -37,7 +37,7 @@ unvisted_option = click.option("--unvisited", "-u", default=False, is_flag=True,
 blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
                               help="Will fiter out elements with the keyword BLOCKED. Default is False.")
 
-language_option = click.option('--language', "-l", type=click.Choice(['python', 'c#']), default="python",
+language_option = click.option('--language', "-l", type=click.Choice(['python', 'c#']),
                                help="The programming language of the tests", show_default=True)
 
 executor_option = click.option('--executor', "-x", type=click.Choice(['python', 'dotnet', 'http']), default="python",
@@ -102,7 +102,8 @@ def init(dest_dir, models, no_git, language):
 @handle_errors
 def generate(dest_dir, models, language):
     """Generate test code template based on the given model(s)."""
-
+    if language is None:
+        language = "python"
     generate_tests(dest_dir, models, language)
 
 
