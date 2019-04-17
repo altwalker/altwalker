@@ -146,10 +146,9 @@ class OfflinePlanner:
         return dict(step)
 
     def get_data(self):
-        """Is not supported and will thorow a warning."""
+        """Is not supported and will return an empty ``dict``."""
 
-        warnings.warn(
-            "The set_data and get_data are not supported in offline mode so calls to them have no effect.", UserWarning)
+        return {}
 
     def set_data(self, key, value):
         """Is not supported and will thorow a warning."""
