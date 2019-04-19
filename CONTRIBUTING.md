@@ -27,11 +27,10 @@ If you find yourself wishing for a feature that doesn't exist in AltWalker:
     * Why you need it?
     * How it should work?
 
-## You need your custom test executor?
+## You need your custom executor?
 
-You can implement your own custom test execution by implementing a server for the executor's http protocol. Check [how to write your own executor](how-to.html#write-your-own-executor)
+You can implement your own custom test execution by implementing a server for the executor's http protocol. Check [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html).
 
-
-## Submit a test executor in another language?
+## Submit an executor in another language?
 
 If you've implemented your own custom test executor in a language that is not already supported by AltWalker [contact us](mailto:altwalker@altom.com) and will help you integrate it.

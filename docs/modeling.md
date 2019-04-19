@@ -1,16 +1,16 @@
 # Modeling
 
-## Model design
+## Model Design
 
 The objective of the model(s), is to express the expected behavior of the system under test. To do so, we use a directed graph, in which a vertex (or a node) represents some desired state, and the edges (arcs, arrows, transitions) represents whatever actions we need to do in order to achieve that desired state.
 
-Each vertex and edge has an associated method in code that is executed upon stepping into it.
+Each vertex and edge has an associated method in the test code that is executed upon stepping into it.
 
 _GraphWalker_ generates a path through the directed graph. _AltWalker_ walks the path and executes the code associated to the reached vertex or edge.
 
 ### Vertices
 
-A __vertex__ is a state of the system under tests.
+A __vertex__ is a state of the system under tests. In the test code this is the place where the actual test takes place.
 
 ### Edges
 
@@ -61,12 +61,12 @@ a_start(reached_vertex(vertex_A))
     Throughout the documentation a pair of a generator and a stop condition is usually referred as a stop condition.
 ```
 
-Further Reading / Useful Links:
+__Further Reading/Useful Links__:
   * For documentation about Generators and Stop Conditions check [GraphWalker's documentation](http://graphwalker.github.io/generators_and_stop_conditions/)
 
 ### Actions
 
-GraphWalker keeps an execution context with data.
+GraphWalker keeps an execution context with data for each model and a global context.
 
 An __action__ is a piece of java code that you want the model to execute, in order to modify the data from the context.
 
@@ -80,17 +80,28 @@ __Example__:
 }
 ```
 
+```eval_rst
+.. note::
+  Each action must end with ``;`` (e.g. ``count++;``, ``isLoggedIn = true;``).
+```
+
+__Further Reading/Useful Links__:
+  * Read more on actions and guards in the [How to: Use actions and guards](how-tos/actions-and-guards) section.
+
 ### Guards
 
-A __guard__ is a condition that until is fulfilled marks a __vertex__ as unreachable, the __guard__ is expressed using the data from the context.
+A __guard__ is a condition that until is fulfilled marks a __edge__ as unreachable, the __guard__ is expressed using the data from the context.
 
 __Example__:
 
 ```json
 {
-    "guard": "numOfPets>0"
+    "guard": "numOfPets > 0"
 }
 ```
+
+__Further Reading/Useful Links__:
+  * Read more on actions and guards in the [How to: Use actions and guards](how-tos/actions-and-guards) section.
 
 ## Formats
 
@@ -195,17 +206,15 @@ Is a piece of java code that you want the model to execute
 
 It has to end with a semi colon.
 
-__Further Reading / Useful Links__:
+__Further Reading/Useful Links__:
   * For documentation about __json__ format check [GraphWalker documentation](http://graphwalker.github.io/json-overview/).
   * For creating or modifying json models you can use [AltWalker's model editor](https://altom.gitlab.io/altwalker/model-editor).
 
-### Graphml
+### GraphML
 
 [GraphML](https://en.wikipedia.org/wiki/GraphML) is an XML-based file format for graphs.
 
-A single model and his data can be stored in one single `.graphml` file.
-
-The name of the model is the name of the file (e.g. for `login.graphml` the name of the model is `login`).
+A single model and his data can be stored in one single `.graphml` file. The name of the model is the name of the file (e.g. for `login.graphml` the name of the model is `login`).
 
 __Further Reading / Useful Links__:
   * [GraphML](https://en.wikipedia.org/wiki/GraphML) file format.

@@ -1,6 +1,13 @@
 # Quickstart
 
-In this quickstart you will learn how to create your tests project from scratch, from an existing model or to generate a code template for your models and run your tests with AltWalker.
+In this quickstart you will learn how to create your tests project from scratch, from an
+existing model or to generate a code template for your models and run your tests with AltWalker.
+
+```eval_rst
+.. contents:: Table of Contents
+    :local:
+    :backlinks: none
+```
 
 ## Python
 
@@ -44,7 +51,7 @@ $ altwalker generate path/for/package/ -m path/to/models.json
 
 The `generate` command will generate a test package named `tests` containing the code template for the modele(s), inside the `path/for/package/` directory.
 
-## C#
+## C#/.NET
 
 ### Start from scratch
 
@@ -52,7 +59,7 @@ The `generate` command will generate a test package named `tests` containing the
 $ altwalker init -l c# test-project
 ```
 
-The `init` command creates `test-project` directory and initializez a git repository. The directory contains a C# project refering `altwalker.executor` from nuget, a class for each model,`Program.cs`, and a simple model file `models/default.json` to get you started.
+The `init` command creates `test-project` directory and initialize a git repository. The directory contains a C# project refering `altwalker.executor` from nuget, a class for each model,`Program.cs`, and a simple model file `models/default.json` to get you started.
 
 ```
 /test-project/test-project/test-project.csproj
@@ -80,7 +87,7 @@ $ cd test-project
 $ altwalker online -x dotnet test-project -m models/default.json "random(edge_coverage(100))"
 ```
 
-The `online` command runs the tests using AltWalker's .NET executor with the `default.json` model using the `random(edge_coverage(100))` stop condtion.
+The `online` command runs the tests using AltWalker's .NET executor with the `default.json` model using the `random(edge_coverage(100))` stop condition.
 
 ### Start from an existing model
 
@@ -88,7 +95,7 @@ The `online` command runs the tests using AltWalker's .NET executor with the `de
 $ altwalker init -l c# test-project -m path/to/model.json
 ```
 
-The `init` command creates `test-project` directory and initializez a git repository. The directory contains a C# project refering `altwalker.executor` from nuget, a class for each model, and `Program.cs`.
+The `init` command creates `test-project` directory and initialize a git repository. The directory contains a C# project referring `altwalker.executor` from NuGet, a class for each model, and `Program.cs`.
 
 The `Program.cs` containing the entry point of the tests and starts the `ExecutorService`.
 
@@ -115,9 +122,9 @@ $ altwalker online -x dotnet test-project -m models/model.json "random(vertex_co
 $ altwalker generate -l c# path/for/test-project/ -m path/to/models.json
 ```
 
-The `generate` command creates `path/for/test-project` directory containig `test-project.csproj` file, `Program.cs` and the code template for the model(s).
+The `generate` command creates `path/for/test-project` directory containing `test-project.csproj` file, `Program.cs` and the code template for the model(s).
 
 ## Next Steps
 
-Depending on how new you are to Altwalker you can read about how to design your models on the [Modeling](./modeling) section, how to structure your tests on the
-[Test Structure](./tests-structure) section, checkout the [Demo](./demo), or dig deeper into the [Command Line Interface](./cli).
+Depending on how new you are to AltWalker you can read about how to design your models on the [Modeling](./modeling) section, how to structure your tests on the
+[Test Structure](./tests-structure) section, checkout the [Examples](./examples), or dig deeper into the [Command Line Interface](./cli).

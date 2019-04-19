@@ -1,5 +1,11 @@
 # Tests Structure
 
+```eval_rst
+.. contents:: Table of Contents
+    :local:
+    :backlinks: none
+```
+
 ## Python
 
 ### Structure
@@ -100,11 +106,11 @@ def element_method(self, data):
     data.set("key", "new_value")
 ```
 
-## C#
+## C#/.NET
 
 ### Structure
 
-To run C# tests, Altwalker requires a c# console application that depends on [`altwalker.executor`](https://gitlab.com/altom/altwalker/dotnet-executor) nuget and runs the `ExecutorService`.
+To run C# tests, AltWalker requires a c# console application that depends on [`altwalker.executor`](https://gitlab.com/altom/altwalker/dotnet-executor) NuGet and runs the `ExecutorService`.
 
 
 ```c#
