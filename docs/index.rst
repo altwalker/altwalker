@@ -21,6 +21,7 @@ usage patterns.
 .. toctree::
     :maxdepth: 2
 
+    overview
     installation
     quickstart
     modeling
@@ -50,7 +51,7 @@ Useful Links
 
     C#/.NET <https://www.nuget.org/packages/AltWalker.Executor/>
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`
