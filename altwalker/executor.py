@@ -475,7 +475,7 @@ def create_python_executor(path):
     return PythonExecutor(module)
 
 
-def create_executor(path, type_, url):
+def create_executor(path, type_, url=None):
     """Creates an executor.
 
     Args:

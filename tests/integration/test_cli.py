@@ -61,9 +61,7 @@ class TestCliInit(unittest.TestCase):
             with open(packagename + "/tests/test.py", "r") as f:
                 code = f.read()
 
-                self.assertEqual(
-                    code,
-                    expected_code)
+                self.assertEqual(code, expected_code)
 
     def test_init_model(self):
         with run_isolation(self.runner, self.files):

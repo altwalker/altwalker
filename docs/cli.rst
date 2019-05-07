@@ -44,9 +44,10 @@ Commands
 
 .. code-block:: console
 
-    $ altwalker init test-project
+    $ altwalker init test-project -l python
 
-The command will create a directory named ``test-project`` with the following structure::
+The command will create a directory named ``test-project`` with the following
+structure::
 
     test-project/
         .git
@@ -57,15 +58,17 @@ The command will create a directory named ``test-project`` with the following st
             test.py
 
 * **test-project**: The project root directory.
-* **models**: A directory containing the models files (``.json`` or ``.graphml``).
+* **models**: A directory containing the models files
+    (``.json`` or ``.graphml``).
 * **tests**: A python package containing the test code.
 * **tests/tests.py**: A python module containing the code for the models.
 
-If you don't want ``test-project`` to be git repository run the command with ``--no-git``:
+If you don't want ``test-project`` to be git repository run the command with
+``--no-git``:
 
 .. code-block:: console
 
-    $ altwalker init test-project --no-git
+    $ altwalker init test-project -l python --no-git
 
 
 .. note::
@@ -79,7 +82,7 @@ the models:
 
 .. code-block:: console
 
-    $ altwalker init test-project -m ./first.json -m ./second.json
+    $ altwalker init test-project -m ./first.json -m ./second.json -l python
 
 
 The ``test-project`` directory will have the following structure::
@@ -107,15 +110,17 @@ The ``test-project`` directory will have the following structure::
 
     $ altwalker generate test-project -m models/models.json
 
-The command will create a directory named ``test`` with the following structure::
+The command will create a directory named ``test`` with the following
+structure::
 
     test-project/
         tests/
             __init__.py
             test.py
 
-For a `models.json` file with a simple model named ``Model``, with an edge named ``edge_name``
-and a vertex named ``vertex_name``, ``test.py`` will containe::
+For a `models.json` file with a simple model named ``Model``, with an edge
+named ``edge_name`` and a vertex named ``vertex_name``, ``test.py`` will
+containe::
 
     class Model:
 
@@ -126,8 +131,8 @@ and a vertex named ``vertex_name``, ``test.py`` will containe::
             pass
 
 
-The ``-m/--model`` option is required and can be used multiple times. And the ``generate`` command
-will generate a class for each model you provide.
+The ``-m/--model`` option is required and can be used multiple times. And
+the ``generate`` command will generate a class for each model you provide.
 
 
 ----
@@ -138,19 +143,23 @@ will generate a class for each model you provide.
 
 **Example:**
 
-For the ``model`` option you need to pass a ``model_path`` and a ``stop_condtion``.
+For the ``model`` option you need to pass a ``model_path`` and a
+``stop_condtion``.
 
-* **model_path**: Is the file (``.json`` or ``.graphml``) containing the model(s).
-* **stop_condition**: Is a string that specifies the generator and the stop condition.
+* **model_path**: Is the file (``.json`` or ``.graphml``) containing
+    the model(s).
+* **stop_condition**: Is a string that specifies the generator and the
+    stop condition.
 
-    For example ``random(never)``, ``a_star(reached_edge(edge_name))``, where ``random``
-    , ``a_star`` are the generators and ``never``, ``reached_edge(edge_name)`` are the
-    stop conditions.
+    For example ``random(never)``, ``a_star(reached_edge(edge_name))``,
+    where ``random``, ``a_star`` are the generators and ``never``,
+    ``reached_edge(edge_name)`` are the stop conditions.
 
     For more details and a list of all available options read the
     `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
 
-The ``-m/--model`` is required but you can use it multiple times to provide multiple models:
+The ``-m/--model`` is required but you can use it multiple times to provide
+multiple models:
 
 .. code-block:: console
 
@@ -172,9 +181,9 @@ The ``-m/--model`` is required but you can use it multiple times to provide mult
     $ altwalker verify tests -m models.json
     No issues found with the code.
 
-The ``verify`` command will check that every element from the provided models is
-implemented in the ``tests/test.py`` (models as classes and vertices/edges as methods inside
-the model class).
+The ``verify`` command will check that every element from the provided
+models is implemented in the ``tests/test.py`` (models as classes and
+vertices/edges as methods inside the model class).
 
 If methods or classes are missing the command will return a list of errors:
 
@@ -199,20 +208,24 @@ If methods or classes are missing the command will return a list of errors:
 
 **Examples:**
 
-For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_condtion``.
+For the ``-m/--model`` option you need to pass a ``model_path`` and a
+``stop_condtion``.
 
-* **model_path**: Is the file (``.json`` or ``.graphml``) containing the model(s).
-* **stop_condition**: Is a string that specifies the generator and the stop condition.
+* **model_path**: Is the file (``.json`` or ``.graphml``) containing
+    the model(s).
+* **stop_condition**: Is a string that specifies the generator and
+    the stop condition.
 
-    For example ``random(never)``, ``a_star(reached_edge(edge_name))``, where ``random``
-    , ``a_star`` are the generators and ``never``, ``reached_edge(edge_name)`` are the
-    stop conditions.
+    For example ``random(never)``, ``a_star(reached_edge(edge_name))``,
+    where ``random``, ``a_star`` are the generators and ``never``,
+    ``reached_edge(edge_name)`` are the stop conditions.
 
     For more details and a list of all available options read the
     `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
 
 
-The ``-m/--model`` is required but you can use it multiple times to provide multiple models.
+The ``-m/--model`` is required but you can use it multiple times to provide
+multiple models.
 
 For example:
 
@@ -264,9 +277,9 @@ For example:
     }
     Status: True
 
-If you use the ``-o/--verbose`` flag, the command will print for each step the ``data``
-(the data for the current module) and ``properties`` (the properties of the current step
-defined in the model):
+If you use the ``-o/--verbose`` flag, the command will print for each step
+the ``data`` (the data for the current module) and ``properties`` (the
+properties of the current step defined in the model):
 
 .. code-block:: console
 
@@ -283,8 +296,8 @@ defined in the model):
         "y": 2
     }
 
-If you use the ``-u/--unvisited`` flag, the command will print for each step the
-current list of all unvisited elements:
+If you use the ``-u/--unvisited`` flag, the command will print for each
+step the current list of all unvisited elements:
 
 .. code-block:: console
 
@@ -314,14 +327,18 @@ current list of all unvisited elements:
 
 **Examples:**
 
-For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_condtion``.
+For the ``-m/--model`` option you need to pass a ``model_path`` and a
+``stop_condtion``.
 
-* **model_path**: Is the file (``.json`` or ``.graphml``) containing the model(s).
-* **stop_condition**: Is a string that specifies the generator and the stop condition.
+* **model_path**: Is the file (``.json`` or ``.graphml``) containing
+    the model(s).
+* **stop_condition**: Is a string that specifies the generator and
+    the stop condition.
 
-    For example ``random(reached_vertex(vertex_name))``, ``a_star(reached_edge(edge_name))``, where ``random``
-    , ``a_star`` are the generators and ``reached_vertex(vertex_name)``, ``reached_edge(edge_name)`` are the
-    stop conditions.
+    For example ``random(reached_vertex(vertex_name))``,
+    ``a_star(reached_edge(edge_name))``,where ``random``, ``a_star`` are the
+    generators and ``reached_vertex(vertex_name)``, ``reached_edge(edge_name)``
+    are the stop conditions.
 
     For more details and a list of all available options read the
     `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
@@ -333,8 +350,8 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_con
     command only with the ``online`` command.
 
 
-The ``-m/--model`` is required but you can use it multiple times to provide multiple models.
-
+The ``-m/--model`` is required but you can use it multiple times to provide
+multiple models.
 
 Example:
 
@@ -361,8 +378,8 @@ Example:
 
 
 
-If you want to save the steps in a ``.json`` file you can use the ``-f/--output-file <FILE_NAME>``
-option:
+If you want to save the steps in a ``.json`` file you can use the
+``-f/--output-file <FILE_NAME>`` option:
 
 .. code-block:: console
 
@@ -422,8 +439,8 @@ of unvisited elements::
 
 **Examples:**
 
-Usually the ``walk`` command will execute a path generated by the ``offline`` command,
-but it can execute any list of steps, that respects that format.
+Usually the ``walk`` command will execute a path generated by the ``offline``
+command, but it can execute any list of steps, that respects that format.
 
 A simple example:
 
