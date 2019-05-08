@@ -1,7 +1,6 @@
 import os
 import io
 import time
-import sys
 import copy
 import inspect
 import traceback
@@ -17,7 +16,7 @@ import requests
 from altwalker._utils import kill, get_command
 from altwalker.exceptions import ExecutorException
 
-logger = logging.getLogger("executor")
+logger = logging.getLogger(__name__)
 
 
 def get_output(callable, *args, **kargs):
@@ -46,14 +45,6 @@ def get_output(callable, *args, **kargs):
 def load(path, package, module):
     """Load a module form a package at a given path."""
 
-    # load package
-    spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
-    loaded_module = spec.loader.load_module()
-    spec.loader.exec_module(loaded_module)
-
-    sys.modules[spec.name] = loaded_module
-
-    # load module
     spec = importlib.util.spec_from_file_location(package + "." + module, os.path.join(path, package, module + ".py"))
     loaded_module = spec.loader.load_module()
     spec.loader.exec_module(loaded_module)
@@ -124,8 +115,10 @@ class HttpExecutor(Executor):
     def __init__(self, url):
         """Initialize an HttpExecutor with the ``url`` of the executor service."""
 
-        self.base = url
-        logging.debug("Initate an HttpExecutor  to connect to {} service".format(self.base))
+        self.url = url
+        self.base = urljoin(self.url, "altwalker/")
+
+        logging.debug("Initate an HttpExecutor to connect to {} service".format(self.url))
 
     def _validate_response(self, response):
         if not response.status_code == 200:
@@ -134,7 +127,7 @@ class HttpExecutor(Executor):
 
             error_type = self.ERROR_CODES.get(status_code, "Unknown Error")
             error_message = "The executor from {} responded with status code: {} {}.".format(
-                self.base, status_code, error_type)
+                self.url, status_code, error_type)
 
             if error:
                 error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error.get("trace", None))
@@ -146,6 +139,7 @@ class HttpExecutor(Executor):
             body = {}
         else:
             body = response.json()
+
         return body.get("payload", {})
 
     def _get(self, path, params=None):
@@ -360,7 +354,6 @@ class DotnetExecutorService:
         Args:
             path: The path of the console application project, dll or exe, that starts an ExecutorService
             serverurl: The url for the service to listen e.g. http://localhost:5000/
-
         """
 
         self.path = path
@@ -433,7 +426,7 @@ class DotnetExecutorService:
 class DotnetExecutor(HttpExecutor):
 
     def __init__(self, path, url):
-        super().__init__(urljoin(url, "altwalker/"))
+        super().__init__(url)
 
         self._service = DotnetExecutorService(path, url)
 

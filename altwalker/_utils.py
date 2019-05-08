@@ -21,3 +21,9 @@ def get_command(command_name):
     command.append(command_name)
 
     return command
+
+
+def url_join(base, url):
+    """Join a base with an url."""
+
+    return "{}/{}".format(base.strip("/"), url.strip("/"))

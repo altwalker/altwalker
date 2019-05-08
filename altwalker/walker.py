@@ -22,6 +22,7 @@ class Walker:
     def __iter__(self):
         self._reporter.start()
         self._planner.restart()
+        self._executor.reset()
         self._status = self._setUpRun()
 
         # if setUpRun failed stop

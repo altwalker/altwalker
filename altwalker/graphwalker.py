@@ -8,7 +8,7 @@ import requests
 from altwalker._utils import kill, get_command
 from altwalker.exceptions import GraphWalkerException
 
-logger = logging.getLogger("graphwalker")
+logger = logging.getLogger(__name__)
 
 
 def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None,

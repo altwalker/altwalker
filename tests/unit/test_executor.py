@@ -60,7 +60,10 @@ class TestHttpExecutor(unittest.TestCase):
         self.executor = HttpExecutor(url="http://localhost:5000/")
 
     def test_base(self):
-        self.assertEqual(self.executor.base, "http://localhost:5000/")
+        self.assertEqual(self.executor.base, "http://localhost:5000/altwalker/")
+
+    def test_url(self):
+        self.assertEqual(self.executor.url, "http://localhost:5000/")
 
     def test_valid_response(self):
         response = mock.MagicMock()
