@@ -129,14 +129,14 @@ class TestValidateCode(unittest.TestCase):
         self.executor = mock.MagicMock()
 
     def test_valid_code(self):
-        self.executor.has_class.return_value = True
-        self.executor.has_method.return_value = True
+        self.executor.has_model.return_value = True
+        self.executor.has_step.return_value = True
 
         validate_code(self.executor, self.methods)
 
     def test_invalid_code(self):
-        self.executor.has_class.return_value = False
-        self.executor.has_method.return_value = False
+        self.executor.has_model.return_value = False
+        self.executor.has_step.return_value = False
 
         with self.assertRaises(ValidationException) as cm:
             validate_code(self.executor, self.methods)
@@ -155,29 +155,27 @@ class TestValidateCode(unittest.TestCase):
 @mock.patch("altwalker.model.validate_models")
 @mock.patch("altwalker.model.create_executor")
 class TestVerifyCode(unittest.TestCase):
-
-    def test_executor(self, executor_mock, validate_models_mock, methods_mock, validate_code_mock):
-        verify_code("/path/to", "package", ["models.json"])
-        executor_mock.assert_called_once_with("/path/to", package="package")
-
-    def test_validate_models(self, executor_mock, validate_models_mock, methods_mock, validate_code_mock):
-        verify_code("/path/to", "package", ["models.json"])
+    def test_verify_code(self, create_executor_mock, validate_models_mock, methods_mock, validate_code_mock):
+        executor = mock.MagicMock()
+        create_executor_mock.return_value = executor
+        verify_code("/path/to/package", "executorname", ["models.json"], None)
+        create_executor_mock.assert_called_once_with("/path/to/package", "executorname", None)
         validate_models_mock.assert_called_once_with(["models.json"])
-
-    def test_methods(self, executor_mock, validate_models_mock, methods_mock, validate_code_mock):
-        verify_code("/path/to", "package", ["models.json"])
         methods_mock.assert_called_once_with(["models.json"])
+        executor.kill.assert_called_once_with()
 
-    def test_validate_code(self, executor_mock, validate_models_mock, methods_mock, validate_code_mock):
-        executor_mock.return_value = "package"
+    def test_validate_code(self, create_executor_mock, validate_models_mock, methods_mock, validate_code_mock):
+        executor = mock.MagicMock()
+        create_executor_mock.return_value = executor
 
         methods = {
             "ModelA": ["vertex_A"]
         }
         methods_mock.return_value = methods
 
-        verify_code("/path/to", "package", ["models.json"])
-        validate_code_mock.assert_called_once_with("package", methods)
+        verify_code("/path/to/package", "executorname", ["models.json"], None)
+        validate_code_mock.assert_called_once_with(executor, methods)
+        executor.kill.assert_called_once_with()
 
 
 class TestIsElementBlocked(unittest.TestCase):
@@ -264,15 +262,15 @@ class TestJsonMethods(unittest.TestCase):
         output = _json_methods("model_path")
         self.assertListEqual(
             output["ModelA"],
-            ["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])
-        self.assertListEqual(output["ModelB"], ["vertex_name", "edge_name"])
+            sorted(set(["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])))
+        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
 
     def test_blocked_enable(self, read_mock):
         read_mock.return_value = self.models
 
         output = _json_methods("model_path", blocked=True)
-        self.assertListEqual(output["ModelA"], ["vertex_not_blocked", "edge_not_blocked"])
-        self.assertListEqual(output["ModelB"], ["vertex_name", "edge_name"])
+        self.assertListEqual(output["ModelA"], sorted(set(["vertex_not_blocked", "edge_not_blocked"])))
+        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
 
 
 @mock.patch("altwalker.graphwalker.methods")

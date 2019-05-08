@@ -42,7 +42,7 @@ class TestCliInit(unittest.TestCase):
     def test_init(self):
         with run_isolation(self.runner, self.files):
             packagename = "example"
-            result = self.runner.invoke(init, [packagename])
+            result = self.runner.invoke(init, [packagename, "-l", "python"])
 
             self.assertIsNone(result.exception, msg=result.exception)
             self.assertEqual(result.exit_code, 0, msg=result.output)
@@ -51,24 +51,22 @@ class TestCliInit(unittest.TestCase):
             self.verify_git_repo(packagename)
 
             expected_code = "\nclass ModelName:\n\n" \
+                "\tdef edge_A(self):\n" \
+                "\t\tpass\n\n" \
                 "\tdef vertex_A(self):\n" \
                 "\t\tpass\n\n" \
                 "\tdef vertex_B(self):\n" \
-                "\t\tpass\n\n" \
-                "\tdef edge_A(self):\n" \
                 "\t\tpass\n\n"
 
             with open(packagename + "/tests/test.py", "r") as f:
                 code = f.read()
 
-                self.assertEqual(
-                    code,
-                    expected_code)
+                self.assertEqual(code, expected_code)
 
     def test_init_model(self):
         with run_isolation(self.runner, self.files):
             packagename = "example"
-            result = self.runner.invoke(init, ["-m", "simple.json", packagename])
+            result = self.runner.invoke(init, ["-m", "simple.json", packagename, "-l", "python"])
             self.assertIsNone(result.exception, msg=result.exception)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 

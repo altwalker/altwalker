@@ -1,6 +1,6 @@
 stages:
-  - test
   - lint
+  - test
   - docs
   - deploy
 
@@ -19,6 +19,8 @@ unit tests:
   artifacts:
     paths:
       - coverage/
+      - "*.log"
+    when: always
   script:
     - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
   after_script:
@@ -29,18 +31,109 @@ integration test:
   stage: test
   tags:
     - docker
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
   script:
-    - pytest -x -s -v tests/integration
+    - pytest -x -s -v -m "not dotnet" tests/integration
+
+dotnet integration tests:
+  stage: test
+  image: altwalker/tests:dotnet-v2.2
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
+  before_script:
+    - pip3 install -r requirements.txt --user
+    - pip3 install -r requirements-dev.txt
+  script:
+    - pytest -x -s -v -m dotnet tests/integration
 
 tox:
   image: robert96/graphwalker-cli:tox
   stage: test
   tags:
     - docker
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
   before_script:
     - tox --version
   script:
     - tox
+
+dotnet functional tests:
+  stage: test
+  image: altwalker/tests:dotnet-v2.2
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
+  before_script:
+    - pip3 install -r requirements.txt --user
+    - pip3 install --editable .
+    - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
+    - unzip artifacts.zip
+  script:
+    - altwalker -v
+    - altwalker init dotnet-example -l c# --no-git
+    - dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+    - cd dotnet-example
+    - altwalker check -m models/default.json "random(vertex_coverage(100))"
+    - altwalker verify tests/ -m models/default.json -x c# --url http://localhost:4200/
+    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --url http://localhost:4200/
+    - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+    - altwalker walk tests/ steps.json -x c# --url http://localhost:4200/
+
+python functional tests:
+  stage: test
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
+  before_script:
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - pip3 install -r requirements.txt --user
+    - pip3 install idna==2.8
+    - pip3 install --editable .
+  script:
+    - altwalker --version
+    - altwalker init python-example -l python --no-git
+    - cd python-example
+    - altwalker check -m models/default.json "random(vertex_coverage(100))"
+    - altwalker verify tests -m models/default.json
+    - altwalker online tests -m models/default.json "random(vertex_coverage(100))"
+    - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+    - altwalker walk tests steps.json
+
+http functional tests:
+  stage: test
+  image: altwalker/tests:dotnet-v2.2
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
+  before_script:
+    - pip3 install -r requirements.txt --user
+    - pip3 install --editable .
+    - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
+    - unzip artifacts.zip
+  script:
+    - altwalker -v
+    - altwalker init dotnet-example -l c# --no-git
+    - dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+    - cd dotnet-example
+    - dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
+    - sleep 10
+    - altwalker check -m models/default.json "random(vertex_coverage(100))"
+    - altwalker verify tests/ -m models/default.json -x http --url http://localhost:4200/
+    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --url http://localhost:4200/
+    - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+    - altwalker walk tests/ steps.json -x http --url http://localhost:4200/
 
 lint:
   stage: lint

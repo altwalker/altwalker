@@ -34,3 +34,13 @@ docs/_build
 
 # macOS
 .DS_Store
+
+# logs
+altwalker.log
+graphwalker-service.log
+dotnet-executor.log
+gwoutput
+
+# dotnet
+obj/
+bin/

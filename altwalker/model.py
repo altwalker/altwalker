@@ -85,18 +85,18 @@ def validate_code(executor, methods):
 
     for model, elements in methods.items():
 
-        if not executor.has_class(model):
+        if not executor.has_model(model):
             message += "Expected to find class {}.\n".format(model)
 
         for element in elements:
-            if not executor.has_method(model, element):
+            if not executor.has_step(model, element):
                 message += "Expected to find {} method in class {}.\n".format(element, model)
 
     if message:
         raise ValidationException(message)
 
 
-def verify_code(path, package, model_paths):
+def verify_code(path, executor, model_paths, url):
     """Verify test code against the model(s).
 
     Args:
@@ -109,12 +109,14 @@ def verify_code(path, package, model_paths):
         ValidationException: If the model(s) or the code are not a valid.
     """
 
-    executor = create_executor(path, package=package)
+    executor = create_executor(path, executor, url)
+    try:
+        validate_models(model_paths)
+        methods = get_methods(model_paths)
 
-    validate_models(model_paths)
-    methods = get_methods(model_paths)
-
-    validate_code(executor, methods)
+        validate_code(executor, methods)
+    finally:
+        executor.kill()
 
 
 def _is_element_blocked(element, blocked=False):
@@ -133,7 +135,7 @@ def _json_methods(model_path, blocked=False):
         vertices = [vertex["name"] for vertex in model["vertices"] if _is_element_blocked(vertex, blocked=blocked)]
         edges = [edge["name"] for edge in model["edges"] if _is_element_blocked(edge, blocked=blocked)]
 
-        result[name] = vertices + edges
+        result[name] = sorted(set(vertices + edges))
 
     return result
 
@@ -145,7 +147,7 @@ def _graphml_methods(model_path, blocked=False):
     model_name = file_name.replace(".graphml", "")
 
     result = dict()
-    result[model_name] = graphwalker.methods(model_path, blocked=blocked)
+    result[model_name] = sorted(set(graphwalker.methods(model_path, blocked=blocked)))
 
     return result
 

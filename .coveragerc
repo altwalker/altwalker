@@ -1,3 +1,6 @@
 [run]
-# to measure branch coverage in addition to statement coverage
+# measure branch coverage in addition to statement coverage
 branch = True
+
+omit =
+    altwalker/__main__.py

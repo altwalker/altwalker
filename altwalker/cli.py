@@ -1,5 +1,4 @@
 import json
-import os
 
 import click
 
@@ -10,14 +9,19 @@ from altwalker.planner import create_planner
 from altwalker.executor import create_executor
 from altwalker.walker import create_walker
 from altwalker.reporter import ClickReporter
-from altwalker.init import init_repo, generate_tests
+from altwalker.init import init_project, generate_tests
 
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+CONTEXT_SETTINGS = dict(help_option_names=["--help", "-h"])
 
-model_option = click.option("--model", "-m", "models", type=(click.Path(exists=True, dir_okay=False), str),
-                            required=True, multiple=True,
-                            help="The model, as a graphml/json file followed by generator with stop condition.")
+model_and_generator_option = click.option(
+    "--model", "-m", "models",
+    type=(click.Path(exists=True, dir_okay=False), str), required=True, multiple=True,
+    help="The model, as a graphml/json file followed by generator with stop condition.")
+
+model_file_option = click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
+                                 required=True, multiple=True,
+                                 help="The model, as a graphml/json file.")
 
 start_element_option = click.option("--start-element", "-e",
                                     help="Sets the starting element in the first model.")
@@ -26,10 +30,21 @@ verbose_option = click.option("--verbose", "-o", default=False, is_flag=True,
                               help="Will also print the model data and the properties for each step.")
 
 unvisted_option = click.option("--unvisited", "-u", default=False, is_flag=True,
-                               help="Will also print the remaining unvisited elements in the model. Default is False")
+                               help="Will also print the remaining unvisited elements in the model.")
 
 blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
-                              help="Will fiter out elements with the keyword BLOCKED. Default is False.")
+                              help="Will fiter out elements with the keyword BLOCKED.")
+
+language_option = click.option("--language", "-l", type=click.Choice(["python", "c#", "dotnet"]),
+                               help="The programming language of the tests.")
+
+executor_option = click.option("--executor", "-x", "--language", "-l", "executor",
+                               type=click.Choice(["python", "c#", "dotnet", "http"]),
+                               default="python", show_default=True,
+                               help="Configure the executor to be used.")
+
+url_option = click.option("--url", default="http://localhost:5000/", show_default=True,
+                          help="The url for the executor.")
 
 
 def add_options(options):
@@ -41,13 +56,13 @@ def add_options(options):
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
-@click.version_option(None, "-v", "--version", prog_name="AltWalker")
+@click.version_option(None, "--version", "-v", prog_name="AltWalker")
 def cli():
     """A command line tool for running model-based tests."""
 
 
 @cli.command()
-@add_options([model_option, blocked_option])
+@add_options([model_and_generator_option, blocked_option])
 @handle_errors
 def check(models, blocked):
     """Check and analyze model(s) for issues."""
@@ -58,16 +73,14 @@ def check(models, blocked):
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
-@click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
-              required=True, multiple=True,
-              help="The model, as a graphml/json file.")
+@add_options([model_file_option, executor_option, url_option])
 @handle_errors
-def verify(test_package, models):
+def verify(test_package, models, url, **options):
     """Verify test code against the model(s)."""
 
-    path, package = os.path.split(test_package)
+    executor = options["executor"]
 
-    verify_code(path, package, models)
+    verify_code(test_package, executor, models, url)
     click.echo("No issues found with the code.")
 
 
@@ -76,37 +89,44 @@ def verify(test_package, models):
 @click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
               required=False, multiple=True,
               help="The model, as a graphml/json file.")
-@click.option("--no-git", "-n", "no_git", default=False, is_flag=True,
-              help="If set it will not initialize a git repository.")
+@click.option("--git/--no-git", " /-n", "git", default=True, is_flag=True,
+              help="If set to true will initialize a git repository.", show_default=True)
+@add_options([language_option])
 @handle_errors
-def init(dest_dir, models, no_git):
-    """Initialize an AltWalker project."""
+def init(dest_dir, models, git, language):
+    """Initialize a new project."""
 
-    init_repo(dest_dir, models, no_git)
+    init_project(dest_dir, language, models, git)
 
 
 @cli.command()
 @click.argument("dest_dir", type=click.Path(exists=False))
-@click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
-              required=True, multiple=True,
-              help="The model, as a graphml/json file.")
+@add_options([model_file_option, language_option])
 @handle_errors
-def generate(dest_dir, models):
+def generate(dest_dir, models, language):
     """Generate test code template based on the given model(s)."""
 
-    generate_tests(dest_dir, models)
+    if language is None:
+        language = "python"
+
+    generate_tests(dest_dir, models, language)
 
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
 @click.option("--port", "-p", default=8887,
               help="Sets the port of the GraphWalker service.")
-@add_options([model_option, start_element_option, verbose_option, unvisted_option, blocked_option])
+@add_options([model_and_generator_option, start_element_option,
+              executor_option, url_option,
+              verbose_option, unvisted_option, blocked_option])
 @handle_errors
 def online(test_package, **options):
     """Run a test path using the GraphWalker online RESTFUL service."""
 
-    run_command(test_package, models=options["models"],
+    executor = options["executor"]
+    url = options["url"]
+
+    run_command(test_package, executor, url, models=options["models"],
                 port=options["port"],
                 verbose=options["verbose"],
                 unvisited=options["unvisited"],
@@ -116,7 +136,7 @@ def online(test_package, **options):
 @cli.command()
 @click.option("--output-file", "-f", type=click.File(mode="w", lazy=True, atomic=True),
               help="Output file.")
-@add_options([model_option, start_element_option, verbose_option, unvisted_option, blocked_option])
+@add_options([model_and_generator_option, start_element_option, verbose_option, unvisted_option, blocked_option])
 @handle_errors
 def offline(**options):
     """Generate a test path once, that can be runned later."""
@@ -142,45 +162,59 @@ def offline(**options):
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_path", type=click.Path(exists=True, dir_okay=False))
+@add_options([executor_option, url_option])
 @handle_errors
-def walk(test_package, steps_path):
+def walk(test_package, steps_path, executor, url):
     """Run a test path."""
 
     with open(steps_path) as f:
         steps = json.load(f)
 
-    run_command(test_package, steps=steps)
+    run_command(test_package, executor, url, steps=steps)
 
 
-def run_tests(path, package, models=None, steps=None, port=None,
+def run_tests(path, executor, url=None, models=None, steps=None, port=None,
               verbose=False, unvisited=False, blocked=False):
+    """Run tests.
+
+    Args:
+        path: Path to test code.
+        executor: The type of executor to use.
+        url: The url for the executor, if the executor type is ``http``.
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        steps: A sequence of steps.
+        port: The port for the GraphWalker REST Service.
+        verbose: Will run the GraphWalker command with the verbose flag.
+        unvisited: Will run the GraphWalker command with the unvisited flag.
+        blocked: Will run the GraphWalker command with the blocked flag.
+    """
 
     planner = create_planner(models=models, steps=steps, port=port,
                              verbose=verbose, unvisited=unvisited, blocked=blocked)
 
     try:
-        executor = create_executor(path, package=package)
-        reporter = ClickReporter()
+        executor = create_executor(path, executor, url=url)
+        try:
+            reporter = ClickReporter()
 
-        walker = create_walker(planner, executor, reporter=reporter)
-        walker.run()
+            walker = create_walker(planner, executor, reporter=reporter)
+            walker.run()
 
-        statistics = planner.get_statistics()
+            statistics = planner.get_statistics()
+        finally:
+            executor.kill()
     finally:
-        if port:
-            planner.kill()
+        planner.kill()
 
     return walker.status, statistics
 
 
-def run_command(test_package, models=None, steps=None, port=None,
+def run_command(path, executor, url=None, models=None, steps=None, port=None,
                 verbose=False, unvisited=False, blocked=False):
     """Run tests and echo output."""
 
-    path, package = os.path.split(test_package)
-
     click.echo("Running:")
-    status, statistics = run_tests(path, package, models=models, steps=steps,
+    status, statistics = run_tests(path, executor, url, models=models, steps=steps,
                                    port=port, verbose=verbose, unvisited=unvisited,
                                    blocked=blocked)
 

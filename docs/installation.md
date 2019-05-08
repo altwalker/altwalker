@@ -1,6 +1,7 @@
 # Installation
 
 __Pythons__: Python 3.4, 3.5, 3.6, 3.7, PyPy3
+
 __Platforms__: Unix/Posix and Windows
 
 On Windows, make sure you add Python in the Path from System Variables:
@@ -16,6 +17,7 @@ And in the Path from User Variables:
 
 * `Java 8`
 * `GraphWalker CLI`
+* `.NET Core` (Optional)
 
 ### GraphWalker
 
@@ -24,7 +26,7 @@ AltWalker relies on [Graphwalker](http://graphwalker.github.io/) to generate pat
 AltWalker uses the GraphWalker CLI, the CLI is a standalone jar file. You need to have Java 8 installed to be able to execute the jar file.
 
 You need to download [GraphWalker CLI](http://graphwalker.github.io/download/) and create a script to run the jar file from the command line.
-We recomand downloading the latest version of GraphWalker CLI.
+We recommend downloading the latest version of GraphWalker CLI.
 
 For macOS/linux you can run the following command:
 
@@ -85,3 +87,12 @@ Check that you installed the correct version:
 ```
 $ altwalker --version
 ```
+
+## Install .NET Core (Optional)
+
+.NET Core is required by AltWalker when you want to write your tests in a .NET supported language.
+
+* Install .NET Core Runtime - enables AltWalker to execute compiled tests. Preferred in production environment.
+* Install .NET Core SDK -  enables AltWalker to use dotnet to compile and run your tests. Preferred in development environment.
+
+The `dotnet` command needs to be available under `/usr/bin/dotnet`. Installing .NET Core with snap makes the `dotnet` command available under a different path. In this case create a symbolic link `ln -s /path/to/dotnet /usr/bin/dotnet`

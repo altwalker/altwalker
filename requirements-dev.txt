@@ -2,6 +2,7 @@ setuptools
 flake8
 pytest
 pytest-cov
+pytest-timeout
 Sphinx
 recommonmark
 sphinx-click

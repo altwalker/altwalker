@@ -1,19 +1,17 @@
 import traceback
 
-from altwalker.data import GraphData
 from altwalker.reporter import Reporter
 
 
 class Walker:
     """Coordinates the execution of a test asking a ``Planner`` for the next step,
-    executing the step using an ``Executor``, if needed passing a ``GraphData`` object
+    executing the step using an ``Executor``, if needed passing a ``dict`` object
     to the test code, and reporting the progress using a ``Reporter``.
     """
 
-    def __init__(self, planner, executor, data, reporter):
+    def __init__(self, planner, executor, reporter):
         self._planner = planner
         self._executor = executor
-        self._data = data
         self._reporter = reporter
 
         self._status = None
@@ -24,6 +22,7 @@ class Walker:
     def __iter__(self):
         self._reporter.start()
         self._planner.restart()
+        self._executor.reset()
         self._status = self._setUpRun()
 
         # if setUpRun failed stop
@@ -52,8 +51,6 @@ class Walker:
         self._status = self._status & status
 
         self._reporter.end()
-
-        return
 
     @property
     def status(self):
@@ -111,6 +108,24 @@ class Walker:
 
         return status
 
+    def _update_data(self, data_before, data_after):
+        if not data_after:
+            return
+
+        for key, value in data_after.items():
+            if key not in data_before or data_before[key] != value:
+                self._planner.set_data(key, value)
+
+    def _execute_step(self, model, name):
+        data_before = self._planner.get_data()
+
+        result = self._executor.execute_step(model, name, data_before)
+        data_after = result.get("data", None)
+
+        self._update_data(data_before, data_after)
+
+        return result
+
     def _run_step(self, step, optional=False):
         model = step.get("modelName", None)
         name = step.get("name")
@@ -127,7 +142,7 @@ class Walker:
         try:
             self._reporter.step_start(step)
 
-            result = self._executor.execute_step(model, name, self._data)
+            result = self._execute_step(model, name)
 
             error = result.get("error", None)
             output = result["output"]
@@ -135,6 +150,7 @@ class Walker:
             self._reporter.step_status(step, output=output, failure=error is not None)
 
             if error:
+                self._planner.fail(step, error["message"])
                 self._reporter.error(error["message"], trace=error["trace"])
 
             return error is None
@@ -155,15 +171,12 @@ class Walker:
         return self._status
 
 
-def create_walker(planner, executor, data=None, reporter=None):
-    """Create a Walker object, and if no ``data`` or ``reporter`` is provided
-    initialize them with the default options.
+def create_walker(planner, executor, reporter=None):
+    """Create a Walker object, and if no ``reporter`` is provided
+    initialize it with the default options.
     """
-
-    if not data:
-        data = GraphData(planner)
 
     if not reporter:
         reporter = Reporter()
 
-    return Walker(planner, executor, data, reporter)
+    return Walker(planner, executor, reporter)

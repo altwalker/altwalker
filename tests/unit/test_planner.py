@@ -227,9 +227,8 @@ class TestOfflinePlanner(unittest.TestCase):
         self.assertListEqual(self.planner.path, self.steps)
 
     def test_get_data(self):
-        message = "The set_data and get_data are not supported in offline mode so calls to them have no effect."
-        with self.assertWarnsRegex(UserWarning, message):
-            self.planner.get_data()
+        data = self.planner.get_data()
+        self.assertDictEqual(data, {})
 
     def test_set_data(self):
         message = "The set_data and get_data are not supported in offline mode so calls to them have no effect."
