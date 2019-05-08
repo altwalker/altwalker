@@ -1,6 +1,7 @@
 import os
 import io
 import time
+import sys
 import copy
 import inspect
 import traceback
@@ -45,6 +46,14 @@ def get_output(callable, *args, **kargs):
 def load(path, package, module):
     """Load a module form a package at a given path."""
 
+    # load package
+    spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
+    loaded_module = spec.loader.load_module()
+    spec.loader.exec_module(loaded_module)
+
+    sys.modules[spec.name] = loaded_module
+
+    # load module
     spec = importlib.util.spec_from_file_location(package + "." + module, os.path.join(path, package, module + ".py"))
     loaded_module = spec.loader.load_module()
     spec.loader.exec_module(loaded_module)

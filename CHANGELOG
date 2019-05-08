@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 0.2.1
+-------------
+
+(bugfix release)
+
+- Fix issue with loding test code in python
+
 Version 0.2.0
 -------------
 
