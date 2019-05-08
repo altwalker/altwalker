@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Version 0.2.0
+-------------
+
+- Add HTTP interface for the executor
+- Add C#/.NET executor
+- Fix issue where the init and generate commands outputs files with duplicate methods (`#29`_)
+- Fix issue where failed steps are not saved in statistics (`#35`_)
+
+.. _#29: https://gitlab.com/altom/altwalker/altwalker/issues/29
+.. _#35: https://gitlab.com/altom/altwalker/altwalker/issues/35
+
 Version 0.1.1
 -------------
 
