@@ -8,13 +8,9 @@ class OnlinePlanner:
 
     The path generation is done at run-time, one step at a time, using
     the GraphWalker REST Service. This adds a bit of complexity, but
-    the advantages is that you can interact with the grpah data using
+    the advantages is that you can interact with the graph data using
     :func:`get_data` and :func:`set_data` methods.
 
-    Attributes:
-        steps: The sequence of executed steps.
-        failed_step: A failed step.
-        failed_fixutes: A list of failed fixtures.
     """
 
     def __init__(self, service, client):
@@ -22,10 +18,6 @@ class OnlinePlanner:
 
         self._service = service
         self._client = client
-
-        self.steps = []
-        self.failed_step = {}
-        self.failed_fixtures = []
 
     def kill(self):
         """Stop the GraphWalkerService process."""
@@ -46,11 +38,6 @@ class OnlinePlanner:
         """Get the next step in the current path."""
 
         step = self._client.get_next()
-        self.steps.append({
-            "id": step["id"],
-            "name": step["name"],
-            "modelName": step["modelName"]
-        })
 
         return step
 
@@ -67,33 +54,15 @@ class OnlinePlanner:
     def restart(self):
         """Will rests the execution and the statistics."""
 
-        self.steps = []
-
-        self.failed_step = {}
-        self.failed_fixtures = []
-
         self._client.restart()
 
-    def fail(self, step, message):
+    def fail(self, message):
         """Will mark the step as a failure and the current model."""
-
-        if "id" in step:
-            self.failed_step = {
-                "id": step["id"],
-                "name": step["name"],
-                "modelName": step["modelName"]
-            }
-        else:
-            self.failed_fixtures.append(step)
 
         self._client.fail(message)
 
     def get_statistics(self):
         statistics = self._client.get_statistics()
-
-        statistics["steps"] = self.steps
-        statistics["failedStep"] = self.failed_step
-        statistics["failedFixtures"] = self.failed_fixtures
 
         return statistics
 
@@ -111,9 +80,6 @@ class OfflinePlanner:
 
         self._path = list(path)
         self._position = 0
-
-        self.failed_step = {}
-        self.failed_fixtures = []
 
     @property
     def steps(self):
@@ -151,33 +117,21 @@ class OfflinePlanner:
         return {}
 
     def set_data(self, key, value):
-        """Is not supported and will thorow a warning."""
+        """Is not supported and will throw a warning."""
 
         warnings.warn(
             "The set_data and get_data are not supported in offline mode so calls to them have no effect.", UserWarning)
 
-    def fail(self, step, message):
-        """Will mark the step as a failure."""
-
-        if "id" in step:
-            self.failed_step = step
-        else:
-            self.failed_fixtures.append(step)
+    def fail(self, message):
+        pass
 
     def restart(self):
         """Will rests the executed steps sequence and the statistics."""
 
-        self.failed_step = {}
-        self.failed_fixtures = []
-
         self._position = 0
 
     def get_statistics(self):
-        return {
-            "steps": self.steps,
-            "failedStep": self.failed_step,
-            "failedFixtures": self.failed_fixtures
-        }
+        return {}
 
     def kill(self):
         pass

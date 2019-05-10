@@ -43,10 +43,10 @@ class Reporter:
     def step_start(self, step):
         """Report the starting execution of a step."""
 
-    def step_status(self, step, failure=False, output=""):
+    def step_end(self, step, result):
         """Report the status of a step."""
 
-    def error(self, message, trace=None):
+    def step_error(self, step, message, trace=None):
         """Report an error."""
 
     def _log(self, string):
@@ -64,18 +64,18 @@ class Formater(Reporter):
 
         self._log(_add_timestamp(message))
 
-    def step_status(self, step, failure=False, output=""):
+    def step_end(self, step, result):
         """Report the status of a step."""
-
+        failure = result.get("error", None)
         status = "PASSED" if not failure else "FAIL"
         message = "{} Status: {}".format(_format_step(step), status)
-
+        output = result.get("output", None)
         if output:
             message += "\nOutput:\n{}".format(output)
 
         self._log(_add_timestamp(message))
 
-    def error(self, message, trace=None):
+    def step_error(self, step, message, trace=None):
         """Report an error followed by the stack trace."""
 
         if trace:
@@ -108,19 +108,20 @@ class FileReporter(Formater):
 class ClickReporter(Formater):
     """Output reports using the click.echo function."""
 
-    def step_status(self, step, failure=False, output=""):
+    def step_end(self, step, result):
+        failure = result.get("error", None)
         status = "PASSED" if not failure else "FAIL"
         status = click.style(status, fg="red" if failure else "green")
 
         message = "{} Status: {}".format(_format_step(step), status)
-
+        output = result.get("output", None)
         if output:
             output_string = click.style(output, fg="cyan")
             message += "\nOutput:\n{}".format(output_string)
 
         self._log(_add_timestamp(message))
 
-    def error(self, message, trace=None):
+    def step_error(self, step, message, trace=None):
         if trace:
             trace_string = click.style(trace, fg="red")
             message += "\n{}".format(trace_string)
