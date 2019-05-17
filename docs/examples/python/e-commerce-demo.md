@@ -93,7 +93,7 @@ _Each edge in the graph represents an action_ (e.g. `add_to_cart`, `go_to_produc
 
 The following screenshot of the models is taken from the [Model-Editor](https://altom.gitlab.io/altwalker/model-editor/):
 
-![E-commerce models.](../../_static/ecommerce-model.png)
+![](../../_static/ecommerce-model.png)
 
 ### Shared States
 
@@ -147,7 +147,7 @@ The tests can be found inside `tests` package.
 
 We use [selenium](https://selenium-python.readthedocs.io/) and [PyPOM](https://pypom.readthedocs.io/en/latest/) (Python Page Object Model) to interact with the e-commerce website. The code that interacts with the page, is inside `tests/pages/` package.
 
-Each model defined in `models/default.json` has an associated class in `tests/test.py`. The `models/default.json` contains two models: `NavigationModel` and `CheckoutModel`, so `test/test.py` contains tow classes named after each model: `NavigationModel` and `CheckoutModel`.
+Each model defined in `models/default.json` has an associated class in `tests/test.py`. The `models/default.json` contains two models: `NavigationModel` and `CheckoutModel`, so `test/test.py` contains two classes named after each model: `NavigationModel` and `CheckoutModel`.
 
 Each model class has a method for each edge and vertex from the corresponding model.
 
@@ -202,7 +202,7 @@ def tearDownRun():
 
 ### Further Reading/Useful Links
 
-* [Seleniun](https://docs.seleniumhq.org/)
+* [Selenium](https://docs.seleniumhq.org/)
 * [Selenium with python](https://selenium-python.readthedocs.io/)
 * [PyPOM (Python Page Object Model)](https://pypom.readthedocs.io/en/latest/)
 
