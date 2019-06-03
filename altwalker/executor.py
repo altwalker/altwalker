@@ -10,11 +10,10 @@ import subprocess
 import importlib
 import importlib.util
 from contextlib import redirect_stdout
-from urllib.parse import urljoin
 
 import requests
 
-from altwalker._utils import kill, get_command
+from altwalker._utils import kill, get_command, url_join
 from altwalker.exceptions import ExecutorException
 
 logger = logging.getLogger(__name__)
@@ -23,6 +22,23 @@ logger = logging.getLogger(__name__)
 def get_output(callable, *args, **kargs):
     """Call a callable object and return the output from stdout, error message and
     traceback if an error occurred.
+
+    Args:
+        callable: The callable object to call.
+        *args: The list of args for the calable.
+        **kargs: The dict of kargs for the callable.
+
+    Returns:
+        A dict containing the output of the callable, and the error message with the trace
+        if an error occurred::
+
+            {
+                "output": "",
+                "error": {
+                    "message": "",
+                    "trace": ""
+                }
+            }
     """
 
     result = {}
@@ -54,7 +70,9 @@ def load(path, package, module):
     sys.modules[spec.name] = loaded_module
 
     # load module
-    spec = importlib.util.spec_from_file_location(package + "." + module, os.path.join(path, package, module + ".py"))
+    spec = importlib.util.spec_from_file_location(
+        "{}.{}".format(package, module),
+        os.path.join(path, package, "{}.py".format(module)))
     loaded_module = spec.loader.load_module()
     spec.loader.exec_module(loaded_module)
 
@@ -125,55 +143,55 @@ class HttpExecutor(Executor):
         """Initialize an HttpExecutor with the ``url`` of the executor service."""
 
         self.url = url
-        self.base = urljoin(self.url, "altwalker/")
+        self.base = url_join(self.url, "altwalker/")
 
         logging.debug("Initate an HttpExecutor to connect to {} service".format(self.url))
 
     def _validate_response(self, response):
         if not response.status_code == 200:
             status_code = response.status_code
-            error = response.json().get("error", None)
+            error = response.json().get("error")
 
             error_type = self.ERROR_CODES.get(status_code, "Unknown Error")
             error_message = "The executor from {} responded with status code: {} {}.".format(
                 self.url, status_code, error_type)
 
             if error:
-                error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error.get("trace", None))
+                error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error.get("trace"))
 
             raise ExecutorException(error_message)
 
-    def _get_body_payload(self, response):
-        if response.headers.get("content-length", None) == '0':
-            body = {}
-        else:
+    def _get_payload(self, response):
+        try:
             body = response.json()
+        except ValueError:
+            body = {}
 
         return body.get("payload", {})
 
     def _get(self, path, params=None):
-        response = requests.get(urljoin(self.base, path), params=params)
+        response = requests.get(url_join(self.base, path), params=params)
         self._validate_response(response)
 
-        return self._get_body_payload(response)
+        return self._get_payload(response)
 
     def _put(self, path):
-        response = requests.put(urljoin(self.base, path))
+        response = requests.put(url_join(self.base, path))
         self._validate_response(response)
 
-        return self._get_body_payload(response)
+        return self._get_payload(response)
 
     def _post(self, path, params=None, data=None):
         HEADERS = {'Content-Type': 'application/json'}
-        response = requests.post(urljoin(self.base, path), params=params, json=data, headers=HEADERS)
+        response = requests.post(url_join(self.base, path), params=params, json=data, headers=HEADERS)
         self._validate_response(response)
 
-        return self._get_body_payload(response)
+        return self._get_payload(response)
 
     def load(self, path):
         """Makes a POST request at ``load``."""
 
-        self._post("load", data={"path": path})
+        self._post("load", data={"path": os.path.abspath(path)})
 
     def reset(self):
         """Makes an PUT at ``reset``."""
@@ -229,7 +247,7 @@ class HttpExecutor(Executor):
 
         payload = self._post("executeStep", params={"modelName": model_name, "name": name}, data=data)
 
-        if payload.get("output", None) is None:
+        if payload.get("output") is None:
             raise ExecutorException("Invaild response. The payload must include the key: output.")
 
         return payload
@@ -238,7 +256,7 @@ class HttpExecutor(Executor):
 class PythonExecutor(Executor):
     """Execute methods/functions from a model like object."""
 
-    def __init__(self, module):
+    def __init__(self, module=None):
         self._module = module
         self._instances = {}
 
@@ -273,7 +291,7 @@ class PythonExecutor(Executor):
         self.reset()
 
         path, package = os.path.split(path)
-        self._module = load(path, package, "test")
+        self.module = load(path, package, "test")
 
     def reset(self):
         self._instances = {}
@@ -323,6 +341,8 @@ class PythonExecutor(Executor):
             The data changed by callable and output of the callable.
         """
 
+        data = copy.deepcopy(data) if data else {}
+
         if model_name is None:
             func = getattr(self._module, name)
             nr_args = len(inspect.getfullargspec(func).args)
@@ -332,19 +352,17 @@ class PythonExecutor(Executor):
             func = getattr(self._instances[model_name], name)
             nr_args = len(inspect.getfullargspec(func).args) - 1  # substract the self argument of the method
 
-        if data is None:
-            data = {}
-        else:
-            data = copy.deepcopy(data)
-
         if nr_args == 0:
             output = get_output(func)
         elif nr_args == 1:
             output = get_output(func, data)
         else:
-            raise ExecutorException(
-                "The {}.{} function must take 0 or 1 parameters but it expects more than one parameter."
-                .format(model_name, name))
+            func_name = "{}.{}".format(model_name, name) if model_name else name
+            type_ = "method" if model_name else "function"
+
+            error_message = "The {} {} must take {} or {} parameters but it expects {} parameters."
+
+            raise ExecutorException(error_message.format(func_name, type_, 0, 1, nr_args))
 
         output["data"] = data
         return output
@@ -362,7 +380,7 @@ class DotnetExecutorService:
 
         Args:
             path: The path of the console application project, dll or exe, that starts an ExecutorService
-            serverurl: The url for the service to listen e.g. http://localhost:5000/
+            server_url: The url for the service to listen (e.g. http://localhost:5000/).
         """
 
         self.path = path
@@ -482,8 +500,11 @@ def create_executor(path, type_, url=None):
 
     Args:
         path: The path to the tests.
-        type_: The type of the executor e.g. http, python, dotnet
+        type_: The type of the executor (e.g. http, python, dotnet).
         url: The url for the executor service.
+
+    Raises:
+        ValueError: is the type_ is not supported.
     """
 
     if type_ == "http":
