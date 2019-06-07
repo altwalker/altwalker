@@ -14,7 +14,8 @@ def run_isolation(runner, files, folders=None):
                     os.makedirs(path)
 
             with open(file_path, "w") as f:
-                f.write(content)
+                if content:
+                    f.write(content)
 
         if folders:
             for path in folders:

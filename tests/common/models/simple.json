@@ -8,23 +8,23 @@
       "vertices": [
         {
           "id": "v0",
-          "name": "vertex_A"
+          "name": "vertex_a"
         },
         {
           "id": "v1",
-          "name": "vertex_B"
+          "name": "vertex_b"
         }
       ],
       "edges": [
         {
           "id": "e0",
-          "name": "edge_A",
+          "name": "edge_a",
           "sourceVertexId": "v0",
           "targetVertexId": "v1"
         },
         {
           "id": "e1",
-          "name": "edge_B",
+          "name": "edge_b",
           "sourceVertexId": "v1",
           "targetVertexId": "v0"
         }

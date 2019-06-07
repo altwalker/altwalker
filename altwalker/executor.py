@@ -62,6 +62,8 @@ def get_output(callable, *args, **kargs):
 def load(path, package, module):
     """Load a module form a package at a given path."""
 
+    importlib.invalidate_caches()
+
     # load package
     spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
     loaded_module = spec.loader.load_module()
