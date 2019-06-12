@@ -46,14 +46,17 @@ class Reporter:
     def step_end(self, step, result):
         """Report the status of a step."""
 
-    def step_error(self, step, message, trace=None):
-        """Report an error."""
+    def error(self, step, message, trace=None):
+        """Report an unexpected error."""
+
+    def report(self):
+        """Return an report for the run."""
 
     def _log(self, string):
         """Emmit the string."""
 
 
-class Formater(Reporter):
+class _Formater(Reporter):
     """Format the message for reporting."""
 
     def step_start(self, step):
@@ -75,7 +78,7 @@ class Formater(Reporter):
 
         self._log(_add_timestamp(message))
 
-    def step_error(self, step, message, trace=None):
+    def error(self, step, message, trace=None):
         """Report an error followed by the stack trace."""
 
         if trace:
@@ -84,14 +87,14 @@ class Formater(Reporter):
         self._log(_add_timestamp(message))
 
 
-class PrintReporter(Formater):
+class PrintReporter(_Formater):
     """Output reports to stdout."""
 
     def _log(self, string):
         print(string)
 
 
-class FileReporter(Formater):
+class FileReporter(_Formater):
     """Output reports to a file."""
 
     def __init__(self, path):
@@ -105,7 +108,7 @@ class FileReporter(Formater):
             file.write(string + "\n")
 
 
-class ClickReporter(Formater):
+class ClickReporter(_Formater):
     """Output reports using the click.echo function."""
 
     def step_end(self, step, result):
@@ -121,7 +124,7 @@ class ClickReporter(Formater):
 
         self._log(_add_timestamp(message))
 
-    def step_error(self, step, message, trace=None):
+    def error(self, step, message, trace=None):
         if trace:
             trace_string = click.style(trace, fg="red")
             message += "\n{}".format(trace_string)

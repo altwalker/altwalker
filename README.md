@@ -38,7 +38,7 @@ AltWalker has the following components:
     * Offline Planner
 
 * __Reporter__: To report the results of the tests, the reporters are all called for
-    each event (e.g. `step_start`, `step_status`, ...).
+    each event (e.g. `step_start`, `step_end`, ...).
 
 * __Executor__: For each step in the plan looks up and calls the named method
     from the _test code_. In addition to the step methods, it also calls

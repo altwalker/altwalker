@@ -506,7 +506,7 @@ def create_executor(path, type_, url=None):
         url: The url for the executor service.
 
     Raises:
-        ValueError: is the type_ is not supported.
+        ValueError: is the ``type_`` is not supported.
     """
 
     if type_ == "http":

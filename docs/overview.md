@@ -37,7 +37,7 @@ AltWalker has the following components:
     * Offline Planner
 
 * __Reporter__: To report the results of the tests, the reporters are all called for
-    each event (e.g. `step_start`, `step_status`, ...).
+    each event (e.g. `step_start`, `step_end`, ...).
 
 * __Executor__: For each step in the plan looks up and calls the named method
     from the _test code_. In addition to the step methods, it also calls
@@ -87,6 +87,8 @@ The `check` command from GraphWalker is used by AltWalker's `check`.
 The [Model-Editor](https://altom.gitlab.io/altwalker/model-editor) is a web based editor
 and visualizer for models written using the GraphWalker JSON format.
 
-The following screenshot is taken from the Model-Editor:
+```eval_rst
+.. figure:: _static/model-editor.png
 
-![](_static/model-editor.png)
+    Screenshot taken from the Model-Editor.
+```
