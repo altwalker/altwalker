@@ -215,5 +215,10 @@ $ cd docs && \
 To see the documentation run:
 
 ```
-open _build/html/index.html
+$ open _build/html/index.html
 ```
+
+__Further Reading/Useful Links__:
+
+* [Google Style Docstring Example](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google)
+* [Google Style Guide](https://google.github.io/styleguide/pyguide.html)

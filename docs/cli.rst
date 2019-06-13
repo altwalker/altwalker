@@ -2,6 +2,11 @@
 Command Line Interface
 ======================
 
+.. contents:: Table of Contents
+    :local:
+    :backlinks: none
+
+----
 Help
 ----
 
@@ -14,6 +19,7 @@ Getting help on version, available commands, arguments or option names:
     $ altwalker command_name -h/--help # show help message for the specified command
 
 
+-------------------
 Possible exit codes
 -------------------
 
@@ -25,9 +31,9 @@ Running ``altwalker`` can result in five  different exit codes:
 * **Exit Code 3:** GraphWalker errors.
 * **Exit Code 4:** AltWalker internal errors.
 
-========
+--------
 Commands
-========
+--------
 
 .. click:: altwalker.cli:cli
    :prog: altwalker
