@@ -218,8 +218,9 @@ def run_command(path, executor, url=None, models=None, steps=None, port=None,
                                    port=port, verbose=verbose, unvisited=unvisited,
                                    blocked=blocked)
 
-    click.echo("Statistics:")
-    click.echo(json.dumps(statistics, sort_keys=True, indent=4))
+    if statistics:
+        click.echo("Statistics:")
+        click.echo(json.dumps(statistics, sort_keys=True, indent=4))
 
     click.secho("Status: {}".format(status), fg="green" if status else "red")
 

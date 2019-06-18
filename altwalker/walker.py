@@ -1,4 +1,5 @@
 import traceback
+
 from altwalker.reporter import Reporter
 
 

@@ -1,5 +1,9 @@
+=================
 API Documentation
 =================
+
+This part of the documentation lists the full API reference of all
+public classes and functions.
 
 .. module:: altwalker
 
@@ -13,6 +17,7 @@ Walker
 .. autoclass:: Walker
     :members:
 
+**Examples**:
 
 You can run the tests using the :func:`Walker.run` method::
 
@@ -40,21 +45,21 @@ the ``Executor``.
 
 There are two Planners:
 
-    * :class:`OnlinePlanner`
+    * :class:`OnlinePlanner`:
 
         Uses GraphWalker online mode to generate the test path.
 
         This method allows the test code to directly interact with GraphWalker
         and modify the model data. A dictionary with model data will be passed
         as a the first argument to any method/function form the test code
-        by :class:`altwalker.walker.Walker` class.
+        by :class:`~altwalker.walker.Walker` class.
 
-    * :class:`OfflinePlanner`
+    * :class:`OfflinePlanner`:
 
         Uses a already generated sequence of steps to generate the test path.
 
         The sequense of path can be generated using
-        the :func:`altwalker.graphwalker.offline` function.
+        the :func:`~altwalker.graphwalker.offline` function.
 
 .. autoclass:: OnlinePlanner
     :members:
@@ -128,20 +133,43 @@ Reporter
 
 .. currentmodule:: altwalker.reporter
 
+The role of the reporter is to report the results of a test run, a
+reporter method is called by the :class:`~altwalker.walker.Walker`
+for diffrent events:
+
+    * :func:`~Reporter.start` - called at the beginning of each run.
+    * :func:`~Reporter.end` - called at the end of each run.
+    * :func:`~Reporter.step_start` - called before executing each step.
+    * :func:`~Reporter.step_end` - called after executing each step.
+    * :func:`~Reporter.report` - it should return a report if the reporter
+      generates on (e.g. the :class:`PrintReporter` or
+      :class:`FileReporter` don't generate any report, they only log data).
+      It's not called by the :class:`~altwalker.walker.Walker`.
+
+Every reporter should have all this methods, you can inherite them from
+:class:`Reporter` and overwrite only the methods you want.
+
 .. autoclass:: Reporter
+    :members:
+    :private-members:
+
+.. autoclass:: Reporting
+    :inherited-members:
     :members:
 
 .. autoclass:: PrintReporter
-    :members:
     :inherited-members:
+    :members:
+    :private-members:
 
 .. autoclass:: FileReporter
-    :members:
     :inherited-members:
+    :members:
 
 .. autoclass:: ClickReporter
-    :members:
     :inherited-members:
+    :members:
+    :private-members:
 
 
 GraphWalker
@@ -212,6 +240,7 @@ Models
 
 .. currentmodule:: altwalker.model
 
+
 .. autofunction:: validate_model
 
 .. autofunction:: validate_models
@@ -234,6 +263,10 @@ Exceptions
 
 .. currentmodule:: altwalker.exceptions
 
+
+Standard Exceptions
+~~~~~~~~~~~~~~~~~~~
+
 .. autoexception:: GraphWalkerException
     :members:
 
@@ -250,8 +283,8 @@ Exceptions
 Click Exceptions
 ~~~~~~~~~~~~~~~~
 
-This exceptions are used in the cli to handel the ``exit_code`` and the d
-isplay of :class:`GraphWalkerException` and :class:`AltWalkerException`.
+This exceptions are used in the cli to handel the ``exit_code`` and the
+display of :class:`GraphWalkerException` and :class:`AltWalkerException`.
 
 .. autoexception:: FailedTestsError
     :members:

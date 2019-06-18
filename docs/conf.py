@@ -44,6 +44,7 @@ release = VERSION
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx_click.ext'
@@ -180,6 +181,17 @@ epub_title = project
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
+
+# -- Options for AutoDoc -----------------------------------------------------
+
+# This value selects if automatically documented members are sorted
+# alphabetical (value 'alphabetical'), by member type (value 'groupwise') or
+# by source order (value 'bysource'). The default is alphabetical.
+autodoc_member_order = 'bysource'
+
+# This value controls the docstrings inheritance. If set to True the docstring
+# for classes or methods, if not explicitly set, is inherited form parents.
+autodoc_inherit_docstrings = True
 
 # -- Options for Napoleon ----------------------------------------------------
 
