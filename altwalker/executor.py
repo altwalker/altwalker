@@ -1,7 +1,8 @@
 import os
 import io
-import time
 import sys
+import abc
+import time
 import copy
 import inspect
 import traceback
@@ -81,36 +82,65 @@ def load(path, package, module):
     return loaded_module
 
 
-class Executor:
-    """Default executor."""
+class Executor(metaclass=abc.ABCMeta):
+    """An abstract class that defines the executor protocol."""
 
+    @abc.abstractmethod
     def kill(self):
         """Cleanup resources and kill processes if needed."""
 
+    @abc.abstractmethod
     def reset(self):
         """Reset the current execution."""
 
+    @abc.abstractmethod
     def load(self, path):
-        """Load the test code from a path."""
+        """Load the test code from a path.
 
-    def has_model(self, model_name):
-        """Return true if the model is availabel."""
-
-    def has_step(self, model_name, name):
-        """Return true if the step from the model is availabel.
-
-        Note:
-            If ``model_name`` is ``None`` the step is a fixture.
+        Args:
+            path (:obj:`str`): The path to the test code.
         """
 
-    def execute_step(self, model_name, name, data=None):
-        """Execute a step from a model.
+    @abc.abstractmethod
+    def has_model(self, model_name):
+        """Return True if the model is available.
+
+        Args:
+            model_name (:obj:`str`): The name of the model.
+
+        Returns:
+            bool: True if the model is available, False otherwise.
+        """
+
+    @abc.abstractmethod
+    def has_step(self, model_name, name):
+        """Return True if the step from the model is available.
+
+        Args:
+            model_name (:obj:`str`): The name of the model.
+            name (:obj:`str`): The name of the step.
 
         Note:
             If ``model_name`` is ``None`` the step is a fixture.
 
         Returns:
-            A dict containing the graph data, the output of the step, and the error message with the trace
+            bool: True if the step from the model is available, False otherwise.
+        """
+
+    @abc.abstractmethod
+    def execute_step(self, model_name, name, data=None):
+        """Execute a step from a model.
+
+        Args:
+            model_name (:obj:`str`): The name of the model.
+            name (:obj:`str`): The name of the step.
+            data (:obj:`dict`): The current graph data.
+
+        Note:
+            If ``model_name`` is ``None`` the step is a fixture.
+
+        Returns:
+            dict: The graph data, the output of the step, and the error message with the trace
             if an error occurred::
 
                 {
@@ -129,7 +159,11 @@ class Executor:
 
 
 class HttpExecutor(Executor):
-    """Http client for an executor service."""
+    """Http client for an executor service.
+
+    Args:
+        url (:obj:`str`): The URL of the executor service (e.g http://localhost:5000).
+    """
 
     ERROR_CODES = {
         404: "Not Found",
@@ -142,8 +176,6 @@ class HttpExecutor(Executor):
     }
 
     def __init__(self, url):
-        """Initialize an HttpExecutor with the ``url`` of the executor service."""
-
         self.url = url
         self.base = url_join(self.url, "altwalker/")
 
@@ -190,21 +222,31 @@ class HttpExecutor(Executor):
 
         return self._get_payload(response)
 
+    def kill(self):
+        """This method does nothing."""
+
     def load(self, path):
-        """Makes a POST request at ``load``."""
+        """Makes a POST request at ``/load``.
+
+        Args:
+            path (:obj:`str`): The path to the test code.
+        """
 
         self._post("load", data={"path": os.path.abspath(path)})
 
     def reset(self):
-        """Makes an PUT at ``reset``."""
+        """Makes an PUT at ``/reset``."""
 
         self._put("reset")
 
     def has_model(self, name):
-        """Makes a GET  request at ``hasModel?name=<name>``.
+        """Makes a GET request at ``/hasModel?modelName=<model_name>``.
+
+        Args:
+            model_name (:obj:`str`): The name of the model.
 
         Returns:
-            True, if the executor has the model, False otherwise.
+            bool: True if the model is available, False otherwise.
         """
 
         payload = self._get("hasModel", params={"name": name})
@@ -216,10 +258,14 @@ class HttpExecutor(Executor):
         return payload["hasModel"]
 
     def has_step(self, model_name, name):
-        """Makes a GET request at ``hasStep?modelName=<model_name>&name=<name>``.
+        """Makes a GET request at ``/hasStep?modelName=<model_name>&name=<name>``.
+
+        Args:
+            model_name (:obj:`str`): The name of the model.
+            name (:obj:`str`): The name of the step.
 
         Returns:
-            True, if the executor has the step, False otherwise.
+            bool: True if the step from the model is available, False otherwise.
         """
 
         payload = self._get("hasStep", params={"modelName": model_name, "name": name})
@@ -231,10 +277,15 @@ class HttpExecutor(Executor):
         return has_step
 
     def execute_step(self, model_name, name, data=None):
-        """Makes a POST request at ``executeStep?modelName=<model_name>&name=<name>``.
+        """Makes a POST request at ``/executeStep?modelName=<model_name>&name=<name>``.
+
+        Args:
+            model_name (:obj:`str`): The name of the model.
+            name (:obj:`str`): The name of the step.
+            data (:obj:`dict`): The current graph data.
 
         Returns:
-            A ``dict`` containing the graph data, the output of the step, and the error message with the
+            dict: The graph data, the output of the step, and the error message with the
             trace if an error occurred::
 
                 {
@@ -256,7 +307,7 @@ class HttpExecutor(Executor):
 
 
 class PythonExecutor(Executor):
-    """Execute methods/functions from a model like object."""
+    """Execute methods or functions from a model like object."""
 
     def __init__(self, module=None):
         self._module = module
@@ -289,6 +340,9 @@ class PythonExecutor(Executor):
 
         return False
 
+    def kill(self):
+        """This method does nothing."""
+
     def load(self, path):
         self.reset()
 
@@ -305,7 +359,7 @@ class PythonExecutor(Executor):
             name: The name of the class
 
         Returns:
-            Returns true if the module has a class named `name`
+            bool: True if the module has a class named `name`, False otherwise.
         """
         cls = getattr(self._module, name, None)
 
@@ -315,32 +369,51 @@ class PythonExecutor(Executor):
         return False
 
     def has_step(self, model_name, name):
-        """Check if the module has a callable. If model_name is not ``None`` it will check
-        for a method, and if model_name is ``None`` it will check for a function.
+        """Check if the module has a class named ``model_name`` with a method named.
 
         Args:
-            cls_name: The name of the class.
-            name: The name of the method/function.
+            model_name (:obj:`str`): The name of the model.
+            name (:obj:`str`): The name of the step.
+
+        Note:
+            If ``model_name`` is ``None`` the step is a fixture.
 
         Returns:
-            Returns true if the module has the callable.
+            bool: True if the step from the model is available, False otherwise.
         """
+
         if model_name is None:
             return self._has_function(name)
 
         return self._has_method(model_name, name)
 
     def execute_step(self, model_name, name, data=None):
-        """Execute the callable and returns the output.
+        """Execute a step from a model.
 
         Args:
-            model_name: The name of the class, if ``None`` will execute
-                a function.
-            name: The name of the method/function.
-            data: The data will be passed to the callable.
+            model_name (:obj:`str`): The name of the model.
+            name (:obj:`str`): The name of the step.
+            data (:obj:`dict`): The current graph data.
+
+        Note:
+            If ``model_name`` is ``None`` the step is a fixture.
 
         Returns:
-            The data changed by callable and output of the callable.
+            A dict containing the graph data, the output of the step, and the error message with the trace
+            if an error occurred::
+
+                {
+                    "output": "",
+                    "data": {},
+                    "error": {
+                        "message": "",
+                        "trace": ""
+                    }
+                }
+
+            If no error occured the ``error`` key can be omitted or set to ``None``.
+
+            If the graph data is not used or modiffied the ``data`` key can be omitted or set to ``None``.
         """
 
         data = copy.deepcopy(data) if data else {}
@@ -371,20 +444,18 @@ class PythonExecutor(Executor):
 
 
 class DotnetExecutorService:
-    """Starts a .NET Executor service."""
+    """Starts a .NET executor service.
+
+    * ``dotnet run -p <path>`` - is used to compile and run the console app project.
+    * ``dotnet <path>`` - is used to run compiled exe or dll.
+
+    Args:
+        path: The path of the console application project, dll or exe, that starts an ``ExecutorService``.
+        server_url: The url for the service to listen (e.g. http://localhost:5000/).
+        output_file: A file for the output of the command.
+    """
 
     def __init__(self, path, server_url, output_file="dotnet-executor.log"):
-        """Starts a dotnet tests execution service.
-
-        ``dotnet run -p <path>`` is used to compile and run the console app project
-
-        ``dotnet <path>`` is used to run compiled exe or dll.
-
-        Args:
-            path: The path of the console application project, dll or exe, that starts an ExecutorService
-            server_url: The url for the service to listen (e.g. http://localhost:5000/).
-        """
-
         self.path = path
         self.server_url = server_url
         self.output_file = output_file
@@ -453,6 +524,12 @@ class DotnetExecutorService:
 
 
 class DotnetExecutor(HttpExecutor):
+    """Starts a .NET executor service, and alows you to interact with it.
+
+    Args:
+        path: The path of the console application project, dll or exe, that starts an ``ExecutorService``.
+        url: The url for the service to listen (e.g. http://localhost:5000/).
+    """
 
     def __init__(self, path, url):
         super().__init__(url)
@@ -506,7 +583,7 @@ def create_executor(path, type_, url=None):
         url: The url for the executor service.
 
     Raises:
-        ValueError: is the ``type_`` is not supported.
+        ValueError: If the ``type_`` is not supported.
     """
 
     if type_ == "http":

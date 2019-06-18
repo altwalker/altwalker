@@ -104,18 +104,13 @@ Executor
 .. currentmodule:: altwalker.executor
 
 The role of the executor is to handle the test execution. Every executor
-should have all the methos form the :class:`altwalker.executor.Executor`.
-If some of the methods are not needed by the exexcutor the methods shoud
-just do nothing.
-
+should have all the methods form the :class:`~altwalker.executor.Executor`.
 
 .. autoclass:: Executor
     :members:
 
 
 .. autoclass:: HttpExecutor
-
-    .. automethod:: __init__
 
     .. automethod:: has_model
 
@@ -131,13 +126,10 @@ just do nothing.
 .. autoclass:: PythonExecutor
     :members:
 
-    .. automethod:: __init__
 
-
-.. autoclass:: DotnetExecutorService
+.. autoclass:: DotnetExecutor
     :members:
-
-    .. automethod:: __init__
+    :inherited-members:
 
 
 .. autofunction:: create_executor
