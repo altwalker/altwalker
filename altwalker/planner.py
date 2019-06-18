@@ -11,18 +11,20 @@ class OnlinePlanner:
     the advantages is that you can interact with the graph data using
     :func:`get_data` and :func:`set_data` methods.
 
+    Note:
+        The planner requires the GraphWalker service to be started with
+        the ``verbouse`` flag.
     """
 
-    def __init__(self, service, client):
-        """Inits OnlinePlanner with ``GraphWalkerService`` and ``GraphWalkerClient``."""
-
+    def __init__(self, client, service=None):
         self._service = service
         self._client = client
 
     def kill(self):
-        """Stop the GraphWalkerService process."""
+        """Stop the GraphWalkerService process if needed."""
 
-        self._service.kill()
+        if self._service:
+            self._service.kill()
 
     def load(self, models):
         """Load the module(s) and reset the execution and the statistics."""
@@ -68,16 +70,14 @@ class OnlinePlanner:
 
 
 class OfflinePlanner:
-    """Plan a path from a list of steps."""
+    """Plan a path from a list of steps.
+
+    Args:
+        path: A sequens of steps. A setep is a dict containing a ``name``
+            and a ``modelName``.
+    """
 
     def __init__(self, path):
-        """Inits OfflinePlanner with sequence of steps.
-
-        Args:
-            path: A sequens of steps. A setep is a dict containing a ``name``
-                and a ``modelName``.
-        """
-
         self._path = list(path)
         self._position = 0
 
@@ -85,17 +85,17 @@ class OfflinePlanner:
     def steps(self):
         """Return a sequence of executed steps."""
 
-        return self._path[:self._position]
+        return list(self._path[:self._position])
 
     @property
     def path(self):
         """Return the path, the original sequence of steps."""
 
-        return self._path
+        return list(self._path)
 
     @path.setter
     def path(self, path):
-        self._path = path
+        self._path = list(path)
         self.restart()
 
     def has_next(self):
@@ -123,7 +123,7 @@ class OfflinePlanner:
             "The set_data and get_data are not supported in offline mode so calls to them have no effect.", UserWarning)
 
     def fail(self, message):
-        pass
+        """This method does nothing."""
 
     def restart(self):
         """Will rests the executed steps sequence and the statistics."""
@@ -131,19 +131,44 @@ class OfflinePlanner:
         self._position = 0
 
     def get_statistics(self):
+        """This method returns an empty ``dict``."""
+
         return {}
 
     def kill(self):
-        pass
+        """This method does nothing."""
 
 
-def create_planner(models=None, steps=None, port=8887, verbose=False, unvisited=False,
+def create_planner(models=None, steps=None, host=None, port=8887, verbose=False, unvisited=False,
                    blocked=False):
+    """Create a planner object.
+
+    Args:
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        steps (:obj:`list`): If step is set will create a :class:`OfflinePlanner`.
+        host (:obj:`str`): If the host is set will not start a GraphWalker service (e.g. `127.0.0.1`).
+        port (:obj:`int`): The port of the GraphWalker service, to start on or to listen (e.g. 8887).
+        verbose (:obj:`bool`): If set will start the GraphWalker service with the verbose flag.
+        unvisited (:obj:`bool`): If set will start the GraphWalker service with the unvisited flag.
+        blocked (:obj:`bool`): If set will start the GraphWalker service with the blocked flag.
+
+    Note:
+        If the ``host`` or ``steps`` parameters are set ``models``, ``verbose``, ``unvisited``
+        and ``blocked`` have no effect.
+
+    Note:
+        If you start a GraphWalker service start it with the ``verbouse`` flag.
+    """
+
     if steps:
         return OfflinePlanner(steps)
+
+    if host:
+        client = GraphWalkerClient(host=host, port=port, verbose=verbose)
+        return OnlinePlanner(client)
 
     service = GraphWalkerService(port=port, models=models,
                                  unvisited=unvisited, blocked=blocked)
     client = GraphWalkerClient(port=port, verbose=verbose)
 
-    return OnlinePlanner(service, client)
+    return OnlinePlanner(client, service=service)

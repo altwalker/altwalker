@@ -10,7 +10,7 @@ class TestOnlinePlanner(unittest.TestCase):
         self.service = mock.MagicMock()
         self.client = mock.MagicMock()
 
-        self.planner = OnlinePlanner(self.service, self.client)
+        self.planner = OnlinePlanner(self.client, service=self.service)
 
     def setModels(self):
         self.planner.models = {
@@ -50,6 +50,10 @@ class TestOnlinePlanner(unittest.TestCase):
 
         # Should call the kill method from the service
         self.service.kill.assert_called_once_with()
+
+    def test_kill_with_no_service(self):
+        self.planner._service = None
+        self.planner.kill()
 
     def test_restart(self):
         self.planner.restart()

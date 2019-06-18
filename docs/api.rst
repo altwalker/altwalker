@@ -59,8 +59,6 @@ There are two Planners:
 .. autoclass:: OnlinePlanner
     :members:
 
-    .. automethod:: __init__
-
     .. automethod:: get_next
 
         Step example::
@@ -74,24 +72,12 @@ There are two Planners:
 .. autoclass:: OfflinePlanner
     :members:
 
-    .. automethod:: __init__
+    Step example::
 
-        Step example::
-
-            {
-                "name": step_name,
-                "modelName": model_name
-            }
-
-    .. automethod:: get_statistics
-
-        For the OfflinePlanner ``get_statistics`` will only return::
-
-            {
-                "steps": [],
-                "failedStep": {},
-                "failedFixtures": {}
-            }
+        {
+            "name": step_name,
+            "modelName": model_name
+        }
 
 .. autofunction:: create_planner
 
