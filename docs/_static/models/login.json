@@ -1,0 +1,73 @@
+{
+    "name": "Simple login example",
+    "models": [
+        {
+            "name": "LoginModel",
+            "generator": "random(never)",
+            "startElementId": "v_0",
+            "actions": [
+            	"isUserLoggedIn = false;"
+            ],
+            "vertices": [
+                {
+                    "id": "v_0",
+                    "name": "v_start"
+                },
+                {
+                    "id": "v_1",
+                    "name": "v_app"
+                },
+                {
+                    "id": "v_2",
+                    "name": "v_logged_in"
+                },
+                {
+                    "id": "v_3",
+                    "name": "v_logged_out"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e_0",
+                    "name": "e_open_app",
+                    "sourceVertexId": "v_0",
+                    "targetVertexId": "v_1"
+                },
+                {
+                    "id": "e_1",
+                    "name": "e_log_in",
+                    "guard": "isUserLoggedIn == false",
+                    "actions": [
+                        "isUserLoggedIn = true;"
+                    ],
+                    "sourceVertexId": "v_1",
+                    "targetVertexId": "v_1"
+                },
+                {
+                    "id": "e_2",
+                    "name": "e_log_out",
+                    "guard": "isUserLoggedIn == true",
+                    "actions": [
+                        "isUserLoggedIn = false;"
+                    ],
+                    "sourceVertexId": "v_1",
+                    "targetVertexId": "v_1"
+                },
+                {
+                    "id": "e_3",
+                    "name": "e_for_user_logged_in",
+                    "guard": "isUserLoggedIn == true",
+                    "sourceVertexId": "v_1",
+                    "targetVertexId": "v_2"
+                },
+                {
+                    "id": "e_4",
+                    "name": "e_for_user_not_logged_in",
+                    "guard": "isUserLoggedIn == false",
+                    "sourceVertexId": "v_1",
+                    "targetVertexId": "v_3"
+                }
+            ]
+        }
+    ]
+}

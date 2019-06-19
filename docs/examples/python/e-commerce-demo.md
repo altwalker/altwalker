@@ -93,7 +93,7 @@ _Each edge in the graph represents an action_ (e.g. `add_to_cart`, `go_to_produc
 
 The following screenshot of the models is taken from the [Model-Editor](https://altom.gitlab.io/altwalker/model-editor/):
 
-![](../../_static/ecommerce-model.png)
+![](../../_static/img/ecommerce-model.png)
 
 ### Shared States
 

@@ -88,7 +88,7 @@ The [Model-Editor](https://altom.gitlab.io/altwalker/model-editor) is a web base
 and visualizer for models written using the GraphWalker JSON format.
 
 ```eval_rst
-.. figure:: _static/model-editor.png
+.. figure:: _static/img/model-editor.png
 
     Screenshot taken from the Model-Editor.
 ```

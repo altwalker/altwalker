@@ -90,8 +90,7 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'description': 'A model-based testing framework.',
-    'fixed_sidebar': True
+    'description': 'A model-based testing framework.'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
