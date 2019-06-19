@@ -171,6 +171,11 @@ Every reporter should have all this methods, you can inherite them from
     :members:
     :private-members:
 
+.. autoclass:: PathReporter
+    :inherited-members:
+    :members:
+    :private-members:
+
 
 GraphWalker
 -----------

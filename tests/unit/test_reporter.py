@@ -4,8 +4,10 @@ import unittest.mock as mock
 from pathlib import Path
 
 import pytest
+
 from altwalker.reporter import _add_timestamp, _format_step, _format_step_info, \
-    Reporter, Reporting, _Formater, PrintReporter, FileReporter, ClickReporter
+    Reporter, Reporting, _Formater, PrintReporter, FileReporter, ClickReporter, \
+    PathReporter
 
 
 class TestAddTimestamp(unittest.TestCase):
@@ -362,3 +364,56 @@ class TestClickReporter(unittest.TestCase):
         self.reporter._log(message)
 
         echo.assert_called_once_with(message)
+
+
+class TestPathReporter(unittest.TestCase):
+
+    def setUp(self):
+        self.reporter = PathReporter()
+
+    def test_reporter(self):
+        report = self.reporter.report()
+        self.assertListEqual(report, [])
+
+    def test_for_step(self):
+        step = {
+            "id": "id",
+            "name": "name",
+            "modelName": "ModelName"
+        }
+
+        self.reporter.step_end(step, {})
+        report = self.reporter.report()
+
+        self.assertListEqual(report, [step])
+
+    def test_for_multiple_steps(self):
+        step_a = {
+            "id": "0",
+            "name": "step_a",
+            "modelName": "ModelName"
+        }
+
+        step_b = {
+            "id": "1",
+            "name": "step_b",
+            "modelName": "ModelName"
+        }
+
+        self.reporter.step_end(step_a, {})
+        self.reporter.step_end(step_b, {})
+
+        report = self.reporter.report()
+
+        self.assertListEqual(report, [step_a, step_b])
+
+    def test_for_fixture(self):
+        fixture = {
+            "name": "setUpModel",
+            "modelName": "ModelName"
+        }
+
+        self.reporter.step_end(fixture, {})
+        report = self.reporter.report()
+
+        self.assertListEqual(report, [])

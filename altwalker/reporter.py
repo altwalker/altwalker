@@ -331,3 +331,25 @@ class ClickReporter(_Formater):
         """Prints the string using the :func:`click.echo` function."""
 
         click.echo(string)
+
+
+class PathReporter(Reporter):
+    """This reporter keeps a list of all execute steps (without fixtures)."""
+
+    def __init__(self):
+        self._path = []
+
+    def step_end(self, step, result):
+        """Save the step in a list, if the step is not a fixture."""
+
+        if step.get("id"):
+            self._path.append(step)
+
+    def report(self):
+        """Reutrn a list of all executed steps.
+
+        Returns:
+            list: Containing all executed steps.
+        """
+
+        return self._path
