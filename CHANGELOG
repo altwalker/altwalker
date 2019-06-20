@@ -8,6 +8,7 @@ Version 0.2.2
 - Make the ``Executor`` class an abstract class.
 - Add a ``Reporting`` class that can combine multiple reporters.
 - Add a ``PathReporter`` that keeps a list of all executed steps.
+- Add ``host`` parameter to ``create_planner``.
 - Update the reproter protocol. (`#53`_)
 - Invalidate caches before loading module for python. (`#48`_)
 - Fix issues where ``--start-element`` option doesn't pass the value to GraphWalker. (`#63`_)

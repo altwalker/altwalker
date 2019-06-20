@@ -28,7 +28,7 @@ Or iterating over a :class:`Walker` object::
 
     walker = Walker(...)
     for step in walker:
-        # do someting with the step
+        # do something with the step
 
 .. autofunction:: create_walker
 
@@ -40,7 +40,7 @@ Planner
 
 .. currentmodule:: altwalker.planner
 
-The role of a ``Planner`` is to determin the next step to be executed by
+The role of a ``Planner`` is to determine the next step to be executed by
 the ``Executor``.
 
 There are two Planners:
@@ -56,7 +56,7 @@ There are two Planners:
 
     * :class:`OfflinePlanner`:
 
-        Uses a already generated sequence of steps to generate the test path.
+        Uses a sequence of steps to generate the test path.
 
         The sequense of path can be generated using
         the :func:`~altwalker.graphwalker.offline` function.
@@ -284,7 +284,7 @@ Standard Exceptions
 Click Exceptions
 ~~~~~~~~~~~~~~~~
 
-This exceptions are used in the cli to handel the ``exit_code`` and the
+This exceptions are used in the cli to handle the ``exit_code`` and the
 display of :class:`GraphWalkerException` and :class:`AltWalkerException`.
 
 .. autoexception:: FailedTestsError

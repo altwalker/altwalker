@@ -114,7 +114,7 @@ The ``test-project`` directory will have the following structure::
     test-project/
         .git
         models/
-            fisrt.json
+            first.json
             second.json
         tests/
             __init__.py
@@ -313,7 +313,7 @@ step the current list of all unvisited elements:
 **Examples:**
 
 For the ``-m/--model`` option you need to pass a ``model_path`` and a
-``stop_condtion``.
+``stop_condition``.
 
 * **model_path**: Is the file (``.json`` or ``.graphml``) containing
     the model(s).

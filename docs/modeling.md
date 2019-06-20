@@ -8,7 +8,7 @@
 
 ## Model Design
 
-The objective of the model(s), is to express the expected behavior of the system under test. To do so, we use a directed graph, in which a vertex (or a node) represents some desired state, and the edges (arcs, arrows, transitions) represents whatever actions we need to do in order to achieve that desired state.
+The objective of the model(s), is to express the expected behaviour of the system under test. To do so, we use a directed graph, in which a vertex (or a node) represents some desired state, and the edges (arcs, arrows, transitions) represents whatever actions we need to do in order to achieve that desired state.
 
 Each vertex and edge has an associated method in the test code that is executed upon stepping into it.
 
@@ -82,9 +82,9 @@ Actions can only be placed on edges or models.
 
 ```eval_rst
 .. tip::
-  Altways initialize your variables in the models level actions.
+  Always initialize your variables in the models level actions.
 
-  Note that you can also intialize variables in the global context.
+  Note that you can also initialize variables in the global context.
 ```
 
 __Example__:
@@ -260,7 +260,7 @@ A single model and his data can be stored in one single `.graphml` file. The nam
 ```eval_rst
 .. admonition:: Recommendation
 
-  If you intent to use the ``graphml`` format we recomand considering using the ``json`` format. AltWalker is mainly teste using ``json`` models and all the example from the
+  If you intent to use the ``graphml`` format we recomand considering using the ``json`` format. AltWalker is mainly tested using ``json`` models and all the example from the
   documentation use the ``json`` format.
 
   If you have models in the ``graphl`` format we recomand converting them using the `convert <http://graphwalker.github.io/cli-convert/#version-4>`_ command form GraphWalker.
