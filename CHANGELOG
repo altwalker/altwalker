@@ -1,23 +1,38 @@
 Changelog
 =========
 
+Version 0.2.2
+-------------
+
+- Add ``--report-path`` flag, that if set will print a list of all executed steps.
+- Make the ``Executor`` class an abstract class.
+- Add a ``Reporting`` class that can combine multiple reporters.
+- Add a ``PathReporter`` that keeps a list of all executed steps.
+- Update the reproter protocol. (`#53`_)
+- Invalidate caches before loading module for python. (`#48`_)
+- Fix issues where ``--start-element`` option doesn't pass the value to GraphWalker. (`#63`_)
+
+.. _#63: https://gitlab.com/altom/altwalker/altwalker/issues/63
+.. _#53: https://gitlab.com/altom/altwalker/altwalker/issues/53
+.. _#48: https://gitlab.com/altom/altwalker/altwalker/issues/48
+
 Version 0.2.1
 -------------
 
 (bugfix release)
 
-- Fix issue with loding test code in python
+- Fix issue with loding test code in python.
 
 Version 0.2.0
 -------------
 
-- Add HTTP interface for the executor
-- Add C#/.NET executor
-- Fix issue where the init and generate commands outputs files with duplicate methods (`#29`_)
-- Fix issue where failed steps are not saved in statistics (`#35`_)
+- Add HTTP interface for the executor.
+- Add C#/.NET executor.
+- Fix issue where failed steps are not saved in statistics. (`#35`_)
+- Fix issue where the ``init`` and ``generate`` commands outputs files with duplicate methods. (`#29`_)
 
-.. _#29: https://gitlab.com/altom/altwalker/altwalker/issues/29
 .. _#35: https://gitlab.com/altom/altwalker/altwalker/issues/35
+.. _#29: https://gitlab.com/altom/altwalker/altwalker/issues/29
 
 Version 0.1.1
 -------------
