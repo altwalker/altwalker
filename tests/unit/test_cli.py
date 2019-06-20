@@ -16,9 +16,8 @@ class TestRunTests(unittest.TestCase):
     def test_create_planner(self, create_planner, create_executor, create_walker):
         run_tests("path/to/tests", "executor_type")
 
-        create_planner.assert_called_once_with(
-            models=None, port=None, steps=None, start_element=None,
-            verbose=False, unvisited=False, blocked=False)
+        create_planner.assert_called_once_with(blocked=False, models=None, port=None,
+                                               steps=None, unvisited=False, verbose=False)
 
     def test_kill_planner(self, create_planner, create_executor, create_walker):
         planner_mock = mock.Mock()
@@ -45,8 +44,8 @@ class TestRunTests(unittest.TestCase):
 
         executor_mock.kill.assert_called_once_with()
 
-    @mock.patch("altwalker.cli.create_reporters")
-    def test_create_walker(self, create_reporters, create_planner, create_executor, create_walker):
+    @mock.patch("altwalker.cli.ClickReporter")
+    def test_create_walker(self, click_reporter, create_planner, create_executor, create_walker):
         planner = mock.Mock()
         create_planner.return_value = planner
 
@@ -54,7 +53,7 @@ class TestRunTests(unittest.TestCase):
         create_executor.return_value = executor
 
         reporter = mock.Mock()
-        create_reporters.return_value = reporter
+        click_reporter.return_value = reporter
 
         run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
 
@@ -65,7 +64,7 @@ class TestRunTests(unittest.TestCase):
         walker.status = "status"
         create_walker.return_value = walker
 
-        status, _, _ = run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
+        status, _ = run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
 
         self.assertEqual(status, "status")
 
@@ -74,7 +73,7 @@ class TestRunTests(unittest.TestCase):
         planner.get_statistics.return_value = {"statistics": None}
         create_planner.return_value = planner
 
-        _, statistics, _ = run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
+        _, statistics = run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
 
         self.assertDictEqual(statistics, {"statistics": None})
 
@@ -94,13 +93,13 @@ class TestRunCommand(unittest.TestCase):
         self.secho_patcher.stop()
 
     def test_fail(self, run_tests):
-        run_tests.return_value = (False, {}, {})
+        run_tests.return_value = False, {}
 
         with self.assertRaises(FailedTestsError):
             run_command("path/to/tests", "executor_type", "http://localhost:5000", models=["path/to/model"])
 
     def test_run(self, run_tests):
-        run_tests.return_value = (True, {}, {})
+        run_tests.return_value = True, {}
 
         run_command("path/to/tests", "executor_type", "http://localhost:5000",
                     models=["path/to/model"], steps=[], port=9999,
@@ -108,9 +107,8 @@ class TestRunCommand(unittest.TestCase):
 
         run_tests.assert_called_once_with(
             "path/to/tests", "executor_type", "http://localhost:5000",
-            models=["path/to/model"], port=9999, steps=[], start_element=None,
-            verbose=True, unvisited=True, blocked=True,
-            report_path=False)
+            models=["path/to/model"], steps=[], port=9999,
+            verbose=True, unvisited=True, blocked=True)
 
 
 @mock.patch("altwalker.cli.check_models")
@@ -304,7 +302,7 @@ class TestOnline(unittest.TestCase):
         ]
 
     def test_online(self, run_mock):
-        run_mock.return_value = (True, {}, {})
+        run_mock.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
@@ -312,19 +310,16 @@ class TestOnline(unittest.TestCase):
 
             run_mock.assert_called_once_with(
                 'package', 'python', 'http://localhost:5000/',
+                blocked=False,
                 models=(('models.json', 'random(vertex_coverage(100))'),),
                 port=8887,
                 steps=None,
-                start_element=None,
-                blocked=False,
                 unvisited=False,
-                verbose=False,
-                report_path=False)
-
+                verbose=False)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_multiple_models(self, run_mock):
-        run_mock.return_value = (True, {}, {})
+        run_mock.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
@@ -334,7 +329,7 @@ class TestOnline(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_start_element(self, run_mock):
-        run_mock.return_value = (True, {}, {})
+        run_mock.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
@@ -348,7 +343,7 @@ class TestOnline(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_verbose(self, run_mock):
-        run_mock.return_value = (True, {}, {})
+        run_mock.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
@@ -360,7 +355,7 @@ class TestOnline(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_unvisited(self, run_mock):
-        run_mock.return_value = (True, {}, {})
+        run_mock.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
@@ -372,7 +367,7 @@ class TestOnline(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_blocked(self, run_mock):
-        run_mock.return_value = (True, {}, {})
+        run_mock.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(
@@ -403,11 +398,9 @@ class TestOnline(unittest.TestCase):
             blocked=False,
             models=(('models.json', 'random(vertex_coverage(100))'),),
             port=8887,
-            start_element=None,
             steps=None,
             unvisited=False,
-            verbose=False,
-            report_path=False)
+            verbose=False)
 
     def test_language(self, run_mock):
         with run_isolation(self.runner, self.files, folders=["package"]):
@@ -419,10 +412,8 @@ class TestOnline(unittest.TestCase):
             models=(('models.json', 'random(vertex_coverage(100))'),),
             port=8887,
             steps=None,
-            start_element=None,
             unvisited=False,
-            verbose=False,
-            report_path=False)
+            verbose=False)
 
 
 @mock.patch("altwalker.graphwalker.offline")
@@ -545,21 +536,19 @@ class TestWalk(unittest.TestCase):
         ]
 
     def test_walk(self, run_tests):
-        run_tests.return_value = (True, {}, {})
+        run_tests.return_value = (True, {})
 
         with run_isolation(self.runner, self.files, folders=["package"]):
             result = self.runner.invoke(walk, ["package", "steps.json"])
 
             run_tests.assert_called_once_with(
                 'package', 'python', 'http://localhost:5000/',
+                blocked=False,
                 models=None,
                 port=None,
                 steps=[],
-                start_element=None,
-                verbose=False,
                 unvisited=False,
-                blocked=False,
-                report_path=False)
+                verbose=False)
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
 

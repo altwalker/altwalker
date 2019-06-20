@@ -193,9 +193,13 @@ For more informations check out the `GraphWalker REST API Documentation <http://
 .. autoclass:: GraphWalkerService
     :members:
 
+    .. automethod:: __init__
+
 
 .. autoclass:: GraphWalkerClient
     :members:
+
+    .. automethod:: __init__
 
     .. automethod:: get_next
 
@@ -234,8 +238,8 @@ For more informations check out the `GraphWalker CLI Documentation <http://graph
 .. autofunction:: offline
 
 
-Model
------
+Models
+------
 
 .. automodule:: altwalker.model
 

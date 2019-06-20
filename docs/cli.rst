@@ -6,20 +6,6 @@ Command Line Interface
     :local:
     :backlinks: none
 
-----------
-Invocation
-----------
-
-.. code-block:: console
-
-    $ altwalker [...]
-
-You can also invoke the command through the Python interpreter from the command line:
-
-.. code-block:: console
-
-    $ python -m altwalker [...]
-
 ----
 Help
 ----
@@ -29,12 +15,8 @@ Getting help on version, available commands, arguments or option names:
 .. code-block:: console
 
     $ altwalker -v/--version
-
-    $ # show help message and all available commands
-    $ altwalker -h/--help
-
-    $ # show help message for the specified command
-    $ altwalker command_name -h/--help
+    $ altwalker -h/--help # show help message and all available commands
+    $ altwalker command_name -h/--help # show help message for the specified command
 
 
 -------------------
@@ -259,7 +241,46 @@ For example:
     Running:
     [2019-02-07 12:56:42.986142] ModelName.vertex_A Running
     [2019-02-07 12:56:42.986559] ModelName.vertex_A Status: PASSED
-    ...
+    Statistics:
+    {
+        "edgeCoverage": 0,
+        "edgesNotVisited": [
+            {
+                "edgeId": "e0",
+                "edgeName": "edge_A",
+                "modelName": "ModelName"
+            }
+        ],
+        "failedFixtures": [],
+        "failedStep": {},
+        "steps": [
+            {
+                "id": "v0",
+                "modelName": "ModelName",
+                "name": "vertex_A",
+                "status": true
+            }
+        ],
+        "totalCompletedNumberOfModels": 1,
+        "totalFailedNumberOfModels": 0,
+        "totalIncompleteNumberOfModels": 0,
+        "totalNotExecutedNumberOfModels": 0,
+        "totalNumberOfEdges": 1,
+        "totalNumberOfModels": 1,
+        "totalNumberOfUnvisitedEdges": 1,
+        "totalNumberOfUnvisitedVertices": 1,
+        "totalNumberOfVertices": 2,
+        "totalNumberOfVisitedEdges": 0,
+        "totalNumberOfVisitedVertices": 1,
+        "vertexCoverage": 50,
+        "verticesNotVisited": [
+            {
+                "modelName": "ModelName",
+                "vertexId": "v1",
+                "vertexName": "vertex_B"
+            }
+        ]
+    }
     Status: True
 
 If you use the ``-o/--verbose`` flag, the command will print for each step
@@ -440,4 +461,31 @@ A simple example:
     [2019-02-15 17:18:09.594597] ModelName.vertex_B Running
     [2019-02-15 17:18:09.594708] ModelName.vertex_B Status: PASSED
 
-    Status: True
+    Statistics:
+    {
+        "failedFixtures": [],
+        "failedStep": {
+            "id": "v1",
+            "modelName": "ModelName",
+            "name": "vertex_B",
+            "status": false
+        },
+        "steps": [
+            {
+                "id": "v0",
+                "modelName": "ModelName",
+                "name": "vertex_A"
+            },
+            {
+                "id": "e0",
+                "modelName": "ModelName",
+                "name": "edge_A"
+            },
+            {
+                "id": "v1",
+                "modelName": "ModelName",
+                "name": "vertex_B"
+            }
+        ]
+    }
+    Status: False
