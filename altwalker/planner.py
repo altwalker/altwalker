@@ -139,8 +139,8 @@ class OfflinePlanner:
         """This method does nothing."""
 
 
-def create_planner(models=None, steps=None, host=None, port=8887, verbose=False, unvisited=False,
-                   blocked=False):
+def create_planner(models=None, steps=None, host=None, port=8887, start_element=None,
+                   verbose=False, unvisited=False, blocked=False):
     """Create a planner object.
 
     Args:
@@ -148,6 +148,7 @@ def create_planner(models=None, steps=None, host=None, port=8887, verbose=False,
         steps (:obj:`list`): If step is set will create a :class:`OfflinePlanner`.
         host (:obj:`str`): If the host is set will not start a GraphWalker service (e.g. `127.0.0.1`).
         port (:obj:`int`): The port of the GraphWalker service, to start on or to listen (e.g. 8887).
+        start_element (:obj:`str`): A starting element for the first model.
         verbose (:obj:`bool`): If set will start the GraphWalker service with the verbose flag.
         unvisited (:obj:`bool`): If set will start the GraphWalker service with the unvisited flag.
         blocked (:obj:`bool`): If set will start the GraphWalker service with the blocked flag.
@@ -167,7 +168,7 @@ def create_planner(models=None, steps=None, host=None, port=8887, verbose=False,
         client = GraphWalkerClient(host=host, port=port, verbose=verbose)
         return OnlinePlanner(client)
 
-    service = GraphWalkerService(port=port, models=models,
+    service = GraphWalkerService(port=port, models=models, start_element=start_element,
                                  unvisited=unvisited, blocked=blocked)
     client = GraphWalkerClient(port=port, verbose=verbose)
 
