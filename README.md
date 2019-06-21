@@ -10,7 +10,7 @@ Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
 
 [Model-Based Testing](https://en.wikipedia.org/wiki/Model-based_testing) is a testing
 technique which offers a way of generating tests cases based on models, models
-that describe the behavior (functionality) of the system under test.
+that describe the behaviour (functionality) of the system under test.
 
 The role of the model is to describe the system under tests. The goal when designing
 models is to represent the part of the system you want to test, usually you will
@@ -83,7 +83,7 @@ $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATE
   mkdir -p ~/graphwalker && \
   mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
   echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
-  chmod 777 ~/graphwalker/graphwalker-cli.sh && \
+  chmod +x ~/graphwalker/graphwalker-cli.sh && \
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
 
