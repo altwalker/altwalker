@@ -31,7 +31,7 @@ setup(
     project_urls={
         "Bug Tracker": "https://gitlab.com/altom/altwalker/altwalker/issues?label_name=Bug",
         "Documentation": "https://altom.gitlab.io/altwalker/altwalker/",
-        "Source Code": "https://gitlab.com/altom/altwalker/altwalker/",
+        "Source": "https://gitlab.com/altom/altwalker/altwalker/",
     },
 
     author=AUTHOR,
