@@ -32,100 +32,324 @@ def _format_step_info(step):
 
 
 class Reporter:
-    """Default reporter."""
+    """The default reporter.
+
+    This reporter does not emit any output. It is essentially a ‘no-op’ reporter for use.
+    """
 
     def start(self, message=None):
-        """Report the start of a run."""
+        """Report the start of a run.
+
+        Args:
+            message (:obj:`str`): A message.
+        """
 
     def end(self, message=None):
-        """Report the end of a run."""
+        """Report the end of a run.
+
+        Args:
+            message (:obj:`str`): A message.
+        """
 
     def step_start(self, step):
-        """Report the starting execution of a step."""
+        """Report the starting execution of a step.
 
-    def step_status(self, step, failure=False, output=""):
-        """Report the status of a step."""
+        Args:
+            step (:obj:`dict`): The step that will be executed next.
+        """
 
-    def error(self, message, trace=None):
-        """Report an error."""
+    def step_end(self, step, result):
+        """Report the result of the step execution.
+
+        Args:
+            step (:obj:`dict`): The step just executed.
+            result (:obj:`dict`): The result of the step.
+        """
+
+    def error(self, step, message, trace=None):
+        """Report an unexpected error.
+
+        Args:
+            step (:obj:`dict`): The step executed when the error occurred.
+            message (:obj:`str`): The message of the error.
+            trace (:obj:`str`): The traceback.
+        """
+
+    def report(self):
+        """Return an report for the run, or ``None`` if the reporter doesn't have a report.
+
+        Returns:
+            None: This reporter doesn't have a report.
+        """
 
     def _log(self, string):
-        """Emmit the string."""
+        """This method does nothing."""
 
 
-class Formater(Reporter):
+class Reporting:
+    """This reporter combines a list of reporters into a singe one, by delegating the calls to every
+    reporter from it's list.
+    """
+
+    def __init__(self):
+        self._reporters = {}
+
+    def register(self, key, reporter):
+        """Register a reporter.
+
+        Args:
+            key (:obj:`str`): A key to identify the reporter.
+            reporter (:obj:`Reporter`): A reporter.
+
+        Raises:
+            ValueError: If a reporter with the same key is already registered.
+        """
+
+        if key in self._reporters:
+            raise ValueError("A reporter with the key: {} is already registered.".format(key))
+
+        self._reporters[key] = reporter
+
+    def unregister(self, key):
+        """Unregister a reporter.
+
+        Args:
+            key (:obj:`str`): A key of a registered reporter.
+
+        Raises:
+            KeyError: If no reporter with the given key was registered.
+        """
+
+        del self._reporters[key]
+
+    def start(self, message=None):
+        """Report the start of a run on all reporters.
+
+        Args:
+            message (:obj:`str`): A message.
+        """
+
+        for reporter in self._reporters.values():
+            reporter.start(message=message)
+
+    def end(self, message=None):
+        """Report the end of a run on all reporters.
+
+        Args:
+            message (:obj:`str`): A message.
+        """
+
+        for reporter in self._reporters.values():
+            reporter.end(message=message)
+
+    def step_start(self, step):
+        """Report the starting execution of a step on all reporters.
+
+        Args:
+            step (:obj:`dict`): The step that will be executed next.
+        """
+
+        for reporter in self._reporters.values():
+            reporter.step_start(step)
+
+    def step_end(self, step, result):
+        """Report the result of the step execution on all reporters.
+
+        Args:
+            step (:obj:`dict`): The step just executed.
+            result (:obj:`dict`): The result of the step.
+        """
+
+        for reporter in self._reporters.values():
+            reporter.step_end(step, result)
+
+    def error(self, step, message, trace=None):
+        """Report an unexpected error on all reporters.
+
+        Args:
+            step (:obj:`dict`): The step executed when the error occurred.
+            message (:obj:`str`): The message of the error.
+            trace (:obj:`str`): The traceback.
+        """
+
+        for reporter in self._reporters.values():
+            reporter.error(step, message, trace=trace)
+
+    def report(self):
+        """Returns the reports from all registerd reporters.
+
+        Returns:
+            dict: Containing all the reports from all the register reports.
+        """
+
+        result = {}
+
+        for key, reporter in self._reporters.items():
+            report = reporter.report()
+
+            if report:
+                result[key] = report
+
+        return result
+
+
+class _Formater(Reporter):
     """Format the message for reporting."""
 
     def step_start(self, step):
-        """Report the starting execution of a step."""
+        """Report the starting execution of a step.
+
+        Args:
+            step (:obj:`dict`): The step that will be executed next.
+        """
 
         message = "{} Running".format(_format_step(step))
         message += _format_step_info(step)
 
         self._log(_add_timestamp(message))
 
-    def step_status(self, step, failure=False, output=""):
-        """Report the status of a step."""
+    def step_end(self, step, result):
+        """Report the result of the step execution.
 
-        status = "PASSED" if not failure else "FAIL"
-        message = "{} Status: {}".format(_format_step(step), status)
+        Args:
+            step (:obj:`dict`): The step just executed.
+            result (:obj:`dict`): The result of the step.
+        """
 
+        error = result.get("error")
+        status = "FAIL" if error else "PASSED"
+        message = "{} Status: {}\n".format(_format_step(step), status)
+
+        output = result.get("output")
         if output:
-            message += "\nOutput:\n{}".format(output)
+            message += "Output:\n{}".format(output)
+
+        if error:
+            message += "\nError: {}\n".format(error["message"])
+
+            if error.get("trace"):
+                message += "\n{}\n".format(error["trace"])
 
         self._log(_add_timestamp(message))
 
-    def error(self, message, trace=None):
-        """Report an error followed by the stack trace."""
+    def error(self, step, message, trace=None):
+        """Report an unexpected error.
+
+        Args:
+            step (:obj:`dict`): The step executed when the error occurred.
+            message (:obj:`str`): The message of the error.
+            trace (:obj:`str`): The traceback.
+        """
+
+        string = "Unexpected error ocurrent while running {}.\n".format(_format_step(step))
+        string += "{}\n".format(message)
 
         if trace:
-            message += "\n{}".format(trace)
+            string += "\n{}\n".format(trace)
 
-        self._log(_add_timestamp(message))
+        self._log(_add_timestamp(string))
 
 
-class PrintReporter(Formater):
-    """Output reports to stdout."""
+class PrintReporter(_Formater):
+    """This reporter outputs to stdout using the buildin :func:`print` function."""
 
     def _log(self, string):
+        """Prints the string using the buildin :func:`print` function."""
+
         print(string)
 
 
-class FileReporter(Formater):
-    """Output reports to a file."""
+class FileReporter(_Formater):
+    """This reporter outputs to a file.
+
+    Attributes:
+        path (:obj:`str`): A path to a file to log the output.
+
+    Note:
+        If the path already exists the reporter will overwrite the content.
+    """
 
     def __init__(self, path):
-        self.path = path
+        self._path = path
 
-        with open(self.path, "w+"):
+        with open(self._path, "w+"):
             pass
 
     def _log(self, string):
-        with open(self.path, "a") as file:
+        with open(self._path, "a") as file:
             file.write(string + "\n")
 
 
-class ClickReporter(Formater):
-    """Output reports using the click.echo function."""
+class ClickReporter(_Formater):
+    """This reporter outputs using the :func:`click.echo` function."""
 
-    def step_status(self, step, failure=False, output=""):
-        status = "PASSED" if not failure else "FAIL"
-        status = click.style(status, fg="red" if failure else "green")
+    def step_end(self, step, result):
+        """Outputs a colored output for the result of the step execution.
 
-        message = "{} Status: {}".format(_format_step(step), status)
+        Args:
+            step (:obj:`dict`): The step just executed.
+            result (:obj:`dict`): The result of the step.
+        """
 
+        error = result.get("error")
+
+        status = "FAIL" if error else "PASSED"
+        status = click.style(status, fg="red" if error else "green")
+
+        message = "{} Status: {}\n".format(_format_step(step), status)
+
+        output = result.get("output")
         if output:
-            output_string = click.style(output, fg="cyan")
-            message += "\nOutput:\n{}".format(output_string)
+            message += "Output:\n{}".format(click.style(output, fg="cyan"))
+
+        if error:
+            message += "\nError: {}\n".format(click.style(error["message"], fg="red"))
+
+            if error.get("trace"):
+                message += "\n{}\n".format(click.style(error["trace"], fg="red"))
 
         self._log(_add_timestamp(message))
 
-    def error(self, message, trace=None):
+    def error(self, step, message, trace=None):
+        """Outputs a colored output for an unexpected error.
+
+        Args:
+            step (:obj:`dict`): The step executed when the error occurred.
+            message (:obj:`str`): The message of the error.
+            trace (:obj:`str`): The traceback.
+        """
+
+        string = "Unexpected error ocurrent while running {}.\n".format(_format_step(step))
+        string += "Error: {}\n".format(click.style(message, fg="red"))
+
         if trace:
-            trace_string = click.style(trace, fg="red")
-            message += "\n{}".format(trace_string)
+            string += "\n{}\n".format(click.style(trace, fg="red"))
 
-        self._log(_add_timestamp(message))
+        self._log(_add_timestamp(string))
 
     def _log(self, string):
+        """Prints the string using the :func:`click.echo` function."""
+
         click.echo(string)
+
+
+class PathReporter(Reporter):
+    """This reporter keeps a list of all execute steps (without fixtures)."""
+
+    def __init__(self):
+        self._path = []
+
+    def step_end(self, step, result):
+        """Save the step in a list, if the step is not a fixture."""
+
+        if step.get("id"):
+            self._path.append(step)
+
+    def report(self):
+        """Reutrn a list of all executed steps.
+
+        Returns:
+            list: Containing all executed steps.
+        """
+
+        return self._path

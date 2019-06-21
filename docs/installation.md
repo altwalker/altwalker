@@ -35,7 +35,7 @@ $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATE
   mkdir -p ~/graphwalker && \
   mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
   echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
-  chmod 777 ~/graphwalker/graphwalker-cli.sh && \
+  chmod +x ~/graphwalker/graphwalker-cli.sh && \
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
 

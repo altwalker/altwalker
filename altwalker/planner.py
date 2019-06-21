@@ -8,29 +8,23 @@ class OnlinePlanner:
 
     The path generation is done at run-time, one step at a time, using
     the GraphWalker REST Service. This adds a bit of complexity, but
-    the advantages is that you can interact with the grpah data using
+    the advantages is that you can interact with the graph data using
     :func:`get_data` and :func:`set_data` methods.
 
-    Attributes:
-        steps: The sequence of executed steps.
-        failed_step: A failed step.
-        failed_fixutes: A list of failed fixtures.
+    Note:
+        The planner requires the GraphWalker service to be started with
+        the ``verbouse`` flag.
     """
 
-    def __init__(self, service, client):
-        """Inits OnlinePlanner with ``GraphWalkerService`` and ``GraphWalkerClient``."""
-
+    def __init__(self, client, service=None):
         self._service = service
         self._client = client
 
-        self.steps = []
-        self.failed_step = {}
-        self.failed_fixtures = []
-
     def kill(self):
-        """Stop the GraphWalkerService process."""
+        """Stop the GraphWalkerService process if needed."""
 
-        self._service.kill()
+        if self._service:
+            self._service.kill()
 
     def load(self, models):
         """Load the module(s) and reset the execution and the statistics."""
@@ -46,11 +40,6 @@ class OnlinePlanner:
         """Get the next step in the current path."""
 
         step = self._client.get_next()
-        self.steps.append({
-            "id": step["id"],
-            "name": step["name"],
-            "modelName": step["modelName"]
-        })
 
         return step
 
@@ -67,69 +56,46 @@ class OnlinePlanner:
     def restart(self):
         """Will rests the execution and the statistics."""
 
-        self.steps = []
-
-        self.failed_step = {}
-        self.failed_fixtures = []
-
         self._client.restart()
 
-    def fail(self, step, message):
+    def fail(self, message):
         """Will mark the step as a failure and the current model."""
-
-        if "id" in step:
-            self.failed_step = {
-                "id": step["id"],
-                "name": step["name"],
-                "modelName": step["modelName"]
-            }
-        else:
-            self.failed_fixtures.append(step)
 
         self._client.fail(message)
 
     def get_statistics(self):
         statistics = self._client.get_statistics()
 
-        statistics["steps"] = self.steps
-        statistics["failedStep"] = self.failed_step
-        statistics["failedFixtures"] = self.failed_fixtures
-
         return statistics
 
 
 class OfflinePlanner:
-    """Plan a path from a list of steps."""
+    """Plan a path from a list of steps.
+
+    Args:
+        path: A sequens of steps. A setep is a dict containing a ``name``
+            and a ``modelName``.
+    """
 
     def __init__(self, path):
-        """Inits OfflinePlanner with sequence of steps.
-
-        Args:
-            path: A sequens of steps. A setep is a dict containing a ``name``
-                and a ``modelName``.
-        """
-
         self._path = list(path)
         self._position = 0
-
-        self.failed_step = {}
-        self.failed_fixtures = []
 
     @property
     def steps(self):
         """Return a sequence of executed steps."""
 
-        return self._path[:self._position]
+        return list(self._path[:self._position])
 
     @property
     def path(self):
         """Return the path, the original sequence of steps."""
 
-        return self._path
+        return list(self._path)
 
     @path.setter
     def path(self, path):
-        self._path = path
+        self._path = list(path)
         self.restart()
 
     def has_next(self):
@@ -151,45 +117,59 @@ class OfflinePlanner:
         return {}
 
     def set_data(self, key, value):
-        """Is not supported and will thorow a warning."""
+        """Is not supported and will throw a warning."""
 
         warnings.warn(
             "The set_data and get_data are not supported in offline mode so calls to them have no effect.", UserWarning)
 
-    def fail(self, step, message):
-        """Will mark the step as a failure."""
-
-        if "id" in step:
-            self.failed_step = step
-        else:
-            self.failed_fixtures.append(step)
+    def fail(self, message):
+        """This method does nothing."""
 
     def restart(self):
         """Will rests the executed steps sequence and the statistics."""
 
-        self.failed_step = {}
-        self.failed_fixtures = []
-
         self._position = 0
 
     def get_statistics(self):
-        return {
-            "steps": self.steps,
-            "failedStep": self.failed_step,
-            "failedFixtures": self.failed_fixtures
-        }
+        """This method returns an empty ``dict``."""
+
+        return {}
 
     def kill(self):
-        pass
+        """This method does nothing."""
 
 
-def create_planner(models=None, steps=None, port=8887, verbose=False, unvisited=False,
-                   blocked=False):
+def create_planner(models=None, steps=None, host=None, port=8887, start_element=None,
+                   verbose=False, unvisited=False, blocked=False):
+    """Create a planner object.
+
+    Args:
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        steps (:obj:`list`): If step is set will create a :class:`OfflinePlanner`.
+        host (:obj:`str`): If the host is set will not start a GraphWalker service (e.g. `127.0.0.1`).
+        port (:obj:`int`): The port of the GraphWalker service, to start on or to listen (e.g. 8887).
+        start_element (:obj:`str`): A starting element for the first model.
+        verbose (:obj:`bool`): If set will start the GraphWalker service with the verbose flag.
+        unvisited (:obj:`bool`): If set will start the GraphWalker service with the unvisited flag.
+        blocked (:obj:`bool`): If set will start the GraphWalker service with the blocked flag.
+
+    Note:
+        If the ``host`` or ``steps`` parameters are set ``models``, ``verbose``, ``unvisited``
+        and ``blocked`` have no effect.
+
+    Note:
+        If you start a GraphWalker service start it with the ``verbouse`` flag.
+    """
+
     if steps:
         return OfflinePlanner(steps)
 
-    service = GraphWalkerService(port=port, models=models,
+    if host:
+        client = GraphWalkerClient(host=host, port=port, verbose=verbose)
+        return OnlinePlanner(client)
+
+    service = GraphWalkerService(port=port, models=models, start_element=start_element,
                                  unvisited=unvisited, blocked=blocked)
     client = GraphWalkerClient(port=port, verbose=verbose)
 
-    return OnlinePlanner(service, client)
+    return OnlinePlanner(client, service=service)

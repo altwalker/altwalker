@@ -2,6 +2,25 @@
 Command Line Interface
 ======================
 
+.. contents:: Table of Contents
+    :local:
+    :backlinks: none
+
+----------
+Invocation
+----------
+
+.. code-block:: console
+
+    $ altwalker [...]
+
+You can also invoke the command through the Python interpreter from the command line:
+
+.. code-block:: console
+
+    $ python -m altwalker [...]
+
+----
 Help
 ----
 
@@ -10,10 +29,15 @@ Getting help on version, available commands, arguments or option names:
 .. code-block:: console
 
     $ altwalker -v/--version
-    $ altwalker -h/--help # show help message and all available commands
-    $ altwalker command_name -h/--help # show help message for the specified command
+
+    $ # show help message and all available commands
+    $ altwalker -h/--help
+
+    $ # show help message for the specified command
+    $ altwalker command_name -h/--help
 
 
+-------------------
 Possible exit codes
 -------------------
 
@@ -25,9 +49,9 @@ Running ``altwalker`` can result in five  different exit codes:
 * **Exit Code 3:** GraphWalker errors.
 * **Exit Code 4:** AltWalker internal errors.
 
-========
+--------
 Commands
-========
+--------
 
 .. click:: altwalker.cli:cli
    :prog: altwalker
@@ -90,7 +114,7 @@ The ``test-project`` directory will have the following structure::
     test-project/
         .git
         models/
-            fisrt.json
+            first.json
             second.json
         tests/
             __init__.py
@@ -235,46 +259,7 @@ For example:
     Running:
     [2019-02-07 12:56:42.986142] ModelName.vertex_A Running
     [2019-02-07 12:56:42.986559] ModelName.vertex_A Status: PASSED
-    Statistics:
-    {
-        "edgeCoverage": 0,
-        "edgesNotVisited": [
-            {
-                "edgeId": "e0",
-                "edgeName": "edge_A",
-                "modelName": "ModelName"
-            }
-        ],
-        "failedFixtures": [],
-        "failedStep": {},
-        "steps": [
-            {
-                "id": "v0",
-                "modelName": "ModelName",
-                "name": "vertex_A",
-                "status": true
-            }
-        ],
-        "totalCompletedNumberOfModels": 1,
-        "totalFailedNumberOfModels": 0,
-        "totalIncompleteNumberOfModels": 0,
-        "totalNotExecutedNumberOfModels": 0,
-        "totalNumberOfEdges": 1,
-        "totalNumberOfModels": 1,
-        "totalNumberOfUnvisitedEdges": 1,
-        "totalNumberOfUnvisitedVertices": 1,
-        "totalNumberOfVertices": 2,
-        "totalNumberOfVisitedEdges": 0,
-        "totalNumberOfVisitedVertices": 1,
-        "vertexCoverage": 50,
-        "verticesNotVisited": [
-            {
-                "modelName": "ModelName",
-                "vertexId": "v1",
-                "vertexName": "vertex_B"
-            }
-        ]
-    }
+    ...
     Status: True
 
 If you use the ``-o/--verbose`` flag, the command will print for each step
@@ -328,7 +313,7 @@ step the current list of all unvisited elements:
 **Examples:**
 
 For the ``-m/--model`` option you need to pass a ``model_path`` and a
-``stop_condtion``.
+``stop_condition``.
 
 * **model_path**: Is the file (``.json`` or ``.graphml``) containing
     the model(s).
@@ -455,31 +440,4 @@ A simple example:
     [2019-02-15 17:18:09.594597] ModelName.vertex_B Running
     [2019-02-15 17:18:09.594708] ModelName.vertex_B Status: PASSED
 
-    Statistics:
-    {
-        "failedFixtures": [],
-        "failedStep": {
-            "id": "v1",
-            "modelName": "ModelName",
-            "name": "vertex_B",
-            "status": false
-        },
-        "steps": [
-            {
-                "id": "v0",
-                "modelName": "ModelName",
-                "name": "vertex_A"
-            },
-            {
-                "id": "e0",
-                "modelName": "ModelName",
-                "name": "edge_A"
-            },
-            {
-                "id": "v1",
-                "modelName": "ModelName",
-                "name": "vertex_B"
-            }
-        ]
-    }
-    Status: False
+    Status: True

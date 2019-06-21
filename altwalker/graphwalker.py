@@ -16,18 +16,18 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
     """Create a list containing the executable, command and the list of options for a GraphWalker command.
 
     Args:
-        command_name: The name of the GraphWalker command.
-        model_path: A path to a model.
-        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        port: The port number.
-        services: The type of service to run, RESTFUL or WEBSOCKET.
-        start_element: A starting element for the first model.
-        verbose: Run the command with the verbose flag.
-        unvisited: Run the command with the unvisited flag.
-        blocked: Run the command with the blcoked flag.
+        command_name (:obj:`str`): The name of the GraphWalker command.
+        model_path (:obj:`str`): A path to a model.
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        port  (:obj:`int`): The port number.
+        services (:obj:`str`): The type of service to run, RESTFUL or WEBSOCKET.
+        start_element (:obj:`str`): A starting element for the first model.
+        verbose (:obj:`bool`): Run the command with the verbose flag.
+        unvisited (:obj:`bool`): Run the command with the unvisited flag.
+        blocked (:obj:`bool`): Run the command with the blcoked flag.
 
     Returns:
-        A list containing the executable followed command and options.
+        list: A list containing the executable followed command and options.
     """
 
     command = get_command("gw")
@@ -66,15 +66,15 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     """Execute a GraphWalker commands that return output like offline and check.
 
     Args:
-        command: The name of the GraphWalker command.
-        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        start_element: A starting element for the first model.
-        verbose: Run the command with the verbose flag.
-        unvisited: Run the command with the unvisited flag.
-        blocked: Run the command with the blcoked flag.
+        command (:obj:`str`): The name of the GraphWalker command.
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        start_element (:obj:`str`): A starting element for the first model.
+        verbose (:obj:`bool`): Run the command with the verbose flag.
+        unvisited (:obj:`bool`): Run the command with the unvisited flag.
+        blocked (:obj:`bool`): Run the command with the blcoked flag.
 
     Returns:
-        Return the output of the command.
+        :string: The output of the command.
 
     Raises:
         GraphWalkerException: If GraphWalker return an error.
@@ -98,14 +98,14 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
     """Execute the offline command.
 
     Args:
-        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        start_element: A starting element for the first model.
-        verbose: Run the command with the verbose flag.
-        unvisited: Run the command with the unvisited flag.
-        blocked: Run the command with the blcoked flag.
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        start_element (:obj:`str`): A starting element for the first model.
+        verbose (:obj:`bool`): Run the command with the verbose flag.
+        unvisited (:obj:`bool`): Run the command with the unvisited flag.
+        blocked (:obj:`bool`): Run the command with the blcoked flag.
 
     Returns:
-        Return a list of steps.
+        list: A sequence of steps.
 
     Raises:
         GraphWalkerException: If an error occured while running the command, or
@@ -140,11 +140,11 @@ def check(models, blocked=None):
     """Execute the check command.
 
     Args:
-        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        blocked: Run the command with the blcoked flag.
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        blocked (:obj:`bool`): Run the command with the blcoked flag.
 
     Returns:
-        Returns the output form GraphWalker check.
+        str: The output form GraphWalker check.
 
     Raises:
         GraphWalkerException: If an error occured while running the command, or
@@ -158,11 +158,11 @@ def methods(model_path, blocked=False):
     """Execute the methods command.
 
     Args:
-        model_path: A path to a model.
-        blcked: Run the command with the blcoked flag.
+        model_path (:obj:`list`): A path to a model.
+        blcked (:obj:`bool`): Run the command with the blcoked flag.
 
     Returns:
-        A list of unique names of vertices and edges in the model.
+        list: A sequence of all unique names of vertices and edges in the model.
 
     Raises:
         GraphWalkerException: If an error occured while running the command, or
@@ -174,26 +174,29 @@ def methods(model_path, blocked=False):
 
 
 class GraphWalkerService:
-    """Starts and kills a proccess running the GraphWalker REST service."""
+    """Starts and kills a proccess running the GraphWalker REST service.
 
-    def __init__(self, models=None, port=8887, unvisited=False, blocked=False, output_file="graphwalker-service.log"):
-        """Will run the GraphWalker online command and start the GraphWalker REST service.
+    Will run the GraphWalker online command and start the GraphWalker REST service.
 
-        Note:
-            The GraphWalker REST Service is always started with the verbose flag to get the
-            ``modelName`` for each step.
+    Note:
+        The GraphWalker REST Service is always started with the verbose flag to get the
+        ``modelName`` for each step.
 
-        Args:
-            port: Will start the service on the given port.
-            unvisited: Will start the service with the unvisited flag set to True.
-            blocked: Will start the service with the blocked flag set to True.
-            output_file: If set will save the output of the command in a file.
-        """
+    Args:
+        port (:obj:`int`): Will start the service on the given port.
+        start_element (:obj:`str`): A starting element for the first model.
+        unvisited (:obj:`bool`): Will start the service with the unvisited flag set to True.
+        blocked (:obj:`bool`): Will start the service with the blocked flag set to True.
+        output_file (:obj:`bool`): If set will save the output of the command in a file.
+    """
+
+    def __init__(self, models=None, port=8887, start_element=None, unvisited=False, blocked=False,
+                 output_file="graphwalker-service.log"):
 
         self.port = port
         self.output_file = output_file
 
-        command = _create_command("online", models=models, port=port, service="RESTFUL",
+        command = _create_command("online", models=models, port=port, service="RESTFUL", start_element=start_element,
                                   verbose=True, unvisited=unvisited, blocked=blocked)
 
         logger.debug("Starting GraphWalker Service on port: {}".format(self.port))
@@ -237,23 +240,21 @@ class GraphWalkerService:
 
 
 class GraphWalkerClient:
-    """A client for the GraphWalker REST service."""
+    """A client for the GraphWalker REST service.
+
+    Note:
+        Because the GraphWalker REST service is always started with the verbouse flag,
+        the client by default will filter out the ``data`` and ``properties``
+        for ``get_next``.
+
+    Args:
+        host (:obj:`str`): The ip address of the GraphWalker REST service.
+        port (:obj:`int`): The port of the GraphWalker REST servie.
+        verbose (:obj:`bool`): If set will not filter out the ``data`` and ``properties``
+            for ``get_next``.
+    """
 
     def __init__(self, host="127.0.0.1", port=8887, verbose=False):
-        """Inits the GraphWalkerClient.
-
-        Note:
-            Because the GraphWalker REST service is always started with the verbouse flag,
-            the client by default will filter out the ``data`` and ``properties``
-            for ``get_next``.
-
-        Args:
-            host: The ip address of the GraphWalker REST service.
-            port: The port of the GraphWalker REST servie.
-            verbose: If set will not filter out the ``data`` and ``properties``
-                for ``get_next``.
-        """
-
         self.host = host
         self.port = port
 
@@ -300,18 +301,18 @@ class GraphWalkerClient:
         return self._get_body(response)
 
     def load(self, model):
-        """Call POST/load."""
+        """Make a POST at ``/load``."""
 
         self._post("/load", data=json.dumps(model))
 
     def has_next(self):
-        """Call GET/hasNext, and return the response."""
+        """Make a GET request at ``/hasNext``, and return the response."""
 
         body = self._get("/hasNext")
         return body["hasNext"] == "true"
 
     def get_next(self):
-        """Call GET/getNext, and return the next step."""
+        """Make a GET request at ``/getNext``, and return the next step."""
 
         step = self._get("/getNext")
 
@@ -328,13 +329,13 @@ class GraphWalkerClient:
         return step
 
     def get_data(self):
-        """Call GET/getData, and return the data."""
+        """Make a GET request at ``/getData``, and return the data."""
 
         body = self._get("/getData")
         return body["data"]
 
     def set_data(self, key, value):
-        """Call PUT/setData."""
+        """Make a PUT request at ``/setData``."""
 
         if isinstance(value, str):
             normalize = "\"" + value + "\""
@@ -344,16 +345,16 @@ class GraphWalkerClient:
         self._put("/setData/" + key + "=" + normalize)
 
     def restart(self):
-        """Call PUT/restart."""
+        """Make a PUT request at ``/restart``."""
 
         self._put("/restart")
 
     def fail(self, message):
-        """Call PUT/fail."""
+        """Make a PUT request ``/fail``."""
 
         requests.put(self.base + "/fail/" + message)
 
     def get_statistics(self):
-        """Call GET/getStatistcs, and return the statistcs."""
+        """Make a GET request at ``/getStatistcs``, and return the statistcs."""
 
         return self._get("/getStatistics")

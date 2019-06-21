@@ -1,59 +1,59 @@
 {
-  "name": "This is a more complex example using two models for the integration tests",
+  "name": "This is a more complex example using two models",
   "models": [
     {
-      "name": "Complex_A",
+      "name": "ComplexA",
       "generator": "random(edge_coverage(100) && vertex_coverage(100))",
       "startElementId": "v0",
       "vertices": [
         {
           "id": "v0",
-          "name": "vertex_0"
+          "name": "vertex_a"
         },
         {
           "id": "v1",
-          "name": "vertex_1"
+          "name": "vertex_b"
         },
         {
           "id": "v2",
-          "name": "vertex_2",
+          "name": "vertex_c",
           "sharedState": "link"
         }
       ],
       "edges": [
         {
           "id": "e0",
-          "name": "edge_0",
+          "name": "edge_a",
           "sourceVertexId": "v0",
           "targetVertexId": "v1"
         },
         {
           "id": "e1",
-          "name": "edge_1",
+          "name": "edge_b",
           "sourceVertexId": "v1",
           "targetVertexId": "v2"
         }
       ]
     },
     {
-      "name": "Complex_B",
+      "name": "ComplexB",
       "generator": "random(edge_coverage(100) && vertex_coverage(100))",
       "startElementId": "v0",
       "vertices": [
         {
           "id": "v3",
-          "name": "vertex_3",
+          "name": "vertex_d",
           "sharedState": "link"
         },
         {
           "id": "v4",
-          "name": "vertex_4"
+          "name": "vertex_e"
         }
       ],
       "edges": [
         {
           "id": "e2",
-          "name": "edge_2",
+          "name": "edge_c",
           "sourceVertexId": "v3",
           "targetVertexId": "v4"
         }

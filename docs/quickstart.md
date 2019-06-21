@@ -31,7 +31,7 @@ $ altwalker online tests -m models/default.json "random(edge_coverage(100))"
 ```
 
 The online command runs your tests inside `tests` with the `default.json` model using
-the `random(edge_coverage(100))` stop condtion.
+the `random(edge_coverage(100))` stop condition.
 
 ### Start from an existing model
 
@@ -67,7 +67,7 @@ $ altwalker init -l c# test-project
 ```
 
 The `init` command creates `test-project` directory and initialize a git repository. The directory
-contains a C# project refering `AltWalker.Executor` from nuget, a class for each model,`Program.cs`,
+contains a C# project referring `AltWalker.Executor` from nuget, a class for each model,`Program.cs`,
 and a simple model file `models/default.json` to get you started.
 
 ```

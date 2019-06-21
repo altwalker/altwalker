@@ -4,7 +4,7 @@ Examples
 Here is a (growing) list of runnable examples. `Contact us <altwalker@altom.com>`_
 if you need more examples or have questions.
 
-The source code for all exampels can be found `here <https://gitlab.com/altom/altwalker/altwalker-examples>`_.
+The source code for all examples can be found `here <https://gitlab.com/altom/altwalker/altwalker-examples>`_.
 
 Python
 ------

@@ -146,6 +146,14 @@ class TestWalker(WalkerSetUp):
 
 class TestExecuteStep(WalkerSetUp):
 
+    def setUp(self):
+        super().setUp()
+
+        self.step = {
+            "name": "step_name",
+            "modelName": "ModelName"
+        }
+
     def test_executor(self):
         data = {
             "A": "0"
@@ -154,7 +162,7 @@ class TestExecuteStep(WalkerSetUp):
         self.planner.get_data.return_value = data
         self.executor.execute_step.return_value = {}
 
-        self.walker._execute_step("ModelName", "step_name")
+        self.walker._execute_step(self.step)
 
         self.executor.execute_step.assert_called_once_with("ModelName", "step_name", data)
 
@@ -166,15 +174,14 @@ class TestExecuteStep(WalkerSetUp):
         self.planner.get_data.return_value = {}
         self.executor.execute_step.return_value = result
 
-        actual = self.walker._execute_step("ModelName", "step_name")
-
-        self.assertDictEqual(result, actual)
+        result = self.walker._execute_step(self.step)
+        self.assertTrue(result)
 
     def test_before_data(self):
         self.planner.get_data.return_value = {}
         self.executor.execute_step.return_value = {}
 
-        self.walker._execute_step("ModelName", "step_name")
+        self.walker._execute_step(self.step)
 
         self.planner.get_data.assert_called_once_with()
 
@@ -191,7 +198,7 @@ class TestExecuteStep(WalkerSetUp):
         self.planner.get_data.return_value = before_data
         self.executor.execute_step.return_value = {"data": after_data}
 
-        self.walker._execute_step("ModelName", "step_name")
+        self.walker._execute_step(self.step)
 
         self.walker._update_data.assert_called_once_with(before_data, after_data)
 
@@ -204,7 +211,7 @@ class TestExecuteStep(WalkerSetUp):
         self.planner.get_data.return_value = data
         self.executor.execute_step.return_value = {}
 
-        self.walker._execute_step("ModelName", "step_name")
+        self.walker._execute_step(self.step)
 
         self.walker._update_data.assert_called_once_with(data, None)
 
@@ -237,31 +244,30 @@ class TestRunStep(WalkerSetUp):
 
         self.walker._run_step(self.step, optional=False)
 
-        self.planner.fail.assert_called_once_with(self.step, "Step not found.")
+        self.planner.fail.assert_called_once_with("Step not found.")
 
     def test_not_found_report(self):
         self.executor.has_step.return_value = False
 
         self.walker._run_step(self.step, optional=False)
 
-        self.reporter.step_status.assert_called_once_with(self.step, failure=True)
-        self.reporter.error.assert_called_once_with("Step not found.")
+        self.reporter.error.assert_called_once_with(self.step, "Step not found.")
 
-    def test_execute_step(self):
+    def test_run_step(self):
         self.executor.has_step.return_value = True
         self.walker._execute_step = mock.Mock(return_value={"output": ""})
 
         self.walker._run_step(self.step, optional=False)
 
-        self.walker._execute_step.assert_called_once_with("ModelName", "name")
+        self.walker._execute_step.assert_called_once_with(self.step)
 
     def test_report_status(self):
         self.executor.has_step.return_value = True
-        self.walker._execute_step = mock.Mock(return_value={"output": ""})
+        self.executor.execute_step.return_value = {"output": ""}
 
         self.walker._run_step(self.step, optional=False)
 
-        self.reporter.step_status.assert_called_once_with(self.step, output="", failure=False)
+        self.reporter.step_end.assert_called_once_with(self.step, {"output": ""})
 
     def test_error(self):
         error = {
@@ -274,45 +280,34 @@ class TestRunStep(WalkerSetUp):
 
         self.walker._run_step(self.step, optional=False)
 
-        self.walker._execute_step.assert_called_once_with("ModelName", "name")
+        self.walker._execute_step.assert_called_once_with(self.step)
 
     def test_error_status(self):
-        error = {
-            "message": "Error message.",
-            "trace": "Trace"
-        }
-
         self.executor.has_step.return_value = True
-        self.walker._execute_step = mock.Mock(return_value={"output": "", "error": error})
+        self.walker._execute_step = mock.Mock(return_value=False)
 
         status = self.walker._run_step(self.step, optional=False)
         self.assertFalse(status)
 
     def test_error_planner(self):
-        error = {
-            "message": "Error message.",
-            "trace": "Trace"
-        }
+        error_message = "Error message."
 
         self.executor.has_step.return_value = True
-        self.walker._execute_step = mock.Mock(return_value={"output": "", "error": error})
+        self.walker._execute_step = mock.Mock(side_effect=Exception(error_message))
 
         self.walker._run_step(self.step, optional=False)
 
-        self.planner.fail.assert_called_once_with(self.step, error["message"])
+        self.planner.fail.assert_called_once_with(error_message)
 
     def test_error_report(self):
-        error = {
-            "message": "Error message.",
-            "trace": "Trace"
-        }
+        error_message = "Error message."
 
         self.executor.has_step.return_value = True
-        self.walker._execute_step = mock.Mock(return_value={"output": "", "error": error})
+        self.walker._execute_step = mock.Mock(side_effect=Exception(error_message))
 
         self.walker._run_step(self.step, optional=False)
 
-        self.reporter.error.assert_called_once_with(error["message"], trace=error["trace"])
+        self.reporter.error.assert_called_once_with(self.step, error_message, trace=mock.ANY)
 
     def test_exception(self):
         self.executor.has_step.return_value = True
@@ -320,7 +315,7 @@ class TestRunStep(WalkerSetUp):
 
         self.walker._run_step(self.step)
 
-        self.reporter.step_status.assert_called_once_with(self.step, failure=True)
+        self.reporter.error.assert_called_once_with(self.step, "Error message.", trace=mock.ANY)
 
     def test_exception_status(self):
         self.executor.has_step.return_value = True
@@ -335,7 +330,7 @@ class TestRunStep(WalkerSetUp):
 
         self.walker._run_step(self.step)
 
-        self.planner.fail.assert_called_once_with(self.step, "Error message.")
+        self.planner.fail.assert_called_once_with("Error message.")
 
     @mock.patch("traceback.format_exc")
     def test_exception_reporter(self, trace_mock):
@@ -345,8 +340,7 @@ class TestRunStep(WalkerSetUp):
 
         self.walker._run_step(self.step)
 
-        self.reporter.step_status.assert_called_once_with(self.step, failure=True)
-        self.reporter.error.assert_called_once_with("Error message.", trace="Trace.")
+        self.reporter.error.assert_called_once_with(self.step, "Error message.", trace="Trace.")
 
 
 class TestItter(WalkerSetUp):

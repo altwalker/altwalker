@@ -38,7 +38,7 @@ AltWalker has the following components:
     * Offline Planner
 
 * __Reporter__: To report the results of the tests, the reporters are all called for
-    each event (e.g. `step_start`, `step_status`, ...).
+    each event (e.g. `step_start`, `step_end`, ...).
 
 * __Executor__: For each step in the plan looks up and calls the named method
     from the _test code_. In addition to the step methods, it also calls
@@ -83,7 +83,7 @@ $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATE
   mkdir -p ~/graphwalker && \
   mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
   echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
-  chmod 777 ~/graphwalker/graphwalker-cli.sh && \
+  chmod +x ~/graphwalker/graphwalker-cli.sh && \
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
 
@@ -179,7 +179,7 @@ Install python dependencies:
 
 ```
 $ pip3 install -r requirements.txt && \
-  pip3 install -r requrements-dev.txt
+  pip3 install -r requirements-dev.txt
 ```
 
 Run tests:
@@ -215,5 +215,10 @@ $ cd docs && \
 To see the documentation run:
 
 ```
-open _build/html/index.html
+$ open _build/html/index.html
 ```
+
+__Further Reading/Useful Links__:
+
+* [Google Style Docstring Example](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google)
+* [Google Style Guide](https://google.github.io/styleguide/pyguide.html)

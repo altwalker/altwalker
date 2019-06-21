@@ -8,6 +8,8 @@ from altwalker.model import get_methods, check_models
 from altwalker.__version__ import VERSION
 
 
+MINOR_VERSION = ".".join(VERSION.split(".")[:2]) + ".*"
+
 _DEFAULT_MODEL = """\
 {
     "name": "Default model",
@@ -127,7 +129,7 @@ def generate_csharp_tests(output_dir, methods, package_name="tests"):
     os.makedirs(project_path)
 
     with open(os.path.join(project_path, "{}.csproj".format(package_name)), "w") as fp:
-        fp.write(_CSHARP_CSPROJ.format(namespace, VERSION))
+        fp.write(_CSHARP_CSPROJ.format(namespace, MINOR_VERSION))
 
     with open(os.path.join(project_path, "Program.cs"), "w") as program:
         program.write("using Altom.AltWalker;\n\n")

@@ -116,49 +116,37 @@ class Walker:
             if key not in data_before or data_before[key] != value:
                 self._planner.set_data(key, value)
 
-    def _execute_step(self, model, name):
+    def _execute_step(self, step):
         data_before = self._planner.get_data()
 
-        result = self._executor.execute_step(model, name, data_before)
-        data_after = result.get("data", None)
+        self._reporter.step_start(step)
+        result = self._executor.execute_step(step.get("modelName"), step.get("name"), data_before)
+        self._reporter.step_end(step, result)
 
+        data_after = result.get("data")
         self._update_data(data_before, data_after)
 
-        return result
+        error = result.get("error")
+        if error:
+            self._planner.fail(error["message"])
+
+        return error is None
 
     def _run_step(self, step, optional=False):
-        model = step.get("modelName", None)
-        name = step.get("name")
-
-        if not self._executor.has_step(model, name):
+        if not self._executor.has_step(step.get("modelName"), step.get("name")):
             if not optional:
-                self._planner.fail(step, "Step not found.")
-
-                self._reporter.step_status(step, failure=True)
-                self._reporter.error("Step not found.")
+                self._planner.fail("Step not found.")
+                self._reporter.error(step, "Step not found.")
 
             return optional
 
         try:
-            self._reporter.step_start(step)
+            status = self._execute_step(step)
 
-            result = self._execute_step(model, name)
-
-            error = result.get("error", None)
-            output = result["output"]
-
-            self._reporter.step_status(step, output=output, failure=error is not None)
-
-            if error:
-                self._planner.fail(step, error["message"])
-                self._reporter.error(error["message"], trace=error["trace"])
-
-            return error is None
+            return status
         except Exception as e:
-            self._planner.fail(step, str(e))
-
-            self._reporter.step_status(step, failure=True)
-            self._reporter.error(str(e), trace=str(traceback.format_exc()))
+            self._planner.fail(str(e))
+            self._reporter.error(step, str(e), trace=str(traceback.format_exc()))
 
             return False
 

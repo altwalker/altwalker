@@ -9,7 +9,7 @@ tests graph.
 
 [Model-Based Testing](https://en.wikipedia.org/wiki/Model-based_testing) is a testing
 technique which offers a way of generating tests cases based on models, models
-that describe the behavior (functionality) of the system under test.
+that describe the behaviour (functionality) of the system under test.
 
 The role of the model is to describe the system under tests. The goal when designing
 models is to represent the part of the system you want to test, usually you will
@@ -37,7 +37,7 @@ AltWalker has the following components:
     * Offline Planner
 
 * __Reporter__: To report the results of the tests, the reporters are all called for
-    each event (e.g. `step_start`, `step_status`, ...).
+    each event (e.g. `step_start`, `step_end`, ...).
 
 * __Executor__: For each step in the plan looks up and calls the named method
     from the _test code_. In addition to the step methods, it also calls
@@ -87,6 +87,8 @@ The `check` command from GraphWalker is used by AltWalker's `check`.
 The [Model-Editor](https://altom.gitlab.io/altwalker/model-editor) is a web based editor
 and visualizer for models written using the GraphWalker JSON format.
 
-The following screenshot is taken from the Model-Editor:
+```eval_rst
+.. figure:: _static/img/model-editor.png
 
-![](_static/model-editor.png)
+    Screenshot taken from the Model-Editor.
+```

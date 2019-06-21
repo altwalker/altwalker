@@ -1,5 +1,9 @@
+=================
 API Documentation
 =================
+
+This part of the documentation lists the full API reference of all
+public classes and functions.
 
 .. module:: altwalker
 
@@ -13,6 +17,7 @@ Walker
 .. autoclass:: Walker
     :members:
 
+**Examples**:
 
 You can run the tests using the :func:`Walker.run` method::
 
@@ -23,7 +28,7 @@ Or iterating over a :class:`Walker` object::
 
     walker = Walker(...)
     for step in walker:
-        # do someting with the step
+        # do something with the step
 
 .. autofunction:: create_walker
 
@@ -35,31 +40,29 @@ Planner
 
 .. currentmodule:: altwalker.planner
 
-The role of a ``Planner`` is to determin the next step to be executed by
+The role of a ``Planner`` is to determine the next step to be executed by
 the ``Executor``.
 
 There are two Planners:
 
-    * :class:`OnlinePlanner`
+    * :class:`OnlinePlanner`:
 
         Uses GraphWalker online mode to generate the test path.
 
         This method allows the test code to directly interact with GraphWalker
         and modify the model data. A dictionary with model data will be passed
         as a the first argument to any method/function form the test code
-        by :class:`altwalker.walker.Walker` class.
+        by :class:`~altwalker.walker.Walker` class.
 
-    * :class:`OfflinePlanner`
+    * :class:`OfflinePlanner`:
 
-        Uses a already generated sequence of steps to generate the test path.
+        Uses a sequence of steps to generate the test path.
 
         The sequense of path can be generated using
-        the :func:`altwalker.graphwalker.offline` function.
+        the :func:`~altwalker.graphwalker.offline` function.
 
 .. autoclass:: OnlinePlanner
     :members:
-
-    .. automethod:: __init__
 
     .. automethod:: get_next
 
@@ -74,24 +77,12 @@ There are two Planners:
 .. autoclass:: OfflinePlanner
     :members:
 
-    .. automethod:: __init__
+    Step example::
 
-        Step example::
-
-            {
-                "name": step_name,
-                "modelName": model_name
-            }
-
-    .. automethod:: get_statistics
-
-        For the OfflinePlanner ``get_statistics`` will only return::
-
-            {
-                "steps": [],
-                "failedStep": {},
-                "failedFixtures": {}
-            }
+        {
+            "name": step_name,
+            "modelName": model_name
+        }
 
 .. autofunction:: create_planner
 
@@ -104,18 +95,13 @@ Executor
 .. currentmodule:: altwalker.executor
 
 The role of the executor is to handle the test execution. Every executor
-should have all the methos form the :class:`altwalker.executor.Executor`.
-If some of the methods are not needed by the exexcutor the methods shoud
-just do nothing.
-
+should have all the methods form the :class:`~altwalker.executor.Executor`.
 
 .. autoclass:: Executor
     :members:
 
 
 .. autoclass:: HttpExecutor
-
-    .. automethod:: __init__
 
     .. automethod:: has_model
 
@@ -131,13 +117,10 @@ just do nothing.
 .. autoclass:: PythonExecutor
     :members:
 
-    .. automethod:: __init__
 
-
-.. autoclass:: DotnetExecutorService
+.. autoclass:: DotnetExecutor
     :members:
-
-    .. automethod:: __init__
+    :inherited-members:
 
 
 .. autofunction:: create_executor
@@ -150,20 +133,48 @@ Reporter
 
 .. currentmodule:: altwalker.reporter
 
+The role of the reporter is to report the results of a test run, a
+reporter method is called by the :class:`~altwalker.walker.Walker`
+for diffrent events:
+
+    * :func:`~Reporter.start` - called at the beginning of each run.
+    * :func:`~Reporter.end` - called at the end of each run.
+    * :func:`~Reporter.step_start` - called before executing each step.
+    * :func:`~Reporter.step_end` - called after executing each step.
+    * :func:`~Reporter.report` - it should return a report if the reporter
+      generates on (e.g. the :class:`PrintReporter` or
+      :class:`FileReporter` don't generate any report, they only log data).
+      It's not called by the :class:`~altwalker.walker.Walker`.
+
+Every reporter should have all this methods, you can inherite them from
+:class:`Reporter` and overwrite only the methods you want.
+
 .. autoclass:: Reporter
+    :members:
+    :private-members:
+
+.. autoclass:: Reporting
+    :inherited-members:
     :members:
 
 .. autoclass:: PrintReporter
-    :members:
     :inherited-members:
+    :members:
+    :private-members:
 
 .. autoclass:: FileReporter
-    :members:
     :inherited-members:
+    :members:
 
 .. autoclass:: ClickReporter
-    :members:
     :inherited-members:
+    :members:
+    :private-members:
+
+.. autoclass:: PathReporter
+    :inherited-members:
+    :members:
+    :private-members:
 
 
 GraphWalker
@@ -182,13 +193,9 @@ For more informations check out the `GraphWalker REST API Documentation <http://
 .. autoclass:: GraphWalkerService
     :members:
 
-    .. automethod:: __init__
-
 
 .. autoclass:: GraphWalkerClient
     :members:
-
-    .. automethod:: __init__
 
     .. automethod:: get_next
 
@@ -227,12 +234,13 @@ For more informations check out the `GraphWalker CLI Documentation <http://graph
 .. autofunction:: offline
 
 
-Models
-------
+Model
+-----
 
 .. automodule:: altwalker.model
 
 .. currentmodule:: altwalker.model
+
 
 .. autofunction:: validate_model
 
@@ -256,6 +264,10 @@ Exceptions
 
 .. currentmodule:: altwalker.exceptions
 
+
+Standard Exceptions
+~~~~~~~~~~~~~~~~~~~
+
 .. autoexception:: GraphWalkerException
     :members:
 
@@ -272,8 +284,8 @@ Exceptions
 Click Exceptions
 ~~~~~~~~~~~~~~~~
 
-This exceptions are used in the cli to handel the ``exit_code`` and the d
-isplay of :class:`GraphWalkerException` and :class:`AltWalkerException`.
+This exceptions are used in the cli to handle the ``exit_code`` and the
+display of :class:`GraphWalkerException` and :class:`AltWalkerException`.
 
 .. autoexception:: FailedTestsError
     :members:

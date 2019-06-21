@@ -1,8 +1,14 @@
 # Modeling
 
+```eval_rst
+.. contents:: Table of Contents
+    :local:
+    :backlinks: none
+```
+
 ## Model Design
 
-The objective of the model(s), is to express the expected behavior of the system under test. To do so, we use a directed graph, in which a vertex (or a node) represents some desired state, and the edges (arcs, arrows, transitions) represents whatever actions we need to do in order to achieve that desired state.
+The objective of the model(s), is to express the expected behaviour of the system under test. To do so, we use a directed graph, in which a vertex (or a node) represents some desired state, and the edges (arcs, arrows, transitions) represents whatever actions we need to do in order to achieve that desired state.
 
 Each vertex and edge has an associated method in the test code that is executed upon stepping into it.
 
@@ -68,17 +74,40 @@ __Further Reading/Useful Links__:
 
 GraphWalker keeps an execution context with data for each model and a global context.
 
+By default GraphWalker tried to access data from the current model context, to access data from the global context prefix the variable name with `global.` (e.g. `global.count`, `global.isLoggedIn`).
+
 An __action__ is a piece of java code that you want the model to execute, in order to modify the data from the context.
+
+Actions can only be placed on edges or models.
+
+```eval_rst
+.. tip::
+  Always initialize your variables in the models level actions.
+
+  Note that you can also initialize variables in the global context.
+```
 
 __Example__:
 
 ```json
 {
     "actions": [
-        "numOfPets++;"
+        "numOfPets++;",
+        "isLoggedIn = true;"
     ]
 }
 ```
+
+And to update variable from the global context:
+
+```json
+{
+    "actions": [
+        "global.numOfPets++;",
+    ]
+}
+```
+
 
 ```eval_rst
 .. note::
@@ -92,11 +121,21 @@ __Further Reading/Useful Links__:
 
 A __guard__ is a condition that until is fulfilled marks a __edge__ as unreachable, the __guard__ is expressed using the data from the context.
 
+Guards can only be placed on edges.
+
 __Example__:
 
 ```json
 {
     "guard": "numOfPets > 0"
+}
+```
+
+Like with __actions__ if you want to use data form the global context prefix the variable name with `global.`.
+
+```json
+{
+    "guard": "global.numOfPets > 0"
 }
 ```
 
@@ -202,9 +241,11 @@ The template for an __action__:
     ]
 }
 ```
-Is a piece of java code that you want the model to execute
+
+Is a piece of java code that you want the model to execute.
 
 It has to end with a semi colon.
+
 
 __Further Reading/Useful Links__:
   * For documentation about __json__ format check [GraphWalker documentation](http://graphwalker.github.io/json-overview/).
@@ -215,6 +256,22 @@ __Further Reading/Useful Links__:
 [GraphML](https://en.wikipedia.org/wiki/GraphML) is an XML-based file format for graphs.
 
 A single model and his data can be stored in one single `.graphml` file. The name of the model is the name of the file (e.g. for `login.graphml` the name of the model is `login`).
+
+```eval_rst
+.. admonition:: Recommendation
+
+  If you intent to use the ``graphml`` format we recomand considering using the ``json`` format. AltWalker is mainly tested using ``json`` models and all the example from the
+  documentation use the ``json`` format.
+
+  If you have models in the ``graphl`` format we recomand converting them using the `convert <http://graphwalker.github.io/cli-convert/#version-4>`_ command form GraphWalker.
+
+  **Example**:
+
+  .. code-block:: console
+
+    $ gw convert -i login.graphml -f json
+
+```
 
 __Further Reading / Useful Links__:
   * [GraphML](https://en.wikipedia.org/wiki/GraphML) file format.
