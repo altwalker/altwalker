@@ -63,7 +63,8 @@ Model source:
     :emphasize-lines: 12, 41
 
 
-Now we separated the navigation of the home page from the bloging, this way our models are easier to mantaine.
+Now we separated the navigation of the home page from the bloging, this way our models are easier to
+implement and maintain.
 
 
 .. only:: builder_html
