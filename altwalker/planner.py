@@ -137,7 +137,10 @@ class OfflinePlanner:
 
     def kill(self):
         """This method does nothing."""
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
 
 def create_planner(models=None, steps=None, host=None, port=8887, start_element=None,
                    verbose=False, unvisited=False, blocked=False):
