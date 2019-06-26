@@ -13,7 +13,7 @@ Overwiew
 --------
 
 GraphWalker allows you to link together two (or more) models with a **shared state**. Each *shared state* has a name
-that identifies it, every vertex that have the same name are linked.
+that identifies it, all vertices that have the same name are linked together.
 
 If two (or more) vertices have the same **shared state** now the path can jump from one vertex to another.
 
