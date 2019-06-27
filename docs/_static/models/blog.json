@@ -1,0 +1,74 @@
+{
+    "name": "Simple Blog Example",
+    "models": [
+        {
+            "name": "Navigation",
+            "startElementId": "v_0",
+            "generator": "random(vertex_coverage(100))",
+            "vertices": [
+                {
+                    "id": "v_0",
+                    "name": "home_page",
+                    "sharedState": "blog"
+                },
+                {
+                    "id": "v_1",
+                    "name": "blog_page"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e_0",
+                    "name": "select_blog",
+                    "sourceVertexId": "v_0",
+                    "targetVertexId": "v_1"
+                },
+                {
+                    "id": "e_1",
+                    "name": "back_to_home_page",
+                    "sourceVertexId": "v_1",
+                    "targetVertexId": "v_0"
+                }
+            ]
+        },
+        {
+            "name": "PostBlog",
+            "generator": "random(vertex_coverage(100))",
+            "vertices": [
+                {
+                    "id": "v_2",
+                    "name": "home_page",
+                    "sharedState": "blog"
+                },
+                {
+                    "id": "v_3",
+                    "name": "create_blog_page"
+                },
+                {
+                    "id": "v_4",
+                    "name": "new_blog_page"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e_2",
+                    "name": "click_on_create_blog",
+                    "sourceVertexId": "v_2",
+                    "targetVertexId": "v_3"
+                },
+                {
+                    "id": "e_3",
+                    "name": "post_blog",
+                    "sourceVertexId": "v_3",
+                    "targetVertexId": "v_4"
+                },
+                {
+                    "id": "e_4",
+                    "name": "back_to_home_page",
+                    "sourceVertexId": "v_4",
+                    "targetVertexId": "v_2"
+                }
+            ]
+        }
+    ]
+}
