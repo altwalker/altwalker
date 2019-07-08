@@ -34,8 +34,8 @@ saved in the global context (e.g. ``global.count``, ``global.isLoggedIn``).
 Actions
 ~~~~~~~
 
-An **action** is a pice of Java code executed by GraphWalker. You can place
-action on the model level which well be executed before any step from that model or
+An **action** is a piece of Java code executed by GraphWalker. You can place
+action on the model level which will be executed before any step from that model or
 on an edge which will be executed when an edge is reached.
 
 **Examples**:
@@ -56,10 +56,10 @@ on an edge which will be executed when an edge is reached.
 Guards
 ~~~~~~
 
-A **guard** is a pice of Java code which if evaluates as `false` marks an **edge** as unreachable,
+A **guard** is a piece of Java code which if evaluates as `false` marks an **edge** as unreachable,
 the **guard** can use the variables from the context of the current model of the global context.
 
-__Examples__:
+**Examples**:
 
 .. code-block:: json
 

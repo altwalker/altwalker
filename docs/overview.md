@@ -19,56 +19,54 @@ design one model for each functionality of your system.
 
 AltWalker has the following components:
 
-* __Model__: a directed graph, supplied by the user as a json or graphml file.
-    A graph is composed from a list of vertices and a list of edges.
+- **Model**: a directed graph, supplied by the user as a json or graphml file.
+  A graph is composed from a list of vertices and a list of edges.
 
-* __Generator__ and __Stop Condition__: used to specify how to generate a
-    path and to decide when a path is complete.
+- **Generator** and **Stop Condition**: used to specify how to generate a
+  path and to decide when a path is complete.
 
-* __Test Code__: The implementation of the model(s) as code. Each vertex and edge
-    is mapped to a method from the test code.
+- **Test Code**: The implementation of the model(s) as code. Each vertex and edge
+  is mapped to a method from the test code.
 
-* __Planner__: Which uses the _model(s)_ and a pair of _generator_ and _stop condition_
-    to provide a path (a sequence of steps) through the model(s).
+- **Planner**: Which uses the _model(s)_ and a pair of _generator_ and _stop condition_
+  to provide a path (a sequence of steps) through the model(s).
 
-    Currently AltWalker provides two planner:
+  Currently AltWalker provides two planner:
 
-    * Online Planner
-    * Offline Planner
+  - Online Planner
+  - Offline Planner
 
-* __Reporter__: To report the results of the tests, the reporters are all called for
-    each event (e.g. `step_start`, `step_end`, ...).
+- **Reporter**: To report the results of the tests, the reporters are all called for
+  each event (e.g. `step_start`, `step_end`, ...).
 
-* __Executor__: For each step in the plan looks up and calls the named method
-    from the _test code_. In addition to the step methods, it also calls
-    fixture methods if present (e.g. `setUpModel`, `tearDownModel` ...).
+- **Executor**: For each step in the plan looks up and calls the named method
+  from the _test code_. In addition to the step methods, it also calls
+  fixture methods if present (e.g. `setUpModel`, `tearDownModel` ...).
 
-    Currently AltWalker provides two executors:
+  Currently AltWalker provides two executors:
 
-    * Python Executor
-    * .NET Executor
+  - Python Executor
+  - .NET Executor
 
-    And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
-    more about the Http Executor on the [How to: Write your own executor](./how-tos/custom-executor)
-    page.
+  And an **Http Executor** that allows you to hook up your own executor via HTTP. You can read
+  more about the Http Executor on the [How to: Write your own executor](./how-tos/custom-executor)
+  page.
 
-* __Walker__: The test runner. Coordinates the execution of a test asking a `Planner`
-    for the next step, executing the step using an `Executor` and reporting the progress
-    using a `Reporter`.
+- **Walker**: The test runner. Coordinates the execution of a test asking a `Planner`
+  for the next step, executing the step using an `Executor` and reporting the progress
+  using a `Reporter`.
 
+There are two ways to run your test:
 
-There are two way to run your test:
+- **Online Mode** (with the Online Planner): Generate one step and then execute
+  the step, until the path is complete.
 
-* __Online Mode__ (with the Online Planner): Generate one step and then execute
-    the step, until the path is complete.
-
-* __Offline Mode__ (with the Offline Planner): Run a path from a sequence of steps.
-    Usually the path is generated using the `offline` command.
-
+- **Offline Mode** (with the Offline Planner): Run a path from a sequence of steps.
+  Usually the path is generated using the `offline` command.
 
 ## GraphWalker
 
-__GraphWalker__: is an Model-Based testing tool. It reads models in the
+**GraphWalker**: is an Model-Based testing tool. It reads models in the
 shape of directed graphs, and generate (test) paths from these graphs.
 
 AltWalker uses [GraphWalker](http://graphwalker.github.io) as a Planner (it uses

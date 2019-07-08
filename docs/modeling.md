@@ -16,39 +16,40 @@ _GraphWalker_ generates a path through the directed graph. _AltWalker_ walks the
 
 ### Vertices
 
-A __vertex__ is a state of the system under tests. In the test code this is the place where the actual test takes place.
+A **vertex** is a state of the system under tests. In the test code this is the place where the actual test takes place.
 
 ### Edges
 
-A __edge__ is an action that takes the system under tests form one state (vertex) to another.
+An **edge** is an action that takes the system under tests form one state (vertex) to another.
 
 ### Generators and Stop Conditions
 
-__Generators__ and __stop conditions__ are how GraphWalker decides how to travel the model(s) (directed graph) and when the path (test sequence) is completed.
+**Generators** and **stop conditions** are how GraphWalker decides how to travel the model(s) (directed graph) and when the path (test sequence) is completed.
 
-A __generator__ is an algorithm that decides how to traverse a model. Different generators will generate different test sequences, and they will navigate in different ways.
+A **generator** is an algorithm that decides how to traverse a model. Different generators will generate different test sequences, and they will navigate in different ways.
 
-A __stop condition__ is condition that decides when a path is completed. The __generator__ will generate a new step in the path until the __stop condition__ is fulfilled.
+A **stop condition** is condition that decides when a path is completed. The **generator** will generate a new step in the path until the **stop condition** is fulfilled.
 
 Generators:
-  * `random(<stop_conditions>)`
-  * `weighted_random(<stop_conditions>)`
-  * `quick_random(<stop_conditions>)`
-  * `a_star(<stop_conditions>)`
+
+- `random(<stop_conditions>)`
+- `weighted_random(<stop_conditions>)`
+- `quick_random(<stop_conditions>)`
+- `a_star(<stop_conditions>)`
 
 Stop Conditions:
-  * `edge_coverage(<percentage>)`
-  * `vertex_coverage(<percentage>)`
-  * `requirement_coverage(<percentage>)`
-  * `dependency_edge_coverage(<percentage>)`
-  * `reached_vertex(<vertex_name>)`
-  * `reached_edge(<edge_name>)`
-  * `time_duration(<number_of_seconds>)`
-  * `length(<integer>)`
-  * `never`
 
+- `edge_coverage(<percentage>)`
+- `vertex_coverage(<percentage>)`
+- `requirement_coverage(<percentage>)`
+- `dependency_edge_coverage(<percentage>)`
+- `reached_vertex(<vertex_name>)`
+- `reached_edge(<edge_name>)`
+- `time_duration(<number_of_seconds>)`
+- `length(<integer>)`
+- `never`
 
-__Examples__:
+**Examples**:
 
 ```
 random(never)
@@ -67,16 +68,17 @@ a_start(reached_vertex(vertex_A))
     Throughout the documentation a pair of a generator and a stop condition is usually referred as a stop condition.
 ```
 
-__Further Reading/Useful Links__:
-  * For documentation about Generators and Stop Conditions check [GraphWalker's documentation](http://graphwalker.github.io/generators_and_stop_conditions/)
+**Further Reading/Useful Links**:
+
+- For documentation about Generators and Stop Conditions check [GraphWalker's documentation](http://graphwalker.github.io/generators_and_stop_conditions/)
 
 ### Actions
 
 GraphWalker keeps an execution context with data for each model and a global context.
 
-By default GraphWalker tried to access data from the current model context, to access data from the global context prefix the variable name with `global.` (e.g. `global.count`, `global.isLoggedIn`).
+By default GraphWalker tries to access data from the current model context. To access data from the global context, prefix the variable name with `global.`(e.g. `global.count`, `global.isLoggedIn`).
 
-An __action__ is a piece of java code that you want the model to execute, in order to modify the data from the context.
+An **action** is a piece of java code that you want the model to execute, in order to modify the data from the context.
 
 Actions can only be placed on edges or models.
 
@@ -87,14 +89,11 @@ Actions can only be placed on edges or models.
   Note that you can also initialize variables in the global context.
 ```
 
-__Example__:
+**Example**:
 
 ```json
 {
-    "actions": [
-        "numOfPets++;",
-        "isLoggedIn = true;"
-    ]
+  "actions": ["numOfPets++;", "isLoggedIn = true;"]
 }
 ```
 
@@ -102,56 +101,55 @@ And to update variable from the global context:
 
 ```json
 {
-    "actions": [
-        "global.numOfPets++;",
-    ]
+  "actions": ["global.numOfPets++;"]
 }
 ```
-
 
 ```eval_rst
 .. note::
   Each action must end with ``;`` (e.g. ``count++;``, ``isLoggedIn = true;``).
 ```
 
-__Further Reading/Useful Links__:
-  * Read more on actions and guards in the [How to: Use actions and guards](how-tos/actions-and-guards) section.
+**Further Reading/Useful Links**:
+
+- Read more on actions and guards in the [How to: Use actions and guards](how-tos/actions-and-guards) section.
 
 ### Guards
 
-A __guard__ is a condition that until is fulfilled marks a __edge__ as unreachable, the __guard__ is expressed using the data from the context.
+A **guard** is a condition that until is fulfilled marks an **edge** as unreachable, the **guard** is expressed using the data from the context.
 
 Guards can only be placed on edges.
 
-__Example__:
+**Example**:
 
 ```json
 {
-    "guard": "numOfPets > 0"
+  "guard": "numOfPets > 0"
 }
 ```
 
-Like with __actions__ if you want to use data form the global context prefix the variable name with `global.`.
+Like with **actions** if you want to use data from the global context, prefix the variable name with `global.`.
 
 ```json
 {
-    "guard": "global.numOfPets > 0"
+  "guard": "global.numOfPets > 0"
 }
 ```
 
-__Further Reading/Useful Links__:
-  * Read more on actions and guards in the [How to: Use actions and guards](how-tos/actions-and-guards) section.
+**Further Reading/Useful Links**:
+
+- Read more on actions and guards in the [How to: Use actions and guards](how-tos/actions-and-guards) section.
 
 ## Formats
 
 AltWalker like GraphWalker supports two formats for models:
 
-* json
-* grapml
+- json
+- grapml
 
 ### JSON
 
-The template for a __json__ file.
+The template for a **json** file.
 
 ```json
 {
@@ -169,76 +167,61 @@ The template for a __json__ file.
 
 Multiple models and their data can be stored in one single json file.
 
-The template for a __model__:
+The template for a **model**:
 
 ```json
 {
-    "generator": "<The generator of the model>",
-    "id": "<The unique id of the model>",
-    "name": "<The name of the model>",
-    "actions": [
-        "<ACTION IN JSON FORMAT>",
-        "<ACTION IN JSON FORMAT>"
-    ],
-    "edges": [
-        "<EDGE IN JSON FORMAT>",
-        "<EDGE IN JSON FORMAT>"
-    ],
-    "vertices": [
-        "<VERTEX IN JSON FORMAT>",
-        "<VERTEX IN JSON FORMAT>"
-    ]
+  "generator": "<The generator of the model>",
+  "id": "<The unique id of the model>",
+  "name": "<The name of the model>",
+  "actions": ["<ACTION IN JSON FORMAT>", "<ACTION IN JSON FORMAT>"],
+  "edges": ["<EDGE IN JSON FORMAT>", "<EDGE IN JSON FORMAT>"],
+  "vertices": ["<VERTEX IN JSON FORMAT>", "<VERTEX IN JSON FORMAT>"]
 }
 ```
 
-* `action` field is optional.
+- `action` field is optional.
 
-The template for a __vertex__:
+The template for a **vertex**:
 
 ```json
 {
-    "id": "<The unique id of the vertex>",
-    "name": "<The name of the vertex>",
-    "properties": {
-        "key1": "<value1>",
-        "key2": "<value2>"
-    },
-    "sharedState": "<SHARED STATE NAME>"
+  "id": "<The unique id of the vertex>",
+  "name": "<The name of the vertex>",
+  "properties": {
+    "key1": "<value1>",
+    "key2": "<value2>"
+  },
+  "sharedState": "<SHARED STATE NAME>"
 }
 ```
 
-* `properties` field is optional, it can be used to store pairs of key/data.
-* `sharedState` field is optional, it can be used to link to vertices from different models.
+- `properties` field is optional, it can be used to store pairs of key/data.
+- `sharedState` field is optional, it can be used to link to vertices from different models.
 
-    Any vertices with the same value for `sharedState` are linked.
+  Any vertices with the same value for `sharedState` are linked.
 
-The template for an __edge__:
+The template for an **edge**:
 
 ```json
 {
-    "id": "<The unique id of the edge>",
-    "name": "<The name of the edge>",
-    "sourceVertexId": "<The id of the source vertex of this edge>",
-    "targetVertexId": "<The id of the target, or destination vertex of this edge>",
-    "guard": "<The conditional expression which enables the accessibility of this edge>",
-    "actions": [
-        "<ACTION IN JSON FORMAT>",
-        "<ACTION IN JSON FORMAT>"
-    ],
+  "id": "<The unique id of the edge>",
+  "name": "<The name of the edge>",
+  "sourceVertexId": "<The id of the source vertex of this edge>",
+  "targetVertexId": "<The id of the target, or destination vertex of this edge>",
+  "guard": "<The conditional expression which enables the accessibility of this edge>",
+  "actions": ["<ACTION IN JSON FORMAT>", "<ACTION IN JSON FORMAT>"]
 }
 ```
 
-* `guard` field is optional, it can be used to set a guard on this edge.
-* `action` field is optional.
+- `guard` field is optional, it can be used to set a guard on this edge.
+- `action` field is optional.
 
-The template for an __action__:
+The template for an **action**:
 
 ```json
 {
-    "actions": [
-        "<JAVA SCRIPT;>",
-        "<JAVA SCRIPT;>"
-    ]
+  "actions": ["<JAVA SCRIPT;>", "<JAVA SCRIPT;>"]
 }
 ```
 
@@ -246,10 +229,10 @@ Is a piece of java code that you want the model to execute.
 
 It has to end with a semi colon.
 
+**Further Reading/Useful Links**:
 
-__Further Reading/Useful Links__:
-  * For documentation about __json__ format check [GraphWalker documentation](http://graphwalker.github.io/json-overview/).
-  * For creating or modifying json models you can use [AltWalker's model editor](https://altom.gitlab.io/altwalker/model-editor).
+- For documentation about **json** format check [GraphWalker documentation](http://graphwalker.github.io/json-overview/).
+- For creating or modifying json models you can use [AltWalker's model editor](https://altom.gitlab.io/altwalker/model-editor).
 
 ### GraphML
 
@@ -260,10 +243,10 @@ A single model and his data can be stored in one single `.graphml` file. The nam
 ```eval_rst
 .. admonition:: Recommendation
 
-  If you intent to use the ``graphml`` format we recomand considering using the ``json`` format. AltWalker is mainly tested using ``json`` models and all the example from the
+  If you intent to use the ``graphml`` format we recommend considering using the ``json`` format. AltWalker is mainly tested using ``json`` models and all the example from the
   documentation use the ``json`` format.
 
-  If you have models in the ``graphl`` format we recomand converting them using the `convert <http://graphwalker.github.io/cli-convert/#version-4>`_ command form GraphWalker.
+  If you have models in the ``graphl`` format we recommend converting them using the `convert <http://graphwalker.github.io/cli-convert/#version-4>`_ command form GraphWalker.
 
   **Example**:
 
@@ -273,16 +256,17 @@ A single model and his data can be stored in one single `.graphml` file. The nam
 
 ```
 
-__Further Reading / Useful Links__:
-  * [GraphML](https://en.wikipedia.org/wiki/GraphML) file format.
-  * For documentation about `.graphml` model format check [GraphWalker's documentation](http://graphwalker.github.io/yed_model_syntax/).
-  * For creating or modifying graphml models you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html).
+**Further Reading / Useful Links**:
+
+- [GraphML](https://en.wikipedia.org/wiki/GraphML) file format.
+- For documentation about `.graphml` model format check [GraphWalker's documentation](http://graphwalker.github.io/yed_model_syntax/).
+- For creating or modifying graphml models you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html).
 
 ## Tooling
 
-For __json__ you can check [AltWalker's Model-Editor](https://altom.gitlab.io/altwalker/model-editor), the editor allows you to visualize the model while you are working on it.
+For **json** you can check [AltWalker's Model-Editor](https://altom.gitlab.io/altwalker/model-editor), the editor allows you to visualize the model while you are working on it.
 
-For __GraphML__ you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html) and GraphWalker has a tutorial on how to [design models](http://graphwalker.github.io/yed_model_syntax/) using it.
+For **GraphML** you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html) and GraphWalker has a tutorial on how to [design models](http://graphwalker.github.io/yed_model_syntax/) using it.
 
 You can also check for issues in the model(s) using the `check` command:
 

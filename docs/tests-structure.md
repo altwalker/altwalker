@@ -10,8 +10,8 @@
 
 ### Structure
 
-AltWalker requires a python package (usually name ``tests``) and inside a
-python module named ``test.py``:
+AltWalker requires a python package (usually named `tests`) and inside a
+python module named `test.py`:
 
 ```
 project-root/
@@ -51,10 +51,10 @@ class ModelB:
 AltWalker implements four test fixtures inspired by JUnit and the python unittest
 module:
 
-* `setUpRun`
-* `tearDownRun`
-* `setUpModel`
-* `tearDownModel`
+- `setUpRun`
+- `tearDownRun`
+- `setUpModel`
+- `tearDownModel`
 
 All test fixtures are optional.
 
@@ -85,7 +85,7 @@ class ModelA:
 
 ### Graph Data
 
-If you are using the `online` command your test code has direct access to the  graphs
+If you are using the `online` command your test code has direct access to the graphs
 execution context provided by GraphWalker.
 
 In order to read/update the graph data from you tests, you need to define the function with
@@ -112,7 +112,6 @@ def element_method(self, data):
 
 To run C# tests, AltWalker requires a c# console application that depends on [`altwalker.executor`](https://gitlab.com/altom/altwalker/dotnet-executor) NuGet and runs the `ExecutorService`.
 
-
 ```c#
 /// The implementation of the model named ModelA.
 public class ModelA{
@@ -131,14 +130,14 @@ public class Program {
         }
     }
 ```
+
 `altwalker.executor` targets .netstandard 2.0
 
 ### Fixtures
 
-Define `setUpModel`  and `tearDownModel` inside the model class. This methods will run before and after all steps from model have run.
+Define `setUpModel` and `tearDownModel` inside the model class. This methods will run before and after all steps from model have run.
 
 Define `setUpRun` and `tearDownRun` inside a Setup class, and register it inside the executor service: `ExecutorService.RegisterSetup<T>();`
-
 
 ```c#
 /// The implementation of the model named ModelA.
@@ -170,7 +169,7 @@ public class Program {
 
 ### Graph Data
 
-If you are using the `online` command your test code has direct access to the  graphs
+If you are using the `online` command your test code has direct access to the graphs
 execution context provided by GraphWalker.
 
 In order to read/update the graph data from you tests, you need to define the function with

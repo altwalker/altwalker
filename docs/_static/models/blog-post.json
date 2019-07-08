@@ -2,36 +2,6 @@
     "name": "Simple Blog Example",
     "models": [
         {
-            "name": "Navigation",
-            "startElementId": "v_0",
-            "generator": "random(vertex_coverage(100))",
-            "vertices": [
-                {
-                    "id": "v_0",
-                    "name": "home_page",
-                    "sharedState": "blog"
-                },
-                {
-                    "id": "v_1",
-                    "name": "blog_page"
-                }
-            ],
-            "edges": [
-                {
-                    "id": "e_0",
-                    "name": "select_blog",
-                    "sourceVertexId": "v_0",
-                    "targetVertexId": "v_1"
-                },
-                {
-                    "id": "e_1",
-                    "name": "back_to_home_page",
-                    "sourceVertexId": "v_1",
-                    "targetVertexId": "v_0"
-                }
-            ]
-        },
-        {
             "name": "PostBlog",
             "generator": "random(vertex_coverage(100))",
             "vertices": [
