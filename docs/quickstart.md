@@ -21,7 +21,7 @@ The `init` command creates tests directory and initialize a git repository. The 
 contains a sample model (`test-project/models/default.json`) and a python package containing
 the template code for the model (`test-poject/tests`).
 
-If you don't want `test-project` to be git repository run the command with `--no-git`.
+If you don't want `test-project` to be a git repository run the command with `--no-git`.
 
 To run the tests for the `default.json` model, run the following commands:
 
@@ -67,7 +67,7 @@ $ altwalker init -l c# test-project
 ```
 
 The `init` command creates `test-project` directory and initialize a git repository. The directory
-contains a C# project referring `AltWalker.Executor` from nuget, a class for each model,`Program.cs`,
+contains a C# project referring `AltWalker.Executor` from nuget, a class for each model, `Program.cs`,
 and a simple model file `models/default.json` to get you started.
 
 ```
@@ -80,7 +80,7 @@ test-project/
         tests.csproj
 ```
 
-The `Program.cs` containing the entry point of the tests and starts the `ExecutorService`.
+The `Program.cs` contains the entry point of the tests and starts the `ExecutorService`.
 
 ```c#
 public class Program {
@@ -141,9 +141,9 @@ $ altwalker generate -l c# path/for/test-project/ -m path/to/models.json
 The `generate` command creates `path/for/test-project` directory containing `test-project.csproj` file,
 `Program.cs` and the code template for the model(s).
 
-## Custom Exector
+## Custom Executor
 
-If you are using your custom executor with the Http Executor, you can use the `init` command to generate an
+If you are using your custom executor with the Http Executor, you can use the `init` command to generate a
 project directory.
 
 ### Start from scratch
