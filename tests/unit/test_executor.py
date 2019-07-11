@@ -187,6 +187,15 @@ class TestPythonExecutor(unittest.TestCase):
         self.module = mock.MagicMock()
         self.executor = PythonExecutor(self.module)
 
+    def test_load(self):
+        path = "tests/common/python"
+
+        self.executor._module = None
+        self.executor.load(path)
+
+        self.assertIsNotNone(self.executor._module)
+        self.assertTrue(hasattr(self.executor._module, "Simple"))
+
     def test_get_instance(self):
         self.module.object.return_value = True
         result = self.executor._get_instance("object")

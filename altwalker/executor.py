@@ -347,7 +347,7 @@ class PythonExecutor(Executor):
         self.reset()
 
         path, package = os.path.split(path)
-        self.module = load(path, package, "test")
+        self._module = load(path, package, "test")
 
     def reset(self):
         self._instances = {}
