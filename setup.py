@@ -51,6 +51,7 @@ setup(
 
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 
+        "Programming Language :: C#",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Programming Language :: Python :: 3 :: Only",
@@ -59,6 +60,8 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+
+        "Operating System :: OS Independent",
 
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries"
