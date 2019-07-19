@@ -240,7 +240,7 @@ class TestGenerate(unittest.TestCase):
             result = self.runner.invoke(
                 generate, ["output_dir", "-m", "models.json"])
 
-            generate_test.assert_called_once_with("output_dir", ("models.json", ), "python")
+            generate_test.assert_called_once_with("output_dir", ("models.json", ), language="python")
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_error(self, generate_tests):
@@ -259,7 +259,7 @@ class TestGenerate(unittest.TestCase):
             result = self.runner.invoke(
                 generate, ["output_dir", "-m", "models.json", "-l", "c#"])
 
-            generate_test.assert_called_once_with("output_dir", ("models.json", ), "c#")
+            generate_test.assert_called_once_with("output_dir", ("models.json", ), language="c#")
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
 
@@ -275,12 +275,12 @@ class TestInit(unittest.TestCase):
     def test_init(self, init_project):
         with run_isolation(self.runner, self.files):
             self.runner.invoke(init, ["."])
-            init_project.assert_called_once_with(".", None, (), True)
+            init_project.assert_called_once_with(".", model_paths=(), language=None, git=True)
 
     def test_model(self, init_project):
         with run_isolation(self.runner, self.files):
             self.runner.invoke(init, ["-m", "models.json", "."])
-            init_project.assert_called_once_with(".", None, ("models.json", ), True)
+            init_project.assert_called_once_with(".", model_paths=("models.json", ), language=None, git=True)
 
     def test_error(self, init_project):
         message = "Error messaage"

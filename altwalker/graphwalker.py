@@ -200,7 +200,7 @@ class GraphWalkerService:
                                   verbose=True, unvisited=unvisited, blocked=blocked)
 
         logger.debug("Starting GraphWalker Service on port: {}".format(self.port))
-        logger.debug("Command: {}".format(command))
+        logger.debug("Command: {}".format(" ".join(command)))
 
         self._process = subprocess.Popen(
             command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
@@ -338,7 +338,7 @@ class GraphWalkerClient:
         """Make a PUT request at ``/setData``."""
 
         if isinstance(value, str):
-            normalize = "\"" + value + "\""
+            normalize = "\"{}\"".format(value)
         else:
             normalize = str(value)
 

@@ -99,7 +99,7 @@ def verify(test_package, models, url, **options):
 def init(dest_dir, models, git, language):
     """Initialize a new project."""
 
-    init_project(dest_dir, language, models, git)
+    init_project(dest_dir, model_paths=models, language=language, git=git)
 
 
 @cli.command()
@@ -112,7 +112,7 @@ def generate(dest_dir, models, language):
     if language is None:
         language = "python"
 
-    generate_tests(dest_dir, models, language)
+    generate_tests(dest_dir, models, language=language)
 
 
 @cli.command()

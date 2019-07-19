@@ -70,7 +70,7 @@ class TestGenerateEmptyTests(GenerateTestsSetup):
     def test_generate(self):
         tests_directory = "tests"
 
-        generate_empty_tests(self.project_name, tests_dir=tests_directory)
+        generate_empty_tests(self.project_name, package_name=tests_directory)
 
         tests_path = os.path.join(self.project_name, tests_directory)
         self.assertTrue(os.path.exists(tests_path))
@@ -120,9 +120,18 @@ class TestGenerateCSharpTests(GenerateTestsSetup):
 @mock.patch("altwalker.init.get_methods", return_value=[])
 class TestGenerateTests(GenerateTestsSetup):
 
+    def test_dir_already_exists(self, get_methods):
+        test_package_path = "{}/{}".format(self.project_name, "tests")
+        os.makedirs(test_package_path)
+
+        with self.assertRaisesRegex(FileExistsError, "The .* directory already exists."):
+            generate_tests(self.project_name, ["model.json"], language="python")
+
+        self.assertTrue(os.path.exists(test_package_path))
+
     def test_unsupported_language(self, get_methods):
         with self.assertRaisesRegex(ValueError, "'unsupported-language' is not a supported language."):
-            generate_tests(self.project_name, ["model.json"], "unsupported-language")
+            generate_tests(self.project_name, ["model.json"], language="unsupported-language")
 
     @mock.patch("altwalker.init.generate_empty_tests")
     def test_cleanup(self, generate_empty, get_methods):
@@ -134,7 +143,7 @@ class TestGenerateTests(GenerateTestsSetup):
         with self.assertRaisesRegex(Exception, message):
             generate_tests(self.project_name, ["model.json"], language=None)
 
-        self.assertFalse(os.path.isdir(self.project_name))
+        self.assertFalse(os.path.isdir(os.path.join(self.project_name, "tests")))
 
     @mock.patch("altwalker.init.generate_empty_tests")
     def test_error(self, generate_empty, get_methods):
@@ -149,22 +158,22 @@ class TestGenerateTests(GenerateTestsSetup):
     @mock.patch("altwalker.init.generate_empty_tests")
     def test_no_language(self, generate_empty, get_methods):
         generate_tests(self.project_name, ["model.json"], language=None)
-        generate_empty.assert_called_once_with(self.project_name)
+        generate_empty.assert_called_once_with(self.project_name, [], package_name="tests")
 
     @mock.patch("altwalker.init.generate_python_tests")
     def test_python(self, generate_python, get_methods):
         generate_tests(self.project_name, ["model.json"], language="python")
-        generate_python.assert_called_once_with(self.project_name, [])
+        generate_python.assert_called_once_with(self.project_name, [], package_name="tests")
 
     @mock.patch("altwalker.init.generate_csharp_tests")
     def test_csharp(self, generate_csharp, get_methods):
         generate_tests(self.project_name, ["model.json"], language="c#")
-        generate_csharp.assert_called_once_with(self.project_name, [])
+        generate_csharp.assert_called_once_with(self.project_name, [], package_name="tests")
 
     @mock.patch("altwalker.init.generate_csharp_tests")
     def test_dotnet(self, generate_csharp, get_methods):
         generate_tests(self.project_name, ["model.json"], language="dotnet")
-        generate_csharp.assert_called_once_with(self.project_name, [])
+        generate_csharp.assert_called_once_with(self.project_name, [], package_name="tests")
 
 
 @mock.patch("altwalker.init._git_init")
@@ -191,28 +200,28 @@ class TestInitProject(unittest.TestCase):
         os.makedirs(self.output_dir)
 
         with self.assertRaisesRegex(FileExistsError, "The {} directory already exists.".format(self.output_dir)):
-            init_project(self.output_dir, None)
+            init_project(self.output_dir)
 
     def test_create_dir(self, generate_tests_mock, git_init_mock):
-        init_project(self.output_dir, None)
+        init_project(self.output_dir)
         self.assertEqual(True, os.path.isdir(self.output_dir))
 
     @mock.patch("altwalker.init._copy_models")
     @mock.patch("altwalker.init.check_models")
     def test_check_models(self, check_mock, copy_mock, generate_tests_mock, git_init_mock):
-        init_project(self.output_dir, "python", ["first.json", "second.json"])
+        init_project(self.output_dir, model_paths=["first.json", "second.json"], language="python")
         check_mock.assert_called_once_with([("first.json", "random(never)"), ("second.json", "random(never)")])
 
     @mock.patch("altwalker.init._copy_models")
     @mock.patch("altwalker.init.check_models")
     def test_copy_models(self, check_mock, copy_mock, generate_tests_mock, git_init_mock):
-        init_project(self.output_dir, "python", ["first.json", "second.json"])
+        init_project(self.output_dir, model_paths=["first.json", "second.json"], language="python")
         copy_mock.assert_called_once_with(self.output_dir + "/models", ["first.json", "second.json"])
 
     def test_git_init(self, generate_tests_mock, git_init_mock):
-        init_project(self.output_dir, None)
+        init_project(self.output_dir)
         git_init_mock.assert_called_once_with(self.output_dir)
 
     def test_no_git_init(self, generate_tests_mock, git_init_mock):
-        init_project(self.output_dir, "python", None, git=False)
+        init_project(self.output_dir, git=False)
         git_init_mock.assert_not_called()

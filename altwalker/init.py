@@ -4,8 +4,8 @@ import shutil
 
 from git import Repo
 
-from altwalker.model import get_methods, check_models
 from altwalker.__version__ import VERSION
+from altwalker.model import get_methods, check_models
 
 
 MINOR_VERSION = ".".join(VERSION.split(".")[:2]) + ".*"
@@ -94,10 +94,10 @@ def _git_init(path):
     repo.index.commit("Initial commit")
 
 
-def generate_empty_tests(output_dir, tests_dir="tests"):
+def generate_empty_tests(output_dir, methods=None, package_name="tests"):
     """Generate an empty tests directory."""
 
-    os.makedirs(os.path.join(output_dir, tests_dir))
+    os.makedirs(os.path.join(output_dir, package_name))
 
 
 def generate_python_tests(output_dir, methods, package_name="tests"):
@@ -158,27 +158,42 @@ def generate_csharp_tests(output_dir, methods, package_name="tests"):
         program.write("}\n")
 
 
-def generate_tests(output_dir, model_paths, language=None):
-    """Generate tests for an language."""
+def generate_tests(output_dir, model_paths, package_name="tests", language=None):
+    """Generate tests for an language.
+
+    Args:
+        output_dir: The path to the project root.
+        model_paths: A sequence of path to model files.
+        package_name: The name of the test package (e.g. tests).
+        language: The language of the project (e.g. python).
+
+    Raises:
+        FileExistsError: If the path ``output_dir/package_name`` already exists.
+    """
+
+    package_path = os.path.join(output_dir, package_name)
+
+    if os.path.exists(package_path):
+        raise FileExistsError("The {} directory already exists.".format(package_path))
 
     methods = get_methods(model_paths)
 
     try:
         if language == "python":
-            return generate_python_tests(output_dir, methods)
+            return generate_python_tests(output_dir, methods, package_name=package_name)
         if language == "c#" or language == "dotnet":
-            return generate_csharp_tests(output_dir, methods)
+            return generate_csharp_tests(output_dir, methods, package_name=package_name)
         if not language:
-            return generate_empty_tests(output_dir)
+            return generate_empty_tests(output_dir, methods, package_name=package_name)
     except Exception:
-        if os.path.isdir(output_dir):
-            shutil.rmtree(output_dir)
+        if os.path.isdir(package_path):
+            shutil.rmtree(package_path)
         raise
 
     raise ValueError("'{}' is not a supported language.".format(language))
 
 
-def init_project(output_dir, language, model_paths=None, git=True):
+def init_project(output_dir, model_paths=None, language=None, git=True):
     """Initiates a new project.
 
     Args:
@@ -206,7 +221,7 @@ def init_project(output_dir, language, model_paths=None, git=True):
             _create_default_model(os.path.join(output_dir, "models"))
             model_paths = [os.path.join(output_dir, "models", "default.json")]
 
-        generate_tests(output_dir, model_paths, language)
+        generate_tests(output_dir, model_paths, language=language)
 
         if git:
             _git_init(output_dir)

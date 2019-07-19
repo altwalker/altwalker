@@ -463,7 +463,7 @@ class DotnetExecutorService:
         command = self._create_command(path, server_url)
 
         logger.debug("Starting .NET Executor Service from {} on `{}`".format(path,  server_url))
-        logger.debug("Command: {}".format(command))
+        logger.debug("Command: {}".format(" ".join(command)))
 
         self._process = subprocess.Popen(
             command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
