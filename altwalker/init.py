@@ -1,10 +1,10 @@
 import os
 import re
 import shutil
-
-from git import Repo
+import warnings
 
 from altwalker.__version__ import VERSION
+from altwalker._utils import has_git
 from altwalker.model import get_methods, check_models
 
 
@@ -88,10 +88,15 @@ def _create_default_model(output_dir):
 def _git_init(path):
     """Create a local repository and commit all files."""
 
-    repo = Repo.init(path)
+    if has_git():
+        from git import Repo
 
-    repo.git.add("--all")
-    repo.index.commit("Initial commit")
+        repo = Repo.init(path)
+
+        repo.git.add("--all")
+        repo.index.commit("Initial commit")
+    else:
+        warnings.warn("Git is not installed.")
 
 
 def generate_empty_tests(output_dir, methods=None, package_name="tests"):

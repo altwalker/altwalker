@@ -17,6 +17,7 @@ And in the Path from User Variables:
 
 * `Java 8`
 * `GraphWalker CLI`
+* `git` (Optional)
 * `.NET Core` (Optional)
 
 ### GraphWalker

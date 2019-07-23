@@ -1,10 +1,10 @@
-import shutil
 import os
-
-import unittest.mock as mock
+import shutil
+import warnings
 import unittest
+import unittest.mock as mock
 
-from altwalker.init import _normalize_namespace, _copy_models, _create_default_model, \
+from altwalker.init import _normalize_namespace, _copy_models, _create_default_model, _git_init, \
     generate_empty_tests, generate_python_tests, generate_csharp_tests, generate_tests, \
     init_project
 
@@ -50,6 +50,19 @@ class TestCreateDefaultModel(unittest.TestCase):
     def test_create_default(self):
         _create_default_model(self.output_dir)
         self.assertTrue(os.path.isfile(self.output_dir + "/default.json"))
+
+
+class TestGitInit(unittest.TestCase):
+
+    @mock.patch("altwalker.init.has_git")
+    def test_warning(self, has_git):
+        has_git.return_value = False
+
+        with warnings.catch_warnings(record=True) as w:
+            _git_init("path/to/project")
+
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, UserWarning))
 
 
 class GenerateTestsSetup(unittest.TestCase):

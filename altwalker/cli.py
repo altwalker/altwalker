@@ -1,8 +1,10 @@
 import json
+import warnings
 
 import click
 
 import altwalker.graphwalker as graphwalker
+from altwalker._utils import click_formatwarning
 from altwalker.exceptions import FailedTestsError, handle_errors
 from altwalker.model import check_models, verify_code
 from altwalker.planner import create_planner
@@ -10,6 +12,10 @@ from altwalker.executor import create_executor
 from altwalker.walker import create_walker
 from altwalker.reporter import Reporting, ClickReporter, PathReporter
 from altwalker.init import init_project, generate_tests
+
+
+# replace the default warning formating
+warnings.formatwarning = click_formatwarning
 
 
 CONTEXT_SETTINGS = dict(help_option_names=["--help", "-h"])
