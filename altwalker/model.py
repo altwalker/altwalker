@@ -1,12 +1,30 @@
 """A collection of util functions for validating model(s) and code."""
 
-import re
-import json
 import os
+import json
+import keyword
 
 import altwalker.graphwalker as graphwalker
 from altwalker.executor import create_executor
 from altwalker.exceptions import ValidationException
+
+
+PYTHON_KEYWORDS = {element.lower() for element in keyword.kwlist}
+
+CSHARP_KEYWORDS = {
+    "abstract", "add", "alias", "as", "ascending", "async", "await", "base",
+    "bool", "break", "by", "byte", "case", "catch", "char", "checked", "class",
+    "const", "continue", "decimal", "default", "delegate", "descending", "do",
+    "double", "dynamic", "else", "enum", "equals", "event", "explicit", "extrem",
+    "false", "finally", "fixed", "float", "for", "foreach", "from", "get", "global",
+    "goto", "group", "if", "implicit", "in", "int", "interface", "internal", "into",
+    "is", "join", "let", "lock", "long", "nameof", "namespace", "new", "null", "object",
+    "on", "operator", "orderby", "out", "override", "params", "partial", "private",
+    "protected", "public", "readonly", "ref", "remove", "return", "sbyte", "sealed",
+    "select", "set", "short", "static", "struct", "switch", "this", "throw", "true",
+    "try", "typeof", "uint", "ulong", "unchecked", "value", "var", "virtual", "void",
+    "volatile", "when", "where", "while", "yield"
+}
 
 
 def _read_json(path):
@@ -21,16 +39,17 @@ def _read_json(path):
     return data
 
 
-def validate_element(element):
-    """Validate element name as a python identifier."""
+def _is_keyword(name):
+    """Check if the name is a keyword."""
 
-    pattern = re.compile(r"^\D\w+$")
-    match = re.match(pattern, element)
+    normalized = name.lower()
+    return normalized in PYTHON_KEYWORDS or normalized in CSHARP_KEYWORDS
 
-    if match:
-        return True
 
-    return False
+def validate_element(name):
+    """Validate name as a python identifier."""
+
+    return not _is_keyword(name) and name.isidentifier()
 
 
 def validate_model(model_json):

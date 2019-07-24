@@ -2,9 +2,20 @@ import os
 import unittest
 import unittest.mock as mock
 
-from altwalker.model import ValidationException, _read_json, _is_element_blocked, \
-    _graphml_methods, _json_methods, validate_code, validate_model, validate_models, validate_element, \
-    get_models, get_methods, check_models, verify_code
+from altwalker.model import PYTHON_KEYWORDS, CSHARP_KEYWORDS, ValidationException, _read_json, _is_keyword, \
+    _is_element_blocked, _graphml_methods, _json_methods, validate_code, validate_model, validate_models, \
+    validate_element, get_models, get_methods, check_models, verify_code
+
+
+class TestIsKeyword(unittest.TestCase):
+
+    def test_keyword(self):
+        for keyword in PYTHON_KEYWORDS | CSHARP_KEYWORDS:
+            self.assertTrue(_is_keyword(keyword))
+
+    def test_not_kewords(self):
+        for not_keyword in ["not_a_keyword", "definitely_not_a_keyword"]:
+            self.assertFalse(_is_keyword(not_keyword))
 
 
 class TestValidateElement(unittest.TestCase):
@@ -25,10 +36,14 @@ class TestValidateElement(unittest.TestCase):
 
     def test_validation_for_invalid_characters(self):
         # Should return false for unaccepted characters
+
         characters = "!@#$%^&*+-/=<>~`,./;:'\"][}{)(|"
 
         for character in characters:
             self.assertFalse(validate_element("method_" + character))
+
+        for character in characters:
+            self.assertFalse(validate_element(character + "_method"))
 
 
 class TestReadJson(unittest.TestCase):
