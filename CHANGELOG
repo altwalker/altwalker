@@ -7,7 +7,7 @@ Version 0.2.3
 (bugfix release)
 
 - Fix issue where the ``load`` method ``PythonExecutor`` it's not working. (`#66`_)
-- Fix issue where ``generate`` commands deletes the content of the folder. (`#67`_)
+- Fix issue where ``generate`` commands deletes the content of the working directory. (`#67`_)
 - Make git an optional dependency. (`#70`_)
 - Don't let elements (e.g verticies, edges, ...) names to use python or C# keywords. (`#72`_)
 
