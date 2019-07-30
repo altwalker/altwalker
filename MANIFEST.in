@@ -1,2 +1,2 @@
 include README.md LICENSE requirements.txt requirements-dev.txt
-recursive-include tests/common *.json *.py *.cs *.csprojs
+recursive-include tests/common *.json *.py *.cs *.csproj
