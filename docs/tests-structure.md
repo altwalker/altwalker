@@ -103,7 +103,7 @@ def element_method(self, data):
     value = data["key"]
 
     # to set a new value for a key
-    data.set("key", "new_value")
+    data["key"] = "new_value"
 ```
 
 ## C#/.NET
