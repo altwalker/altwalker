@@ -104,7 +104,6 @@ def element_method(self, data):
     value = data["key"]
 
     # to set a new value for a key
-<<<<<<< HEAD
     data["strVariable"] = "new_value"
     data["intVariable"] = 1
     data["boolVariable"] = True
@@ -128,9 +127,6 @@ def element_method(self, data):
     .. code-block:: python
 
         value = data["boolean"] == "true"
-=======
-    data["key"] = "new_value"
->>>>>>> master
 ```
 
 ## C#/.NET
