@@ -68,6 +68,18 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.client.set_data("key", 1)
         self.client._put.assert_called_once_with("/setData/key=1")
 
+    def test_set_data_true(self):
+        self.client._put = mock.MagicMock()
+
+        self.client.set_data("key", True)
+        self.client._put.assert_called_once_with("/setData/key=true")
+
+    def test_set_data_false(self):
+        self.client._put = mock.MagicMock()
+
+        self.client.set_data("key", False)
+        self.client._put.assert_called_once_with("/setData/key=false")
+
     def test_set_data_str(self):
         self.client._put = mock.MagicMock()
 

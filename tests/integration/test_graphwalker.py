@@ -92,12 +92,20 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.assertTrue(isinstance(data, dict))
 
     def test_set_data_to_true(self):
-        self.client.set_data("validLogin", "true")
+        self.client.set_data("validLogin", True)
         self.assertEqual(self.client.get_data()["validLogin"], "true")
 
     def test_set_data_to_false(self):
-        self.client.set_data("validLogin", "false")
+        self.client.set_data("validLogin", False)
         self.assertEqual(self.client.get_data()["validLogin"], "false")
+
+    def test_set_data_to_str(self):
+        self.client.set_data("message", "value")
+        self.assertEqual(self.client.get_data()["message"], "value")
+
+    def test_set_data_to_int(self):
+        self.client.set_data("count", 1)
+        self.assertEqual(self.client.get_data()["count"], "1")
 
     def test_restart(self):
         while self.client.has_next():

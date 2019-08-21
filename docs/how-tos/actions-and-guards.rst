@@ -34,7 +34,7 @@ saved in the global context (e.g. ``global.count``, ``global.isLoggedIn``).
 Actions
 ~~~~~~~
 
-An **action** is a piece of Java code executed by GraphWalker. You can place
+An **action** is a piece of JavaScript code executed by GraphWalker. You can place
 action on the model level which will be executed before any step from that model or
 on an edge which will be executed when an edge is reached.
 

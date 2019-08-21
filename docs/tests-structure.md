@@ -99,11 +99,34 @@ def element_method(self, data):
     Args:
         data: AltWalker will pass a dict object.
     """
+
     # to get the value for a single key
     value = data["key"]
 
     # to set a new value for a key
-    data.set("key", "new_value")
+    data["strVariable"] = "new_value"
+    data["intVariable"] = 1
+    data["boolVariable"] = True
+```
+
+```eval_rst
+.. warning::
+
+    Note that you can set key to ``str``, ``int`` or ``bool``, but GraphWalker will always return ``str``.
+
+    So you have to convert your values back to ``int`` or ``bool``.
+
+    * for ``int``:
+
+    .. code-block:: python
+
+        value = int(data["integer"])
+
+    * for ``bool``:
+
+    .. code-block:: python
+
+        value = data["boolean"] == "true"
 ```
 
 ## C#/.NET
