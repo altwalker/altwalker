@@ -13,6 +13,9 @@ list of :doc:`how-tos` and a list of runnable :doc:`examples`. The rest
 of the documentation describes how to use each feature of AltWalker in
 more details.
 
+Join our Gitter chat room `here <https://gitter.im/altwalker/community>`_ to chat
+with us or with other members of the community.
+
 Documentation
 =============
 
@@ -51,6 +54,12 @@ Useful Links
     :caption: Executors:
 
     C#/.NET <https://www.nuget.org/packages/AltWalker.Executor/>
+
+.. toctree::
+    :caption: Community:
+
+    Gitter <https://gitter.im/altwalker/community>
+
 
 Indices and Tables
 ==================

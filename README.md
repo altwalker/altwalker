@@ -125,35 +125,19 @@ $ altwalker init test-project -l python
 $ cd test-project
 $ altwalker online tests -m models/default.json "random(vertex_coverage(100))"
 Running:
-[2019-02-28 11:49:21.803956] ModelName.vertex_A Running
-[2019-02-28 11:49:21.804709] ModelName.vertex_A Status: PASSED
-[2019-02-28 11:49:21.821219] ModelName.edge_A Running
-[2019-02-28 11:49:21.821443] ModelName.edge_A Status: PASSED
-[2019-02-28 11:49:21.836176] ModelName.vertex_B Running
-[2019-02-28 11:49:21.836449] ModelName.vertex_B Status: PASSED
+[2019-08-06 16:28:44.030077] ModelName.vertex_A Running
+[2019-08-06 16:28:44.030940] ModelName.vertex_A Status: PASSED
+
+[2019-08-06 16:28:44.048492] ModelName.edge_A Running
+[2019-08-06 16:28:44.048729] ModelName.edge_A Status: PASSED
+
+[2019-08-06 16:28:44.064495] ModelName.vertex_B Running
+[2019-08-06 16:28:44.064746] ModelName.vertex_B Status: PASSED
+
 Statistics:
 {
     "edgeCoverage": 100,
     "edgesNotVisited": [],
-    "failedFixtures": [],
-    "failedStep": {},
-    "steps": [
-        {
-            "id": "v0",
-            "modelName": "ModelName",
-            "name": "vertex_A"
-        },
-        {
-            "id": "e0",
-            "modelName": "ModelName",
-            "name": "edge_A"
-        },
-        {
-            "id": "v1",
-            "modelName": "ModelName",
-            "name": "vertex_B"
-        }
-    ],
     "totalCompletedNumberOfModels": 1,
     "totalFailedNumberOfModels": 0,
     "totalIncompleteNumberOfModels": 0,
@@ -168,6 +152,7 @@ Statistics:
     "vertexCoverage": 100,
     "verticesNotVisited": []
 }
+
 Status: True
 ```
 
