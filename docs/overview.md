@@ -1,72 +1,89 @@
 # Overview
 
-AltWalker is an open source, Model-Based testing framework for automating your
-test execution. You design your tests as a directional graph and AltWalker
-executes them. It relies on GraphWalker to generate paths through your
-tests graph.
+__AltWalker__ is an open source, Model-Based Testing framework for automating your test execution. You design your tests as a directed graph and AltWalker executes them. It relies on [GraphWalker](http://graphwalker.github.io/) to generate paths through your graph.
 
 ## Model-Based Testing
 
 [Model-Based Testing](https://en.wikipedia.org/wiki/Model-based_testing) is a testing
-technique which offers a way of generating tests cases based on models, models
-that describe the behaviour (functionality) of the system under test.
+technique which offers a way of generating test cases based on models that describe the behaviour
+(functionality) of the system under test.
 
-The role of the model is to describe the system under tests. The goal when designing
-models is to represent the part of the system you want to test, usually you will
-design one model for each functionality of your system.
+The goal when designing models is to represent the part of the system under test, usually
+by one model for each functionality of your system.
+
+With the help of graph theory we can dynamically generate multiple test scripts. A test script is a path passing through the model from a starting point till
+a condition is met.
+
+__Why use Model-Based Testing__:
+
+* the abstraction layer added by the model gives your tests a better structure
+* the model can be updated to reflect the requirements changes making the tests easy to maintain
+* dynamically generates multiple test scripts based on different conditions (like coverage or length)
+* allows for a large number of tests to be created which results in a larger part of the system under test to be covered.
 
 ## AltWalker
 
+AltWalker is a test execution tool, which  aims to make it easy to write and run your model-based tests. AltWalker uses GraphWalker to generate a path through the models.
+
+For the test structure it uses an Object-Oriented approach inspired by python's `unittest` module. Every model is mapped to a class with the same name and each vertex and edge from the model is mapped to a method inside the class.
+
+AltWalker also borrows the concept of test fixture from unit tests, and implements the following fixtures:
+`setUpRun`, `tearDownRun`, `setUpModel` and `tearDownModel`.
+
+Now it supports running tests written in .NET/C# and Python3.
+
+### AltWalker Components
+
 AltWalker has the following components:
 
-- **Model**: a directed graph, supplied by the user as a json or graphml file.
-  A graph is composed from a list of vertices and a list of edges.
+* __Model__: a directed graph, supplied by the user as a json or graphml file.
+    A graph is composed from a list of vertices and a list of edges.
 
-- **Generator** and **Stop Condition**: used to specify how to generate a
-  path and to decide when a path is complete.
+* __Generator__ and __Stop Condition__: used to specify how to generate a
+    path and to decide when a path is complete.
 
-- **Test Code**: The implementation of the model(s) as code. Each vertex and edge
-  is mapped to a method from the test code.
+* __Test Code__: the implementation of the model(s) as code. Each model is mapped to a
+    class and each vertex and edge is mapped to a method.
 
-- **Planner**: Which uses the _model(s)_ and a pair of _generator_ and _stop condition_
-  to provide a path (a sequence of steps) through the model(s).
+* __Planner__: uses the _model(s)_ and a pair of _generator_ and _stop condition_
+    to provide a path (a sequence of steps) through the model(s).
 
-  Currently AltWalker provides two planner:
+    Currently AltWalker provides two planners:
 
-  - Online Planner
-  - Offline Planner
+    * Online Planner
+    * Offline Planner
 
-- **Reporter**: To report the results of the tests, the reporters are all called for
-  each event (e.g. `step_start`, `step_end`, ...).
+* __Reporter__: reports the output of the tests, the reporter is called on
+    each event (e.g. `step_start`, `step_end`, ...).
 
-- **Executor**: For each step in the plan looks up and calls the named method
-  from the _test code_. In addition to the step methods, it also calls
-  fixture methods if present (e.g. `setUpModel`, `tearDownModel` ...).
+* __Executor__: for each step in the plan it looks up and calls the named method
+    from the _test code_. In addition to the step methods, it also calls
+    fixture methods if present (e.g. `setUpModel`, `tearDownModel` ...).
 
-  Currently AltWalker provides two executors:
+    Currently AltWalker provides three executors:
 
-  - Python Executor
-  - .NET Executor
+    * Python Executor
+    * .NET Executor
 
-  And an **Http Executor** that allows you to hook up your own executor via HTTP. You can read
-  more about the Http Executor on the [How to: Write your own executor](./how-tos/custom-executor)
-  page.
+    And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
+    more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html)
+    page.
 
-- **Walker**: The test runner. Coordinates the execution of a test asking a `Planner`
-  for the next step, executing the step using an `Executor` and reporting the progress
-  using a `Reporter`.
+* __Walker__: the test runner. Coordinates the execution of a test asking the `Planner`
+    for the next step, executing the step using the `Executor` and reporting the progress
+    using the `Reporter`.
 
-There are two ways to run your test:
+There are two way to run your tests:
 
-- **Online Mode** (with the Online Planner): Generate one step and then execute
-  the step, until the path is complete.
+* __Online Mode__ (using the Online Planner): Generate one step and then execute
+    the step, until the path is complete.
 
-- **Offline Mode** (with the Offline Planner): Run a path from a sequence of steps.
-  Usually the path is generated using the `offline` command.
+* __Offline Mode__ (using the Offline Planner): Run a path from a sequence of steps.
+    Usually the path is generated using the `offline` command.
 
 ## GraphWalker
 
-**GraphWalker**: is an Model-Based testing tool. It reads models in the
+**GraphWalker** is an Model-Based testing tool. It reads models in the
 shape of directed graphs, and generate (test) paths from these graphs.
 
 AltWalker uses [GraphWalker](http://graphwalker.github.io) as a Planner (it uses
