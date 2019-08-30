@@ -109,8 +109,7 @@ class TestRunCommand(unittest.TestCase):
         run_tests.assert_called_once_with(
             "path/to/tests", "executor_type", "http://localhost:5000",
             models=["path/to/model"], port=9999, steps=[], start_element=None,
-            verbose=True, unvisited=True, blocked=True,
-            report_path=False)
+            verbose=True, unvisited=True, blocked=True)
 
 
 @mock.patch("altwalker.cli.check_models")
@@ -319,6 +318,7 @@ class TestOnline(unittest.TestCase):
                 blocked=False,
                 unvisited=False,
                 verbose=False,
+                report_file=None,
                 report_path=False)
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
@@ -407,6 +407,7 @@ class TestOnline(unittest.TestCase):
             steps=None,
             unvisited=False,
             verbose=False,
+            report_file=None,
             report_path=False)
 
     def test_language(self, run_mock):
@@ -422,6 +423,7 @@ class TestOnline(unittest.TestCase):
             start_element=None,
             unvisited=False,
             verbose=False,
+            report_file=None,
             report_path=False)
 
 
@@ -559,6 +561,7 @@ class TestWalk(unittest.TestCase):
                 verbose=False,
                 unvisited=False,
                 blocked=False,
+                report_file=None,
                 report_path=False)
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
