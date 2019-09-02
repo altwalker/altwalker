@@ -276,8 +276,8 @@ class FileReporter(_Formater):
             pass
 
     def _log(self, string):
-        with open(self._path, "a") as file:
-            file.write(string + "\n")
+        with open(self._path, "a") as fp:
+            fp.write(string + "\n")
 
 
 class ClickReporter(_Formater):
@@ -353,3 +353,23 @@ class PathReporter(Reporter):
         """
 
         return self._path
+
+
+def create_reporters(report_file=None, report_path=False):
+    """Create a reporter collection.
+
+    Args:
+        report_file: A file path. If set will add a ``FileReporter``.
+        report_path: If set to true will add a ``PathReporter``.
+    """
+
+    reporting = Reporting()
+    reporting.register("click", ClickReporter())
+
+    if report_path:
+        reporting.register("path", PathReporter())
+
+    if report_file:
+        reporting.register("file", FileReporter(report_file))
+
+    return reporting

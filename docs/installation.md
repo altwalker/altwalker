@@ -15,10 +15,11 @@ And in the Path from User Variables:
 
 ## Prerequisites
 
-* `Java 8`
-* `GraphWalker CLI`
-* `git` (Optional)
-* `.NET Core` (Optional)
+* [Python3](https://www.python.org/) (with pip3)
+* [Java 8](https://openjdk.java.net/)
+* [GraphWalker CLI](http://graphwalker.github.io/)
+* [.NET Core](https://dotnet.microsoft.com/) (Optional)
+* [git](https://git-scm.com/) (Optional)
 
 ### GraphWalker
 
@@ -87,6 +88,14 @@ Check that you installed the correct version:
 
 ```
 $ altwalker --version
+```
+
+### Living on the edge
+
+If you want to work with the latest code before it’s released, install or update the code from the `develop` branch:
+
+```
+$ pip3 install -U git+https://gitlab.com/altom/altwalker/altwalker
 ```
 
 ## Install .NET Core (Optional)

@@ -78,7 +78,7 @@ GraphWalker keeps an execution context with data for each model and a global con
 
 By default GraphWalker tries to access data from the current model context. To access data from the global context, prefix the variable name with `global.`(e.g. `global.count`, `global.isLoggedIn`).
 
-An **action** is a piece of java code that you want the model to execute, in order to modify the data from the context.
+An **action** is a piece of JavaScript code that you want the model to execute, in order to modify the data from the context.
 
 Actions can only be placed on edges or models.
 
@@ -221,11 +221,11 @@ The template for an **action**:
 
 ```json
 {
-  "actions": ["<JAVA SCRIPT;>", "<JAVA SCRIPT;>"]
+  "actions": ["<JAVA-SCRIPT;>", "<JAVA-SCRIPT;>"]
 }
 ```
 
-Is a piece of java code that you want the model to execute.
+Is a piece of JavaScript code that you want the model to execute.
 
 It has to end with a semi colon.
 

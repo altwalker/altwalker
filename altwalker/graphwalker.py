@@ -337,7 +337,10 @@ class GraphWalkerClient:
     def set_data(self, key, value):
         """Make a PUT request at ``/setData``."""
 
-        if isinstance(value, str):
+        if isinstance(value, bool):
+            # convert python boolean value to javascript boolean value
+            normalize = "true" if value else "false"
+        elif isinstance(value, str):
             normalize = "\"{}\"".format(value)
         else:
             normalize = str(value)

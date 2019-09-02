@@ -4,7 +4,7 @@ from altwalker.__version__ import VERSION
 
 
 NAME = 'altwalker'
-DESCRIPTION = '''Altwalker is an open source, Model-based testing framework.'''
+DESCRIPTION = '''Altwalker is an open source, Model-Based Testing framework.'''
 URL = 'https://gitlab.com/altom/altwalker/altwalker/'
 EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'
