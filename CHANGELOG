@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Version 0.2.4
+-------------
+
+(bugfix release)
+
+- Fix issue where the graph data doesn't support boolean values. (`#75`_)
+- Add an option to save the report to a file. (`#76`_)
+
+.. _#75: https://gitlab.com/altom/altwalker/altwalker/issues/75
+.. _#76: https://gitlab.com/altom/altwalker/altwalker/issues/76
+
 Version 0.2.3
 -------------
 

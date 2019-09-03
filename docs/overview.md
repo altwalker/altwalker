@@ -83,7 +83,7 @@ There are two way to run your tests:
 
 ## GraphWalker
 
-**GraphWalker** is an Model-Based testing tool. It reads models in the
+**GraphWalker** is an Model-Based Testing tool. It reads models in the
 shape of directed graphs, and generate (test) paths from these graphs.
 
 AltWalker uses [GraphWalker](http://graphwalker.github.io) as a Planner (it uses
