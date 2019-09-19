@@ -84,7 +84,7 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.client._put = mock.MagicMock()
 
         self.client.set_data("key", "str")
-        self.client._put.assert_called_once_with("/setData/key=\"str\"")
+        self.client._put.assert_called_once_with("/setData/key=%22str%22")
 
 
 @mock.patch("altwalker._utils.get_command", side_effect=lambda command: [command])
