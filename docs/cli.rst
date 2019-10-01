@@ -14,7 +14,8 @@ Invocation
 
     $ altwalker [...]
 
-You can also invoke the command through the Python interpreter from the command line:
+You can also invoke the command through the Python interpreter from the
+command line:
 
 .. code-block:: console
 
@@ -180,7 +181,7 @@ For the ``model`` option you need to pass a ``model_path`` and a
     ``reached_edge(edge_name)`` are the stop conditions.
 
     For more details and a list of all available options read the
-    `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
+    `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
 
 The ``-m/--model`` is required but you can use it multiple times to provide
 multiple models:
@@ -245,7 +246,7 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a
     ``reached_edge(edge_name)`` are the stop conditions.
 
     For more details and a list of all available options read the
-    `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
+    `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
 
 
 The ``-m/--model`` is required but you can use it multiple times to provide
@@ -326,7 +327,7 @@ For the ``-m/--model`` option you need to pass a ``model_path`` and a
     are the stop conditions.
 
     For more details and a list of all available options read the
-    `GraphWalker Documentation <http://graphwalker.github.io/generators_and_stop_conditions/>`_.
+    `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
 
 
 .. note::

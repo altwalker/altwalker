@@ -188,7 +188,7 @@ GraphWalker
 REST Service
 ~~~~~~~~~~~~
 
-For more informations check out the `GraphWalker REST API Documentation <http://graphwalker.github.io/rest-overview/>`_.
+For more informations check out the `GraphWalker REST API Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Rest-API-overview>`_.
 
 .. autoclass:: GraphWalkerService
     :members:
@@ -225,7 +225,7 @@ For more informations check out the `GraphWalker REST API Documentation <http://
 CLI
 ~~~
 
-For more informations check out the `GraphWalker CLI Documentation <http://graphwalker.github.io/cli-overview/>`_.
+For more informations check out the `GraphWalker CLI Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Command-Line-Tool>`_.
 
 .. autofunction:: check
 

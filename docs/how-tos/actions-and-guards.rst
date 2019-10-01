@@ -141,7 +141,7 @@ Further Reading/Useful Links
 ----------------------------
 
 * GraphWalker documentation on:
-    * `Tests parametrisation <http://graphwalker.github.io/tests_parametrisSation/>`_
-    * `JSON File Format <http://graphwalker.github.io/json-overview/>`_
+    * `Test data and GraphWalker <https://github.com/GraphWalker/graphwalker-project/wiki/Test-data-and-GraphWalker>`_
+    * `JSON File Format <https://github.com/GraphWalker/graphwalker-project/wiki/JSON-file-format>`_
 * AltWalker documentation on:
     * :doc:`../modeling`

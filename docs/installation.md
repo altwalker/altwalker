@@ -27,7 +27,7 @@ AltWalker relies on [Graphwalker](http://graphwalker.github.io/) to generate pat
 
 AltWalker uses the GraphWalker CLI, the CLI is a standalone jar file. You need to have Java 8 installed to be able to execute the jar file.
 
-You need to download [GraphWalker CLI](http://graphwalker.github.io/download/) and create a script to run the jar file from the command line.
+You need to download [GraphWalker CLI](https://github.com/GraphWalker/graphwalker-project/releases) and create a script to run the jar file from the command line.
 We recommend downloading the latest version of GraphWalker CLI.
 
 For macOS/linux you can run the following command:
@@ -41,7 +41,7 @@ $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATE
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
 
-Here is a more detailed [tutorial](http://graphwalker.github.io/cli-overview/#creating-a-script-facilitating-command-line-handling-on-a-linux-machine) for macOS/linux.
+Here is a more detailed [tutorial](https://github.com/GraphWalker/graphwalker-project/wiki/Command-Line-Tool#creating-a-script-facilitating-command-line-handling-on-a-linux-machine) for macOS/linux.
 
 For windows you can run the following cmd commands:
 

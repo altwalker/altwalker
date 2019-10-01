@@ -131,5 +131,5 @@ or form both.
 Further Reading/Useful Links
 ----------------------------
 
-* GraphWalker Documentation for `JSON vertex format <http://graphwalker.github.io/json-vertex/>`_.
+* GraphWalker Documentation for `JSON vertex format <https://github.com/GraphWalker/graphwalker-project/wiki/JSON-file-format%3A-vertex>`_.
 * AltWalker Documentation for :doc:`../modeling`.

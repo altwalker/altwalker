@@ -70,7 +70,7 @@ a_start(reached_vertex(vertex_A))
 
 **Further Reading/Useful Links**:
 
-- For documentation about Generators and Stop Conditions check [GraphWalker's documentation](http://graphwalker.github.io/generators_and_stop_conditions/)
+- For documentation about Generators and Stop Conditions check [GraphWalker's documentation](https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions)
 
 ### Actions
 
@@ -231,7 +231,7 @@ It has to end with a semi colon.
 
 **Further Reading/Useful Links**:
 
-- For documentation about **json** format check [GraphWalker documentation](http://graphwalker.github.io/json-overview/).
+- For documentation about **json** format check [GraphWalker documentation](https://github.com/GraphWalker/graphwalker-project/wiki/JSON-file-format).
 - For creating or modifying json models you can use [AltWalker's model editor](https://altom.gitlab.io/altwalker/model-editor).
 
 ### GraphML
@@ -246,7 +246,7 @@ A single model and his data can be stored in one single `.graphml` file. The nam
   If you intent to use the ``graphml`` format we recommend considering using the ``json`` format. AltWalker is mainly tested using ``json`` models and all the example from the
   documentation use the ``json`` format.
 
-  If you have models in the ``graphl`` format we recommend converting them using the `convert <http://graphwalker.github.io/cli-convert/#version-4>`_ command form GraphWalker.
+  If you have models in the ``graphl`` format we recommend converting them using the `convert <https://github.com/GraphWalker/graphwalker-project/wiki/Convert>`_ command form GraphWalker.
 
   **Example**:
 
@@ -259,14 +259,14 @@ A single model and his data can be stored in one single `.graphml` file. The nam
 **Further Reading / Useful Links**:
 
 - [GraphML](https://en.wikipedia.org/wiki/GraphML) file format.
-- For documentation about `.graphml` model format check [GraphWalker's documentation](http://graphwalker.github.io/yed_model_syntax/).
+- For documentation about `.graphml` model format check [GraphWalker's documentation](https://github.com/GraphWalker/graphwalker-project/wiki/Creating-a-model-using-yEd).
 - For creating or modifying graphml models you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html).
 
 ## Tooling
 
 For **json** you can check [AltWalker's Model-Editor](https://altom.gitlab.io/altwalker/model-editor), the editor allows you to visualize the model while you are working on it.
 
-For **GraphML** you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html) and GraphWalker has a tutorial on how to [design models](http://graphwalker.github.io/yed_model_syntax/) using it.
+For **GraphML** you can use [yEd editor](http://www.yworks.com/en/products_yed_about.html) and GraphWalker has a tutorial on how to [design models](https://github.com/GraphWalker/graphwalker-project/wiki/Creating-a-model-using-yEd) using it.
 
 You can also check for issues in the model(s) using the `check` command:
 
