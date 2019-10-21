@@ -139,6 +139,13 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.assertEqual(self.client.get_statistics()[
                          "totalFailedNumberOfModels"], 1)
 
+    def test_fail_with_no_message(self):
+        self.client.get_next()
+
+        self.client.fail("")
+        self.assertEqual(self.client.get_statistics()[
+                         "totalFailedNumberOfModels"], 1)
+
     def test_for_inexistent_route(self):
         with self.assertRaises(GraphWalkerException):
             self.client._get('/inexistent')

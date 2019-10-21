@@ -429,6 +429,9 @@ class GraphWalkerClient:
             message (:obj:`str`): The error message.
         """
 
+        if not message:
+            message = "Unknown error."
+
         logger.debug("Host {} failed with message: {}".format(self.base, message))
 
         normalize = urllib.parse.quote(message, safe="")
