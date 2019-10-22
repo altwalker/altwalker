@@ -185,25 +185,25 @@ Running:
 [2019-08-06 16:28:44.064746] ModelName.vertex_B Status: PASSED
 
 Statistics:
-{
-    "edgeCoverage": 100,
-    "edgesNotVisited": [],
-    "totalCompletedNumberOfModels": 1,
-    "totalFailedNumberOfModels": 0,
-    "totalIncompleteNumberOfModels": 0,
-    "totalNotExecutedNumberOfModels": 0,
-    "totalNumberOfEdges": 1,
-    "totalNumberOfModels": 1,
-    "totalNumberOfUnvisitedEdges": 0,
-    "totalNumberOfUnvisitedVertices": 0,
-    "totalNumberOfVertices": 2,
-    "totalNumberOfVisitedEdges": 1,
-    "totalNumberOfVisitedVertices": 2,
-    "vertexCoverage": 100,
-    "verticesNotVisited": []
-}
 
-Status: True
+  Model Coverage..................100%
+  Number of Models...................1
+  Completed Models...................1
+  Failed Models......................0
+  Incomplete Models..................0
+  Not Executed Models................0
+
+  Edge Coverage...................100%
+  Number of Edges....................1
+  Visited Edges......................1
+  Unvisited Edges....................0
+
+  Vertex Coverage.................100%
+  Number of Vertices.................2
+  Visited Vertices...................2
+  Unvisited Vertices.................0
+
+Status:  PASS
 ```
 
 ## Setting Up a Development Environment
