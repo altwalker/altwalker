@@ -114,10 +114,10 @@ Prerequisites:
 * MacOS/Linux:
 
 ```bash
-$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar && \
+$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar && \
   mkdir -p ~/graphwalker && \
-  mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
-  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
+  mv graphwalker-cli-4.0.1.jar ~/graphwalker/ && \
+  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.1.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
   chmod +x ~/graphwalker/graphwalker-cli.sh && \
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
@@ -129,10 +129,10 @@ $ setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
   cd C:\
   mkdir graphwalker
   cd graphwalker
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar' -outfile 'graphwalker-cli-4.0.0-SNAPSHOT.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar' -outfile 'graphwalker-cli-4.0.1.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
   @echo off
   @echo @echo off> gw.bat
-  @echo java -jar C:\graphwalker\graphwalker-cli-4.0.0-SNAPSHOT.jar %*>> gw.bat
+  @echo java -jar C:\graphwalker\graphwalker-cli-4.0.1.jar %*>> gw.bat
   @echo on
 ```
 
