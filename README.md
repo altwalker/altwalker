@@ -91,7 +91,7 @@ AltWalker has the following components:
     using the `Reporter`.
 
 
-There are two way to run your tests:
+There are two ways to run your tests:
 
 * __Online Mode__ (using the Online Planner): Generate one step and then execute
     the step, until the path is complete.
