@@ -2,7 +2,7 @@
 How To's
 ========
 
-Here is a (growing) list of tutorials.  `Contact us <altwalker@altom.com>`_
+Here is a (growing) list of tutorials.  `Contact us <altwalker@altom.com>`_ or go to our `Gitter chat room <https://gitter.im/altwalker/community>`_
 if you need more tutorials or have questions.
 
 .. toctree::

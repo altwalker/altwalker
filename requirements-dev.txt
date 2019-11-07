@@ -9,4 +9,7 @@ pytest-timeout
 
 Sphinx
 recommonmark
+sphinx-rtd-theme
 sphinx-click
+sphinx-tabs
+sphinxcontrib-programoutput

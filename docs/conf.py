@@ -16,6 +16,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
+import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
 
@@ -29,7 +30,7 @@ copyright = '2019, Altom Consulting'
 author = 'Altom Consulting'
 
 # The short X.Y version
-version = ".".join(VERSION.split(".")[:2])
+version = VERSION
 
 # The full version, including alpha/beta/rc tags
 release = VERSION
@@ -47,7 +48,10 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
-    'sphinx_click.ext'
+    'sphinx_rtd_theme',
+    'sphinx_click.ext',
+    'sphinx_tabs.tabs',
+    'sphinxcontrib.programoutput'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -74,7 +78,11 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [
+    '_build',
+    'Thumbs.db',
+    '.DS_Store'
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -84,13 +92,19 @@ pygments_style = None
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'alabaster'
+# html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
+
+# If given, this must be the name of an image file (path relative to the configuration
+# directory) that is the logo of the docs. It is placed at the top of the sidebar;
+# its width should therefore not exceed 200 pixels.
+html_logo = ''
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    'description': 'A model-based testing framework.'
+    # 'description': 'A model-based testing framework.',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -107,6 +121,22 @@ html_static_path = ['_static']
 # 'searchbox.html']``.
 # html_sidebars = {}
 
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'css/custom.css',
+]
+
+# If you want to integrate editing into your own theme.
+#
+# # For integrating Gitlabå
+html_context = {
+    "display_gitlab": True, # Integrate Gitlab
+    "gitlab_user": "altom/altwalker", # Username
+    "gitlab_repo": "altwalker", # Repo name
+    "gitlab_version": "master", # Version
+    "conf_py_path": "/docs/", # Path in the checkout to the docs root
+}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 

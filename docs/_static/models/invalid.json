@@ -1,0 +1,37 @@
+{
+    "name": "Simple invalid example",
+    "models": [
+        {
+            "name": "InvalidModel",
+            "generator": "random(never)",
+            "startElementId": "v_0",
+            "actions": [
+            	"isUserLoggedIn = false;"
+            ],
+            "vertices": [
+                {
+                    "id": "v_0",
+                    "name": "v_a"
+                },
+                {
+                    "id": "v_1",
+                    "name": "v_b"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e_0",
+                    "name": "e_a",
+                    "sourceVertexId": "v_0",
+                    "targetVertexId": "v_1"
+                },
+                {
+                    "id": "e_0",
+                    "name": "e_b",
+                    "sourceVertexId": "v_1",
+                    "targetVertexId": "v_0"
+                }
+            ]
+        }
+    ]
+}

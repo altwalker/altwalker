@@ -128,9 +128,19 @@ And from here there are two paths:
 
         And use the ``init`` command to generate a project from the model (for pyhon or c#):
 
-        .. code-block:: console
+        .. tabs::
 
-            $ altwalker init action-example -m login.json -l [python|c#]
+            .. group-tab:: Python
+
+                .. code-block:: console
+
+                    $ altwalker init action-example -m login.json -l python
+
+            .. group-tab:: C#/.NET
+
+                .. code-block:: console
+
+                    $ altwalker init action-example -m login.json -l c#
 
         And then you can run the example.
 

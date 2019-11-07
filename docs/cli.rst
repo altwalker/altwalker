@@ -166,30 +166,26 @@ the ``generate`` command will generate a class for each model you provide.
    :prog: altwalker check
    :show-nested:
 
-**Example:**
 
-For the ``model`` option you need to pass a ``model_path`` and a
-``stop_condtion``.
+.. note::
 
-* **model_path**: Is the file (``.json`` or ``.graphml``) containing
-    the model(s).
-* **stop_condition**: Is a string that specifies the generator and the
-    stop condition.
+    The ``-m/--model`` is required but you can use it multiple times to provide
+    multiple models:
 
-    For example ``random(never)``, ``a_star(reached_edge(edge_name))``,
-    where ``random``, ``a_star`` are the generators and ``never``,
-    ``reached_edge(edge_name)`` are the stop conditions.
+**Further Reading/Useful Links**:
 
-    For more details and a list of all available options read the
-    `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
+For more details and a list of all available Generators and Sotop Conditions read the :doc:`path-generation` or the
+`GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
 
-The ``-m/--model`` is required but you can use it multiple times to provide
-multiple models:
+**Examples**:
 
-.. code-block:: console
+.. command-output:: altwalker check -m models/login.json "random(never)" -m models/blog.json "random(never)"
+    :cwd: _static/
 
-    $ altwalker check -m login.json "random(never)" -m shop.json "random(never)"
-    No issues found with the model(s).
+
+.. command-output:: altwalker check -m models/invalid.json "random(never)"
+    :cwd: _static/
+    :returncode: 4
 
 
 ----
