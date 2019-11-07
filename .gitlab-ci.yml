@@ -4,7 +4,7 @@ stages:
   - docs
   - deploy
 
-image: robert96/graphwalker-cli:4.0.0
+image: robert96/graphwalker-cli:4.0.1
 
 before_script:
   - export LC_ALL=C.UTF-8

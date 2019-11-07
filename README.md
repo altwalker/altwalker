@@ -1,6 +1,8 @@
 # AltWalker
 
-AltWalker is an open source, Model-Based Testing framework.
+AltWalker is an open source, Model-Based Testing framework. Write your tests in Python or C# and use GraphWalker to generate a path through your model.
+
+Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
 
 ## Table of Contents
 
@@ -16,8 +18,6 @@ AltWalker is an open source, Model-Based Testing framework.
 AltWalker is an open source, Model-Based testing framework for automating your test execution. You
 design your tests as a directed graph and AltWalker executes them. It relies on
 [GraphWalker](http://graphwalker.github.io/) to generate paths through your graph.
-
-Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
 
 ### Model-Based Testing
 
@@ -91,7 +91,7 @@ AltWalker has the following components:
     using the `Reporter`.
 
 
-There are two way to run your tests:
+There are two ways to run your tests:
 
 * __Online Mode__ (using the Online Planner): Generate one step and then execute
     the step, until the path is complete.
@@ -114,10 +114,10 @@ Prerequisites:
 * MacOS/Linux:
 
 ```bash
-$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar && \
+$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar && \
   mkdir -p ~/graphwalker && \
-  mv graphwalker-cli-4.0.0-SNAPSHOT.jar ~/graphwalker/ && \
-  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.0-SNAPSHOT.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
+  mv graphwalker-cli-4.0.1.jar ~/graphwalker/ && \
+  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.1.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
   chmod +x ~/graphwalker/graphwalker-cli.sh && \
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
@@ -129,10 +129,10 @@ $ setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
   cd C:\
   mkdir graphwalker
   cd graphwalker
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/LATEST-BUILDS/graphwalker-cli-4.0.0-SNAPSHOT.jar' -outfile 'graphwalker-cli-4.0.0-SNAPSHOT.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar' -outfile 'graphwalker-cli-4.0.1.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
   @echo off
   @echo @echo off> gw.bat
-  @echo java -jar C:\graphwalker\graphwalker-cli-4.0.0-SNAPSHOT.jar %*>> gw.bat
+  @echo java -jar C:\graphwalker\graphwalker-cli-4.0.1.jar %*>> gw.bat
   @echo on
 ```
 
@@ -185,25 +185,25 @@ Running:
 [2019-08-06 16:28:44.064746] ModelName.vertex_B Status: PASSED
 
 Statistics:
-{
-    "edgeCoverage": 100,
-    "edgesNotVisited": [],
-    "totalCompletedNumberOfModels": 1,
-    "totalFailedNumberOfModels": 0,
-    "totalIncompleteNumberOfModels": 0,
-    "totalNotExecutedNumberOfModels": 0,
-    "totalNumberOfEdges": 1,
-    "totalNumberOfModels": 1,
-    "totalNumberOfUnvisitedEdges": 0,
-    "totalNumberOfUnvisitedVertices": 0,
-    "totalNumberOfVertices": 2,
-    "totalNumberOfVisitedEdges": 1,
-    "totalNumberOfVisitedVertices": 2,
-    "vertexCoverage": 100,
-    "verticesNotVisited": []
-}
 
-Status: True
+  Model Coverage..................100%
+  Number of Models...................1
+  Completed Models...................1
+  Failed Models......................0
+  Incomplete Models..................0
+  Not Executed Models................0
+
+  Edge Coverage...................100%
+  Number of Edges....................1
+  Visited Edges......................1
+  Unvisited Edges....................0
+
+  Vertex Coverage.................100%
+  Number of Vertices.................2
+  Visited Vertices...................2
+  Unvisited Vertices.................0
+
+Status:  PASS
 ```
 
 ## Setting Up a Development Environment

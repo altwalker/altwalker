@@ -1,3 +1,4 @@
+import urllib.parse
 import subprocess
 import logging
 import time
@@ -5,8 +6,9 @@ import json
 
 import requests
 
-from altwalker._utils import kill, get_command
+from altwalker._utils import kill, get_command, url_join
 from altwalker.exceptions import GraphWalkerException
+
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +84,8 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
 
     command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
                               verbose=verbose, unvisited=unvisited, blocked=blocked)
+
+    logger.debug("Executed command {}".format(" ".join(command)))
 
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
@@ -260,7 +264,9 @@ class GraphWalkerClient:
 
         self.verbose = verbose
 
-        self.base = "http://" + host + ":" + str(port) + "/graphwalker"
+        self.base = "http://{}:{}/graphwalker".format(host, port)
+
+        logger.debug("Initializing a GraphWalkerClient on host: {}".format(self.base))
 
     def _validate_response(self, response):
         if not response.status_code == 200:
@@ -286,33 +292,74 @@ class GraphWalkerClient:
             "GraphWalker did not respond with an ok status.")
 
     def _get(self, path):
-        response = requests.get(self.base + path)
+        response = requests.get(url_join(self.base, path))
         self._validate_response(response)
         return self._get_body(response)
 
     def _put(self, path):
-        response = requests.put(self.base + path)
+        response = requests.put(url_join(self.base, path))
         self._validate_response(response)
         return self._get_body(response)
 
     def _post(self, path, data=None):
-        response = requests.post(self.base + path, data=data)
+        response = requests.post(url_join(self.base, path), data=data)
         self._validate_response(response)
         return self._get_body(response)
 
     def load(self, model):
-        """Make a POST at ``/load``."""
+        """Loads a new model(s) in JSON format.
 
+        Make a POST request at ``/load``.
+
+        Args:
+            model (:obj:`dict`): The JSON model.
+        """
+
+        logger.debug("Host {} loads a new model".format(self.base))
         self._post("/load", data=json.dumps(model))
 
     def has_next(self):
-        """Make a GET request at ``/hasNext``, and return the response."""
+        """Returns True if a new step is available. If True, then the fulfilment
+        of the stop conditions has not yet been reached.
+
+        Makes a GET request at ``/hasNext``.
+
+        Returns:
+            bool: True if a new step is available, False otherwise.
+        """
 
         body = self._get("/hasNext")
         return body["hasNext"] == "true"
 
     def get_next(self):
-        """Make a GET request at ``/getNext``, and return the next step."""
+        """Returns the next step from the path.
+
+        Makes a GET request at ``/getNext``.
+
+        Returns:
+            dict: Depending of how the GraphWalker Service was started ``get_next`` will return different responses.
+
+            * With the verbose flag::
+
+                {
+                    "id": step_id,
+                    "name": step_name,
+                    "modelName": model_name,
+                    "data": [],
+                    "properties": {}
+                }
+
+            * With the unvisited flag::
+
+                {
+                    "id": step_id,
+                    "name": step_name,
+                    "modelName": model_name,
+                    "numberOfElements": number_of_element,
+                    "numberOfUnvisitedElements": number_of_unvisted_elements,
+                    "unvisitedElements": []
+                }
+        """
 
         step = self._get("/getNext")
 
@@ -329,35 +376,75 @@ class GraphWalkerClient:
         return step
 
     def get_data(self):
-        """Make a GET request at ``/getData``, and return the data."""
+        """Returns the graph data.
+
+        Makes a GET request at ``/getData``.
+
+        Returns:
+            dict: The graph data.
+        """
 
         body = self._get("/getData")
         return body["data"]
 
     def set_data(self, key, value):
-        """Make a PUT request at ``/setData``."""
+        """Sets data in the current model.
+
+        Makes a PUT request at ``/setData``.
+
+        Args:
+            key (:obj:`str`): The key to update.
+            value (:obj:`str`, :obj:`int`, :obj:`bool`): The value to set.
+        """
+
+        logger.debug("Host {} sets {} = {}".format(self.base, key, value))
 
         if isinstance(value, bool):
             # convert python boolean value to javascript boolean value
-            normalize = "true" if value else "false"
+            normalize_value = "true" if value else "false"
         elif isinstance(value, str):
-            normalize = "\"{}\"".format(value)
+            normalize_value = "\"{}\"".format(value)
         else:
-            normalize = str(value)
+            normalize_value = str(value)
 
-        self._put("/setData/" + key + "=" + normalize)
+        normalize_key = urllib.parse.quote(key, safe="")
+        normalize_value = urllib.parse.quote(normalize_value, safe="")
+
+        self._put("/setData/{}={}".format(normalize_key, normalize_value))
 
     def restart(self):
-        """Make a PUT request at ``/restart``."""
+        """Reset the currently loaded model(s) to it’s initial state.
+
+        Makes a PUT request at ``/restart``.
+        """
 
         self._put("/restart")
 
     def fail(self, message):
-        """Make a PUT request ``/fail``."""
+        """Marks a fail in the currnet model.
 
-        requests.put(self.base + "/fail/" + message)
+        Makes a PUT request at ``/fail``.
+
+        Args:
+            message (:obj:`str`): The error message.
+        """
+
+        if not message:
+            message = "Unknown error."
+
+        logger.debug("Host {} failed with message: {}".format(self.base, message))
+
+        normalize = urllib.parse.quote(message, safe="")
+        response = requests.put("{}/fail/{}".format(self.base, normalize))
+        self._validate_response(response)
 
     def get_statistics(self):
-        """Make a GET request at ``/getStatistcs``, and return the statistcs."""
+        """Returns the current statistics of the session.
+
+        Makes a GET request at ``/getStatistcs``.
+
+        Returns:
+            dict: The statistics.
+        """
 
         return self._get("/getStatistics")

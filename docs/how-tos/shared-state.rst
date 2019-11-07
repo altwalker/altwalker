@@ -111,17 +111,35 @@ or form both.
 
         And use the ``init`` command to generate a project from the model (for python or c#):
 
-        .. code-block:: console
+        .. tabs::
 
-            $ altwalker init action-example -m blog.json -l [python|c#]
+            .. group-tab:: Python
 
-        Or:
+                .. code-block:: console
 
-        .. code-block:: console
+                    $ altwalker init shared-states-example -m blog.json -l python
 
-            $ altwalker init action-example -l [python|c#] \
-                -m blog-navigation.json \
-                -m blog-post.json
+                Or:
+
+                .. code-block:: console
+
+                    $ altwalker init shared-states-example -l python \
+                        -m blog-navigation.json \
+                        -m blog-post.json
+
+            .. group-tab:: C#/.NET
+
+                .. code-block:: console
+
+                    $ altwalker init shared-states-example -m blog.json -l c#
+
+                Or:
+
+                .. code-block:: console
+
+                    $ altwalker init shared-states-example -l c# \
+                        -m blog-navigation.json \
+                        -m blog-post.json
 
         And then you can run the example.
 

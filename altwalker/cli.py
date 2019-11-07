@@ -1,10 +1,11 @@
 import json
 import warnings
+import logging
 
 import click
 
 import altwalker.graphwalker as graphwalker
-from altwalker._utils import click_formatwarning
+from altwalker._utils import click_formatwarning, echo_status, echo_statistics
 from altwalker.exceptions import FailedTestsError, handle_errors
 from altwalker.model import check_models, verify_code
 from altwalker.planner import create_planner
@@ -71,8 +72,15 @@ def add_options(options):
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option(None, "--version", "-v", prog_name="AltWalker")
-def cli():
+@click.option("--log-level", type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
+              case_sensitive=False), default="WARNING", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
+              help="Sets the logger level to the specified level.")
+@click.option("--log-file", type=click.Path(exists=False, dir_okay=False), envvar="ALTWALKER_LOG_FILE",
+              help="Sends logging output to a file.")
+def cli(log_level, log_file):
     """A command line tool for running model-based tests."""
+
+    logging.basicConfig(filename=log_file, level=log_level.upper())
 
 
 @cli.command()
@@ -230,16 +238,14 @@ def run_command(path, executor, url=None, models=None, steps=None, port=None, st
                                            unvisited=unvisited, blocked=blocked, **kargs)
 
     if statistics:
-        click.echo("Statistics:")
-        click.echo(json.dumps(statistics, sort_keys=True, indent=4))
+        echo_statistics(statistics)
 
     if report:
         click.echo()
         click.echo("Report:")
         click.echo(json.dumps(report, sort_keys=True, indent=4))
 
-    click.echo()
-    click.secho("Status: {}".format(status), fg="green" if status else "red")
+    echo_status(status)
 
     if not status:
         raise FailedTestsError()

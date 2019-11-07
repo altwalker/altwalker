@@ -1,8 +1,15 @@
-setuptools
+setuptools>=38.6.0
+wheel>=0.31.0
+twine>=1.11.0
+
 flake8
 pytest
 pytest-cov
 pytest-timeout
+
 Sphinx
 recommonmark
+sphinx-rtd-theme
 sphinx-click
+sphinx-tabs
+sphinxcontrib-programoutput

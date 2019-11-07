@@ -62,8 +62,8 @@ AltWalker has the following components:
 
     Currently AltWalker provides three executors:
 
-    * Python Executor
-    * .NET Executor
+    * Python Executor (Built-in)
+    * [C#/.NET Executor](https://www.nuget.org/packages/AltWalker.Executor/)
 
     And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
     more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html)
@@ -73,7 +73,7 @@ AltWalker has the following components:
     for the next step, executing the step using the `Executor` and reporting the progress
     using the `Reporter`.
 
-There are two way to run your tests:
+There are two ways to run your tests:
 
 * __Online Mode__ (using the Online Planner): Generate one step and then execute
     the step, until the path is complete.
@@ -84,16 +84,16 @@ There are two way to run your tests:
 ## GraphWalker
 
 **GraphWalker** is an Model-Based Testing tool. It reads models in the
-shape of directed graphs, and generate (test) paths from these graphs.
+shape of directed graphs, and generates (test) paths from these graphs.
 
 AltWalker uses [GraphWalker](http://graphwalker.github.io) as a Planner (it uses
 the REST API as the Online Planner), so it inherits the model(s) formats
-(graphml and json) and the generator and stop conditions.
+(graphml and json) and the generators and stop conditions.
 
 AltWalker also uses the `offline`, `check` commands from GraphWalker.
 
 The `offline` command form GraphWalker is used by the AltWalker's `offline` command, it takes
-the output and saves it in a file as a list of step.
+the output and saves it in a file as a list of steps.
 
 The `check` command from GraphWalker is used by AltWalker's `check`.
 

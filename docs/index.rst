@@ -7,11 +7,10 @@ execution. You design your tests as a directional graph and AltWalker executes
 them. It relies on `GraphWalker <http://graphwalker.github.io/>`_ to generate
 paths through your tests graph.
 
-Welcome to AltWalker's documentation. Get started with :doc:`installation` and
-then get an quick overview with the :doc:`quickstart`. There is also a
-list of :doc:`how-tos` and a list of runnable :doc:`examples`. The rest
-of the documentation describes how to use each feature of AltWalker in
-more details.
+Get started with :doc:`installation` and then get an quick overview with
+the :doc:`quickstart`. There is also a list of :doc:`how-tos` and a list
+of runnable :doc:`examples`. The rest of the documentation describes
+how to use each feature of AltWalker in more details.
 
 Join our Gitter chat room `here <https://gitter.im/altwalker/community>`_ to chat
 with us or with other members of the community.
@@ -29,17 +28,16 @@ usage patterns.
     installation
     quickstart
     modeling
+    path-generation
     tests-structure
     how-tos
     examples
+    faq
     cli
     api
     contributing
     changelog
     license
-
-Useful Links
-============
 
 .. toctree::
     :caption: Useful Links:
@@ -51,7 +49,7 @@ Useful Links
     Docker Hub <https://hub.docker.com/u/altwalker>
 
 .. toctree::
-    :caption: Executors:
+    :caption: Other Executors:
 
     C#/.NET <https://www.nuget.org/packages/AltWalker.Executor/>
 

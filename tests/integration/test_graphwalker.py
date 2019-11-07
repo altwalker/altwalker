@@ -107,6 +107,10 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.client.set_data("count", 1)
         self.assertEqual(self.client.get_data()["count"], "1")
 
+    def test_set_data_with_special_characters(self):
+        self.client.set_data("url", "url/example/")
+        self.assertEqual(self.client.get_data()["url"], "url/example/")
+
     def test_restart(self):
         while self.client.has_next():
             self.client.get_next()
@@ -125,6 +129,20 @@ class TestGraphWalkerClient(unittest.TestCase):
         self.client.get_next()
 
         self.client.fail("Error message.")
+        self.assertEqual(self.client.get_statistics()[
+                         "totalFailedNumberOfModels"], 1)
+
+    def test_fail_with_special_characters(self):
+        self.client.get_next()
+
+        self.client.fail("Error message with url: example/of/url")
+        self.assertEqual(self.client.get_statistics()[
+                         "totalFailedNumberOfModels"], 1)
+
+    def test_fail_with_no_message(self):
+        self.client.get_next()
+
+        self.client.fail("")
         self.assertEqual(self.client.get_statistics()[
                          "totalFailedNumberOfModels"], 1)
 

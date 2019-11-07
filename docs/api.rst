@@ -197,30 +197,6 @@ For more informations check out the `GraphWalker REST API Documentation <https:/
 .. autoclass:: GraphWalkerClient
     :members:
 
-    .. automethod:: get_next
-
-        Depending of how the GraphWalker Service was started ``get_next`` will return different responses.
-
-        With the verbose flag::
-
-            {
-                "id": step_id,
-                "name": step_name,
-                "modelName": model_name,
-                "data": [],
-                "properties": {}
-            }
-
-        With the unvisited flag::
-
-            {
-                "id": step_id,
-                "name": step_name,
-                "modelName": model_name,
-                "numberOfElements": number_of_element,
-                "numberOfUnvisitedElements": number_of_unvisted_elements,
-                "unvisitedElements": []
-            }
 
 CLI
 ~~~
