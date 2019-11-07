@@ -6,12 +6,14 @@ Version 0.2.5
 
 (bugfix release)
 
+- Add ``--log-level`` and ``--log-file`` options. (`#81`_)
 - Pretty-print statistics for online. (`#84`_)
-- Fix issue where the ``fail`` method from ``GraphWalkerClient`` throws an error. (`#80`_, `#85`)
+- Fix issue where the ``fail`` method from ``GraphWalkerClient`` throws an error. (`#80`_, `#85`_)
 
 .. _#80: https://gitlab.com/altom/altwalker/altwalker/issues/80
+.. _#81: https://gitlab.com/altom/altwalker/altwalker/issues/81
 .. _#84: https://gitlab.com/altom/altwalker/altwalker/issues/84
-.. _#80: https://gitlab.com/altom/altwalker/altwalker/issues/85
+.. _#85: https://gitlab.com/altom/altwalker/altwalker/issues/85
 
 Version 0.2.4
 -------------
