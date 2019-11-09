@@ -150,6 +150,7 @@ docs:
   only:
     - master
   script:
+    - pip3 install --editable .
     - cd docs
     - make html
     - cp -r _build/html ../documentation
