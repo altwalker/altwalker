@@ -215,9 +215,9 @@ class HttpExecutor(Executor):
 
         return self._get_payload(response)
 
-    def _post(self, path, params=None, data=None):
+    def _post(self, path, params=None, json=None):
         HEADERS = {'Content-Type': 'application/json'}
-        response = requests.post(url_join(self.base, path), params=params, json=data, headers=HEADERS)
+        response = requests.post(url_join(self.base, path), params=params, json=json, headers=HEADERS)
         self._validate_response(response)
 
         return self._get_payload(response)
@@ -232,7 +232,7 @@ class HttpExecutor(Executor):
             path (:obj:`str`): The path to the test code.
         """
 
-        self._post("load", data={"path": os.path.abspath(path)})
+        self._post("load", json={"path": os.path.abspath(path)})
 
     def reset(self):
         """Makes an PUT at ``/reset``."""
@@ -298,7 +298,7 @@ class HttpExecutor(Executor):
                 }
         """
 
-        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, data=data)
+        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, json={"data": data})
 
         if payload.get("output") is None:
             raise ExecutorException("Invaild response. The payload must include the key: output.")

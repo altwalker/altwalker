@@ -122,7 +122,7 @@ class TestHttpExecutor(unittest.TestCase):
 
         path = "tests/common/example"
         self.executor.load(path)
-        self.executor._post.assert_called_once_with("load", data={"path": os.path.abspath(path)})
+        self.executor._post.assert_called_once_with("load", json={"path": os.path.abspath(path)})
 
     def test_restet(self):
         self.executor._put = mock.MagicMock(return_value={})
@@ -163,16 +163,16 @@ class TestHttpExecutor(unittest.TestCase):
     def test_execute_step(self):
         self.executor._post = mock.MagicMock({"output": ""})
 
-        self.executor.execute_step("model", "step", {})
+        self.executor.execute_step("model", "step", {"key": "value"})
         self.executor._post.assert_called_once_with("executeStep", params=(
-            {"modelName": "model", "name": "step"}), data={})
+            {"modelName": "model", "name": "step"}), json={"data": {"key": "value"}})
 
     def test_execute_setup_step(self):
         self.executor._post = mock.MagicMock({"output": ""})
 
         self.executor.execute_step(None, "step", {})
         self.executor._post.assert_called_once_with(
-            "executeStep", params=({"modelName": None, "name": "step"}), data={})
+            "executeStep", params=({"modelName": None, "name": "step"}), json={"data": {}})
 
     def test_execute_invalid_response(self):
         self.executor._post = mock.MagicMock(return_value={})
