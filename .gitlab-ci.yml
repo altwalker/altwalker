@@ -4,13 +4,14 @@ stages:
   - docs
   - deploy
 
-image: robert96/graphwalker-cli:4.0.1
+default: 
+  image: robert96/graphwalker-cli:4.0.1
 
-before_script:
-  - export LC_ALL=C.UTF-8
-  - export LANG=C.UTF-8
-  - pip3 install -r requirements.txt --user
-  - pip3 install -r requirements-dev.txt
+  before_script:
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - pip3 install -r requirements.txt --user
+    - pip3 install -r requirements-dev.txt
 
 unit tests:
   stage: test
@@ -45,9 +46,6 @@ dotnet integration tests:
     paths:
       - "*.log"
     when: always
-  before_script:
-    - pip3 install -r requirements.txt --user
-    - pip3 install -r requirements-dev.txt
   script:
     - pytest -x -s -v -m dotnet tests/integration
 
