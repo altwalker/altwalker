@@ -18,6 +18,7 @@ from altwalker._utils import kill, get_command, url_join
 from altwalker.exceptions import ExecutorException
 
 logger = logging.getLogger(__name__)
+loaded_package_path = None
 
 
 def get_output(callable, *args, **kargs):
@@ -60,8 +61,23 @@ def get_output(callable, *args, **kargs):
     return result
 
 
+def _pop_previously_loaded_modules(path, package):
+    global loaded_package_path
+
+    if loaded_package_path is not None:
+        for module_key in list(sys.modules):
+            if module_key.startswith(package + ".") and \
+                    sys.modules[module_key].__file__.startswith(loaded_package_path):
+                sys.modules.pop(module_key)
+    loaded_package_path = os.path.join(path, package, "")
+
+
 def load(path, package, module):
-    """Load a module form a package at a given path."""
+    """Load a module from a package at a given path."""
+    if not package:
+        raise Exception("Package to load is required")
+
+    _pop_previously_loaded_modules(path, package)
 
     importlib.invalidate_caches()
 
@@ -77,7 +93,6 @@ def load(path, package, module):
         "{}.{}".format(package, module),
         os.path.join(path, package, "{}.py".format(module)))
     loaded_module = spec.loader.load_module()
-    spec.loader.exec_module(loaded_module)
 
     return loaded_module
 

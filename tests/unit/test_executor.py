@@ -1,9 +1,10 @@
 import os
+import sys
 import unittest
 import unittest.mock as mock
 
 from altwalker.exceptions import ExecutorException
-from altwalker.executor import get_output, load, create_executor, \
+from altwalker.executor import get_output, load, create_executor, _pop_previously_loaded_modules, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
@@ -59,6 +60,12 @@ class TestLoad(unittest.TestCase):
         self.assertTrue(hasattr(module, "ComplexA"))
         self.assertTrue(hasattr(module, "ComplexB"))
         self.assertTrue(hasattr(module, "Base"))
+
+    def test_pop_previously_loaded_modules(self):
+        load("tests/common/", "python", "simple")
+        self.assertTrue("python.simple" in sys.modules)
+        _pop_previously_loaded_modules("tests/common/", "python")
+        self.assertFalse("python.simple" in sys.modules)
 
 
 class TestHttpExecutor(unittest.TestCase):
