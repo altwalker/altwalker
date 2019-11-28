@@ -42,7 +42,7 @@ class TestGetOutput(unittest.TestCase):
 
         func.assert_called_once_with("argument_1", "argument_2")
 
-    def test_kargs(self):
+    def test_kwargs(self):
         func = mock.MagicMock()
         get_output(func, key="value")
 
@@ -276,31 +276,64 @@ class TestPythonExecutor(unittest.TestCase):
         self.executor.has_step("class_name", "method")
         self.executor._has_method.assert_called_once_with("class_name", "method")
 
-    @mock.patch("altwalker.executor.inspect.getfullargspec")
-    def test_execute_step_function(self, getfullargspec):
+    def test_execute_step(self):
+        path = "tests/common/python"
+
+        self.executor._module = None
+        self.executor.load(path)
+
+        data = {"key": "value"}
+
+        response = self.executor.execute_step("Simple", "vertex_a", data=data)
+        output = response["output"]
+
+        self.assertTrue("Simple.vertex_a" in output, "Actual output: {}".format(output))
+        self.assertTrue(str(data) in output, "Actual output: {}".format(output))
+
+        response = self.executor.execute_step("Simple", "vertex_b", data=data)
+        output = response["output"]
+
+        self.assertTrue("Simple.vertex_b" in output, "Actual output: {}".format(output))
+        self.assertTrue(str(data) in output, "Actual output: {}".format(output))
+
+        response = self.executor.execute_step("Simple", "edge_a", data=data)
+        output = response["output"]
+
+        self.assertTrue("Simple.edge_a" in output, "Actual output: {}".format(output))
+        self.assertTrue("Decorated method" in output, "Actual output: {}".format(output))
+
+        response = self.executor.execute_step("Simple", "edge_b", data=data)
+        output = response["output"]
+
+        self.assertTrue("Simple.edge_b" in output, "Actual output: {}".format(output))
+        self.assertTrue("Decorated method" in output, "Actual output: {}".format(output))
+        self.assertTrue(str(data) in output, "Actual output: {}".format(output))
+
+    @mock.patch("altwalker.executor.inspect.signature")
+    def test_execute_step_function(self, signature):
         spec_mock = mock.MagicMock()
-        spec_mock.args = []
-        getfullargspec.return_value = spec_mock
+        spec_mock.parameters = []
+        signature.return_value = spec_mock
 
         # Should execute a function
         self.executor.execute_step(None, "function")
         self.module.function.assert_called_once_with()
 
-    @mock.patch("altwalker.executor.inspect.getfullargspec")
-    def test_execute_step_function_with_data(self, getfullargspec):
+    @mock.patch("altwalker.executor.inspect.signature")
+    def test_execute_step_function_with_data(self, signature):
         spec_mock = mock.MagicMock()
-        spec_mock.args = ["data"]
-        getfullargspec.return_value = spec_mock
+        spec_mock.parameters = ["data"]
+        signature.return_value = spec_mock
 
         # should call the function with the right args
         self.executor.execute_step(None, "function", data={"key": "value"})
         self.module.function.assert_called_once_with({"key": "value"})
 
-    @mock.patch("altwalker.executor.inspect.getfullargspec")
-    def test_execute_step_function_invalid_args(self, getfullargspec):
+    @mock.patch("altwalker.executor.inspect.signature")
+    def test_execute_step_function_invalid_args(self, signature):
         spec_mock = mock.MagicMock()
-        spec_mock.args = ["data", "extra"]
-        getfullargspec.return_value = spec_mock
+        spec_mock.parameters = ["data", "extra"]
+        signature.return_value = spec_mock
 
         # should call the function with the right args
         error_message = "The .* function must take 0 or 1 parameters but it expects .* parameters."
@@ -310,41 +343,41 @@ class TestPythonExecutor(unittest.TestCase):
 
         self.module.function.assert_not_called()
 
-    @mock.patch("altwalker.executor.inspect.getfullargspec")
-    def test_execute_step_method(self, getfullargspec):
+    @mock.patch("altwalker.executor.inspect.signature")
+    def test_execute_step_method(self, signature):
         self.executor._setup_class = mock.MagicMock()
         self.executor._instances["ClassName"] = mock.MagicMock()
 
         spec_mock = mock.MagicMock()
-        spec_mock.args = ["self"]
-        getfullargspec.return_value = spec_mock
+        spec_mock.parameters = []
+        signature.return_value = spec_mock
 
         # Should executre a method
         self.executor.execute_step("ClassName", "method")
         self.executor._setup_class.assert_called_once_with("ClassName")
         self.executor._instances["ClassName"].method.assert_called_once_with()
 
-    @mock.patch("altwalker.executor.inspect.getfullargspec")
-    def test_execute_step_method_with_data(self, getfullargspec):
+    @mock.patch("altwalker.executor.inspect.signature")
+    def test_execute_step_method_with_data(self, signature):
         self.executor._setup_class = mock.MagicMock()
         self.executor._instances["class_name"] = mock.MagicMock()
 
         spec_mock = mock.MagicMock()
-        spec_mock.args = ["self", "data"]
-        getfullargspec.return_value = spec_mock
+        spec_mock.parameters = ["data"]
+        signature.return_value = spec_mock
 
         # should call the method with the right args
         self.executor.execute_step("class_name", "method", data={"key": "value"})
         self.executor._instances["class_name"].method.assert_called_once_with({"key": "value"})
 
-    @mock.patch("altwalker.executor.inspect.getfullargspec")
-    def test_execute_step_method_with_invalid_args(self, getfullargspec):
+    @mock.patch("altwalker.executor.inspect.signature")
+    def test_execute_step_method_with_invalid_args(self, signature):
         self.executor._setup_class = mock.MagicMock()
         self.executor._instances["ClassName"] = mock.MagicMock()
 
         spec_mock = mock.MagicMock()
-        spec_mock.args = ["self", "data", "extra"]
-        getfullargspec.return_value = spec_mock
+        spec_mock.parameters = ["data", "extra"]
+        signature.return_value = spec_mock
 
         error_message = "The .* method must take 0 or 1 parameters but it expects .* parameters."
 
