@@ -191,7 +191,7 @@ def walk(test_package, steps_path, executor, url, report_path, report_file):
 
 
 def run_tests(path, executor, url=None, models=None, steps=None, port=None, start_element=None,
-              verbose=False, unvisited=False, blocked=False, **kargs):
+              verbose=False, unvisited=False, blocked=False, **kwargs):
     """Run tests.
 
     Args:
@@ -206,8 +206,8 @@ def run_tests(path, executor, url=None, models=None, steps=None, port=None, star
         blocked: Will run the GraphWalker command with the blocked flag.
     """
 
-    report_file = kargs.get("report_file")
-    report_path = kargs.get("report_path", False)
+    report_file = kwargs.get("report_file")
+    report_path = kwargs.get("report_path", False)
 
     planner = create_planner(models=models, steps=steps, port=port, start_element=start_element,
                              verbose=verbose, unvisited=unvisited, blocked=blocked)
@@ -229,13 +229,13 @@ def run_tests(path, executor, url=None, models=None, steps=None, port=None, star
 
 
 def run_command(path, executor, url=None, models=None, steps=None, port=None, start_element=None,
-                verbose=False, unvisited=False, blocked=False, **kargs):
+                verbose=False, unvisited=False, blocked=False, **kwargs):
     """Run tests and echo output."""
 
     click.echo("Running:")
     status, statistics, report = run_tests(path, executor, url, models=models, steps=steps,
                                            port=port, start_element=start_element, verbose=verbose,
-                                           unvisited=unvisited, blocked=blocked, **kargs)
+                                           unvisited=unvisited, blocked=blocked, **kwargs)
 
     if statistics:
         echo_statistics(statistics)

@@ -18,16 +18,17 @@ from altwalker._utils import kill, get_command, url_join
 from altwalker.exceptions import ExecutorException
 
 logger = logging.getLogger(__name__)
+loaded_package_path = None
 
 
-def get_output(callable, *args, **kargs):
+def get_output(callable, *args, **kwargs):
     """Call a callable object and return the output from stdout, error message and
     traceback if an error occurred.
 
     Args:
         callable: The callable object to call.
         *args: The list of args for the calable.
-        **kargs: The dict of kargs for the callable.
+        **kwargs: The dict of kwargs for the callable.
 
     Returns:
         A dict containing the output of the callable, and the error message with the trace
@@ -47,7 +48,7 @@ def get_output(callable, *args, **kargs):
 
     with redirect_stdout(output):
         try:
-            callable(*args, **kargs)
+            callable(*args, **kwargs)
         except Exception as e:
             result["error"] = {
                 "message": str(e),
@@ -60,8 +61,24 @@ def get_output(callable, *args, **kargs):
     return result
 
 
+def _pop_previously_loaded_modules(path, package):
+    global loaded_package_path
+
+    if loaded_package_path is not None:
+        for module_key in list(sys.modules):
+            if module_key.startswith(package + ".") and \
+                    sys.modules[module_key].__file__.startswith(loaded_package_path):
+                sys.modules.pop(module_key)
+    loaded_package_path = os.path.join(path, package, "")
+
+
 def load(path, package, module):
-    """Load a module form a package at a given path."""
+    """Load a module from a package at a given path."""
+
+    if not package:
+        raise ValueError("Package to load is required")
+
+    _pop_previously_loaded_modules(path, package)
 
     importlib.invalidate_caches()
 
@@ -77,7 +94,6 @@ def load(path, package, module):
         "{}.{}".format(package, module),
         os.path.join(path, package, "{}.py".format(module)))
     loaded_module = spec.loader.load_module()
-    spec.loader.exec_module(loaded_module)
 
     return loaded_module
 
@@ -215,9 +231,9 @@ class HttpExecutor(Executor):
 
         return self._get_payload(response)
 
-    def _post(self, path, params=None, data=None):
+    def _post(self, path, params=None, json=None):
         HEADERS = {'Content-Type': 'application/json'}
-        response = requests.post(url_join(self.base, path), params=params, json=data, headers=HEADERS)
+        response = requests.post(url_join(self.base, path), params=params, json=json, headers=HEADERS)
         self._validate_response(response)
 
         return self._get_payload(response)
@@ -232,7 +248,7 @@ class HttpExecutor(Executor):
             path (:obj:`str`): The path to the test code.
         """
 
-        self._post("load", data={"path": os.path.abspath(path)})
+        self._post("load", json={"path": os.path.abspath(path)})
 
     def reset(self):
         """Makes an PUT at ``/reset``."""
@@ -298,7 +314,7 @@ class HttpExecutor(Executor):
                 }
         """
 
-        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, data=data)
+        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, json={"data": data})
 
         if payload.get("output") is None:
             raise ExecutorException("Invaild response. The payload must include the key: output.")
@@ -418,14 +434,14 @@ class PythonExecutor(Executor):
 
         data = copy.deepcopy(data) if data else {}
 
-        if model_name is None:
-            func = getattr(self._module, name)
-            nr_args = len(inspect.getfullargspec(func).args)
-        else:
+        if model_name:
             self._setup_class(model_name)
-
             func = getattr(self._instances[model_name], name)
-            nr_args = len(inspect.getfullargspec(func).args) - 1  # substract the self argument of the method
+        else:
+            func = getattr(self._module, name)
+
+        spec = inspect.signature(func)
+        nr_args = len(spec.parameters)
 
         if nr_args == 0:
             output = get_output(func)

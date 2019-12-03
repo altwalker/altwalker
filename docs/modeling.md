@@ -83,7 +83,7 @@ By default GraphWalker tries to access data from the current model context. To a
 
 An **action** is a piece of JavaScript code that you want the model to execute, in order to modify the data from the context.
 
-Actions can only be placed at an edge or model level. Actions from the model leve are executed once, and actions defined on an edge are executed every time the edge is reached.
+Actions can only be placed at an edge or model level. Actions from the model level are executed once, and actions defined on an edge are executed every time the edge is reached.
 
 ```eval_rst
 .. tip::

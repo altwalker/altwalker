@@ -58,9 +58,9 @@ def handle_errors(func):
     """Handle errors for the commnad line commands."""
 
     @functools.wraps(func)
-    def wrap(*args, **kargs):
+    def wrap(*args, **kwargs):
         try:
-            func(*args, **kargs)
+            func(*args, **kwargs)
         except GraphWalkerException as error:
             raise GraphWalkerError(error)
         except AltWalkerException as error:
