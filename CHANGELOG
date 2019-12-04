@@ -6,10 +6,10 @@ Version 0.2.6
 
 (bugfix release)
 
-- Fix issue where PythonExectuor doesn't work with decorated functions. (`#93`)
-- Unload previously loaded tests modules. (`#94`)
-- Update executeStep from HttpExecutor to post data dictionary inside the json ``data`` property. (`#96`)
-- Fix issue where the ``test.py`` module is executed twice. (`#98`)
+- Fix issue where PythonExectuor doesn't work with decorated functions. (`#93`_)
+- Unload previously loaded tests modules. (`#94`_)
+- Update executeStep from HttpExecutor to post data dictionary inside the json ``data`` property. (`#96`_)
+- Fix issue where the ``test.py`` module is executed twice. (`#98`_)
 
 .. _#93: https://gitlab.com/altom/altwalker/altwalker/issues/93
 .. _#94: https://gitlab.com/altom/altwalker/altwalker/issues/94
