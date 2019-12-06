@@ -3,11 +3,11 @@ Welcome to AltWalker's documentation!
 =====================================
 
 AltWalker is an open source, Model-Based Testing framework for automating your test
-execution. You design your tests as a directional graph and AltWalker executes
+execution. You design your tests as a directed graph and AltWalker executes
 them. It relies on `GraphWalker <http://graphwalker.github.io/>`_ to generate
 paths through your tests graph.
 
-Get started with :doc:`installation` and then get an quick overview with
+Get started with :doc:`installation` and then get a quick overview with
 the :doc:`quickstart`. There is also a list of :doc:`how-tos` and a list
 of runnable :doc:`examples`. The rest of the documentation describes
 how to use each feature of AltWalker in more details.

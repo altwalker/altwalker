@@ -81,7 +81,7 @@ To run the tests for the `default.json` model, run the following command:
         .. code::
 
             $ cd test-project
-            $ altwalker online tests -m models/default.json.json "random(edge_coverage(100))"
+            $ altwalker online tests -m models/default.json "random(edge_coverage(100))"
 
 
     .. group-tab:: C#/.NET
@@ -89,7 +89,7 @@ To run the tests for the `default.json` model, run the following command:
         .. code::
 
             $ cd test-project
-            $ altwalker online -x c# tests -m models/default.json.json "random(edge_coverage(100))"
+            $ altwalker online -x c# tests -m models/default.json "random(edge_coverage(100))"
 
 
 The above command runs the tests found within the ``tests`` folder, based on the model

@@ -21,14 +21,14 @@ logger = logging.getLogger(__name__)
 loaded_package_path = None
 
 
-def get_output(callable, *args, **kargs):
+def get_output(callable, *args, **kwargs):
     """Call a callable object and return the output from stdout, error message and
     traceback if an error occurred.
 
     Args:
         callable: The callable object to call.
         *args: The list of args for the calable.
-        **kargs: The dict of kargs for the callable.
+        **kwargs: The dict of kwargs for the callable.
 
     Returns:
         A dict containing the output of the callable, and the error message with the trace
@@ -48,7 +48,7 @@ def get_output(callable, *args, **kargs):
 
     with redirect_stdout(output):
         try:
-            callable(*args, **kargs)
+            callable(*args, **kwargs)
         except Exception as e:
             result["error"] = {
                 "message": str(e),
@@ -74,8 +74,9 @@ def _pop_previously_loaded_modules(path, package):
 
 def load(path, package, module):
     """Load a module from a package at a given path."""
+
     if not package:
-        raise Exception("Package to load is required")
+        raise ValueError("Package to load is required")
 
     _pop_previously_loaded_modules(path, package)
 
@@ -433,14 +434,14 @@ class PythonExecutor(Executor):
 
         data = copy.deepcopy(data) if data else {}
 
-        if model_name is None:
-            func = getattr(self._module, name)
-            nr_args = len(inspect.getfullargspec(func).args)
-        else:
+        if model_name:
             self._setup_class(model_name)
-
             func = getattr(self._instances[model_name], name)
-            nr_args = len(inspect.getfullargspec(func).args) - 1  # substract the self argument of the method
+        else:
+            func = getattr(self._module, name)
+
+        spec = inspect.signature(func)
+        nr_args = len(spec.parameters)
 
         if nr_args == 0:
             output = get_output(func)

@@ -205,11 +205,11 @@ calculating the percentage covered.
 
 .. code::
 
-    dependency_edge_coverage(<percentage>)
+    requirement_coverage(<percentage>)
 
 **Examples**:
 
-Walks randomly until the vertex coverage has reached 100%.
+Walks randomly until the requirements coverage has reached 25%.
 
 .. code::
 
