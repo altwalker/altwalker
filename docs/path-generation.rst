@@ -233,7 +233,7 @@ equal to the threshold are reached.
 
 **Examples**:
 
-Walks randomly until all the edges with dependency higher or equal to 85%
+Walks randomly until all the edges with dependency higher or equal to 85
 are reached.
 
 .. code::
