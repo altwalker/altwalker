@@ -60,7 +60,7 @@ of an edge getting chosen.
 
 .. code::
 
-    weight_random(<stop_conditions>)
+    weighted_random(<stop_conditions>)
 
 **Examples**:
 
@@ -69,13 +69,13 @@ elements.
 
 .. code::
 
-    weight_random(length(100))
+    weighted_random(length(100))
 
 Walk randomly with weights and never stop.
 
 .. code::
 
-    weight_random(never)
+    weighted_random(never)
 
 Quick Random
 ~~~~~~~~~~~~
