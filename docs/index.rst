@@ -64,4 +64,5 @@ Indices and Tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+* :doc:`glossary`
 * :ref:`search`
