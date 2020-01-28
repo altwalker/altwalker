@@ -3,6 +3,7 @@ import subprocess
 import logging
 import time
 import json
+import re
 
 import requests
 
@@ -11,6 +12,16 @@ from altwalker.exceptions import GraphWalkerException
 
 
 logger = logging.getLogger(__name__)
+
+
+def _get_error_message(data):
+    """Get the error message from GraphWalker logs."""
+
+    result = re.search(r'An error occurred when running command:.*[\r\n]+([^\r\n]+)', data)
+    if result:
+        return result.group(1)
+
+    return None
 
 
 def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None,
@@ -187,11 +198,12 @@ class GraphWalkerService:
         ``modelName`` for each step.
 
     Args:
+        models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
         port (:obj:`int`): Will start the service on the given port.
         start_element (:obj:`str`): A starting element for the first model.
         unvisited (:obj:`bool`): Will start the service with the unvisited flag set to True.
         blocked (:obj:`bool`): Will start the service with the blocked flag set to True.
-        output_file (:obj:`bool`): If set will save the output of the command in a file.
+        output_file (:obj:`str`): If set will save the output of the command in a file.
     """
 
     def __init__(self, models=None, port=8887, start_element=None, unvisited=False, blocked=False,
@@ -214,27 +226,44 @@ class GraphWalkerService:
     def _read_logs(self):
         """Read logs to check if the service started correctly."""
 
-        fp = open(self.output_file)
+        with open(self.output_file) as fp:
+            while 1:
+                where = fp.tell()
+                line = fp.readline()
+                if not line:
+                    time.sleep(0.1)
+                    fp.seek(where)
+                else:
+                    if "[HttpServer] Started" in line:
+                        break
 
-        while 1:
-            where = fp.tell()
-            line = fp.readline()
-            if not line:
-                time.sleep(0.1)
-                fp.seek(where)
-            else:
-                if "[HttpServer] Started" in line:
-                    break
+                if self._process.poll() is not None:
+                    self._raise_error()
 
-            if self._process.poll() is not None:
-                logger.debug("Could not start GraphWalker Service on port: {}.".format(self.port))
-                logger.debug("Process exit code: {}".format(self._process.poll()))
+    def _get_error_message(self):
+        """Read logs to get the error message."""
 
-                raise GraphWalkerException(
-                        "Could not start GraphWalker Service on port: {}\nCheck the log file at: {}"
-                        .format(self.port, self.output_file))
+        with open(self.output_file) as fp:
+            return _get_error_message(fp.read())
 
-        fp.close()
+    def _raise_error(self):
+        error = self._get_error_message()
+
+        logger.debug("Could not start GraphWalker Service on port: {}.".format(self.port))
+        logger.debug("Process exit code: {}".format(self._process.poll()))
+        if error:
+            logger.error("GraphWalker Service Error: {}".format(error))
+
+        more_info = "For more information check the log file at: {}".format(self.output_file)
+
+        if error:
+            raise GraphWalkerException(
+                "An error occured while trying to start the GraphWalker Service on port: {}\n{}\n\n{}"
+                .format(self.port, error, more_info))
+
+        raise GraphWalkerException(
+            "Could not start the GraphWalker Service on port: {}\n\n{}"
+            .format(self.port, more_info))
 
     def kill(self):
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
