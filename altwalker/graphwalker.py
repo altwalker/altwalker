@@ -102,9 +102,8 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     output, error = process.communicate()
 
     if error:
-        error = error.decode("utf-8")
-        raise GraphWalkerException(
-            "GraphWalker responded with the error: `{}`.".format(error))
+        error = error.decode("utf-8").strip()
+        raise GraphWalkerException(error)
 
     return output.decode("utf-8")
 
@@ -300,7 +299,7 @@ class GraphWalkerClient:
     def _validate_response(self, response):
         if not response.status_code == 200:
             raise GraphWalkerException(
-                "GraphWalker responded with status code: {}.".format(str(response.status_code)))
+                "GraphWalker responded with status code: {}.".format(response.status_code))
 
     def _get_body(self, response):
         body = response.json()
