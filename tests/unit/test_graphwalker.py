@@ -4,7 +4,25 @@ import unittest.mock as mock
 import platform
 
 from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, _create_command, \
-    _execute_command, offline, methods, check
+    _execute_command, _get_error_message, offline, methods, check
+
+
+class TestGetErrorMessage(unittest.TestCase):
+
+    def test_no_error(self):
+        self.assertIsNone(_get_error_message("No error message."))
+        self.assertIsNone(_get_error_message("[HttpServer] Started"))
+
+    def test_for_erros(self):
+        message = "An error occurred when running command:\n{}\n"
+        errors = [
+            "No valid generator found.",
+            "No valid stop condition found.",
+            "Address already in use."
+        ]
+
+        for error in errors:
+            self.assertEqual(_get_error_message(message.format(error)), error)
 
 
 class TestGraphWalkerClient(unittest.TestCase):
@@ -188,7 +206,7 @@ class TestExecuteCommand(unittest.TestCase):
     def test_error(self, popen_mock):
         popen_mock.return_value.communicate.return_value = (None, b"error message")
 
-        with self.assertRaisesRegex(GraphWalkerException, "GraphWalker responded with the error: `error message`."):
+        with self.assertRaisesRegex(GraphWalkerException, "error message"):
             _execute_command("offline")
 
     def test_output(self, popen_mock):

@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 0.2.7
+-------------
+
+(bugfix release)
+
+- Update error messages for ``check``, ``offline`` and ``online`` commands. (`#102`_, `#103`_)
+- Fix issue where ``sys.modules.__file__`` is optional and loading tests fails. (`#99`_)
+
+.. _#99: https://gitlab.com/altom/altwalker/altwalker/issues/99
+.. _#102: https://gitlab.com/altom/altwalker/altwalker/issues/102
+.. _#103: https://gitlab.com/altom/altwalker/altwalker/issues/103
+
 Version 0.2.6
 -------------
 

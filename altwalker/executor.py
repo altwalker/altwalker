@@ -18,7 +18,7 @@ from altwalker._utils import kill, get_command, url_join
 from altwalker.exceptions import ExecutorException
 
 logger = logging.getLogger(__name__)
-loaded_package_path = None
+prev_loaded_package_path = None
 
 
 def get_output(callable, *args, **kwargs):
@@ -61,15 +61,23 @@ def get_output(callable, *args, **kwargs):
     return result
 
 
-def _pop_previously_loaded_modules(path, package):
-    global loaded_package_path
+def _is_parent_path(parent, child):
+    parent = os.path.abspath(parent) + os.sep
+    child = os.path.abspath(child)
+    commonprefix = os.path.commonprefix([parent, child])
+    return commonprefix == parent
 
-    if loaded_package_path is not None:
+
+def _pop_previously_loaded_modules(path, package):
+    global prev_loaded_package_path
+
+    if prev_loaded_package_path is not None:
         for module_key in list(sys.modules):
             if module_key.startswith(package + ".") and \
-                    sys.modules[module_key].__file__.startswith(loaded_package_path):
+                    sys.modules[module_key].__file__ and \
+                    _is_parent_path(prev_loaded_package_path, sys.modules[module_key].__file__):
                 sys.modules.pop(module_key)
-    loaded_package_path = os.path.join(path, package, "")
+    prev_loaded_package_path = os.path.abspath(os.path.join(path, package, ""))
 
 
 def load(path, package, module):

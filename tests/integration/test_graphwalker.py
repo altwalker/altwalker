@@ -35,9 +35,39 @@ class TestGraphWalkerService(unittest.TestCase):
         with self.assertRaises(GraphWalkerException) as context:
             GraphWalkerService(port=9001)
 
-        self.assertIn("Could not start GraphWalker Service", str(context.exception))
+        self.assertIn(
+            "An error occured while trying to start the GraphWalker Service on port",
+            str(context.exception))
+
+        self.assertIn(
+            "Address already in use",
+            str(context.exception))
 
         service.kill()
+
+    def test_invalid_generator(self):
+        with self.assertRaises(GraphWalkerException) as context:
+            GraphWalkerService(models=[("tests/common/models/shop.json", "invalid_generator(never)")])
+
+        self.assertIn(
+            "An error occured while trying to start the GraphWalker Service on port",
+            str(context.exception))
+
+        self.assertIn(
+            "No valid generator found.",
+            str(context.exception))
+
+    def test_invalid_stop_condition(self):
+        with self.assertRaises(GraphWalkerException) as context:
+            GraphWalkerService(models=[("tests/common/models/shop.json", "random(invalid_stop_condition)")])
+
+        self.assertIn(
+            "An error occured while trying to start the GraphWalker Service on port",
+            str(context.exception))
+
+        self.assertIn(
+            "No valid stop condition found.",
+            str(context.exception))
 
     def test_logs(self):
         output_file = "graphwalker-test.log"

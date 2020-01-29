@@ -4,7 +4,7 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.exceptions import ExecutorException
-from altwalker.executor import get_output, load, create_executor, _pop_previously_loaded_modules, \
+from altwalker.executor import get_output, load, create_executor, _pop_previously_loaded_modules, _is_parent_path, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
@@ -66,6 +66,13 @@ class TestLoad(unittest.TestCase):
         self.assertTrue("python.simple" in sys.modules)
         _pop_previously_loaded_modules("tests/common/", "python")
         self.assertFalse("python.simple" in sys.modules)
+
+    def test_is_parent_path(self):
+        self.assertTrue(_is_parent_path("/a/b/c", "/a/b/c/d"))
+        self.assertTrue(_is_parent_path("./tests", "./tests/unit/test_cli.py"))
+
+        self.assertFalse(_is_parent_path("/a/b/test", "/a/b/test.py"))
+        self.assertFalse(_is_parent_path("./tests/integration", "./tests/unit"))
 
 
 class TestHttpExecutor(unittest.TestCase):
