@@ -20,7 +20,7 @@ GraphWalker keeps a context for each model plus a global context. A context is a
 GraphWalker has two way to interact with the data from the context:
 
 1. **Actions** allow you to initialize and update the data from the context.
-2. **Guard** allows you to block (guard) edges until a condition is meet.
+2. **Guard** allows you to block (guard) edges until a condition is met.
 
 Each model has a unique set of variables, so if you want to use variables across models
 you must save them in the global context. Every variable of the form ``global.<variable-name>`` is
@@ -56,7 +56,7 @@ on an edge which will be executed when an edge is reached.
 Guards
 ~~~~~~
 
-A **guard** is a piece of Java code which if evaluates as `false` marks an **edge** as unreachable,
+A **guard** is a piece of JavaScript code which if evaluates as `false` marks an **edge** as unreachable,
 the **guard** can use the variables from the context of the current model of the global context.
 
 **Examples**:
@@ -109,14 +109,14 @@ And from here there are two paths:
 1. **Not Logged In Path**:
 
 * Now we can go on ``e_for_user_not_logged_in`` edge for which the guard condition
-  (``isUserLoggedIn == false``) is meet.
+  (``isUserLoggedIn == false``) is met.
 * Now we are on ``v_logded_out`` where we have some test which don't need a logged in user.
 
 
 2. **Logged In Path**:
 
 * Go on the ``e_log_in`` edge, wich will set ``isUserLoggedIn`` to ``true``.
-* Now we can go on ``e_for_user_logged_in`` edge because the guard condition (``isUserLoggedIn == true``) is meet.
+* Now we can go on ``e_for_user_logged_in`` edge because the guard condition (``isUserLoggedIn == true``) is met.
 * Now we are on ``v_logded_in`` where we have some test for a logged in user.
 
 
