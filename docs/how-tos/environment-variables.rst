@@ -1,9 +1,12 @@
 Pass environment variables to your tests
--------------
+----------------------------------------
 
-Running your tests may require different test context based on your environment. You may want to have different configurations options which you pass as variables, or you write them in a configuration file. You can pass environment variables to your tests using AltWalker.
+Running your tests may require different test context based on your
+environment. You may want to have different configurations options which
+you pass as variables, or you write them in a configuration file. You can
+pass environment variables to your tests using AltWalker.
 
-Setting environment variable
+Setting environment variable:
 
 .. tabs::
     .. group-tab:: MacOS/Linux
@@ -13,7 +16,6 @@ Setting environment variable
             $ export TESTS_CONF_FILE="conf.production.json"
             $ altwalker online tests -m models.json "random(vertex_coverage(30))"
 
-
     .. group-tab:: Windows
 
         .. code-block:: console
@@ -22,7 +24,7 @@ Setting environment variable
             > altwalker online tests -m models.json "random(vertex_coverage(30))"
 
 
-Accessing environment variable in your tests
+Accessing environment variable in your tests:
 
 .. tabs::
     .. group-tab:: Python
@@ -30,7 +32,6 @@ Accessing environment variable in your tests
         .. code-block:: py
 
             conf_file = os.environ.get("TESTS_CONF_FILE", "conf.development.json")
-        
 
     .. group-tab:: C#
 

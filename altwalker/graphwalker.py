@@ -248,8 +248,8 @@ class GraphWalkerService:
     def _raise_error(self):
         error = self._get_error_message()
 
-        logger.debug("Could not start GraphWalker Service on port: {}.".format(self.port))
-        logger.debug("Process exit code: {}".format(self._process.poll()))
+        logger.error("Could not start GraphWalker Service on port: {}.".format(self.port))
+        logger.error("Process exit code: {}".format(self._process.poll()))
         if error:
             logger.error("GraphWalker Service Error: {}".format(error))
 

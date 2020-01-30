@@ -231,7 +231,7 @@ $ pytest tests -s -v
 #### Running tests with tox inside docker
 
 ```
-docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" robert96/graphwalker-cli:tox tox
+$ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" robert96/graphwalker-cli:tox tox
 ```
 
 ### CLI
