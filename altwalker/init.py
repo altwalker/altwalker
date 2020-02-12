@@ -5,7 +5,8 @@ import warnings
 
 from altwalker.__version__ import VERSION
 from altwalker._utils import has_git
-from altwalker.model import get_methods, check_models
+from altwalker.model import check_models
+from altwalker.code import get_methods
 
 
 MINOR_VERSION = ".".join(VERSION.split(".")[:2]) + ".*"

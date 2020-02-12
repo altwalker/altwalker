@@ -5,6 +5,10 @@ API Documentation
 This part of the documentation lists the full API reference of all
 public classes and functions.
 
+.. contents:: Table of Contents
+    :local:
+    :backlinks: none
+
 .. module:: altwalker
 
 Walker
@@ -217,20 +221,27 @@ Model
 
 .. currentmodule:: altwalker.model
 
+.. autofunction:: get_models
 
-.. autofunction:: validate_model
+.. autofunction:: validate_json_models
 
 .. autofunction:: validate_models
 
 .. autofunction:: check_models
+
+
+Code
+----
+
+.. automodule:: altwalker.code
+
+.. currentmodule:: altwalker.code
 
 .. autofunction:: get_methods
 
 .. autofunction:: validate_code
 
 .. autofunction:: verify_code
-
-.. autofunction:: get_models
 
 
 Exceptions

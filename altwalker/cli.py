@@ -6,8 +6,9 @@ import click
 
 import altwalker.graphwalker as graphwalker
 from altwalker._utils import click_formatwarning, echo_status, echo_statistics
+from altwalker._check import cli_check
 from altwalker.exceptions import FailedTestsError, handle_errors
-from altwalker.model import check_models, verify_code
+from altwalker.code import verify_code
 from altwalker.planner import create_planner
 from altwalker.executor import create_executor
 from altwalker.walker import create_walker
@@ -89,8 +90,12 @@ def cli(log_level, log_file):
 def check(models, blocked):
     """Check and analyze model(s) for issues."""
 
-    check_models(models, blocked=blocked)
-    click.echo("No issues found with the model(s).")
+    status = cli_check(models, blocked=blocked)
+
+    if status:
+        exit(0)
+    else:
+        exit(4)
 
 
 @cli.command()

@@ -179,7 +179,7 @@ For more details and a list of all available Generators and Sotop Conditions rea
 
 **Examples**:
 
-.. command-output:: altwalker check -m models/login.json "random(never)" -m models/blog.json "random(never)"
+.. command-output:: altwalker check -m models/blog-navigation.json "random(never)" -m models/blog-post.json "random(never)"
     :cwd: _static/
 
 

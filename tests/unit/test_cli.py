@@ -112,7 +112,7 @@ class TestRunCommand(unittest.TestCase):
             verbose=True, unvisited=True, blocked=True)
 
 
-@mock.patch("altwalker.cli.check_models")
+@mock.patch("altwalker.cli.cli_check")
 class TestCheck(unittest.TestCase):
 
     def setUp(self):

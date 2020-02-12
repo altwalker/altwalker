@@ -1,12 +1,13 @@
-"""A collection of util functions for validating model(s) and code."""
+"""A collection of util functions for validating model(s)."""
 
-import os
 import json
 import keyword
+import itertools
+from functools import reduce
+from collections import defaultdict
 
-import altwalker.graphwalker as graphwalker
-from altwalker.executor import create_executor
 from altwalker.exceptions import ValidationException
+import altwalker.graphwalker as graphwalker
 
 
 PYTHON_KEYWORDS = {element.lower() for element in keyword.kwlist}
@@ -27,6 +28,10 @@ CSHARP_KEYWORDS = {
 }
 
 
+def _get_issues(issues):
+    return reduce(lambda acc, cur: acc.union(cur), issues.values(), set())
+
+
 def _read_json(path):
     """Deserialize json file from a path into an object."""
 
@@ -39,177 +44,6 @@ def _read_json(path):
     return data
 
 
-def _is_keyword(name):
-    """Check if the name is a keyword."""
-
-    normalized = name.lower()
-    return normalized in PYTHON_KEYWORDS or normalized in CSHARP_KEYWORDS
-
-
-def validate_element(name):
-    """Validate name as a python identifier."""
-
-    return not _is_keyword(name) and name.isidentifier()
-
-
-def validate_model(model_json):
-    """Validate modules, vertices and edges as python identifiers.
-
-    Raises:
-        ValidationException: If the model is not a valid model.
-    """
-
-    message = ""
-    error = "Invalid {} name: {}.\n"
-
-    for model in model_json["models"]:
-        if not validate_element(model["name"]):
-            message += error.format("model", model["name"])
-
-        for vertex in model["vertices"]:
-            if not validate_element(vertex["name"]):
-                message += error.format("vertex", vertex["name"])
-
-        for edge in model["edges"]:
-            if not validate_element(edge["name"]):
-                message += error.format("edge", edge["name"])
-
-    if message:
-        raise ValidationException(message)
-
-
-def validate_models(models_path):
-    """Validate models from a list of paths.
-
-    Args:
-        model_paths: A sequence of path to model files.
-
-    Raises:
-        ValidationException: If the model is not a valid model.
-    """
-
-    for model_path in models_path:
-        model = _read_json(model_path)
-        validate_model(model)
-
-
-def validate_code(executor, methods):
-    """Validate code against a dict of methods.
-
-    Raises:
-        ValidationException: If the code is not valid.
-    """
-
-    message = ""
-
-    for model, elements in methods.items():
-
-        if not executor.has_model(model):
-            message += "Expected to find class {}.\n".format(model)
-
-        for element in elements:
-            if not executor.has_step(model, element):
-                message += "Expected to find {} method in class {}.\n".format(element, model)
-
-    if message:
-        raise ValidationException(message)
-
-
-def verify_code(path, executor, model_paths, url):
-    """Verify test code against the model(s).
-
-    Args:
-        path: The path to the project root.
-        package: The name of the package inside the project root.
-        model_paths: A sequence of path to model files.
-
-    Raises:
-        GraphWalkerException: If an error is raised by the methods command.
-        ValidationException: If the model(s) or the code are not a valid.
-    """
-
-    executor = create_executor(path, executor, url)
-    try:
-        validate_models(model_paths)
-        methods = get_methods(model_paths)
-
-        validate_code(executor, methods)
-    finally:
-        executor.kill()
-
-
-def _is_element_blocked(element, blocked=False):
-    return not (blocked and element.get("properties", {}).get("blocked", False))
-
-
-def _json_methods(model_path, blocked=False):
-    """Return for each model its name and a list of unique names of vertices and edges in the model."""
-
-    result = dict()
-    models = _read_json(model_path)
-
-    for model in models["models"]:
-        name = model["name"]
-
-        vertices = [vertex["name"] for vertex in model["vertices"] if _is_element_blocked(vertex, blocked=blocked)]
-        edges = [edge["name"] for edge in model["edges"] if _is_element_blocked(edge, blocked=blocked)]
-
-        result[name] = sorted(set(vertices + edges))
-
-    return result
-
-
-def _graphml_methods(model_path, blocked=False):
-    """Return the model name and a list of unique names of vertices and edges in the model."""
-
-    _, file_name = os.path.split(model_path)
-    model_name = file_name.replace(".graphml", "")
-
-    result = dict()
-    result[model_name] = sorted(set(graphwalker.methods(model_path, blocked=blocked)))
-
-    return result
-
-
-def get_methods(model_paths, blocked=False):
-    """Return all requrired methods for all models.
-
-    Args:
-        model_paths: A sequence of path to model files.
-
-    Returns:
-        A dict containing each model name as a key and a lsit containing its required methods as values.
-    """
-
-    result = dict()
-
-    for path in model_paths:
-        if path.endswith(".json"):
-            result.update(_json_methods(path, blocked=blocked))
-        elif path.endswith(".graphml"):
-            result.update(_graphml_methods(path, blocked=blocked))
-
-    return result
-
-
-def check_models(models, blocked=False):
-    """Check and analyze the model(s) for issues.
-
-    Args:
-        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-
-    Raises:
-        GraphWalkerException: If an error is raised by the check command.
-        ValidationException: If the model is not a valid model.
-    """
-
-    validate_models([model_path for model_path, _ in models if model_path.endswith(".json")])
-
-    output = graphwalker.check(models, blocked=blocked)
-    if not output.startswith("No issues found with the model(s)"):
-        raise ValidationException(output)
-
-
 def get_models(model_paths):
     """Combine all models in one json object for GraphWalker REST /load.
 
@@ -217,10 +51,10 @@ def get_models(model_paths):
         model_paths: A sequence of path to model files, only ``.json`` files.
 
     Returns:
-        A json object containing all models.
+        dict: A json object containing all models.
 
     Raises:
-        ValidationException: If the model is not a valid model.
+        ValidationException: If the model is not a valid json.
     """
 
     models = {
@@ -229,9 +63,183 @@ def get_models(model_paths):
 
     for path in model_paths:
         model = _read_json(path)
-        models["models"].extend(model["models"])
+
+        current_models = model.get("models", [])
+        for model in current_models:
+            model["sourceFile"] = path
+
+        models["models"].extend(current_models)
 
         if not models.get("name"):
-            models["name"] = model["name"]
+            models["name"] = model.get("name", "")
+
+    if not models.get("name"):
+        models["name"] = "Unnamed Model Suite"
 
     return models
+
+
+def _is_keyword(name):
+    """Check if the name is a keyword."""
+
+    normalized = name.lower()
+    return normalized in PYTHON_KEYWORDS or normalized in CSHARP_KEYWORDS
+
+
+def _validate_element_name(name):
+    issues = set()
+
+    if _is_keyword(name):
+        issues.add("Name '{}' is a reserve keyword.".format(name))
+
+    if not name.isidentifier():
+        issues.add("Name '{}' is not a valid identifier.".format(name))
+
+    return issues
+
+
+def _validate_vertex(vertex_json):
+    issues = set()
+
+    id = vertex_json.get("id", "")
+    if not id:
+        issues.add("Each vertex must have an id.")
+        return issues
+
+    name = vertex_json.get("name", "")
+    if not name:
+        issues.add("Vertex '{}' doesn't have a name.".format(id))
+    else:
+        issues.update(_validate_element_name(name))
+
+    shared_state = vertex_json.get("sharedState", "")
+    if not isinstance(shared_state, str):
+        issues.add("Vertex '{}' has an invalid sharedState. Shared states must be strings.".format(id))
+
+    return issues
+
+
+def _validate_edge(edge_json):
+    issues = set()
+
+    id = edge_json.get("id", "")
+    if not id:
+        issues.add("Each edge must have an id.")
+        return issues
+
+    name = edge_json.get("name", "")
+    if name:
+        issues.update(_validate_element_name(name))
+
+    if not edge_json.get("targetVertexId"):
+        issues.add("Eage '{}' doesn't have a targetVertexId.".format(id))
+
+    weight = edge_json.get("weight")
+    if weight and (not isinstance(weight, float) or weight < 0 or weight > 1):
+        issues.add(
+            "Edge '{}' has an ivalid weight of: {}. The weight must be a value between 0 and 1."
+            .format(id, weight)
+        )
+
+    return issues
+
+
+def _validate_model(model_json):
+    issues = set()
+
+    name = model_json.get("name", "")
+    if not name:
+        issues.add("Each model must have a name.")
+    else:
+        issues.update(_validate_element_name(name))
+
+    vertices = model_json.get("vertices", None)
+    if vertices is None:
+        issues.add("Each model must have a list of vertices.")
+    else:
+        for vertex in vertices:
+            issues.update(_validate_vertex(vertex))
+
+    edges = model_json.get("edges", None)
+    if edges is None:
+        issues.add("Each model must have a list of edges.")
+    else:
+        for edge in edges:
+            issues.update(_validate_edge(edge))
+
+    return issues
+
+
+def _validate_models(models_json):
+    models = models_json.get("models", None)
+
+    issues = defaultdict(set)
+    ids = defaultdict(int)
+
+    if not models:
+        issues["global"].add("No models found.")
+
+    for model in models:
+        key = "{}::{}".format(model.get("sourceFile", "UnknownSorceFile"), model.get("name", "UnnamedModel"))
+        issues[key].update(_validate_model(model))
+
+        for element in itertools.chain(model.get("edges", []), model.get("vertices", [])):
+            element_id = element.get("id")
+
+            if element_id:
+                ids[element_id] += 1
+
+            if element_id and ids[element_id] > 1:
+                issues[key].add("Id '{}' is not unique.".format(element_id))
+
+    return issues
+
+
+def validate_json_models(model_json):
+    """Validate modules, vertices and edges as python identifiers.
+
+    Args:
+        model_json (:obj:`dict`): A models object.
+
+    Raises:
+        ValidationException: If the model is not a valid model.
+    """
+
+    issues = _validate_models(model_json)
+    issues_messages = _get_issues(issues)
+
+    if issues_messages:
+        raise ValidationException("\n".join(issues_messages))
+
+
+def validate_models(model_paths):
+    """Validate models from a list of paths.
+
+    Args:
+        model_paths (:obj:`list`): A sequence of path to model files.
+
+    Raises:
+        ValidationException: If the model is not a valid model.
+    """
+
+    json_models = get_models(model_paths)
+    validate_json_models(json_models)
+
+
+def check_models(models, blocked=False):
+    """Check and analyze the model(s) for issues.
+
+    Args:
+        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
+        blocked (:obj:`bool`): If set to true will fiter out elements with the keyword ``blocked``.
+
+    Raises:
+        GraphWalkerException: If an error is raised by the check command.
+        ValidationException: If the models are not valid models.
+    """
+
+    validate_models([model_path for model_path, _ in models if model_path.endswith(".json")])
+
+    output = graphwalker.check(models, blocked=blocked)
+    if not output.startswith("No issues found with the model(s)"):
+        raise ValidationException(output)
