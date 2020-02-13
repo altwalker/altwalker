@@ -60,7 +60,10 @@ report_file_option = click.option("--report-file", type=click.Path(exists=False,
                                   help="Save the report in a file.")
 
 report_path_option = click.option("--report-path", default=False, is_flag=True,
-                                  help="Report the path.")
+                                  help="Report the execution path.")
+
+report_path_file_option = click.option("--report-path-file", type=click.Path(exists=False, dir_okay=False),
+                                       help="Report the execution path to a file.")
 
 
 def add_options(options):
@@ -144,7 +147,8 @@ def generate(dest_dir, models, language):
 @click.option("--port", "-p", default=8887,
               help="Sets the port of the GraphWalker service.")
 @add_options([model_and_generator_option, start_element_option, executor_option, url_option,
-              verbose_option, unvisted_option, blocked_option, report_path_option, report_file_option])
+              verbose_option, unvisted_option, blocked_option, report_path_option, report_path_file_option,
+              report_file_option])
 @handle_errors
 def online(test_package, **options):
     """Run the tests from TEST_PACKAGE path using the GraphWalker online RESTFUL service."""
@@ -184,15 +188,16 @@ def offline(**options):
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_path", type=click.Path(exists=True, dir_okay=False))
-@add_options([executor_option, url_option, report_path_option, report_file_option])
+@add_options([executor_option, url_option, report_path_option, report_path_file_option, report_file_option])
 @handle_errors
-def walk(test_package, steps_path, executor, url, report_path, report_file):
+def walk(test_package, steps_path, executor, url, report_path, report_path_file, report_file):
     """Run the tests from TEST_PACKAGE with steps from STEPS_PATH."""
 
     with open(steps_path) as f:
         steps = json.load(f)
 
-    run_command(test_package, executor, url, steps=steps, report_path=report_path, report_file=report_file)
+    run_command(test_package, executor, url, steps=steps, report_path=report_path,
+                report_path_file=report_path_file, report_file=report_file)
 
 
 def run_tests(path, executor, url=None, models=None, steps=None, port=None, start_element=None,
@@ -237,6 +242,8 @@ def run_command(path, executor, url=None, models=None, steps=None, port=None, st
                 verbose=False, unvisited=False, blocked=False, **kwargs):
     """Run tests and echo output."""
 
+    kwargs["report_path"] = kwargs.get("report_path", False) or bool(kwargs.get("report_path_file"))
+
     click.echo("Running:")
     status, statistics, report = run_tests(path, executor, url, models=models, steps=steps,
                                            port=port, start_element=start_element, verbose=verbose,
@@ -244,6 +251,11 @@ def run_command(path, executor, url=None, models=None, steps=None, port=None, st
 
     if statistics:
         echo_statistics(statistics)
+
+    if kwargs.get("report_path_file"):
+        path = report.pop("path", {})
+        with open(kwargs["report_path_file"], "w") as fp:
+            click.echo(json.dumps(path, sort_keys=True, indent=4), file=fp)
 
     if report:
         click.echo()

@@ -109,7 +109,7 @@ class TestRunCommand(unittest.TestCase):
         run_tests.assert_called_once_with(
             "path/to/tests", "executor_type", "http://localhost:5000",
             models=["path/to/model"], port=9999, steps=[], start_element=None,
-            verbose=True, unvisited=True, blocked=True)
+            verbose=True, unvisited=True, blocked=True, report_path=False)
 
 
 @mock.patch("altwalker.cli.cli_check")
@@ -319,7 +319,8 @@ class TestOnline(unittest.TestCase):
                 unvisited=False,
                 verbose=False,
                 report_file=None,
-                report_path=False)
+                report_path=False,
+                report_path_file=None)
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
@@ -408,7 +409,8 @@ class TestOnline(unittest.TestCase):
             unvisited=False,
             verbose=False,
             report_file=None,
-            report_path=False)
+            report_path=False,
+            report_path_file=None)
 
     def test_language(self, run_mock):
         with run_isolation(self.runner, self.files, folders=["package"]):
@@ -424,7 +426,8 @@ class TestOnline(unittest.TestCase):
             unvisited=False,
             verbose=False,
             report_file=None,
-            report_path=False)
+            report_path=False,
+            report_path_file=None)
 
 
 @mock.patch("altwalker.graphwalker.offline")
@@ -562,7 +565,8 @@ class TestWalk(unittest.TestCase):
                 unvisited=False,
                 blocked=False,
                 report_file=None,
-                report_path=False)
+                report_path=False,
+                report_path_file=None)
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
