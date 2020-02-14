@@ -218,9 +218,14 @@ class GraphWalkerService:
         logger.debug("Command: {}".format(" ".join(command)))
 
         self._process = subprocess.Popen(
-            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
+            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT, start_new_session=True)
 
-        self._read_logs()
+        # Ignore bare 'except' error because we re-raise the exception.
+        try:
+            self._read_logs()
+        except:  # noqa: E722
+            self.kill()
+            raise
 
     def _read_logs(self):
         """Read logs to check if the service started correctly."""
@@ -268,7 +273,8 @@ class GraphWalkerService:
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
 
         logger.debug("Kill the GraphWalker Service on port: {}".format(self.port))
-        kill(self._process.pid)
+        if self._process and self._process.poll() is None:
+            kill(self._process.pid)
 
 
 class GraphWalkerClient:

@@ -49,9 +49,9 @@ def get_output(callable, *args, **kwargs):
     with redirect_stdout(output):
         try:
             callable(*args, **kwargs)
-        except Exception as e:
+        except (KeyboardInterrupt, Exception) as e:
             result["error"] = {
-                "message": str(e),
+                "message": str(e) or type(e).__name__,
                 "trace": str(traceback.format_exc())
             }
 

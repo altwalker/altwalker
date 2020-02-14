@@ -29,7 +29,7 @@ class Walker:
         if not self._status:
             return
 
-        while self._planner.has_next() and self._status:
+        while self._status and self._planner.has_next():
             step = self._planner.get_next()
 
             if step["modelName"] not in self._models:

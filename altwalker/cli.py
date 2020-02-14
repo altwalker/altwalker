@@ -200,7 +200,7 @@ def walk(test_package, steps_path, executor, url, report_path, report_path_file,
                 report_path_file=report_path_file, report_file=report_file)
 
 
-def run_tests(path, executor, url=None, models=None, steps=None, port=None, start_element=None,
+def run_tests(path, executor_type, url=None, models=None, steps=None, port=None, start_element=None,
               verbose=False, unvisited=False, blocked=False, **kwargs):
     """Run tests.
 
@@ -219,21 +219,26 @@ def run_tests(path, executor, url=None, models=None, steps=None, port=None, star
     report_file = kwargs.get("report_file")
     report_path = kwargs.get("report_path", False)
 
-    planner = create_planner(models=models, steps=steps, port=port, start_element=start_element,
-                             verbose=verbose, unvisited=unvisited, blocked=blocked)
+    planner = None
+    executor = None
+    statistics = {}
 
     try:
-        executor = create_executor(path, executor, url=url)
-        try:
-            reporter = create_reporters(report_path=report_path, report_file=report_file)
-            walker = create_walker(planner, executor, reporter=reporter)
-            walker.run()
+        planner = create_planner(models=models, steps=steps, port=port, start_element=start_element,
+                                 verbose=verbose, unvisited=unvisited, blocked=blocked)
 
-            statistics = planner.get_statistics()
-        finally:
-            executor.kill()
+        executor = create_executor(path, executor_type, url=url)
+        reporter = create_reporters(report_path=report_path, report_file=report_file)
+        walker = create_walker(planner, executor, reporter=reporter)
+        walker.run()
+
+        statistics = planner.get_statistics()
     finally:
-        planner.kill()
+        if planner:
+            planner.kill()
+
+        if executor:
+            executor.kill()
 
     return walker.status, statistics, reporter.report()
 
