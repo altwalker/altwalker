@@ -30,6 +30,16 @@ class TestWalker(WalkerSetUp):
         self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
         self.assertFalse(status)
 
+    def test_setUpRun_fail_reporter_end(self):
+        self.walker._run_step = mock.Mock()
+        self.walker._run_step.return_value = False
+        self.reporter.end = mock.Mock()
+
+        for step in self.walker:
+            self.assertTrue(False, "setUpRun should fail")
+        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
+        self.reporter.end.assert_called_once_with()
+
     def test_tearDownRun(self):
         self.walker._run_step = mock.Mock()
 
