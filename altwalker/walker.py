@@ -27,6 +27,7 @@ class Walker:
 
         # if setUpRun failed stop
         if not self._status:
+            self._reporter.end()
             return
 
         while self._status and self._planner.has_next():
