@@ -241,6 +241,17 @@ class TestFormater(unittest.TestCase):
 
         self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
 
+    @mock.patch("altwalker.reporter._add_timestamp")
+    def test_error_no_step(self, add_timestamp):
+        def add_timestamp_func(message):
+            return message
+        add_timestamp.side_effect = add_timestamp_func
+
+        error_message = "Error message."
+        self.formater.error(None, error_message)
+        add_timestamp.assert_called_with("Unexpected error occurred.\nError message.\n")
+        self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
+
 
 class TestPrintReporter(unittest.TestCase):
 
@@ -356,6 +367,19 @@ class TestClickReporter(unittest.TestCase):
         trace = "Traceback"
         self.reporter.error(self.step, error_message, trace=trace)
 
+        self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
+
+    @mock.patch("altwalker.reporter._add_timestamp")
+    def test_error_no_step(self, add_timestamp):
+        self.reporter._log = mock.Mock(spec=Reporter._log)
+
+        def add_timestamp_func(message):
+            return message
+        add_timestamp.side_effect = add_timestamp_func
+
+        error_message = "Error message."
+        self.reporter.error(None, error_message)
+        add_timestamp.assert_called_with("Unexpected error occurred.\nError: \x1b[31mError message.\x1b[0m\n")
         self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
 
     @mock.patch("click.echo")

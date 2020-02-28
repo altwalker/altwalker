@@ -2,6 +2,7 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.walker import Walker
+from altwalker.exceptions import GraphWalkerException
 
 
 class WalkerSetUp(unittest.TestCase):
@@ -465,3 +466,18 @@ class TestItter(WalkerSetUp):
 
         self.reporter.start.assert_called_once_with()
         self.reporter.end.assert_called_once_with()
+
+    def test_get_next_fail(self):
+        self.walker._setUpRun.return_value = True
+        self.walker._setUpModel.return_value = True
+        self.walker._tearDownModels.return_value = True
+        self.walker._tearDownRun.return_value = True
+
+        self.planner.has_next.return_value = True
+        self.planner.get_next.side_effect = GraphWalkerException("Fail get_next")
+
+        for _ in self.walker:
+            pass
+
+        self.assertFalse(self.walker.status)
+        self.reporter.error.assert_called_with(None, "Fail get_next")

@@ -76,8 +76,9 @@ def add_options(options):
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option(None, "--version", "-v", prog_name="AltWalker")
-@click.option("--log-level", type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"],
-              case_sensitive=False), default="WARNING", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
+@click.option("--log-level",
+              type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], case_sensitive=False),
+              default="WARNING", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
               help="Sets the logger level to the specified level.")
 @click.option("--log-file", type=click.Path(exists=False, dir_okay=False), envvar="ALTWALKER_LOG_FILE",
               help="Sends logging output to a file.")

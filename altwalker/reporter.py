@@ -240,8 +240,10 @@ class _Formater(Reporter):
             message (:obj:`str`): The message of the error.
             trace (:obj:`str`): The traceback.
         """
-
-        string = "Unexpected error ocurrent while running {}.\n".format(_format_step(step))
+        if step:
+            string = "Unexpected error occurred while running {}.\n".format(_format_step(step))
+        else:
+            string = "Unexpected error occurred.\n"
         string += "{}\n".format(message)
 
         if trace:
@@ -318,8 +320,10 @@ class ClickReporter(_Formater):
             message (:obj:`str`): The message of the error.
             trace (:obj:`str`): The traceback.
         """
-
-        string = "Unexpected error ocurrent while running {}.\n".format(_format_step(step))
+        if step:
+            string = "Unexpected error occurred while running {}.\n".format(_format_step(step))
+        else:
+            string = "Unexpected error occurred.\n"
         string += "Error: {}\n".format(click.style(message, fg="red"))
 
         if trace:
@@ -346,7 +350,7 @@ class PathReporter(Reporter):
             self._path.append(step)
 
     def report(self):
-        """Reutrn a list of all executed steps.
+        """Return a list of all executed steps.
 
         Returns:
             list: Containing all executed steps.

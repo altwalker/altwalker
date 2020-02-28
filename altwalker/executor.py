@@ -62,7 +62,9 @@ def get_output(callable, *args, **kwargs):
 
 
 def _is_parent_path(parent, child):
-    parent = os.path.abspath(parent) + os.sep
+    parent = os.path.abspath(parent)
+    if not parent.endswith(os.sep):
+        parent = parent + os.sep
     child = os.path.abspath(child)
     commonprefix = os.path.commonprefix([parent, child])
     return commonprefix == parent
@@ -74,6 +76,7 @@ def _pop_previously_loaded_modules(path, package):
     if prev_loaded_package_path is not None:
         for module_key in list(sys.modules):
             if module_key.startswith(package + ".") and \
+                    hasattr(sys.modules[module_key], "__file__") and \
                     sys.modules[module_key].__file__ and \
                     _is_parent_path(prev_loaded_package_path, sys.modules[module_key].__file__):
                 sys.modules.pop(module_key)

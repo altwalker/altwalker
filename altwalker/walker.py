@@ -1,6 +1,7 @@
 import traceback
 
 from altwalker.reporter import Reporter
+from altwalker.exceptions import GraphWalkerException
 
 
 class Walker:
@@ -31,7 +32,12 @@ class Walker:
             return
 
         while self._status and self._planner.has_next():
-            step = self._planner.get_next()
+            try:
+                step = self._planner.get_next()
+            except GraphWalkerException as ex:
+                self._reporter.error(None, str(ex))
+                self._status = False
+                break
 
             if step["modelName"] not in self._models:
                 self._status = self._setUpModel(step["modelName"])
