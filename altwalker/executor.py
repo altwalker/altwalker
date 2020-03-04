@@ -259,7 +259,7 @@ class HttpExecutor(Executor):
             path (:obj:`str`): The path to the test code.
         """
 
-        self._post("load", json={"path": os.path.abspath(path)})
+        self._post("load", json={"path": path})
 
     def reset(self):
         """Makes an PUT at ``/reset``."""

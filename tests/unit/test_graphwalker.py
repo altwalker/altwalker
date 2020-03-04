@@ -108,15 +108,18 @@ class TestGraphWalkerClient(unittest.TestCase):
 @mock.patch("altwalker._utils.get_command", side_effect=lambda command: [command])
 class TestCreateCommand(unittest.TestCase):
 
-    def test_method(self, get_gw):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_method(self, get_gw, system):
         command = _create_command("online")
         self.assertEqual(command[1], "online")
 
-    def test_model_path(self, get_gw):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_model_path(self, get_gw, system):
         command = _create_command("online", model_path="model_path")
         self.assertListEqual(["--model", "model_path"], command[2:])
 
-    def test_models(self, get_gw):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_models(self, get_gw, system):
         command = _create_command("online")
         self.assertNotIn("--model", command)
 
@@ -131,7 +134,8 @@ class TestCreateCommand(unittest.TestCase):
             ["--model", "model_path_1", "stop_condition_1", "--model", "model_path_2", "stop_condition_2"],
             command[2:])
 
-    def test_port(self, get_gw):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_port(self, get_gw, system):
         command = _create_command("online")
         self.assertNotIn("--port", command)
 
@@ -139,7 +143,8 @@ class TestCreateCommand(unittest.TestCase):
         command = _create_command("online", port=port)
         self.assertListEqual(["--port", str(port)], command[2:])
 
-    def test_service(self, get_gw):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_service(self, get_gw, system):
         command = _create_command("online")
         self.assertNotIn("--service", command)
 
@@ -147,7 +152,8 @@ class TestCreateCommand(unittest.TestCase):
         command = _create_command("online", service=service)
         self.assertListEqual(["--service", service], command[2:])
 
-    def test_start_element(self, get_gw):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_start_element(self, get_gw, system):
         command = _create_command("online")
         self.assertNotIn("--start-element", command)
 

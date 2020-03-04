@@ -229,7 +229,7 @@ class TestInitProject(unittest.TestCase):
     @mock.patch("altwalker.init.check_models")
     def test_copy_models(self, check_mock, copy_mock, generate_tests_mock, git_init_mock):
         init_project(self.output_dir, model_paths=["first.json", "second.json"], language="python")
-        copy_mock.assert_called_once_with(self.output_dir + "/models", ["first.json", "second.json"])
+        copy_mock.assert_called_once_with(self.output_dir + os.path.sep + "models", ["first.json", "second.json"])
 
     def test_git_init(self, generate_tests_mock, git_init_mock):
         init_project(self.output_dir)

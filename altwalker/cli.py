@@ -1,6 +1,7 @@
 import json
 import warnings
 import logging
+import os
 
 import click
 
@@ -227,7 +228,7 @@ def run_tests(path, executor_type, url=None, models=None, steps=None, port=None,
     try:
         planner = create_planner(models=models, steps=steps, port=port, start_element=start_element,
                                  verbose=verbose, unvisited=unvisited, blocked=blocked)
-
+        path = os.path.abspath(path)
         executor = create_executor(path, executor_type, url=url)
         reporter = create_reporters(report_path=report_path, report_file=report_file)
         walker = create_walker(planner, executor, reporter=reporter)

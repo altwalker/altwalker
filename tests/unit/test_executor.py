@@ -1,4 +1,3 @@
-import os
 import sys
 import unittest
 import unittest.mock as mock
@@ -136,7 +135,7 @@ class TestHttpExecutor(unittest.TestCase):
 
         path = "tests/common/example"
         self.executor.load(path)
-        self.executor._post.assert_called_once_with("load", json={"path": os.path.abspath(path)})
+        self.executor._post.assert_called_once_with("load", json={"path": path})
 
     def test_restet(self):
         self.executor._put = mock.MagicMock(return_value={})
@@ -403,7 +402,8 @@ class TestPythonExecutor(unittest.TestCase):
 
 class TestDotnetExecutorService(unittest.TestCase):
 
-    def test_create_command(self):
+    @mock.patch("platform.system", return_value="Linux")
+    def test_create_command(self, platform):
         command = DotnetExecutorService._create_command("path", "http://localhost:4200")
         self.assertEqual(command, ['dotnet', 'path', '--server.urls=http://localhost:4200'])
 

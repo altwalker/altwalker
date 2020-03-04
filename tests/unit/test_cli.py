@@ -1,5 +1,6 @@
 import unittest
 import unittest.mock as mock
+import os
 
 from click.testing import CliRunner
 
@@ -33,7 +34,8 @@ class TestRunTests(unittest.TestCase):
     def test_create_executor(self, create_planner, create_executor, create_walker):
         run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
 
-        create_executor.assert_called_once_with('path/to/tests', 'executor_type', url="http://localhost:4200")
+        create_executor.assert_called_once_with(os.path.abspath(
+            'path/to/tests'), 'executor_type', url="http://localhost:4200")
 
     def test_kill_executor(self, create_planner, create_executor, create_walker):
         executor_mock = mock.Mock()
