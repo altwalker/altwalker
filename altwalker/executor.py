@@ -4,13 +4,13 @@ import sys
 import abc
 import time
 import copy
-import inspect
 import traceback
 import logging
 import subprocess
 import importlib
 import importlib.util
 from contextlib import redirect_stdout
+from inspect import signature
 
 import requests
 
@@ -451,7 +451,7 @@ class PythonExecutor(Executor):
         else:
             func = getattr(self._module, name)
 
-        spec = inspect.signature(func)
+        spec = signature(func)
         nr_args = len(spec.parameters)
 
         if nr_args == 0:

@@ -54,7 +54,7 @@ class TestGraphWalkerService(unittest.TestCase):
             str(context.exception))
 
         self.assertIn(
-            "No valid generator found.",
+            "No suitable generator found with name:",
             str(context.exception))
 
     def test_invalid_stop_condition(self):

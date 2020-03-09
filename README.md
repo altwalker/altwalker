@@ -228,10 +228,10 @@ $ pip3 install -r requirements.txt && \
 $ pytest tests -s -v
 ```
 
-#### Running tests with tox inside docker
+#### Running tests with tox inside Docker
 
 ```
-$ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" robert96/graphwalker-cli:tox tox
+$ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" altwalker/tests:tox tox
 ```
 
 ### CLI

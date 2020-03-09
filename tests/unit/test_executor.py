@@ -10,7 +10,7 @@ from altwalker.executor import get_output, load, create_executor, _pop_previousl
 class TestGetOutput(unittest.TestCase):
 
     def test_output(self):
-        func = mock.MagicMock()
+        func = mock.Mock()
         func.side_effect = lambda: print("message")
 
         result = get_output(func)
@@ -19,7 +19,7 @@ class TestGetOutput(unittest.TestCase):
         self.assertEqual(result["output"], "message\n")
 
     def test_not_error(self):
-        func = mock.MagicMock()
+        func = mock.Mock()
 
         result = get_output(func)
 
@@ -27,7 +27,7 @@ class TestGetOutput(unittest.TestCase):
         self.assertFalse("error" in result)
 
     def test_error(self):
-        func = mock.MagicMock()
+        func = mock.Mock()
         func.side_effect = Exception("Error message.")
 
         result = get_output(func)
@@ -36,13 +36,13 @@ class TestGetOutput(unittest.TestCase):
         self.assertTrue("error" in result)
 
     def test_args(self):
-        func = mock.MagicMock()
+        func = mock.Mock()
         get_output(func, "argument_1", "argument_2")
 
         func.assert_called_once_with("argument_1", "argument_2")
 
     def test_kwargs(self):
-        func = mock.MagicMock()
+        func = mock.Mock()
         get_output(func, key="value")
 
         func.assert_called_once_with(key="value")
@@ -86,13 +86,13 @@ class TestHttpExecutor(unittest.TestCase):
         self.assertEqual(self.executor.url, "http://localhost:5000/")
 
     def test_valid_response(self):
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.status_code = 200
 
         self.executor._validate_response(response)
 
     def test_invalid_response(self):
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.status_code = 404
         response.json.return_value = {}
 
@@ -102,7 +102,7 @@ class TestHttpExecutor(unittest.TestCase):
             self.executor._validate_response(response)
 
     def test_response_error(self):
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.status_code = 404
         response.json.return_value = {
             "error": {
@@ -115,7 +115,7 @@ class TestHttpExecutor(unittest.TestCase):
             self.executor._validate_response(response)
 
     def test_get_payload(self):
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.json.return_value = {
             "payload": {
                 "data": "data"
@@ -125,70 +125,70 @@ class TestHttpExecutor(unittest.TestCase):
         self.assertEqual(self.executor._get_payload(response), {"data": "data"})
 
     def test_get_payload_with_no_payload(self):
-        response = mock.MagicMock()
+        response = mock.Mock()
         response.json.side_effect = ValueError("No json body.")
 
         self.assertEqual(self.executor._get_payload(response), {})
 
     def test_load(self):
-        self.executor._post = mock.MagicMock(return_value={})
+        self.executor._post = mock.Mock(return_value={})
 
         path = "tests/common/example"
         self.executor.load(path)
         self.executor._post.assert_called_once_with("load", json={"path": path})
 
     def test_restet(self):
-        self.executor._put = mock.MagicMock(return_value={})
+        self.executor._put = mock.Mock(return_value={})
 
         self.executor.reset()
         self.executor._put.assert_called_once_with("reset")
 
     def test_has_model(self):
-        self.executor._get = mock.MagicMock(return_value={"hasModel": True})
+        self.executor._get = mock.Mock(return_value={"hasModel": True})
 
         self.executor.has_model("model")
         self.executor._get.assert_called_once_with("hasModel", params=({"name": "model"}))
 
     def test_has_model_invalid_response(self):
-        self.executor._get = mock.MagicMock(return_value={})
+        self.executor._get = mock.Mock(return_value={})
 
         with self.assertRaises(ExecutorException):
             self.executor.has_model("model")
 
     def test_has_step(self):
-        self.executor._get = mock.MagicMock(return_value={"hasStep": True})
+        self.executor._get = mock.Mock(return_value={"hasStep": True})
 
         self.executor.has_step("model", "step")
         self.executor._get.assert_called_once_with("hasStep", params=({"modelName": "model", "name": "step"}))
 
     def test_has_setup_run_step(self):
-        self.executor._get = mock.MagicMock({"hasStep": True})
+        self.executor._get = mock.Mock({"hasStep": True})
 
         self.executor.has_step(None, "step")
         self.executor._get.assert_called_once_with("hasStep", params=({"modelName": None, "name": "step"}))
 
     def test_has_step_invalid_response(self):
-        self.executor._get = mock.MagicMock(return_value={})
+        self.executor._get = mock.Mock(return_value={})
 
         with self.assertRaises(ExecutorException):
             self.executor.has_step("model", "step")
 
     def test_execute_step(self):
-        self.executor._post = mock.MagicMock({"output": ""})
+        self.executor._post = mock.Mock({"output": ""})
 
         self.executor.execute_step("model", "step", {"key": "value"})
         self.executor._post.assert_called_once_with("executeStep", params=(
             {"modelName": "model", "name": "step"}), json={"data": {"key": "value"}})
 
     def test_execute_setup_step(self):
-        self.executor._post = mock.MagicMock({"output": ""})
+        self.executor._post = mock.Mock({"output": ""})
 
         self.executor.execute_step(None, "step", {})
         self.executor._post.assert_called_once_with(
             "executeStep", params=({"modelName": None, "name": "step"}), json={"data": {}})
 
     def test_execute_invalid_response(self):
-        self.executor._post = mock.MagicMock(return_value={})
+        self.executor._post = mock.Mock(return_value={})
 
         with self.assertRaises(ExecutorException):
             self.executor.execute_step("model", "step", {})
@@ -197,7 +197,7 @@ class TestHttpExecutor(unittest.TestCase):
 class TestPythonExecutor(unittest.TestCase):
 
     def setUp(self):
-        self.module = mock.MagicMock()
+        self.module = mock.Mock()
         self.executor = PythonExecutor(self.module)
 
     def test_load(self):
@@ -218,7 +218,7 @@ class TestPythonExecutor(unittest.TestCase):
         self.assertTrue(result)
 
     def test_setup_class(self):
-        self.executor._get_instance = mock.MagicMock()
+        self.executor._get_instance = mock.Mock()
         self.executor._get_instance.return_value = True
 
         # Should call _get_instance and add the class_name in _instances
@@ -231,7 +231,7 @@ class TestPythonExecutor(unittest.TestCase):
         self.assertEqual(self.executor._get_instance.call_count, 1)
 
     def test_setup_class_twice(self):
-        self.executor._get_instance = mock.MagicMock()
+        self.executor._get_instance = mock.Mock()
         self.executor._get_instance.return_value = True
 
         self.executor._instances["class_name"] = True
@@ -271,8 +271,8 @@ class TestPythonExecutor(unittest.TestCase):
         self.assertFalse(self.executor._has_method("class_name", "method"))
 
     def test_has_step(self):
-        self.executor._has_function = mock.MagicMock()
-        self.executor._has_method = mock.MagicMock()
+        self.executor._has_function = mock.Mock()
+        self.executor._has_method = mock.Mock()
 
         # Should call _has_function
         self.executor.has_step(None, "method")
@@ -315,31 +315,25 @@ class TestPythonExecutor(unittest.TestCase):
         self.assertTrue("Decorated method" in output, "Actual output: {}".format(output))
         self.assertTrue(str(data) in output, "Actual output: {}".format(output))
 
-    @mock.patch("altwalker.executor.inspect.signature")
+    @mock.patch("altwalker.executor.signature")
     def test_execute_step_function(self, signature):
-        spec_mock = mock.MagicMock()
-        spec_mock.parameters = []
-        signature.return_value = spec_mock
+        signature.return_value.parameters = []
 
         # Should execute a function
         self.executor.execute_step(None, "function")
         self.module.function.assert_called_once_with()
 
-    @mock.patch("altwalker.executor.inspect.signature")
+    @mock.patch("altwalker.executor.signature")
     def test_execute_step_function_with_data(self, signature):
-        spec_mock = mock.MagicMock()
-        spec_mock.parameters = ["data"]
-        signature.return_value = spec_mock
+        signature.return_value.parameters = ["data"]
 
         # should call the function with the right args
         self.executor.execute_step(None, "function", data={"key": "value"})
         self.module.function.assert_called_once_with({"key": "value"})
 
-    @mock.patch("altwalker.executor.inspect.signature")
+    @mock.patch("altwalker.executor.signature")
     def test_execute_step_function_invalid_args(self, signature):
-        spec_mock = mock.MagicMock()
-        spec_mock.parameters = ["data", "extra"]
-        signature.return_value = spec_mock
+        signature.return_value.parameters = ["data", "extra"]
 
         # should call the function with the right args
         error_message = "The .* function must take 0 or 1 parameters but it expects .* parameters."
@@ -349,41 +343,35 @@ class TestPythonExecutor(unittest.TestCase):
 
         self.module.function.assert_not_called()
 
-    @mock.patch("altwalker.executor.inspect.signature")
+    @mock.patch("altwalker.executor.signature")
     def test_execute_step_method(self, signature):
-        self.executor._setup_class = mock.MagicMock()
-        self.executor._instances["ClassName"] = mock.MagicMock()
+        self.executor._setup_class = mock.Mock()
+        self.executor._instances["ClassName"] = mock.Mock()
 
-        spec_mock = mock.MagicMock()
-        spec_mock.parameters = []
-        signature.return_value = spec_mock
+        signature.return_value.parameters = []
 
         # Should executre a method
         self.executor.execute_step("ClassName", "method")
         self.executor._setup_class.assert_called_once_with("ClassName")
         self.executor._instances["ClassName"].method.assert_called_once_with()
 
-    @mock.patch("altwalker.executor.inspect.signature")
+    @mock.patch("altwalker.executor.signature")
     def test_execute_step_method_with_data(self, signature):
-        self.executor._setup_class = mock.MagicMock()
-        self.executor._instances["class_name"] = mock.MagicMock()
+        self.executor._setup_class = mock.Mock()
+        self.executor._instances["class_name"] = mock.Mock()
 
-        spec_mock = mock.MagicMock()
-        spec_mock.parameters = ["data"]
-        signature.return_value = spec_mock
+        signature.return_value.parameters = ["data"]
 
         # should call the method with the right args
         self.executor.execute_step("class_name", "method", data={"key": "value"})
         self.executor._instances["class_name"].method.assert_called_once_with({"key": "value"})
 
-    @mock.patch("altwalker.executor.inspect.signature")
+    @mock.patch("altwalker.executor.signature")
     def test_execute_step_method_with_invalid_args(self, signature):
-        self.executor._setup_class = mock.MagicMock()
-        self.executor._instances["ClassName"] = mock.MagicMock()
+        self.executor._setup_class = mock.Mock()
+        self.executor._instances["ClassName"] = mock.Mock()
 
-        spec_mock = mock.MagicMock()
-        spec_mock.parameters = ["data", "extra"]
-        signature.return_value = spec_mock
+        signature.return_value.parameters = ["data", "extra"]
 
         error_message = "The .* method must take 0 or 1 parameters but it expects .* parameters."
 
