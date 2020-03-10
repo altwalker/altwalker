@@ -158,13 +158,17 @@ class TestCheck(unittest.TestCase):
                 check, ["-m", "invalid.json", "stop_condition"])
 
             self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn('Invalid value for "--model" / "-m": File "invalid.json" does not exist.', result.output)
+            self.assertIn(
+                'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
+                result.output.replace("\'", "\""))
 
             result = self.runner.invoke(
                 check, ["--model", "invalid.json", "stop_condition"])
 
             self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn('Invalid value for "--model" / "-m": File "invalid.json" does not exist.', result.output)
+            self.assertIn(
+                'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
+                result.output.replace("\'", "\""))
 
     def test_blocked(self, check_models):
         with run_isolation(self.runner, self.files):
@@ -200,7 +204,9 @@ class TestVerify(unittest.TestCase):
                 verify, ["tests", "-m", "invalid.json"])
 
             self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn('Invalid value for "--model" / "-m": File "invalid.json" does not exist.', result.output)
+            self.assertIn(
+                'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
+                result.output.replace("\'", "\""))
 
     def test_executor_type(self, verify_code):
         with run_isolation(self.runner, self.files, folders=self.folders):
@@ -215,7 +221,7 @@ class TestVerify(unittest.TestCase):
             self.assertEqual(result.exit_code, 2, msg=result.output)
             self.assertIn(
                 'Invalid value for "--executor" / "-x" / "--language" / "-l": invalid choice: unsupported-executor.',
-                result.output)
+                result.output.replace("\'", "\""))
 
     def test_url(self, verify_code):
         with run_isolation(self.runner, self.files, folders=self.folders):

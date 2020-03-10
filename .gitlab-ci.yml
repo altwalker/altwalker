@@ -4,14 +4,14 @@ stages:
   - docs
   - deploy
 
-default: 
-  image: robert96/graphwalker-cli:4.0.1
+default:
+  image: altwalker/graphwalker:4.2.0
 
   before_script:
     - export LC_ALL=C.UTF-8
     - export LANG=C.UTF-8
-    - pip3 install -r requirements.txt --user
-    - pip3 install -r requirements-dev.txt
+    - python3 -m pip install -r requirements.txt --user
+    - python3 -m pip install -r requirements-dev.txt
 
 unit tests:
   stage: test
@@ -25,7 +25,7 @@ unit tests:
   script:
     - pytest tests/unit -s -v --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
   after_script:
-    - pip3 install coverage-badge
+    - python3 -m pip install coverage-badge
     - coverage-badge -o coverage/coverage.svg
 
 integration test:
@@ -50,7 +50,7 @@ dotnet integration tests:
     - pytest -x -s -v -m dotnet tests/integration
 
 tox:
-  image: robert96/graphwalker-cli:tox
+  image: altwalker/tests:tox
   stage: test
   tags:
     - docker
@@ -71,8 +71,8 @@ dotnet functional tests:
       - "*.log"
     when: always
   before_script:
-    - pip3 install -r requirements.txt --user
-    - pip3 install --editable .
+    - python3 -m pip install -r requirements.txt --user
+    - python3 -m pip install --editable .
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
     - unzip artifacts.zip
   script:
@@ -95,9 +95,9 @@ python functional tests:
   before_script:
     - export LC_ALL=C.UTF-8
     - export LANG=C.UTF-8
-    - pip3 install -r requirements.txt --user
-    - pip3 install idna==2.8
-    - pip3 install --editable .
+    - python3 -m pip install -r requirements.txt --user
+    - python3 -m pip install idna==2.8
+    - python3 -m pip install --editable .
   script:
     - altwalker --version
     - altwalker init python-example -l python --no-git
@@ -116,8 +116,8 @@ http functional tests:
       - "*.log"
     when: always
   before_script:
-    - pip3 install -r requirements.txt --user
-    - pip3 install --editable .
+    - python3 -m pip install -r requirements.txt --user
+    - python3 -m pip install --editable .
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
     - unzip artifacts.zip
   script:
@@ -148,7 +148,7 @@ docs:
   only:
     - master
   script:
-    - pip3 install --editable .
+    - python3 -m pip install --editable .
     - cd docs
     - make html
     - cp -r _build/html ../documentation
