@@ -1,7 +1,8 @@
 Tests Structure
 ===============
 
-To run tests using AltWalker you need a model(s) and tests implementing the model(s).
+To run tests using AltWalker you need a model(s) and tests implementing
+the model(s).
 
 Usually your project will look like this:
 
@@ -13,8 +14,9 @@ Usually your project will look like this:
         tests/
             ...
 
-Inside the ``models`` directory you will keep your model(s), and inside the ``tests`` directory you
-will have a test package containing the implementation of the model(s).
+Inside the ``models`` directory you will keep your model(s), and inside the
+``tests`` directory you will have a test package containing the implementation
+of the model(s).
 
 Now AltWalker supports two languages: Python and C#/.NET.
 
@@ -95,13 +97,14 @@ Structure
 Fixtures
 --------
 
-AltWalker implements four test fixtures inspired by JUnit and the python unittest
-module:
+AltWalker implements four test fixtures inspired by JUnit and the python
+unittest module:
 
 - ``setUpRun``: Will be executed first, before anything else.
 - ``tearDownRun``: Will be executed last.
 - ``setUpModel``: Will be executed before executing any step from this model.
-- ``tearDownModel``: Will be executed after executing all steps from this model.
+- ``tearDownModel``: Will be executed after executing all steps from this
+    model.
 
 All fixtures are optional.
 
@@ -175,12 +178,12 @@ All fixtures are optional.
 Read/Update Graph Data
 ----------------------
 
-If you are using the ``online`` command your test code has direct access to the graphs
-execution context provided by GraphWalker.
+If you are using the ``online`` command your test code has direct access to the
+graphs execution context provided by GraphWalker.
 
-In order to read/update the graph data from your tests, you need to define the method with
-a parameter, and AltWalker will pass the graph data to your method. This method is a way
-of executing actions from you test code.
+In order to read/update the graph data from your tests, you need to define the
+method with a parameter, and AltWalker will pass the graph data to your method.
+This method is a way of executing actions from you test code.
 
 .. tabs::
 

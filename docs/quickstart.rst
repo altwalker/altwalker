@@ -1,8 +1,9 @@
 Quickstart
 ==========
 
-In this Quickstart section you will learn how to create your tests project from scratch, from an
-existing model or to generate a code template for your models and run your tests with AltWalker.
+In this Quickstart section you will learn how to create your tests project from
+scratch, from an existing model or to generate a code template for your models
+and run your tests with AltWalker.
 
 .. contents:: Table of Contents
     :local:
@@ -14,10 +15,11 @@ Start from scratch
 
 You can use the ``init`` command to generate a new project.
 
-The ``init`` command creates a project directory and initialize a git repository.
-The project contains a sample model (``test-project/models/default.json``)
-that will help you get started, and a test package containing the template code
-for the model (``test-poject/tests``).
+The ``init`` command creates a project directory and initialize a
+git repository. The project contains a sample model
+(``test-project/models/default.json``) that will help you get started,
+and a test package containing the template code for the model
+(``test-poject/tests``).
 
 .. tabs::
 
@@ -92,17 +94,18 @@ To run the tests for the `default.json` model, run the following command:
             $ altwalker online -x c# tests -m models/default.json "random(edge_coverage(100))"
 
 
-The above command runs the tests found within the ``tests`` folder, based on the model
-defined in ``default.json`` and using the  ``random(edge_coverage(100))`` stop condition.
+The above command runs the tests found within the ``tests`` folder,
+based on the model defined in ``default.json`` and using the
+``random(edge_coverage(100))`` stop condition.
 
 Start from an existing model
 ----------------------------
 
-The ``init`` command creates a project directory with your model(s), generates the code
-template for the model(s) and initialize a git repository.
+The ``init`` command creates a project directory with your model(s),
+generates the code template for the model(s) and initialize a git repository.
 
-To generate a project you should replace the ``path/to/model-name.json`` and run the
-following command:
+To generate a project you should replace the ``path/to/model-name.json`` and
+run the following command:
 
 .. tabs::
 
@@ -153,14 +156,15 @@ name of you model file and run the following command:
             $ altwalker online -x c# tests -m models/model-name.json.json "random(edge_coverage(100))"
 
 
-The above command runs the tests found within the ``tests`` folder, based on the model
-defined in ``default.json`` and using the  ``random(edge_coverage(100))`` stop condition.
-
+The above command runs the tests found within the ``tests`` folder,
+based on the model defined in ``default.json`` and using the
+``random(edge_coverage(100))`` stop condition.
 
 Generate a code template for your models
 ----------------------------------------
 
-You can use the ``generate`` command to generate a new test package for your model(s).
+You can use the ``generate`` command to generate a new test package for
+your model(s).
 
 .. tabs::
 

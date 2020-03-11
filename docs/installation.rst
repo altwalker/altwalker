@@ -1,6 +1,12 @@
 Installation
 ============
 
+.. sidebar:: For Docker Users
+
+    If you want to use AltWalker with Docker you can skip this section.
+
+    Read more in the: :doc:`how-tos/run-tests-with-docker` section.
+
 **Pythons**: Python 3.4, 3.5, 3.6, 3.7, 3.8, PyPy3
 
 **Platforms**: Unix/Posix and Windows
