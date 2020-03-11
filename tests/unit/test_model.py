@@ -4,8 +4,9 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.model import PYTHON_KEYWORDS, CSHARP_KEYWORDS, ValidationException, _read_json, get_models, \
-    _is_keyword, _validate_element_name, _validate_vertex, _validate_edge, _validate_model, _validate_models, \
-    validate_json_models, validate_models, check_models
+    _is_keyword, _validate_element_name, _validate_actions, _validate_vertex, _validate_requirements, \
+    _validate_weight, _validate_edge, _validate_model, _validate_models, validate_json_models, validate_models, \
+    check_models
 
 
 MOCK_MODELS = {
@@ -13,6 +14,8 @@ MOCK_MODELS = {
     "models": [
         {
             "name": "ModelA",
+            "startElementId": "v0",
+            "generator": "random(never)",
             "vertices": [
                 {
                     "id": "v0",
@@ -20,7 +23,8 @@ MOCK_MODELS = {
                 },
                 {
                     "id": "v1",
-                    "name": "vertex_1"
+                    "name": "vertex_1",
+                    "sharedState": "link"
                 }
             ],
             "edges": [
@@ -28,10 +32,12 @@ MOCK_MODELS = {
         },
         {
             "name": "ModelA",
+            "generator": "random(never)",
             "vertices": [
                 {
                     "id": "v2",
-                    "name": "vertex_1"
+                    "name": "vertex_1",
+                    "sharedState": "link"
                 }
             ],
             "edges": []
@@ -53,6 +59,8 @@ DUPLICATE_IDS_MODELS = {
     "models": [
         {
             "name": "ModelA",
+            "startElementId": "v0",
+            "generator": "random(vertex_coverage(100))",
             "vertices": [
                 {
                     "id": "v0",
@@ -67,6 +75,8 @@ DUPLICATE_IDS_MODELS = {
         },
         {
             "name": "ModelA",
+            "startElementId": "v0",
+            "generator": "random(length(25))",
             "vertices": [
                 {
                     "id": "v0",
@@ -231,6 +241,99 @@ class _TestValidateElementName(unittest.TestCase):
             self.assertEqual(_validate_element_name(keyword), {"Name '{}' is a reserve keyword.".format(keyword)})
 
 
+class _TestValidateActions(unittest.TestCase):
+
+    def test_actions(self):
+        actions = [
+            "a = 1",
+            "b = 2"
+        ]
+        self.assertEqual(_validate_actions("v0", actions), set())
+
+    def test_invalid_actions(self):
+        actions = {}
+        self.assertEqual(
+            _validate_actions("v0", actions),
+            {"Edge 'v0' has invalid actions. Actions must be a list of strings."})
+
+    def test_empty_action(self):
+        actions = [
+            "a = 1",
+            ""
+        ]
+        self.assertEqual(
+            _validate_actions("v0", actions),
+            {"Edge 'v0' has an invalid action. Action cannot be an empty string."})
+
+    def test_invalid_action(self):
+        actions = [
+            1,
+            {},
+            []
+        ]
+
+        for action in actions:
+            self.assertEqual(
+                _validate_actions("v0", [action]),
+                {"Edge 'v0' has an invalid action. Each action must be a string."})
+
+
+class _TestValidateRequirements(unittest.TestCase):
+
+    def test_valid_requirements(self):
+        requirements = [
+            "requirement1",
+            "requirement2"
+        ]
+        self.assertEqual(_validate_requirements("v0", requirements), set())
+
+    def test_invalid_requirements(self):
+        requirements = {}
+        self.assertEqual(
+            _validate_requirements("v0", requirements),
+            {"Vertex 'v0' has invalid requirements. Requirements must be a list of strings."})
+
+    def test_empty_requirement(self):
+        requirements = [
+            "requirement1",
+            ""
+        ]
+        self.assertEqual(
+            _validate_requirements("v0", requirements),
+            {"Vertex 'v0' has an invalid requirement. Requirement cannot be an empty string."})
+
+    def test_invalid_requirement(self):
+        requirements = [
+            1,
+            {},
+            []
+        ]
+
+        for requirement in requirements:
+            self.assertEqual(
+                _validate_requirements("v0", [requirement]),
+                {"Vertex 'v0' has an invalid requirement. Each requirements must be a string."})
+
+
+class _TestValidateWeight(unittest.TestCase):
+
+    def test_valid_weight(self):
+        weights = [x / 10.0 for x in range(0, 11, 1)]
+
+        for weight in weights:
+            self.assertEqual(_validate_weight("e0", weight), set())
+
+    def test_invalid_weight(self):
+        weights = [x / 10.0 for x in range(-10, 0, 1)]
+        weights.extend(x / 10.0 for x in range(11, 20, 1))
+
+        for weight in weights:
+            self.assertEqual(
+                _validate_weight("e0", weight),
+                {"Edge 'e0' has an ivalid weight of: {}. The weight must be a value between 0 and 1.".format(weight)}
+            )
+
+
 class _TestValidateVertex(unittest.TestCase):
 
     def test_valid(self):
@@ -291,7 +394,7 @@ class _TestValidateVertex(unittest.TestCase):
 
 class _TestValidateEdge(unittest.TestCase):
 
-    def test_valid(self):
+    def test_valid_edge(self):
         edge = {
             "id": "e0",
             "name": "v_name",
@@ -346,7 +449,7 @@ class _TestValidateEdge(unittest.TestCase):
             "sourceVertexId": "v0"
         }
 
-        self.assertEqual(_validate_edge(edge), {"Eage 'e0' doesn't have a targetVertexId."})
+        self.assertEqual(_validate_edge(edge), {"Edge 'e0' doesn't have a targetVertexId."})
 
     def test_no_source_vertex_id(self):
         edge = {
@@ -355,14 +458,14 @@ class _TestValidateEdge(unittest.TestCase):
             "targetVertexId": "v0"
         }
 
-        self.assertEqual(_validate_edge(edge), set())
+        self.assertEqual(_validate_edge(edge, is_start_element=True), set())
 
     def test_weight(self):
         edge = {
             "id": "e0",
             "name": "e_name",
             "sourceVertexId": "v1",
-            "targetVertexId": "v0",
+            "targetVertexId": "v0"
         }
         weights = [x / 10.0 for x in range(0, 11, 1)]
 
@@ -375,7 +478,7 @@ class _TestValidateEdge(unittest.TestCase):
             "id": "e0",
             "name": "e_name",
             "sourceVertexId": "v1",
-            "targetVertexId": "v0",
+            "targetVertexId": "v0"
         }
         weights = [-2, -1, 2, 3]
         error_message = "Edge 'e0' has an ivalid weight of: {}. The weight must be a value between 0 and 1."
@@ -384,14 +487,87 @@ class _TestValidateEdge(unittest.TestCase):
             edge["weight"] = weight
             self.assertEqual(_validate_edge(edge), {error_message.format(weight)})
 
+    def test_not_start_element(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "targetVertexId": "v0"
+        }
+        error_message = "Edge 'e0' is not a start element and it doesn't have a sourceVertexId."
+
+        self.assertEqual(_validate_edge(edge, is_start_element=False), {error_message})
+
+    def test_invalid_dependency(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        dependencies = [
+            "a", "b", "c",
+            "1a", "2b", "3c",
+            "a1", "b2", "c3",
+            "1.1", "2.2", "3.3",
+            1.0, 2.0, 3.0,
+            1.1, 2.2, 3.3
+        ]
+        error_message = "Edge 'e0' has an ivalid dependency of: {}. The dependency must be a valid integer number."
+
+        for dependency in dependencies:
+            edge["dependency"] = dependency
+            self.assertEqual(_validate_edge(edge), {error_message.format(dependency)})
+
+    def test_dependency(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        dependencies = ["1", "2", "3", 1, 2, 3]
+
+        for dependency in dependencies:
+            edge["dependency"] = dependency
+            self.assertEqual(_validate_edge(edge), set())
+
+    def test_guard(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "guard": "isTrue == true",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+
+        self.assertEqual(_validate_edge(edge), set())
+
+    def test_invalid_guard(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        guards = [1, 2, 3, {}, []]
+
+        for guard in guards:
+            edge["guard"] = guard
+            self.assertEqual(_validate_edge(edge), {"Edge 'e0' has an ivalid guard. The guard must be a string."})
+
 
 class _TestValidateModel(unittest.TestCase):
 
     def test_valid(self):
         model = {
             "name": "Model",
+            "startElementId": "v0",
+            "generator": "random(never)",
             "vertices": [
-
+                {
+                    "id": "v0",
+                    "name": "v_name"
+                }
             ],
             "edges": [
 
@@ -402,8 +578,13 @@ class _TestValidateModel(unittest.TestCase):
 
     def test_no_name(self):
         model = {
+            "startElementId": "v0",
+            "generator": "random(vertex_coverage(100))",
             "vertices": [
-
+                {
+                    "id": "v0",
+                    "name": "v_name"
+                }
             ],
             "edges": [
 
@@ -415,8 +596,13 @@ class _TestValidateModel(unittest.TestCase):
     def test_empty_name(self):
         model = {
             "name": "",
+            "startElementId": "v0",
+            "generator": "quick_random(vertex_coverage(100))",
             "vertices": [
-
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
             ],
             "edges": [
 
@@ -428,8 +614,13 @@ class _TestValidateModel(unittest.TestCase):
     def test_invalid_name(self):
         model = {
             "name": "Model A",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
             "vertices": [
-
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
             ],
             "edges": [
 
@@ -441,8 +632,13 @@ class _TestValidateModel(unittest.TestCase):
     def test_keyword_name(self):
         model = {
             "name": "return",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
             "vertices": [
-
+                {
+                    "id": "v0",
+                    "name": "v_name"
+                }
             ],
             "edges": [
 
@@ -454,8 +650,15 @@ class _TestValidateModel(unittest.TestCase):
     def test_no_vertices(self):
         model = {
             "name": "Model",
+            "startElementId": "e0",
+            "generator": "weighted_random(never)",
             "edges": [
-
+                {
+                    "id": "e0",
+                    "name": "e_name",
+                    "sourceVertexId": "v0",
+                    "targetVertexId": "v1"
+                }
             ]
         }
 
@@ -464,8 +667,13 @@ class _TestValidateModel(unittest.TestCase):
     def test_no_edges(self):
         model = {
             "name": "Model",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
             "vertices": [
-
+                {
+                    "id": "v0",
+                    "name": "v_name"
+                }
             ]
         }
 
@@ -474,7 +682,13 @@ class _TestValidateModel(unittest.TestCase):
     def test_invalid_vertex(self):
         model = {
             "name": "Model",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
             "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                },
                 {
                     "name": "v_name"
                 }
@@ -489,7 +703,13 @@ class _TestValidateModel(unittest.TestCase):
     def test_invalid_edge(self):
         model = {
             "name": "Model",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
             "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
             ],
             "edges": [
                 {
@@ -499,6 +719,40 @@ class _TestValidateModel(unittest.TestCase):
         }
 
         self.assertEqual(_validate_model(model), {'Each edge must have an id.'})
+
+    def test_invalid_generator(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v0",
+            "generator": 1,
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {'The generator must be a string.'})
+
+    def test_start_element_no_found(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v1",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {"Starting element 'v1' was not found."})
 
 
 class _TestValidateModels(unittest.TestCase):

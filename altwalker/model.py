@@ -98,6 +98,84 @@ def _validate_element_name(name):
     return issues
 
 
+def _validate_actions(element_id, actions_json):
+    issues = set()
+
+    if not isinstance(actions_json, list):
+        issues.add(
+            "Edge '{}' has invalid actions. Actions must be a list of strings."
+            .format(element_id)
+        )
+        return issues
+
+    for action in actions_json:
+        if not isinstance(action, str):
+            issues.add(
+                "Edge '{}' has an invalid action. Each action must be a string."
+                .format(element_id)
+            )
+        elif not action:
+            issues.add(
+                "Edge '{}' has an invalid action. Action cannot be an empty string."
+                .format(element_id)
+            )
+
+    return issues
+
+
+def _validate_requirements(element_id, requirements_json):
+    issues = set()
+
+    if not isinstance(requirements_json, list):
+        issues.add(
+            "Vertex '{}' has invalid requirements. Requirements must be a list of strings."
+            .format(element_id)
+        )
+        return issues
+
+    for requirement in requirements_json:
+        if not isinstance(requirement, str):
+            issues.add(
+                "Vertex '{}' has an invalid requirement. Each requirements must be a string."
+                .format(element_id)
+            )
+        elif not requirement:
+            issues.add(
+                "Vertex '{}' has an invalid requirement. Requirement cannot be an empty string."
+                .format(element_id)
+            )
+
+    return issues
+
+
+def _validate_weight(element_id, weight):
+    issues = set()
+
+    if weight and (not isinstance(weight, float) or weight < 0 or weight > 1):
+        issues.add(
+            "Edge '{}' has an ivalid weight of: {}. The weight must be a value between 0 and 1."
+            .format(element_id, weight)
+        )
+
+    return issues
+
+
+def _validate_dependency(element_id, dependency):
+    if not dependency:
+        return set()
+
+    if isinstance(dependency, str) and dependency.isdigit():
+        return set()
+
+    if isinstance(dependency, int):
+        return set()
+
+    return {
+        "Edge '{}' has an ivalid dependency of: {}. The dependency must be a valid integer number."
+        .format(element_id, dependency)
+    }
+
+
 def _validate_vertex(vertex_json):
     issues = set()
 
@@ -119,27 +197,33 @@ def _validate_vertex(vertex_json):
     return issues
 
 
-def _validate_edge(edge_json):
+def _validate_edge(edge_json, is_start_element=False):
     issues = set()
 
-    id = edge_json.get("id", "")
-    if not id:
+    element_id = edge_json.get("id")
+    if not element_id:
         issues.add("Each edge must have an id.")
         return issues
 
-    name = edge_json.get("name", "")
+    name = edge_json.get("name")
     if name:
         issues.update(_validate_element_name(name))
 
-    if not edge_json.get("targetVertexId"):
-        issues.add("Eage '{}' doesn't have a targetVertexId.".format(id))
-
-    weight = edge_json.get("weight")
-    if weight and (not isinstance(weight, float) or weight < 0 or weight > 1):
+    if not is_start_element and not edge_json.get("sourceVertexId"):
         issues.add(
-            "Edge '{}' has an ivalid weight of: {}. The weight must be a value between 0 and 1."
-            .format(id, weight)
+            "Edge '{}' is not a start element and it doesn't have a sourceVertexId."
+            .format(element_id)
         )
+
+    if not edge_json.get("targetVertexId"):
+        issues.add("Edge '{}' doesn't have a targetVertexId.".format(element_id))
+
+    guard = edge_json.get("guard")
+    if guard is not None and not isinstance(guard, str):
+        issues.add("Edge '{}' has an ivalid guard. The guard must be a string.".format(element_id))
+
+    issues.update(_validate_weight(element_id, edge_json.get("weight")))
+    issues.update(_validate_dependency(element_id, edge_json.get("dependency")))
 
     return issues
 
@@ -147,17 +231,40 @@ def _validate_edge(edge_json):
 def _validate_model(model_json):
     issues = set()
 
-    name = model_json.get("name", "")
+    has_start_element = False
+    start_element_found = False
+    has_shared_state = False
+
+    name = model_json.get("name")
     if not name:
         issues.add("Each model must have a name.")
     else:
         issues.update(_validate_element_name(name))
+
+    generator = model_json.get("generator")
+    if not generator:
+        issues.add("Each model must have a generator.")
+    elif not isinstance(generator, str):
+        issues.add("The generator must be a string.")
+
+    start_element_id = model_json.get("startElementId")
+    if start_element_id:
+        has_start_element = True
 
     vertices = model_json.get("vertices", None)
     if vertices is None:
         issues.add("Each model must have a list of vertices.")
     else:
         for vertex in vertices:
+            element_id = vertex.get("id")
+
+            if start_element_id and element_id == start_element_id:
+                start_element_found = True
+
+            shared_state = vertex.get("sharedState")
+            if shared_state:
+                has_shared_state = True
+
             issues.update(_validate_vertex(vertex))
 
     edges = model_json.get("edges", None)
@@ -165,7 +272,18 @@ def _validate_model(model_json):
         issues.add("Each model must have a list of edges.")
     else:
         for edge in edges:
+            element_id = edge.get("id")
+
+            if start_element_id and element_id == start_element_id:
+                start_element_found = True
+
             issues.update(_validate_edge(edge))
+
+    if not has_start_element and not has_shared_state:
+        issues.add("Model has neither a starting element nor a shared state.")
+
+    if start_element_id and not start_element_found:
+        issues.add("Starting element '{}' was not found.".format(start_element_id))
 
     return issues
 
