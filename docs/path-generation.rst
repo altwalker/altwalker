@@ -76,6 +76,9 @@ Walk randomly with weights and never stop.
 .. code::
 
     weighted_random(never)
+    
+`See the format for adding weights <modeling.html#formats>`_
+    
 
 Quick Random
 ~~~~~~~~~~~~
@@ -214,7 +217,8 @@ Walks randomly until the requirements coverage has reached 25%.
 .. code::
 
     random(requirement_coverage(25))
-
+    
+`See the format for adding requirements <modeling.html#formats>`_
 
 Dependency Edge Coverage
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -239,6 +243,9 @@ are reached.
 .. code::
 
     random(dependency_edge_coverage(85))
+    
+`See the format for adding dependencies <modeling.html#formats>`_
+
 
 
 Reached Vertex and Reached Edge
