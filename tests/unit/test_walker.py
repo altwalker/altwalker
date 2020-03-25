@@ -262,7 +262,10 @@ class TestRunStep(WalkerSetUp):
 
         self.walker._run_step(self.step, optional=False)
 
-        self.reporter.error.assert_called_once_with(self.step, "Step not found.")
+        self.reporter.error.assert_called_once_with(
+            self.step,
+            "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
+        )
 
     def test_run_step(self):
         self.executor.has_step.return_value = True

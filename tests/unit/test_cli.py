@@ -181,7 +181,7 @@ class TestCheck(unittest.TestCase):
             check_models.assert_called_once_with((("models.json", "stop_condition"), ), blocked=True)
 
 
-@mock.patch("altwalker.cli.verify_code")
+@mock.patch("altwalker.cli.cli_verify")
 class TestVerify(unittest.TestCase):
 
     def setUp(self):
@@ -233,7 +233,7 @@ class TestVerify(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
 
-@mock.patch("altwalker.cli.generate_tests")
+@mock.patch("altwalker.cli.cli_generate")
 class TestGenerate(unittest.TestCase):
 
     def setUp(self):
@@ -247,7 +247,7 @@ class TestGenerate(unittest.TestCase):
             result = self.runner.invoke(
                 generate, ["output_dir", "-m", "models.json"])
 
-            generate_test.assert_called_once_with("output_dir", ("models.json", ), language="python")
+            generate_test.assert_called_once_with("output_dir", ("models.json", ), language=None)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
     def test_error(self, generate_tests):
@@ -270,7 +270,7 @@ class TestGenerate(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
 
-@mock.patch("altwalker.cli.init_project")
+@mock.patch("altwalker.cli.cli_init")
 class TestInit(unittest.TestCase):
 
     def setUp(self):

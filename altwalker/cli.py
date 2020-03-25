@@ -7,14 +7,16 @@ import click
 
 import altwalker.graphwalker as graphwalker
 from altwalker._utils import click_formatwarning, echo_status, echo_statistics
-from altwalker._check import cli_check
+from altwalker._cli_check import cli_check
+from altwalker._cli_verify import cli_verify
+from altwalker._cli_init import cli_init
+from altwalker._cli_generate import cli_generate
 from altwalker.exceptions import FailedTestsError, handle_errors
-from altwalker.code import verify_code
+from altwalker.generate import SUPPORTED_LANGUAGES
 from altwalker.planner import create_planner
 from altwalker.executor import create_executor
 from altwalker.walker import create_walker
 from altwalker.reporter import create_reporters
-from altwalker.init import init_project, generate_tests
 
 
 # replace the default warning formating
@@ -45,11 +47,11 @@ unvisted_option = click.option("--unvisited", "-u", default=False, is_flag=True,
 blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
                               help="Will fiter out elements with the keyword BLOCKED.")
 
-language_option = click.option("--language", "-l", type=click.Choice(["python", "c#", "dotnet"]),
+language_option = click.option("--language", "-l", type=click.Choice(SUPPORTED_LANGUAGES, case_sensitive=False),
                                help="The programming language of the tests.")
 
 executor_option = click.option("--executor", "-x", "--language", "-l", "executor",
-                               type=click.Choice(["python", "c#", "dotnet", "http"]),
+                               type=click.Choice(["python", "c#", "dotnet", "http"], case_sensitive=False),
                                default="python", show_default=True,
                                help="Configure the executor to be used.")
 
@@ -79,7 +81,7 @@ def add_options(options):
 @click.version_option(None, "--version", "-v", prog_name="AltWalker")
 @click.option("--log-level",
               type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], case_sensitive=False),
-              default="WARNING", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
+              default="CRITICAL", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
               help="Sets the logger level to the specified level.")
 @click.option("--log-file", type=click.Path(exists=False, dir_okay=False), envvar="ALTWALKER_LOG_FILE",
               help="Sends logging output to a file.")
@@ -105,19 +107,24 @@ def check(models, blocked):
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
+@click.option("--suggestions/--no-suggestions", "suggestions", default=True, is_flag=True,
+              help="If set will print code suggestions for missing steps.", show_default=True)
 @add_options([model_file_option, executor_option, url_option])
 @handle_errors
 def verify(test_package, models, url, **options):
     """Verify test code from TEST_PACAKGE against the model(s)."""
 
     executor = options["executor"]
+    status = cli_verify(test_package, executor, models, url, suggestions=options["suggestions"])
 
-    verify_code(test_package, executor, models, url)
-    click.echo("No issues found with the code.")
+    if status:
+        exit(0)
+    else:
+        exit(4)
 
 
 @cli.command()
-@click.argument("dest_dir", type=click.Path(exists=False))
+@click.argument("dest_dir", type=click.Path(exists=False, file_okay=False))
 @click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
               required=False, multiple=True,
               help="The model, as a graphml/json file.")
@@ -128,7 +135,7 @@ def verify(test_package, models, url, **options):
 def init(dest_dir, models, git, language):
     """Initialize a new project."""
 
-    init_project(dest_dir, model_paths=models, language=language, git=git)
+    cli_init(dest_dir, model_paths=models, language=language, git=git)
 
 
 @cli.command()
@@ -138,10 +145,7 @@ def init(dest_dir, models, git, language):
 def generate(dest_dir, models, language):
     """Generate test code template based on the given model(s)."""
 
-    if language is None:
-        language = "python"
-
-    generate_tests(dest_dir, models, language=language)
+    cli_generate(dest_dir, models, language=language)
 
 
 @cli.command()

@@ -2,7 +2,7 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.code import ValidationException, _is_element_blocked, _graphml_methods, _json_methods, \
-    validate_code, get_methods, verify_code
+    validate_code, get_methods, get_missing_methods, verify_code
 
 
 MOCK_MODELS = {
@@ -48,7 +48,11 @@ MOCK_MODELS = {
                     "properties": {
                         "blocked": False
                     }
+                },
+                {
+                    "name": "edge_name"
                 }
+
             ]
         }
     ]
@@ -80,51 +84,56 @@ class TestJsonMethods(unittest.TestCase):
     def setUp(self):
         self.models = MOCK_MODELS
 
+        self.expected_methods = {
+            "ModelA": {"vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"},
+            "ModelB": {"vertex_name", "edge_name"}
+        }
+
+        self.filtered_expected_methods = {
+            "ModelA": {"vertex_not_blocked", "edge_not_blocked"},
+            "ModelB": {"vertex_name", "edge_name"}
+        }
+
     def test_models(self, read_mock):
         read_mock.return_value = self.models
 
-        output = _json_methods("model_path")
+        output = _json_methods("path/to/model")
         self.assertSequenceEqual({"ModelA", "ModelB"}, output.keys())
 
     def test_blocked_disable(self, read_mock):
         read_mock.return_value = self.models
 
-        output = _json_methods("model_path")
-        self.assertListEqual(
-            output["ModelA"],
-            sorted(set(["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])))
-        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
+        methods = _json_methods("path/to/model", blocked=False)
+        self.assertEqual(methods, self.expected_methods)
 
     def test_blocked_enable(self, read_mock):
         read_mock.return_value = self.models
 
-        output = _json_methods("model_path", blocked=True)
-        self.assertListEqual(output["ModelA"], sorted(set(["vertex_not_blocked", "edge_not_blocked"])))
-        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
+        methods = _json_methods("path/to/model", blocked=True)
+        self.assertEqual(methods, self.filtered_expected_methods)
 
 
 @mock.patch("altwalker.graphwalker.methods")
 class TestGraphmlMethods(unittest.TestCase):
 
     def test_methods(self, methods_mock):
-        _graphml_methods("model.graphml")
-        methods_mock.assert_called_once_with("model.graphml", blocked=False)
+        _graphml_methods("ModelName.graphml")
+        methods_mock.assert_called_once_with("ModelName.graphml", blocked=False)
 
     def test_blocked(self, methods_mock):
-        _graphml_methods("model.graphml", blocked=True)
-        methods_mock.assert_called_once_with("model.graphml", blocked=True)
+        _graphml_methods("ModelName.graphml", blocked=True)
+        methods_mock.assert_called_once_with("ModelName.graphml", blocked=True)
 
     def test_name(self, methods_mock):
-        result = _graphml_methods("model.graphml")
-
-        self.assertIn("model", result)
+        result = _graphml_methods("ModelName.graphml")
+        self.assertIn("ModelName", result)
 
     def test_result(self, methods_mock):
-        methods_mock.return_value = ["method_A", "method_B"]
+        expected_methods = {"ModelName": {"method_A", "method_B"}}
+        methods_mock.return_value = expected_methods["ModelName"]
+        methods = _graphml_methods("ModelName.graphml")
 
-        result = _graphml_methods("model.graphml")
-
-        self.assertListEqual(result["model"], ["method_A", "method_B"])
+        self.assertEqual(methods, expected_methods)
 
 
 @mock.patch("altwalker.code._json_methods")
@@ -162,14 +171,40 @@ class TestGetMetohds(unittest.TestCase):
         graphml_mock.assert_called_once_with("model.graphml", blocked=True)
 
     def test_result(self, graphml_mock, json_mock):
-        json_mock.return_value = {"modelA": ["method_A", "method_B"]}
-        graphml_mock.return_value = {"modelB": ["method_C", "method_D"]}
+        expected_methods = {
+            "ModelA": {"method_A", "method_B"},
+            "ModelB": {"method_C", "method_D"}
+        }
 
-        result = get_methods(["model.json", "model.graphml"])
+        json_mock.return_value = {"ModelA": expected_methods["ModelA"]}
+        graphml_mock.return_value = {"ModelB": expected_methods["ModelB"]}
 
-        self.assertSequenceEqual({"modelA", "modelB"}, result.keys())
-        self.assertListEqual(result["modelA"], ["method_A", "method_B"])
-        self.assertListEqual(result["modelB"], ["method_C", "method_D"])
+        methods = get_methods(["model.json", "ModelB.graphml"])
+
+        self.assertEqual(
+            methods,
+            expected_methods
+        )
+
+
+class TestGetMissingMethods(unittest.TestCase):
+
+    def setUp(self):
+        self.methods = {
+            "Model_A": ["vertex_A", "edge_A"]
+        }
+
+        self.executor = mock.Mock()
+
+    def test_missing_methods(self):
+        self.executor.has_step.side_effect = [True, False]
+
+        self.assertEqual(get_missing_methods(self.executor, self.methods), {"Model_A": {"edge_A"}})
+
+    def test_no_missing_methods(self):
+        self.executor.has_step.return_value = True
+
+        self.assertEqual(get_missing_methods(self.executor, self.methods), {})
 
 
 class TestValidateCode(unittest.TestCase):
@@ -179,7 +214,7 @@ class TestValidateCode(unittest.TestCase):
             "Model_A": ["vertex_A", "edge_A"]
         }
 
-        self.executor = mock.MagicMock()
+        self.executor = mock.Mock()
 
     def test_valid_code(self):
         self.executor.has_model.return_value = True
@@ -188,19 +223,21 @@ class TestValidateCode(unittest.TestCase):
         validate_code(self.executor, self.methods)
 
     def test_invalid_code(self):
+        expected = (
+            "Expected to find class 'Model_A'.",
+            "Expected to find method 'vertex_A' in class 'Model_A'.",
+            "Expected to find method 'edge_A' in class 'Model_A'.",
+        )
+
         self.executor.has_model.return_value = False
         self.executor.has_step.return_value = False
 
         with self.assertRaises(ValidationException) as cm:
             validate_code(self.executor, self.methods)
 
-        message = str(cm.exception)
-
-        expected = "Expected to find class Model_A.\n" + \
-                   "Expected to find vertex_A method in class Model_A.\n" + \
-                   "Expected to find edge_A method in class Model_A.\n"
-
-        self.assertEqual(expected, message)
+        error_message = str(cm.exception)
+        for message in expected:
+            self.assertIn(message, error_message)
 
 
 @mock.patch("altwalker.code.validate_code")

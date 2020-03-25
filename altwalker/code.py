@@ -3,6 +3,7 @@
 import os
 
 import altwalker.graphwalker as graphwalker
+from altwalker._utils import _get_issues
 from altwalker.exceptions import ValidationException
 from altwalker.model import _read_json, validate_models
 from altwalker.executor import create_executor
@@ -15,7 +16,7 @@ def _is_element_blocked(element, blocked=False):
 def _json_methods(model_path, blocked=False):
     """Return for each model its name and a list of unique names of vertices and edges in the model."""
 
-    result = dict()
+    methods = dict()
     models = _read_json(model_path)
 
     for model in models["models"]:
@@ -24,9 +25,9 @@ def _json_methods(model_path, blocked=False):
         vertices = {vertex["name"] for vertex in model["vertices"] if not _is_element_blocked(vertex, blocked=blocked)}
         edges = {edge["name"] for edge in model["edges"] if not _is_element_blocked(edge, blocked=blocked)}
 
-        result[name] = sorted(vertices | edges)
+        methods[name] = vertices | edges
 
-    return result
+    return methods
 
 
 def _graphml_methods(model_path, blocked=False):
@@ -35,10 +36,10 @@ def _graphml_methods(model_path, blocked=False):
     _, file_name = os.path.split(model_path)
     model_name = file_name.replace(".graphml", "")
 
-    result = dict()
-    result[model_name] = sorted(set(graphwalker.methods(model_path, blocked=blocked)))
+    methods = dict()
+    methods[model_name] = set(graphwalker.methods(model_path, blocked=blocked))
 
-    return result
+    return methods
 
 
 def get_methods(model_paths, blocked=False):
@@ -52,15 +53,49 @@ def get_methods(model_paths, blocked=False):
         dict: A dict containing each model name as a key and a list containing its required methods as values.
     """
 
-    result = dict()
+    methods = dict()
 
     for path in model_paths:
         if path.endswith(".json"):
-            result.update(_json_methods(path, blocked=blocked))
+            methods.update(_json_methods(path, blocked=blocked))
         elif path.endswith(".graphml"):
-            result.update(_graphml_methods(path, blocked=blocked))
+            methods.update(_graphml_methods(path, blocked=blocked))
 
-    return result
+    return methods
+
+
+def get_missing_methods(executor, methods):
+    """Return all not implemented methods for all models."""
+
+    missing_methods = dict()
+
+    for model, elements in methods.items():
+        missing_methods[model] = set()
+
+        for element in elements:
+            if not executor.has_step(model, element):
+                missing_methods[model].add(element)
+
+        if not missing_methods[model]:
+            missing_methods.pop(model)
+
+    return missing_methods
+
+
+def _validate_code(executor, methods):
+    issues = dict()
+
+    for model, elements in methods.items():
+        issues[model] = set()
+
+        if not executor.has_model(model):
+            issues[model].add("Expected to find class '{}'.".format(model))
+
+        for element in elements:
+            if not executor.has_step(model, element):
+                issues[model].add("Expected to find method '{}' in class '{}'.".format(element, model))
+
+    return issues
 
 
 def validate_code(executor, methods):
@@ -74,18 +109,11 @@ def validate_code(executor, methods):
         ValidationException: If the code is not valid.
     """
 
-    message = ""
+    issues = _validate_code(executor, methods)
+    issues_messages = _get_issues(issues)
 
-    for model, elements in methods.items():
-        if not executor.has_model(model):
-            message += "Expected to find class {}.\n".format(model)
-
-        for element in elements:
-            if not executor.has_step(model, element):
-                message += "Expected to find {} method in class {}.\n".format(element, model)
-
-    if message:
-        raise ValidationException(message)
+    if issues_messages:
+        raise ValidationException("\n".join(issues_messages))
 
 
 def verify_code(path, executor, model_paths, url):

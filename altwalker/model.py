@@ -3,9 +3,9 @@
 import json
 import keyword
 import itertools
-from functools import reduce
 from collections import defaultdict
 
+from altwalker._utils import _get_issues
 from altwalker.exceptions import ValidationException
 import altwalker.graphwalker as graphwalker
 
@@ -26,10 +26,6 @@ CSHARP_KEYWORDS = {
     "try", "typeof", "uint", "ulong", "unchecked", "value", "var", "virtual", "void",
     "volatile", "when", "where", "while", "yield"
 }
-
-
-def _get_issues(issues):
-    return reduce(lambda acc, cur: acc.union(cur), issues.values(), set())
 
 
 def _read_json(path):

@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 
-from altwalker._check import _echo_issues, _cli_validate_models, _cli_check_models, cli_check
+from altwalker._cli_check import _echo_issues, _cli_validate_models, _cli_check_models, cli_check
 
 
 @mock.patch("click.secho")
@@ -38,9 +38,9 @@ class _TestEchoIssues(unittest.TestCase):
         secho_mock.assert_any_call("[PASSED]", fg="green")
 
 
-@mock.patch("altwalker._check._echo_issues")
-@mock.patch("altwalker._check._validate_models")
-@mock.patch("altwalker._check.get_models")
+@mock.patch("altwalker._cli_check._echo_issues")
+@mock.patch("altwalker._cli_check._validate_models")
+@mock.patch("altwalker._cli_check.get_models")
 @mock.patch("click.secho")
 class _TestCliValidateModels(unittest.TestCase):
 
@@ -86,7 +86,7 @@ class _TestCliValidateModels(unittest.TestCase):
         self.assertFalse(status)
 
 
-@mock.patch("altwalker._check.check")
+@mock.patch("altwalker._cli_check.check")
 @mock.patch("click.secho")
 class _TestCliCheckModels(unittest.TestCase):
 
@@ -128,8 +128,8 @@ class _TestCliCheckModels(unittest.TestCase):
         check_mock.assert_called_once_with(mock.sentinel.models, blocked=False)
 
 
-@mock.patch("altwalker._check._cli_check_models")
-@mock.patch("altwalker._check._cli_validate_models")
+@mock.patch("altwalker._cli_check._cli_check_models")
+@mock.patch("altwalker._cli_check._cli_validate_models")
 class TestCliCheck(unittest.TestCase):
 
     def test_valide_models(self, validate_mock, check_mock):

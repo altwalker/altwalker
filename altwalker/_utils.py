@@ -1,3 +1,4 @@
+import functools
 import platform
 import subprocess
 import signal
@@ -5,6 +6,10 @@ import os
 
 import psutil
 import click
+
+
+def _get_issues(issues):
+    return functools.reduce(lambda acc, cur: acc.union(cur), issues.values(), set())
 
 
 def kill(pid):

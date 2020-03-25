@@ -17,6 +17,7 @@ import requests
 from altwalker._utils import kill, get_command, url_join
 from altwalker.exceptions import ExecutorException
 
+
 logger = logging.getLogger(__name__)
 prev_loaded_package_path = None
 

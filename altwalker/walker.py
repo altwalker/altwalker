@@ -143,7 +143,10 @@ class Walker:
         if not self._executor.has_step(step.get("modelName"), step.get("name")):
             if not optional:
                 self._planner.fail("Step not found.")
-                self._reporter.error(step, "Step not found.")
+                self._reporter.error(
+                    step,
+                    "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
+                )
 
             return optional
 
