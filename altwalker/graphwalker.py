@@ -4,6 +4,7 @@ import logging
 import time
 import json
 import re
+import os
 
 import requests
 
@@ -24,8 +25,21 @@ def _get_error_message(data):
     return None
 
 
+def _get_log_level(level):
+    LOG_LEVEL_MAP = {
+        "NOTSET": "ALL",
+        "CRITICAL": "TRACE",
+        "ERROR": "ERROR",
+        "WARNING": "WARN",
+        "INFO": "INFO",
+        "DEBUG": "DEBUG",
+    }
+
+    return LOG_LEVEL_MAP.get(level.upper(), "OFF")
+
+
 def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None,
-                    verbose=False, unvisited=False, blocked=None):
+                    verbose=False, unvisited=False, blocked=None, debug="OFF"):
     """Create a list containing the executable, command and the list of options for a GraphWalker command.
 
     Args:
@@ -38,12 +52,14 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
         verbose (:obj:`bool`): Run the command with the verbose flag.
         unvisited (:obj:`bool`): Run the command with the unvisited flag.
         blocked (:obj:`bool`): Run the command with the blcoked flag.
+        debug (:obj:`str`): Sets the log level.
 
     Returns:
         list: A list containing the executable followed command and options.
     """
 
     command = get_command("gw")
+    command.extend(("--debug", _get_log_level(debug)))
     command.append(command_name)
 
     if model_path:
@@ -212,7 +228,8 @@ class GraphWalkerService:
         self.output_file = output_file
 
         command = _create_command("online", models=models, port=port, service="RESTFUL", start_element=start_element,
-                                  verbose=True, unvisited=unvisited, blocked=blocked)
+                                  verbose=True, unvisited=unvisited, blocked=blocked,
+                                  debug=os.environ.get("GRAPHWALKER_LOG_LEVEL", ""))
 
         logger.debug("Starting GraphWalker Service on port: {}".format(self.port))
         logger.debug("Command: {}".format(" ".join(command)))

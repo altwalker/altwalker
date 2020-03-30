@@ -85,9 +85,14 @@ def add_options(options):
               help="Sets the logger level to the specified level.")
 @click.option("--log-file", type=click.Path(exists=False, dir_okay=False), envvar="ALTWALKER_LOG_FILE",
               help="Sends logging output to a file.")
-def cli(log_level, log_file):
+@click.option("--graphwalker-log-level",
+              type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], case_sensitive=False),
+              default="CRITICAL", show_default=True, envvar="GRAPHWALKER_LOG_LEVEL",
+              help="Sets the GraphWalker logger level to the specified level.")
+def cli(log_level, log_file, graphwalker_log_level):
     """A command line tool for running model-based tests."""
 
+    os.environ["GRAPHWALKER_LOG_LEVEL"] = graphwalker_log_level.upper()
     logging.basicConfig(filename=log_file, level=log_level.upper())
 
 

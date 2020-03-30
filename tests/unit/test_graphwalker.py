@@ -111,12 +111,12 @@ class TestCreateCommand(unittest.TestCase):
     @mock.patch("platform.system", return_value="Linux")
     def test_method(self, get_gw, system):
         command = _create_command("online")
-        self.assertEqual(command[1], "online")
+        self.assertEqual(command[3], "online")
 
     @mock.patch("platform.system", return_value="Linux")
     def test_model_path(self, get_gw, system):
         command = _create_command("online", model_path="model_path")
-        self.assertListEqual(["--model", "model_path"], command[2:])
+        self.assertListEqual(["--model", "model_path"], command[4:])
 
     @mock.patch("platform.system", return_value="Linux")
     def test_models(self, get_gw, system):
@@ -125,14 +125,14 @@ class TestCreateCommand(unittest.TestCase):
 
         models = [("model_path", "stop_condition")]
         command = _create_command("online", models=models)
-        self.assertListEqual(["--model", "model_path", "stop_condition"], command[2:])
+        self.assertListEqual(["--model", "model_path", "stop_condition"], command[4:])
 
         models = [("model_path_1", "stop_condition_1"), ("model_path_2", "stop_condition_2")]
         command = _create_command("online", models=models)
 
         self.assertListEqual(
             ["--model", "model_path_1", "stop_condition_1", "--model", "model_path_2", "stop_condition_2"],
-            command[2:])
+            command[4:])
 
     @mock.patch("platform.system", return_value="Linux")
     def test_port(self, get_gw, system):
@@ -141,7 +141,7 @@ class TestCreateCommand(unittest.TestCase):
 
         port = 9999
         command = _create_command("online", port=port)
-        self.assertListEqual(["--port", str(port)], command[2:])
+        self.assertListEqual(["--port", str(port)], command[4:])
 
     @mock.patch("platform.system", return_value="Linux")
     def test_service(self, get_gw, system):
@@ -150,7 +150,7 @@ class TestCreateCommand(unittest.TestCase):
 
         service = "RESTFUL"
         command = _create_command("online", service=service)
-        self.assertListEqual(["--service", service], command[2:])
+        self.assertListEqual(["--service", service], command[4:])
 
     @mock.patch("platform.system", return_value="Linux")
     def test_start_element(self, get_gw, system):
@@ -159,7 +159,7 @@ class TestCreateCommand(unittest.TestCase):
 
         start_element = "start_vertex"
         command = _create_command("online", start_element=start_element)
-        self.assertListEqual(["--start-element", start_element], command[2:])
+        self.assertListEqual(["--start-element", start_element], command[4:])
 
     def test_verbose(self, get_gw):
         command = _create_command("online")
@@ -198,13 +198,13 @@ class TestExecuteCommand(unittest.TestCase):
 
         if platform.system() == "Windows":
             popen_mock.assert_called_once_with(
-                ["cmd.exe", "/C", "gw", "offline"],
+                ["cmd.exe", "/C", "gw", "--debug", "OFF", "offline"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         else:
             popen_mock.assert_called_once_with(
-                ["gw", "offline"],
+                ["gw", "--debug", "OFF", "offline"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
