@@ -2,7 +2,7 @@ import sys
 import unittest
 import unittest.mock as mock
 
-from altwalker.exceptions import ExecutorException
+from altwalker.exceptions import ExecutorException, AltWalkerException
 from altwalker.executor import get_output, load, create_executor, _pop_previously_loaded_modules, _is_parent_path, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
@@ -401,41 +401,35 @@ class TestDotnetExecutorService(unittest.TestCase):
 
 class TestCreateExecutor(unittest.TestCase):
 
-    @mock.patch("altwalker.executor.create_python_executor")
-    def test_create_executor_python(self, create_python_executor):
-        create_executor("path/to/pacakge", "python", None)
-        create_python_executor.assert_called_once_with("path/to/pacakge")
-
-    @mock.patch("altwalker.executor.create_dotnet_executor", return_value="service")
+    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
     def test_create_dotnet(self, dotnet_executor):
-        executor = create_executor("path/to/pacakge", "dotnet", "http://1.2.3.4:5678")
-        self.assertEqual(executor, "service")
+        executor = executor = create_executor("path/to/pacakge", "dotnet", url="http://1.2.3.4:5678")
 
-        dotnet_executor.assert_called_once_with("path/to/pacakge", "http://1.2.3.4:5678")
+        dotnet_executor.assert_called_once_with("dotnet", "path/to/pacakge", url="http://1.2.3.4:5678")
+        self.assertEqual(executor, mock.sentinel.executor)
 
-    @mock.patch("altwalker.executor.create_dotnet_executor", return_value="service")
+    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
     def test_create_csharp(self, dotnet_executor):
-        executor = create_executor("path/to/pacakge", "c#", "http://1.2.3.4:5678")
-        self.assertEqual(executor, "service")
+        executor = create_executor("path/to/pacakge", "c#", url="http://1.2.3.4:5678")
 
-        dotnet_executor.assert_called_once_with("path/to/pacakge", "http://1.2.3.4:5678")
+        dotnet_executor.assert_called_once_with("c#", "path/to/pacakge", url="http://1.2.3.4:5678")
+        self.assertEqual(executor, mock.sentinel.executor)
 
-    @mock.patch("altwalker.executor.create_python_executor")
-    def test_create_python(self, python_executor):
-        path = "path/to/package"
-        create_executor(path, "python", None)
+    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
+    def test_create_python(self, _call_function_mock):
+        executor = create_executor("path/to/package", "python")
 
-        python_executor.assert_called_once_with(path)
+        _call_function_mock.assert_called_once_with("python", "path/to/package", url="http://localhost:5000/")
+        self.assertTrue(executor, mock.sentinel.executor)
 
-    @mock.patch("altwalker.executor.create_http_executor")
-    def test_create_http(self, http_executor):
-        path = "path/to/code"
-        url = "http://localhost:4200"
+    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
+    def test_create_http(self, _call_function_mock):
+        executor = create_executor("path/to/code", "http", url="http://localhost:4200")
 
-        create_executor(path, "http", url)
-
-        http_executor.assert_called_once_with(path, url)
+        _call_function_mock.assert_called_once_with("http", "path/to/code", url="http://localhost:4200")
+        self.assertEqual(executor, mock.sentinel.executor)
 
     def test_create_invalid_language(self):
-        with self.assertRaisesRegex(ValueError, "myexecutortype is not a supported executor type."):
-            create_executor("path/to/package", "myexecutortype", "http://1.1.1.1:1111")
+        error_message_regex = r"Executor type 'my_executor_type' is not supported. Supported executor types are: *."
+        with self.assertRaisesRegex(AltWalkerException, error_message_regex):
+            create_executor("path/to/package", "my_executor_type", "http://1.1.1.1:1111")

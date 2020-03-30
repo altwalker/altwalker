@@ -1,22 +1,19 @@
-import json
+import os
 import warnings
 import logging
-import os
 
 import click
 
-import altwalker.graphwalker as graphwalker
-from altwalker._utils import click_formatwarning, echo_status, echo_statistics
+from altwalker._utils import click_formatwarning
 from altwalker._cli_check import cli_check
 from altwalker._cli_verify import cli_verify
 from altwalker._cli_init import cli_init
 from altwalker._cli_generate import cli_generate
-from altwalker.exceptions import FailedTestsError, handle_errors
+from altwalker._cli_offline import cli_offline
+from altwalker._cli_run import cli_online, cli_walk
+from altwalker.exceptions import handle_errors
 from altwalker.generate import SUPPORTED_LANGUAGES
-from altwalker.planner import create_planner
-from altwalker.executor import create_executor
-from altwalker.walker import create_walker
-from altwalker.reporter import create_reporters
+from altwalker.executor import SUPPORTED_EXECUTORS
 
 
 # replace the default warning formating
@@ -50,8 +47,8 @@ blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
 language_option = click.option("--language", "-l", type=click.Choice(SUPPORTED_LANGUAGES, case_sensitive=False),
                                help="The programming language of the tests.")
 
-executor_option = click.option("--executor", "-x", "--language", "-l", "executor",
-                               type=click.Choice(["python", "c#", "dotnet", "http"], case_sensitive=False),
+executor_option = click.option("--executor", "-x", "--language", "-l", "executor_type",
+                               type=click.Choice(SUPPORTED_EXECUTORS, case_sensitive=False),
                                default="python", show_default=True,
                                help="Configure the executor to be used.")
 
@@ -116,11 +113,10 @@ def check(models, blocked):
               help="If set will print code suggestions for missing steps.", show_default=True)
 @add_options([model_file_option, executor_option, url_option])
 @handle_errors
-def verify(test_package, models, url, **options):
-    """Verify test code from TEST_PACAKGE against the model(s)."""
+def verify(test_package, executor_type, models, **options):
+    """Verify and analyze test code against model(s)."""
 
-    executor = options["executor"]
-    status = cli_verify(test_package, executor, models, url, suggestions=options["suggestions"])
+    status = cli_verify(test_package, executor_type, models, **options)
 
     if status:
         exit(0)
@@ -161,13 +157,10 @@ def generate(dest_dir, models, language):
               verbose_option, unvisted_option, blocked_option, report_path_option, report_path_file_option,
               report_file_option])
 @handle_errors
-def online(test_package, **options):
-    """Run the tests from TEST_PACKAGE path using the GraphWalker online RESTFUL service."""
+def online(test_package, executor_type, **options):
+    """Generate and run a test path."""
 
-    executor = options.pop("executor")
-    url = options.pop("url")
-
-    run_command(test_package, executor, url, **options)
+    cli_online(test_package, executor_type, **options)
 
 
 @cli.command()
@@ -175,110 +168,19 @@ def online(test_package, **options):
               help="Output file.")
 @add_options([model_and_generator_option, start_element_option, verbose_option, unvisted_option, blocked_option])
 @handle_errors
-def offline(**options):
+def offline(models, **options):
     """Generate a test path once, that can be runned later."""
 
-    for _, stop_condition in options["models"]:
-        if "never" in stop_condition or "time_duration" in stop_condition:
-            raise click.BadOptionUsage(
-                "model",
-                "Invalid stop condition: {}, never and time_duration are not allowed with offline."
-                .format(stop_condition))
-
-    steps = graphwalker.offline(
-        models=options["models"],
-        start_element=options["start_element"],
-        verbose=options["verbose"],
-        unvisited=options["unvisited"],
-        blocked=options["blocked"])
-
-    steps = json.dumps(steps, sort_keys=True, indent=4)
-    click.echo(steps, file=options["output_file"])
+    cli_offline(models, **options)
 
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
-@click.argument("steps_path", type=click.Path(exists=True, dir_okay=False))
+@click.argument("steps_file", type=click.Path(exists=True, dir_okay=False))
 @add_options([executor_option, url_option, report_path_option, report_path_file_option, report_file_option])
 @handle_errors
-def walk(test_package, steps_path, executor, url, report_path, report_path_file, report_file):
-    """Run the tests from TEST_PACKAGE with steps from STEPS_PATH."""
+def walk(test_package, steps_file, executor_type, url, report_path, report_path_file, report_file):
+    """Run the tests with steps from a file."""
 
-    with open(steps_path) as f:
-        steps = json.load(f)
-
-    run_command(test_package, executor, url, steps=steps, report_path=report_path,
-                report_path_file=report_path_file, report_file=report_file)
-
-
-def run_tests(path, executor_type, url=None, models=None, steps=None, port=None, start_element=None,
-              verbose=False, unvisited=False, blocked=False, **kwargs):
-    """Run tests.
-
-    Args:
-        path: Path to test code.
-        executor: The type of executor to use.
-        url: The url for the executor, if the executor type is ``http``.
-        models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        steps: A sequence of steps.
-        port: The port for the GraphWalker REST Service.
-        verbose: Will run the GraphWalker command with the verbose flag.
-        unvisited: Will run the GraphWalker command with the unvisited flag.
-        blocked: Will run the GraphWalker command with the blocked flag.
-    """
-
-    report_file = kwargs.get("report_file")
-    report_path = kwargs.get("report_path", False)
-
-    planner = None
-    executor = None
-    statistics = {}
-
-    try:
-        planner = create_planner(models=models, steps=steps, port=port, start_element=start_element,
-                                 verbose=verbose, unvisited=unvisited, blocked=blocked)
-        path = os.path.abspath(path)
-        executor = create_executor(path, executor_type, url=url)
-        reporter = create_reporters(report_path=report_path, report_file=report_file)
-        walker = create_walker(planner, executor, reporter=reporter)
-        walker.run()
-
-        statistics = planner.get_statistics()
-    finally:
-        if planner:
-            planner.kill()
-
-        if executor:
-            executor.kill()
-
-    return walker.status, statistics, reporter.report()
-
-
-def run_command(path, executor, url=None, models=None, steps=None, port=None, start_element=None,
-                verbose=False, unvisited=False, blocked=False, **kwargs):
-    """Run tests and echo output."""
-
-    kwargs["report_path"] = kwargs.get("report_path", False) or bool(kwargs.get("report_path_file"))
-
-    click.echo("Running:")
-    status, statistics, report = run_tests(path, executor, url, models=models, steps=steps,
-                                           port=port, start_element=start_element, verbose=verbose,
-                                           unvisited=unvisited, blocked=blocked, **kwargs)
-
-    if statistics:
-        echo_statistics(statistics)
-
-    if kwargs.get("report_path_file"):
-        path = report.pop("path", {})
-        with open(kwargs["report_path_file"], "w") as fp:
-            click.echo(json.dumps(path, sort_keys=True, indent=4), file=fp)
-
-    if report:
-        click.echo()
-        click.echo("Report:")
-        click.echo(json.dumps(report, sort_keys=True, indent=4))
-
-    echo_status(status)
-
-    if not status:
-        raise FailedTestsError()
+    cli_walk(test_package, executor_type, steps_file, url=url, report_path=report_path,
+             report_path_file=report_path_file, report_file=report_file)

@@ -41,7 +41,7 @@ def _echo_sugesstions(language, methods, missing_methods):
             click.secho(generate_methods(language, elements), fg="cyan")
 
 
-def cli_verify(test_package, excutor_type, models, url, suggestions=False):
+def cli_verify(test_package, excutor_type, models, url="http://localhost:5000/", suggestions=False):
     click.secho("Verifying code agains models:\n", bold=True, fg="green")
 
     executor = create_executor(test_package, excutor_type, url)

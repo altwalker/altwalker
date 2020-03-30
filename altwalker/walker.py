@@ -1,7 +1,7 @@
 import traceback
 
-from altwalker.reporter import Reporter
 from altwalker.exceptions import GraphWalkerException
+from altwalker.reporter import Reporter
 
 
 class Walker:

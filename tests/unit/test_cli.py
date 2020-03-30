@@ -1,117 +1,17 @@
+import itertools
 import unittest
 import unittest.mock as mock
-import os
 
 from click.testing import CliRunner
 
 from tests.common.utils import run_isolation
-from altwalker.cli import run_tests, run_command, check, verify, init, generate, online, offline, walk
+from altwalker.cli import check, verify, init, generate, online, offline, walk
 from altwalker.exceptions import FailedTestsError
+from altwalker.generate import SUPPORTED_LANGUAGES
+from altwalker.executor import SUPPORTED_EXECUTORS
 
 
-@mock.patch("altwalker.cli.create_walker")
-@mock.patch("altwalker.cli.create_executor")
-@mock.patch("altwalker.cli.create_planner")
-class TestRunTests(unittest.TestCase):
-
-    def test_create_planner(self, create_planner, create_executor, create_walker):
-        run_tests("path/to/tests", "executor_type")
-
-        create_planner.assert_called_once_with(
-            models=None, port=None, steps=None, start_element=None,
-            verbose=False, unvisited=False, blocked=False)
-
-    def test_kill_planner(self, create_planner, create_executor, create_walker):
-        planner_mock = mock.Mock()
-        create_planner.return_value = planner_mock
-        create_executor.side_effect = Exception("Error message.")
-
-        with self.assertRaisesRegex(Exception, "Error message."):
-            run_tests("path/to/tests", "executor_type")
-
-        planner_mock.kill.assert_called_once_with()
-
-    def test_create_executor(self, create_planner, create_executor, create_walker):
-        run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
-
-        create_executor.assert_called_once_with(os.path.abspath(
-            'path/to/tests'), 'executor_type', url="http://localhost:4200")
-
-    def test_kill_executor(self, create_planner, create_executor, create_walker):
-        executor_mock = mock.Mock()
-        create_executor.return_value = executor_mock
-        create_walker.side_effect = Exception("Error message.")
-
-        with self.assertRaisesRegex(Exception, "Error message."):
-            run_tests("path/to/tests", "executor_type")
-
-        executor_mock.kill.assert_called_once_with()
-
-    @mock.patch("altwalker.cli.create_reporters")
-    def test_create_walker(self, create_reporters, create_planner, create_executor, create_walker):
-        planner = mock.Mock()
-        create_planner.return_value = planner
-
-        executor = mock.Mock()
-        create_executor.return_value = executor
-
-        reporter = mock.Mock()
-        create_reporters.return_value = reporter
-
-        run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
-
-        create_walker.assert_called_once_with(planner, executor, reporter=reporter)
-
-    def test_status(self, create_planner, create_executor, create_walker):
-        walker = mock.Mock()
-        walker.status = "status"
-        create_walker.return_value = walker
-
-        status, _, _ = run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
-
-        self.assertEqual(status, "status")
-
-    def test_statistics(self, create_planner, create_executor, create_walker):
-        planner = mock.Mock()
-        planner.get_statistics.return_value = {"statistics": None}
-        create_planner.return_value = planner
-
-        _, statistics, _ = run_tests("path/to/tests", "executor_type", url="http://localhost:4200")
-
-        self.assertDictEqual(statistics, {"statistics": None})
-
-
-@mock.patch("altwalker.cli.run_tests")
-class TestRunCommand(unittest.TestCase):
-
-    def setUp(self):
-        self.echo_patcher = mock.patch("click.echo")
-        self.secho_patcher = mock.patch("click.secho")
-
-        self.echo_patcher.start()
-        self.secho_patcher.start()
-
-    def tearDown(self):
-        self.echo_patcher.stop()
-        self.secho_patcher.stop()
-
-    def test_fail(self, run_tests):
-        run_tests.return_value = (False, {}, {})
-
-        with self.assertRaises(FailedTestsError):
-            run_command("path/to/tests", "executor_type", "http://localhost:5000", models=["path/to/model"])
-
-    def test_run(self, run_tests):
-        run_tests.return_value = (True, {}, {})
-
-        run_command("path/to/tests", "executor_type", "http://localhost:5000",
-                    models=["path/to/model"], steps=[], port=9999,
-                    verbose=True, unvisited=True, blocked=True)
-
-        run_tests.assert_called_once_with(
-            "path/to/tests", "executor_type", "http://localhost:5000",
-            models=["path/to/model"], port=9999, steps=[], start_element=None,
-            verbose=True, unvisited=True, blocked=True, report_path=False)
+EXECUTOR_TYPE_OPTIONS = ["--executor", "-x", "--language", "-l"]
 
 
 @mock.patch("altwalker.cli.cli_check")
@@ -120,65 +20,83 @@ class TestCheck(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.files = [
-            ("models.json", "{}")
+            ("models.json", "{}"),
+            ("modelA.json", "{}"),
+            ("modelB.json", "{}"),
         ]
 
-    def test_check(self, check_models):
+    def test_check(self, cli_check_mock):
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
                 check, ["-m", "models.json", "stop_condition"])
 
-            check_models.assert_called_once_with((("models.json", "stop_condition"), ), blocked=False)
             self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_check_mock.assert_called_once_with(
+                (("models.json", "stop_condition"), ),
+                blocked=False
+            )
 
-    def test_error(self, check_models):
+    def test_error(self, cli_check_mock):
         error_message = "Error message"
-        check_models.side_effect = Exception(error_message)
+        cli_check_mock.side_effect = Exception(error_message)
 
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
                 check, ["-m", "models.json", "stop_condition"])
 
-            self.assertNotEqual(result.exit_code, 0, msg=result.output)
+            self.assertEqual(result.exit_code, 1, msg=result.output)
             self.assertIn(error_message, result.output)
+            cli_check_mock.assert_called_once_with(
+                (("models.json", "stop_condition"), ),
+                blocked=False
+            )
 
-    def test_models(self, check_models):
+    def test_fail(self, cli_check_mock):
+        cli_check_mock.return_value = False
+
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
                 check, ["-m", "models.json", "stop_condition"])
 
-            self.assertEqual(result.exit_code, 0, msg=result.output)
+            self.assertEqual(result.exit_code, 4, msg=result.output)
+            cli_check_mock.assert_called_once_with(
+                (("models.json", "stop_condition"), ),
+                blocked=False
+            )
 
-            result = self.runner.invoke(
-                check, ["--model", "models.json", "stop_condition"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_invalid_models(self, check_models):
+    def test_multiple_models(self, cli_check_mock):
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
-                check, ["-m", "invalid.json", "stop_condition"])
+                check, ["-m", "modelA.json", "stop_condition", "-m", "modelB.json", "stop_condition"])
 
-            self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn(
-                'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
-                result.output.replace("\'", "\""))
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_check_mock.assert_called_once_with(
+                (("modelA.json", "stop_condition"), ("modelB.json", "stop_condition"), ),
+                blocked=False
+            )
 
-            result = self.runner.invoke(
-                check, ["--model", "invalid.json", "stop_condition"])
+    def test_invalid_models(self, cli_check_mock):
+        with run_isolation(self.runner, self.files):
+            for models_option in ["--model", "-m"]:
+                result = self.runner.invoke(
+                    check, [models_option, "invalid.json", "stop_condition"])
 
-            self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn(
-                'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
-                result.output.replace("\'", "\""))
+                self.assertEqual(result.exit_code, 2, msg=result.output)
+                self.assertIn(
+                    'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
+                    result.output.replace("\'", "\"")
+                )
 
-    def test_blocked(self, check_models):
+    def test_blocked(self, cli_check_mock):
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
                 check, ["-m", "models.json", "stop_condition", "-b"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
-            check_models.assert_called_once_with((("models.json", "stop_condition"), ), blocked=True)
+            cli_check_mock.assert_called_once_with(
+                (("models.json", "stop_condition"), ),
+                blocked=True
+            )
 
 
 @mock.patch("altwalker.cli.cli_verify")
@@ -187,50 +105,124 @@ class TestVerify(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.files = [
-            ("models.json", "{}")
+            ("models.json", "{}"),
+            ("modelA.json", "{}"),
+            ("modelB.json", "{}"),
         ]
 
         self.folders = ["tests"]
 
-    def test_package(self, verify_code):
-        pass
-
-    def test_models(self, verify_code):
+    def test_verify(self, cli_verify_mock):
         with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
                 verify, ["tests", "-m", "models.json"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_verify_mock.assert_called_once_with(
+                'tests', 'python',
+                ('models.json',),
+                url='http://localhost:5000/',
+                suggestions=True,
+            )
 
-            result = self.runner.invoke(
-                verify, ["tests", "-m", "invalid.json"])
+    def test_error(self, cli_verify_mock):
+        error_message = "Error message."
+        cli_verify_mock.side_effect = Exception(error_message)
 
-            self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn(
-                'Invalid value for "--model" / "-m": File "invalid.json" does not exist.',
-                result.output.replace("\'", "\""))
-
-    def test_executor_type(self, verify_code):
         with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
-                verify, ["tests", "-m", "models.json", "-x", "python"])
+                verify, ["tests", "-m", "models.json"])
 
-            self.assertEqual(result.exit_code, 0, msg=result.output)
+            self.assertEqual(result.exit_code, 1, msg=result.output)
+            self.assertIn(error_message, result.output)
+            cli_verify_mock.assert_called_once_with(
+                'tests', 'python',
+                ('models.json',),
+                url='http://localhost:5000/',
+                suggestions=True,
+            )
 
-            result = self.runner.invoke(
-                verify, ["tests", "-m", "models.json", "-x", "unsupported-executor"])
+    def test_fail(self, cli_verify_mock):
+        cli_verify_mock.return_value = False
 
-            self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn(
-                'Invalid value for "--executor" / "-x" / "--language" / "-l": invalid choice: unsupported-executor.',
-                result.output.replace("\'", "\""))
-
-    def test_url(self, verify_code):
         with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
-                verify, ["tests", "-m", "models.json", "--url", "http://localhost:4200"])
+                verify, ["tests", "-m", "models.json"])
+
+            self.assertEqual(result.exit_code, 4, msg=result.output)
+            cli_verify_mock.assert_called_once_with(
+                'tests', 'python',
+                ('models.json',),
+                url='http://localhost:5000/',
+                suggestions=True,
+            )
+
+    def test_multiple_models(self, cli_verify_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                verify, ["tests", "-m", "modelA.json", "-m", "modelB.json"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_verify_mock.assert_called_once_with(
+                "tests", "python",
+                ("modelA.json", "modelB.json", ),
+                url="http://localhost:5000/",
+                suggestions=True,
+            )
+
+    def test_executor_type(self, cli_verify_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for executor_type_option, exectuor_type in itertools.product(EXECUTOR_TYPE_OPTIONS, SUPPORTED_EXECUTORS):
+                result = self.runner.invoke(
+                    verify, [executor_type_option, exectuor_type, "tests", "-m", "models.json"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_verify_mock.assert_called_once_with(
+                    'tests', exectuor_type,
+                    ('models.json',),
+                    url='http://localhost:5000/',
+                    suggestions=True,
+                )
+                cli_verify_mock.reset_mock()
+
+    def test_url(self, cli_verify_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                verify, ["--url", "http://127.0.0.1:5000/", "tests", "-m", "models.json"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_verify_mock.assert_called_once_with(
+                'tests', 'python',
+                ('models.json',),
+                url="http://127.0.0.1:5000/",
+                suggestions=True,
+            )
+
+    def test_no_suggestions(self, cli_verify_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                verify, ["--no-suggestions", "tests", "-m", "models.json"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_verify_mock.assert_called_once_with(
+                'tests', 'python',
+                ('models.json',),
+                url='http://localhost:5000/',
+                suggestions=False,
+            )
+
+    def test_suggestions(self, cli_verify_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                verify, ["--suggestions", "tests", "-m", "models.json"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_verify_mock.assert_called_once_with(
+                'tests', 'python',
+                ('models.json',),
+                url='http://localhost:5000/',
+                suggestions=True,
+            )
 
 
 @mock.patch("altwalker.cli.cli_generate")
@@ -239,20 +231,26 @@ class TestGenerate(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.files = [
-            ("models.json", "{}")
+            ("models.json", "{}"),
+            ("modelA.json", "{}"),
+            ("modelB.json", "{}"),
         ]
 
-    def test_generate(self, generate_test):
+    def test_generate(self, cli_generate_mock):
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
                 generate, ["output_dir", "-m", "models.json"])
 
-            generate_test.assert_called_once_with("output_dir", ("models.json", ), language=None)
             self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_generate_mock.assert_called_once_with(
+                "output_dir",
+                ("models.json", ),
+                language=None,
+            )
 
-    def test_error(self, generate_tests):
+    def test_error(self, cli_generate_mock):
         error_message = "Error message"
-        generate_tests.side_effect = Exception(error_message)
+        cli_generate_mock.side_effect = Exception(error_message)
 
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
@@ -260,14 +258,37 @@ class TestGenerate(unittest.TestCase):
 
             self.assertNotEqual(result.exit_code, 0, msg=result.output)
             self.assertIn(error_message, result.output)
+            cli_generate_mock.assert_called_once_with(
+                "output_dir",
+                ("models.json", ),
+                language=None,
+            )
 
-    def test_language(self, generate_test):
+    def test_multiple_models(self, cli_generate_mock):
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
-                generate, ["output_dir", "-m", "models.json", "-l", "c#"])
+                generate, ["output_dir", "-m", "modelA.json", "-m", "modelB.json"])
 
-            generate_test.assert_called_once_with("output_dir", ("models.json", ), language="c#")
             self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_generate_mock.assert_called_once_with(
+                "output_dir",
+                ("modelA.json", "modelB.json", ),
+                language=None,
+            )
+
+    def test_language(self, cli_generate_mock):
+        with run_isolation(self.runner, self.files):
+            for language_option, language in itertools.product(["--language", "-l"], SUPPORTED_LANGUAGES):
+                result = self.runner.invoke(
+                    generate, [language_option, language, "output_dir", "-m", "models.json"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_generate_mock.assert_called_once_with(
+                    "output_dir",
+                    ("models.json", ),
+                    language=language
+                )
+                cli_generate_mock.reset_mock()
 
 
 @mock.patch("altwalker.cli.cli_init")
@@ -276,18 +297,22 @@ class TestInit(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.files = [
-            ("models.json", "{}")
+            ("models.json", "{}"),
+            ("modelA.json", "{}"),
+            ("modelB.json", "{}")
         ]
 
-    def test_init(self, init_project):
+    def test_init(self, cli_init_mock):
         with run_isolation(self.runner, self.files):
-            self.runner.invoke(init, ["."])
-            init_project.assert_called_once_with(".", model_paths=(), language=None, git=True)
+            result = self.runner.invoke(init, ["."])
 
-    def test_model(self, init_project):
-        with run_isolation(self.runner, self.files):
-            self.runner.invoke(init, ["-m", "models.json", "."])
-            init_project.assert_called_once_with(".", model_paths=("models.json", ), language=None, git=True)
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_init_mock.assert_called_once_with(
+                ".",
+                model_paths=(),
+                language=None,
+                git=True
+            )
 
     def test_error(self, init_project):
         message = "Error messaage"
@@ -300,246 +325,346 @@ class TestInit(unittest.TestCase):
             self.assertNotEqual(result.exit_code, 0, msg=result.output)
             self.assertIn(message, result.output)
 
+    def test_multiple_models(self, cli_init_mock):
+        with run_isolation(self.runner, self.files):
+            result = self.runner.invoke(init, ["-m", "modelA.json", "-m", "modelB.json", "."])
 
-@mock.patch("altwalker.cli.run_tests")
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_init_mock.assert_called_once_with(
+                ".",
+                model_paths=("modelA.json", "modelB.json"),
+                language=None,
+                git=True
+            )
+
+    def test_language(self, cli_init_mock):
+        with run_isolation(self.runner, self.files):
+            for language_option, language in itertools.product(["--language", "-l"], SUPPORTED_LANGUAGES):
+                result = self.runner.invoke(
+                    init,
+                    [language_option, language, "."]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_init_mock.assert_called_once_with(
+                    ".",
+                    model_paths=(),
+                    language=language,
+                    git=True
+                )
+                cli_init_mock.reset_mock()
+
+    def test_git(self, cli_init_mock):
+        with run_isolation(self.runner, self.files):
+            result = self.runner.invoke(init, ["--git", "."])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_init_mock.assert_called_once_with(
+                ".",
+                model_paths=(),
+                language=None,
+                git=True
+            )
+
+    def test_no_git(self, cli_init_mock):
+        with run_isolation(self.runner, self.files):
+            for no_git_option in ["--no-git", "-n"]:
+                result = self.runner.invoke(init, [no_git_option, "."])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_init_mock.assert_called_once_with(
+                    ".",
+                    model_paths=(),
+                    language=None,
+                    git=False
+                )
+                cli_init_mock.reset_mock()
+
+
+@mock.patch("altwalker.cli.cli_online")
 class TestOnline(unittest.TestCase):
 
     def setUp(self):
         self.runner = CliRunner()
+        self.folders = ["package"]
         self.files = [
-            ("models.json", "{}")
+            ("models.json", "{}"),
+            ("modelA.json", "{}"),
+            ("modelB.json", "{}"),
         ]
 
-    def test_online(self, run_mock):
-        run_mock.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
+    def test_online(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))"])
 
-            run_mock.assert_called_once_with(
-                'package', 'python', 'http://localhost:5000/',
-                models=(('models.json', 'random(vertex_coverage(100))'),),
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_online_mock.assert_called_once_with(
+                "package", "python",
+                models=(("models.json", "random(vertex_coverage(100))"),),
+                url="http://localhost:5000/",
                 port=8887,
-                steps=None,
                 start_element=None,
                 blocked=False,
                 unvisited=False,
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None)
+                report_path_file=None
+            )
 
-            self.assertEqual(result.exit_code, 0, msg=result.output)
+    def test_error(self, cli_online_mock):
+        cli_online_mock.side_effect = FailedTestsError()
 
-    def test_multiple_models(self, run_mock):
-        run_mock.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            result = self.runner.invoke(
-                online, ["package", "-m", "models.json", "random(vertex_coverage(100))",
-                         "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_start_element(self, run_mock):
-        run_mock.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            result = self.runner.invoke(
-                online, ["package", "--start-element", "start",
-                         "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                online, ["package", "-e", "start",
-                         "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_verbose(self, run_mock):
-        run_mock.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            result = self.runner.invoke(
-                online, ["package", "--verbose", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                online, ["package", "-o", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_unvisited(self, run_mock):
-        run_mock.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            result = self.runner.invoke(
-                online, ["package", "--unvisited", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                online, ["package", "-u", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_blocked(self, run_mock):
-        run_mock.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            result = self.runner.invoke(
-                online, ["package", "--blocked", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                online, ["package", "-b", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_error(self, run_mock):
-        message = "Error message"
-        run_mock.side_effect = Exception(message)
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
+        with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
                 online, ["package", "-m", "models.json", "random(vertex_coverage(100))"])
 
-            self.assertNotEqual(result.exit_code, 0, msg=result.output)
-            self.assertIn(message, result.output)
+            self.assertEqual(result.exit_code, 1, msg=result.output)
+            cli_online_mock.assert_called_once_with(
+                "package", "python",
+                models=(("models.json", "random(vertex_coverage(100))"),),
+                url="http://localhost:5000/",
+                port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file=None,
+                report_path=False,
+                report_path_file=None
+            )
 
-    def test_executor(self, run_mock):
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            self.runner.invoke(
-                online, ["package", "-m", "models.json", "random(vertex_coverage(100))", "-x", "http"])
-        run_mock.assert_called_once_with(
-            'package', 'http', 'http://localhost:5000/',
-            blocked=False,
-            models=(('models.json', 'random(vertex_coverage(100))'),),
-            port=8887,
-            start_element=None,
-            steps=None,
-            unvisited=False,
-            verbose=False,
-            report_file=None,
-            report_path=False,
-            report_path_file=None)
+    def test_multiple_models(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                online,
+                ["package", "-m", "modelA.json", "random(never)", "-m", "modelB.json", "random(never)"])
 
-    def test_language(self, run_mock):
-        with run_isolation(self.runner, self.files, folders=["package"]):
-            self.runner.invoke(
-                online, ["package", "-m", "models.json", "random(vertex_coverage(100))", "-l", "c#"])
-        run_mock.assert_called_once_with(
-            'package', 'c#', 'http://localhost:5000/',
-            blocked=False,
-            models=(('models.json', 'random(vertex_coverage(100))'),),
-            port=8887,
-            steps=None,
-            start_element=None,
-            unvisited=False,
-            verbose=False,
-            report_file=None,
-            report_path=False,
-            report_path_file=None)
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_online_mock.assert_called_once_with(
+                "package", "python",
+                models=(("modelA.json", "random(never)"), ("modelB.json", "random(never)")),
+                url="http://localhost:5000/",
+                port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file=None,
+                report_path=False,
+                report_path_file=None
+            )
+
+    def test_executor_type(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for executor_type_option, exectuor_type in itertools.product(EXECUTOR_TYPE_OPTIONS, SUPPORTED_EXECUTORS):
+                result = self.runner.invoke(
+                    online,
+                    [executor_type_option, exectuor_type, "package", "-m", "models.json", "random(never)"]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_online_mock.assert_called_once_with(
+                    "package", exectuor_type,
+                    models=(("models.json", "random(never)"),),
+                    url="http://localhost:5000/",
+                    port=8887,
+                    start_element=None,
+                    blocked=False,
+                    unvisited=False,
+                    verbose=False,
+                    report_file=None,
+                    report_path=False,
+                    report_path_file=None
+                )
+                cli_online_mock.reset_mock()
+
+    def test_start_element(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for start_element_option in ["--start-element", "-e"]:
+                result = self.runner.invoke(
+                    online,
+                    [start_element_option, "start", "package", "-m", "models.json", "random(vertex_coverage(100))"]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_online_mock.assert_called_once_with(
+                    "package", "python",
+                    models=(("models.json", "random(vertex_coverage(100))"),),
+                    url="http://localhost:5000/",
+                    port=8887,
+                    start_element="start",
+                    blocked=False,
+                    unvisited=False,
+                    verbose=False,
+                    report_file=None,
+                    report_path=False,
+                    report_path_file=None
+                )
+                cli_online_mock.reset_mock()
+
+    def test_verbose(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for verbose_option in ["--verbose", "-o"]:
+                result = self.runner.invoke(
+                    online, [verbose_option, "package", "-m", "models.json", "random(vertex_coverage(100))"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_online_mock.assert_called_once_with(
+                    "package", "python",
+                    models=(("models.json", "random(vertex_coverage(100))"),),
+                    url="http://localhost:5000/",
+                    port=8887,
+                    start_element=None,
+                    blocked=False,
+                    unvisited=False,
+                    verbose=True,
+                    report_file=None,
+                    report_path=False,
+                    report_path_file=None
+                )
+                cli_online_mock.reset_mock()
+
+    def test_unvisited(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for unvisited_option in ["--unvisited", "-u"]:
+                result = self.runner.invoke(
+                    online, [unvisited_option, "package", "-m", "models.json", "random(vertex_coverage(100))"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_online_mock.assert_called_once_with(
+                    "package", "python",
+                    models=(("models.json", "random(vertex_coverage(100))"),),
+                    url="http://localhost:5000/",
+                    port=8887,
+                    start_element=None,
+                    blocked=False,
+                    unvisited=True,
+                    verbose=False,
+                    report_file=None,
+                    report_path=False,
+                    report_path_file=None
+                )
+                cli_online_mock.reset_mock()
+
+    def test_blocked(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for blocked_option in ["-b", "--blocked"]:
+                result = self.runner.invoke(
+                    online, [blocked_option, "package", "-m", "models.json", "random(vertex_coverage(100))"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_online_mock.assert_called_once_with(
+                    "package", "python",
+                    models=(("models.json", "random(vertex_coverage(100))"),),
+                    url="http://localhost:5000/",
+                    port=8887,
+                    start_element=None,
+                    blocked=True,
+                    unvisited=False,
+                    verbose=False,
+                    report_file=None,
+                    report_path=False,
+                    report_path_file=None
+                )
+                cli_online_mock.reset_mock()
+
+    def test_report_file(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                online, ["--report-file", "output.txt", "package", "-m", "models.json", "random(vertex_coverage(100))"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_online_mock.assert_called_once_with(
+                "package", "python",
+                models=(("models.json", "random(vertex_coverage(100))"),),
+                url="http://localhost:5000/",
+                port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file="output.txt",
+                report_path=False,
+                report_path_file=None
+            )
+
+    def test_report_path(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                online,
+                ["--report-path", "package", "-m", "models.json", "random(vertex_coverage(100))"]
+            )
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_online_mock.assert_called_once_with(
+                "package", "python",
+                models=(("models.json", "random(vertex_coverage(100))"),),
+                url="http://localhost:5000/",
+                port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file=None,
+                report_path=True,
+                report_path_file=None
+            )
+
+    def test_report_path_file(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                online,
+                ["--report-path-file", "steps.json", "package", "-m", "models.json", "random(vertex_coverage(100))"]
+            )
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_online_mock.assert_called_once_with(
+                "package", "python",
+                models=(("models.json", "random(vertex_coverage(100))"),),
+                url="http://localhost:5000/",
+                port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file=None,
+                report_path=False,
+                report_path_file="steps.json"
+            )
 
 
-@mock.patch("altwalker.graphwalker.offline")
+@mock.patch("altwalker.cli.cli_offline")
 class TestOffline(unittest.TestCase):
 
     def setUp(self):
         self.runner = CliRunner()
         self.files = [
-            ("models.json", "{}")
+            ("models.json", "{}"),
+            ("modelA.json", "{}"),
+            ("modelB.json", "{}"),
         ]
 
-    def test_offline(self, offline_mock):
-        offline_mock.return_value = {}
-
+    def test_offline(self, cli_offline_mock):
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(
-                offline, ["-m", "models.json", "random(vertex_coverage(100))"])
+                offline, ["-m", "models.json", "random(vertex_coverage(100))"]
+            )
 
-            offline_mock.assert_called_once_with(
-                models=(('models.json', 'random(vertex_coverage(100))'),),
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_offline_mock.assert_called_once_with(
+                (('models.json', 'random(vertex_coverage(100))'),),
+                output_file=None,
                 start_element=None,
                 unvisited=False,
                 verbose=False,
-                blocked=False)
-            self.assertEqual(result.exit_code, 0, msg=result.output)
+                blocked=False,
+            )
 
-    def test_start_element(self, offline_mock):
-        offline_mock.return_value = {}
-
-        with run_isolation(self.runner, self.files):
-            result = self.runner.invoke(
-                offline, ["--start-element", "Start", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                offline, ["-e", "start", "-m", "models.json", "random(vertex_coverage(100))"])
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                offline, ["-e", "start", "-m", "models.json", "random(never)"])
-            self.assertEqual(result.exit_code, 2, msg=result.output)
-            self.assertIn(
-                "Invalid stop condition: random(never), never and time_duration are not allowed with offline.",
-                result.output)
-
-    def test_verbose(self, offline_mock):
-        offline_mock.return_value = {}
-
-        with run_isolation(self.runner, self.files):
-            result = self.runner.invoke(
-                offline, ["--verbose", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                offline, ["-o", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_unvisited(self, offline_mock):
-        offline_mock.return_value = {}
-
-        with run_isolation(self.runner, self.files):
-            result = self.runner.invoke(
-                offline, ["--unvisited", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                offline, ["-u", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_blocked(self, offline_mock):
-        offline_mock.return_value = {}
-
-        with run_isolation(self.runner, self.files):
-            result = self.runner.invoke(
-                offline, ["--blocked", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                offline, ["-b", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_output_file(self, offline_mock):
-        offline_mock.return_value = {}
-
-        with run_isolation(self.runner, self.files):
-            result = self.runner.invoke(
-                offline, ["--output-file", "output.txt", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-            result = self.runner.invoke(
-                offline, ["-f", "output.txt", "-m", "models.json", "random(vertex_coverage(100))"])
-
-            self.assertEqual(result.exit_code, 0, msg=result.output)
-
-    def test_error(self, offline_mock):
+    def test_error(self, cli_offline_mock):
         message = "Erorr messaage"
-        offline_mock.side_effect = Exception(message)
+        cli_offline_mock.side_effect = Exception(message)
 
         with run_isolation(self.runner, self.files):
             result = self.runner.invoke(offline, ["-m", "models.json", "random(vertex_coverage(100))"])
@@ -547,43 +672,213 @@ class TestOffline(unittest.TestCase):
             self.assertNotEqual(result.exit_code, 0, msg=result.output)
             self.assertIn(message, result.output)
 
+    def test_multiple_models(self, cli_offline_mock):
+        with run_isolation(self.runner, self.files):
+            result = self.runner.invoke(
+                offline,
+                ["-m", "modelA.json", "random(never)", "-m", "modelB.json", "random(never)"]
+            )
 
-@mock.patch("altwalker.cli.run_tests")
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_offline_mock.assert_called_once_with(
+                (('modelA.json', 'random(never)'), ('modelB.json', 'random(never)')),
+                output_file=None,
+                start_element=None,
+                unvisited=False,
+                verbose=False,
+                blocked=False,
+            )
+
+    def test_start_element(self, cli_offline_mock):
+        with run_isolation(self.runner, self.files):
+            for start_element_option in ["--start-element", "-e"]:
+                result = self.runner.invoke(
+                    offline, [start_element_option, "start", "-m", "models.json", "random(vertex_coverage(100))"]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_offline_mock.assert_called_once_with(
+                    (('models.json', 'random(vertex_coverage(100))'),),
+                    output_file=None,
+                    start_element="start",
+                    unvisited=False,
+                    verbose=False,
+                    blocked=False,
+                )
+                cli_offline_mock.reset_mock()
+
+    def test_verbose(self, cli_offline_mock):
+        with run_isolation(self.runner, self.files):
+            for verbose_option in ["--verbose", "-o"]:
+                result = self.runner.invoke(
+                    offline, [verbose_option, "-m", "models.json", "random(vertex_coverage(100))"]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_offline_mock.assert_called_once_with(
+                    (('models.json', 'random(vertex_coverage(100))'),),
+                    output_file=None,
+                    start_element=None,
+                    unvisited=False,
+                    verbose=True,
+                    blocked=False,
+                )
+                cli_offline_mock.reset_mock()
+
+    def test_unvisited(self, cli_offline_mock):
+        with run_isolation(self.runner, self.files):
+            for unvisited_option in ["--unvisited", "-u"]:
+                result = self.runner.invoke(
+                    offline, [unvisited_option, "-m", "models.json", "random(vertex_coverage(100))"]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_offline_mock.assert_called_once_with(
+                    (('models.json', 'random(vertex_coverage(100))'),),
+                    output_file=None,
+                    start_element=None,
+                    unvisited=True,
+                    verbose=False,
+                    blocked=False,
+                )
+                cli_offline_mock.reset_mock()
+
+    def test_blocked(self, cli_offline_mock):
+        with run_isolation(self.runner, self.files):
+            for blocked_option in ["--blocked", "-b"]:
+                result = self.runner.invoke(
+                    offline, [blocked_option, "-m", "models.json", "random(vertex_coverage(100))"]
+                )
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_offline_mock.assert_called_once_with(
+                    (('models.json', 'random(vertex_coverage(100))'),),
+                    output_file=None,
+                    start_element=None,
+                    unvisited=False,
+                    verbose=False,
+                    blocked=True,
+                )
+                cli_offline_mock.reset_mock()
+
+    def test_output_file(self, cli_offline_mock):
+        with run_isolation(self.runner, self.files):
+            for output_file_option in ["--output-file", "-f"]:
+                result = self.runner.invoke(
+                    offline, [output_file_option, "output.txt", "-m", "models.json", "random(vertex_coverage(100))"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_offline_mock.assert_called_once_with(
+                    (('models.json', 'random(vertex_coverage(100))'),),
+                    output_file=mock.ANY,
+                    start_element=None,
+                    unvisited=False,
+                    verbose=False,
+                    blocked=False,
+                )
+                cli_offline_mock.reset_mock()
+
+
+@mock.patch("altwalker.cli.cli_walk")
 class TestWalk(unittest.TestCase):
 
     def setUp(self):
         self.runner = CliRunner()
+        self.folders = ["package"]
         self.files = [
             ("steps.json", "[]")
         ]
 
-    def test_walk(self, run_tests):
-        run_tests.return_value = (True, {}, {})
-
-        with run_isolation(self.runner, self.files, folders=["package"]):
+    def test_walk(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(walk, ["package", "steps.json"])
-
-            run_tests.assert_called_once_with(
-                'package', 'python', 'http://localhost:5000/',
-                models=None,
-                port=None,
-                steps=[],
-                start_element=None,
-                verbose=False,
-                unvisited=False,
-                blocked=False,
-                report_file=None,
-                report_path=False,
-                report_path_file=None)
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "python",
+                "steps.json",
+                url="http://localhost:5000/",
+                report_file=None,
+                report_path=False,
+                report_path_file=None,
+            )
 
-    def test_error(self, run_tests):
-        error_message = "Erorr messaage"
-        run_tests.side_effect = Exception(error_message)
+    def test_error(self, cli_walk_mock):
+        cli_walk_mock.side_effect = FailedTestsError()
 
-        with run_isolation(self.runner, self.files, folders=["package"]):
+        with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(walk, ["package", "steps.json"])
 
-            self.assertNotEqual(result.exit_code, 0, msg=result.output)
-            self.assertIn(error_message, result.output)
+            self.assertEqual(result.exit_code, 1, msg=result.output)
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "python",
+                "steps.json",
+                url="http://localhost:5000/",
+                report_file=None,
+                report_path=False,
+                report_path_file=None,
+            )
+
+    def test_executor_type(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            for executor_type_option, exectuor_type in itertools.product(EXECUTOR_TYPE_OPTIONS, SUPPORTED_EXECUTORS):
+                result = self.runner.invoke(walk, [executor_type_option, exectuor_type, "package", "steps.json"])
+
+                self.assertEqual(result.exit_code, 0, msg=result.output)
+                cli_walk_mock.assert_called_once_with(
+                    "package",
+                    exectuor_type,
+                    "steps.json",
+                    url="http://localhost:5000/",
+                    report_file=None,
+                    report_path=False,
+                    report_path_file=None,
+                )
+                cli_walk_mock.reset_mock()
+
+    def test_report_file(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(walk, ["package", "steps.json", "--report-file", "output.txt"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "python",
+                "steps.json",
+                url="http://localhost:5000/",
+                report_file="output.txt",
+                report_path=False,
+                report_path_file=None,
+            )
+
+    def test_report_path(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(walk, ["package", "steps.json", "--report-path"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "python",
+                "steps.json",
+                url="http://localhost:5000/",
+                report_file=None,
+                report_path=True,
+                report_path_file=None,
+            )
+
+    def test_report_path_file(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(walk, ["package", "steps.json", "--report-path-file", "new-steps.json"])
+
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "python",
+                "steps.json",
+                url="http://localhost:5000/",
+                report_file=None,
+                report_path=False,
+                report_path_file="new-steps.json",
+            )
