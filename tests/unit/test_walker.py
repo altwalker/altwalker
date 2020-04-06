@@ -1,21 +1,24 @@
 import unittest
 import unittest.mock as mock
 
-from altwalker.walker import Walker
 from altwalker.exceptions import GraphWalkerException
+from altwalker.planner import Planner
+from altwalker.executor import Executor
+from altwalker.reporter import Reporter
+from altwalker.walker import Walker
 
 
-class WalkerSetUp(unittest.TestCase):
+class WalkerTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.planner = mock.Mock()
-        self.executor = mock.Mock()
-        self.reporter = mock.Mock()
+        self.planner = mock.Mock(spec_set=Planner)
+        self.executor = mock.Mock(spec_set=Executor)
+        self.reporter = mock.Mock(spec_set=Reporter)
 
         self.walker = Walker(self.planner, self.executor, self.reporter)
 
 
-class TestWalker(WalkerSetUp):
+class TestWalker(WalkerTestCase):
 
     def test_setUpRun(self):
         self.walker._run_step = mock.Mock()
@@ -38,6 +41,7 @@ class TestWalker(WalkerSetUp):
 
         for step in self.walker:
             self.assertTrue(False, "setUpRun should fail")
+
         self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
         self.reporter.end.assert_called_once_with()
 
@@ -155,7 +159,7 @@ class TestWalker(WalkerSetUp):
         self.planner.set_data.assert_not_called()
 
 
-class TestExecuteStep(WalkerSetUp):
+class TestExecuteStep(WalkerTestCase):
 
     def setUp(self):
         super().setUp()
@@ -227,7 +231,7 @@ class TestExecuteStep(WalkerSetUp):
         self.walker._update_data.assert_called_once_with(data, None)
 
 
-class TestRunStep(WalkerSetUp):
+class TestRunStep(WalkerTestCase):
 
     def setUp(self):
         super().setUp()
@@ -357,7 +361,7 @@ class TestRunStep(WalkerSetUp):
         self.reporter.error.assert_called_once_with(self.step, "Error message.", trace="Trace.")
 
 
-class TestItter(WalkerSetUp):
+class TestItter(WalkerTestCase):
 
     def setUp(self):
         super().setUp()

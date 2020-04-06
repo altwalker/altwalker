@@ -1,9 +1,50 @@
+import abc
 import warnings
 
 from altwalker.graphwalker import GraphWalkerService, GraphWalkerClient
 
 
-class OnlinePlanner:
+class Planner(metaclass=abc.ABCMeta):
+    """An abstract class that defines the planner protocol."""
+
+    @abc.abstractmethod
+    def kill(self):
+        """Cleanup resources and kill processes if needed."""
+
+    @abc.abstractmethod
+    def load(self, models):
+        """Load the models."""
+
+    @abc.abstractmethod
+    def has_next(self):
+        """Return ``True`` if there is a next step available."""
+
+    @abc.abstractmethod
+    def get_next(self):
+        """Return the next step available, if there is one."""
+
+    @abc.abstractmethod
+    def get_data(self):
+        """Get the current data values for the current model."""
+
+    @abc.abstractmethod
+    def set_data(self, key, value):
+        """Set data in the current model."""
+
+    @abc.abstractmethod
+    def restart(self):
+        """Resets the currnet path and the statistics."""
+
+    @abc.abstractmethod
+    def fail(self, message):
+        """Marks the last step as failed."""
+
+    @abc.abstractmethod
+    def get_statistics(self):
+        """Return the statistics for the current path."""
+
+
+class OnlinePlanner(Planner):
     """Plan a path using the GraphWalker REST service and client.
 
     The path generation is done at run-time, one step at a time, using
@@ -69,7 +110,7 @@ class OnlinePlanner:
         return statistics
 
 
-class OfflinePlanner:
+class OfflinePlanner(Planner):
     """Plan a path from a list of steps.
 
     Args:
@@ -97,6 +138,12 @@ class OfflinePlanner:
     def path(self, path):
         self._path = list(path)
         self.restart()
+
+    def kill(self):
+        """This method does nothing."""
+
+    def load(self, models):
+        """This method does nothing."""
 
     def has_next(self):
         """Check if there are more element in path."""
@@ -134,9 +181,6 @@ class OfflinePlanner:
         """This method returns an empty ``dict``."""
 
         return {}
-
-    def kill(self):
-        """This method does nothing."""
 
 
 def create_planner(models=None, steps=None, host=None, port=8887, start_element=None,
