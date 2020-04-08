@@ -3,7 +3,8 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.exceptions import ExecutorException, AltWalkerException
-from altwalker.executor import get_output, load, create_executor, _pop_previously_loaded_modules, _is_parent_path, \
+from altwalker.executor import _pop_previously_loaded_modules, _is_parent_path, \
+    get_output, load, create_executor, create_python_executor, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
@@ -397,6 +398,14 @@ class TestDotnetExecutorService(unittest.TestCase):
 
         command = DotnetExecutorService._create_command("tests/", "http://localhost:5000")
         self.assertEqual(command, ['dotnet', 'run', '-p', 'tests/', '--server.urls=http://localhost:5000'])
+
+
+class TestCreatePythonExecutor(unittest.TestCase):
+
+    @mock.patch("altwalker.executor.load")
+    def test_load(self, load_mock):
+        create_python_executor("base/path/tests/")
+        load_mock.assert_called_once_with("base/path", "tests", "test")
 
 
 class TestCreateExecutor(unittest.TestCase):

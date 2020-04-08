@@ -19,7 +19,7 @@ from altwalker.exceptions import AltWalkerException, ExecutorException
 
 
 logger = logging.getLogger(__name__)
-prev_loaded_package_path = None
+_PREV_LOADED_PACKAGE_PATH = None
 
 
 def get_output(callable, *args, **kwargs):
@@ -72,16 +72,17 @@ def _is_parent_path(parent, child):
 
 
 def _pop_previously_loaded_modules(path, package):
-    global prev_loaded_package_path
+    global _PREV_LOADED_PACKAGE_PATH
 
-    if prev_loaded_package_path is not None:
+    if _PREV_LOADED_PACKAGE_PATH is not None:
         for module_key in list(sys.modules):
             if module_key.startswith(package + ".") and \
                     hasattr(sys.modules[module_key], "__file__") and \
                     sys.modules[module_key].__file__ and \
-                    _is_parent_path(prev_loaded_package_path, sys.modules[module_key].__file__):
+                    _is_parent_path(_PREV_LOADED_PACKAGE_PATH, sys.modules[module_key].__file__):
                 sys.modules.pop(module_key)
-    prev_loaded_package_path = os.path.abspath(os.path.join(path, package, ""))
+
+    _PREV_LOADED_PACKAGE_PATH = os.path.abspath(os.path.join(path, package, ""))
 
 
 def load(path, package, module):
@@ -590,7 +591,7 @@ def create_http_executor(path, *args, url="http://localhost:5000/", **kwargs):
 def create_python_executor(path, *args, **kwargs):
     """Creates a Python executor."""
 
-    path, package = os.path.split(path)
+    path, package = os.path.split(path.rstrip(os.path.sep))
     module = load(path, package, "test")
 
     return PythonExecutor(module)

@@ -220,7 +220,7 @@ class TestVerify(unittest.TestCase):
 
         with run_isolation(self.runner, files):
             result = self.runner.invoke(
-                verify, ["tests", "-m", "models/simple.json"])
+                verify, ["tests/", "-m", "models/simple.json"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
             self.assertIn("No issues found with the code.", result.output)
