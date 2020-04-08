@@ -754,6 +754,28 @@ class _TestValidateModel(unittest.TestCase):
 
         self.assertEqual(_validate_model(model), {"Starting element 'v1' was not found."})
 
+    def test_edge_as_start_element(self):
+        model = {
+            "name": "Model",
+            "startElementId": "e0",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e0",
+                    "name": "e_edge",
+                    "targetVertexId": "v0"
+                }
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), set())
+
 
 class _TestValidateModels(unittest.TestCase):
 

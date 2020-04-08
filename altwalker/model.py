@@ -273,7 +273,7 @@ def _validate_model(model_json):
             if start_element_id and element_id == start_element_id:
                 start_element_found = True
 
-            issues.update(_validate_edge(edge))
+            issues.update(_validate_edge(edge, is_start_element=element_id == start_element_id))
 
     if not has_start_element and not has_shared_state:
         issues.add("Model has neither a starting element nor a shared state.")
