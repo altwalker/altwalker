@@ -373,12 +373,17 @@ class PythonExecutor(Executor):
         """This method does nothing."""
 
     def load(self, path):
+        """Load the test code from a path and reset the current execution."""
+
         self.reset()
 
         path, package = os.path.split(path)
         self._module = load(path, package, "test")
+        self.reset()
 
     def reset(self):
+        """Reset the current execution."""
+
         self._instances = {}
 
     def has_model(self, name):
@@ -473,7 +478,7 @@ class PythonExecutor(Executor):
 
 
 class DotnetExecutorService:
-    """Starts a .NET executor service.
+    """Starts a C#/.NET executor service.
 
     * ``dotnet run -p <path>`` - is used to compile and run the console app project.
     * ``dotnet <path>`` - is used to run compiled exe or dll.
@@ -553,7 +558,7 @@ class DotnetExecutorService:
 
 
 class DotnetExecutor(HttpExecutor):
-    """Starts a .NET executor service, and alows you to interact with it.
+    """Starts a C#/.NET executor service, and alows you to interact with it.
 
     Args:
         path: The path of the console application project, dll or exe, that starts an ``ExecutorService``.
@@ -580,7 +585,15 @@ class DotnetExecutor(HttpExecutor):
 
 
 def create_http_executor(path, *args, url="http://localhost:5000/", **kwargs):
-    """Creates a HTTP executor."""
+    """Creates a HTTP executor.
+
+    Args:
+        path: The path to the tests.
+        url: The url for the executor service (e.g. http://localhost:5000/).
+
+    Returns:
+        :obj:`HttpExecutor`: A HTTP executor.
+    """
 
     executor = HttpExecutor(url)
     executor.load(path)
@@ -589,7 +602,14 @@ def create_http_executor(path, *args, url="http://localhost:5000/", **kwargs):
 
 
 def create_python_executor(path, *args, **kwargs):
-    """Creates a Python executor."""
+    """Creates a Python executor.
+
+    Args:
+        path: The path to the tests.
+
+    Returns:
+        :obj:`PythonExecutor`: A Python executor.
+    """
 
     path, package = os.path.split(path.rstrip(os.path.sep))
     module = load(path, package, "test")
@@ -598,7 +618,15 @@ def create_python_executor(path, *args, **kwargs):
 
 
 def create_dotnet_executor(path, *args, url="http://localhost:5000/", **kwargs):
-    """Creates a .NET executor."""
+    """Creates a C#/.NET executor.
+
+    Args:
+        path: The path to the tests.
+        url: The url for the service to listen (e.g. http://localhost:5000/).
+
+    Returns:
+        :obj:`DotnetExecutor`: A C#/.NET executor.
+    """
 
     return DotnetExecutor(path, url=url)
 

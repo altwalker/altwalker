@@ -11,14 +11,7 @@ Installation
 
 **Platforms**: Unix/Posix and Windows
 
-On Windows, make sure you add Python in the Path from System Variables:
-
-* ``C:\Python<version>\`` (e.g., ``C:\Python37``)
-* ``C:\Python<version>\Scripts`` (e.g., ``C:\Python37\Scripts\``)
-
-And in the Path from User Variables:
-
-* ``C:\Users\user.name\AppData\Local\Programs\Python\Python<version>\Scripts``
+**PyPI package name**: `altwalker <https://pypi.org/project/altwalker/>`_
 
 Prerequisites
 -------------
@@ -28,6 +21,18 @@ Prerequisites
 * `GraphWalker CLI <http://graphwalker.github.io/>`_
 * `.NET Core <https://dotnet.microsoft.com/>`_ (Optional)
 * `git <https://git-scm.com/>`_ (Optional)
+
+Python
+~~~~~~
+
+On Windows, make sure you add Python in the Path from System Variables:
+
+* ``C:\Python<version>\`` (e.g., ``C:\Python37``)
+* ``C:\Python<version>\Scripts\`` (e.g., ``C:\Python37\Scripts\``)
+
+And in the Path from User Variables:
+
+* ``C:\Users\user.name\AppData\Local\Programs\Python\Python<version>\Scripts``
 
 GraphWalker
 ~~~~~~~~~~~
@@ -61,7 +66,7 @@ To install GraphWalker you can run the following command:
 
         .. code-block:: console
 
-            $ setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
+            > setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
               cd C:\
               mkdir graphwalker
               cd graphwalker
@@ -87,14 +92,13 @@ To install ``altwalker`` run the following command in your command line:
 
 .. code-block:: console
 
-    $ pip3 install altwalker
+    $ pip3 install -U altwalker
 
 Or:
 
 .. code-block:: console
 
-    $ python<version> -m pip install altwalker
-
+    $ python<version> -m pip install -U altwalker
 
 Check that you installed the correct version:
 

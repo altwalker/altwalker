@@ -1,8 +1,10 @@
 # AltWalker
 
-AltWalker is an open source, Model-Based Testing framework. Write your tests in Python or C# and use GraphWalker to generate a path through your model.
+Altwalker is an open source, Model-Based Testing framework.
 
 Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
+
+Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
 
 ## Table of Contents
 
@@ -15,9 +17,9 @@ Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
 
 ## Overview
 
-AltWalker is an open source, Model-Based testing framework for automating your test execution. You
-design your tests as a directed graph and AltWalker executes them. It relies on
-[GraphWalker](http://graphwalker.github.io/) to generate paths through your graph.
+*AltWalker* is an open source Model-Based Testing framework that supports running
+tests written in python3 and .NET/C#. You design your tests as a directed graph
+and AltWalker generates test cases from your graph (using [GraphWalker](http://graphwalker.github.io/)) and executes them.
 
 ### Model-Based Testing
 

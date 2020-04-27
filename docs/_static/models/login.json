@@ -3,10 +3,10 @@
     "models": [
         {
             "name": "LoginModel",
-            "generator": "random(never)",
+            "generator": "random(vertex_coverage(100))",
             "startElementId": "v_0",
             "actions": [
-            	"isUserLoggedIn = false;"
+                "isUserLoggedIn = false;"
             ],
             "vertices": [
                 {

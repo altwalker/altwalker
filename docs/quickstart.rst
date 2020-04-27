@@ -1,9 +1,12 @@
 Quickstart
 ==========
 
-In this Quickstart section you will learn how to create your tests project from
-scratch, from an existing model or to generate a code template for your models
-and run your tests with AltWalker.
+Eager to get started? This page gives a good introduction to AltWalker. It assumes
+you already have AltWalker installed. If you do not, head over to the :doc:`installation` section.
+
+In this section you will learn how to create a tests project from scratch or from
+existing models, how to validate your models, how to validate your code and how to run
+your tests with AltWalker.
 
 .. contents:: Table of Contents
     :local:
@@ -15,11 +18,9 @@ Start from scratch
 
 You can use the ``init`` command to generate a new project.
 
-The ``init`` command creates a project directory and initialize a
-git repository. The project contains a sample model
-(``test-project/models/default.json``) that will help you get started,
-and a test package containing the template code for the model
-(``test-poject/tests``).
+The ``init`` command creates a project directory and initialize a git repository. The
+project contains a sample model (``models/default.json``) that will help you get started,
+and a test package containing the template code for the model (``tests/``).
 
 .. tabs::
 
@@ -29,7 +30,16 @@ and a test package containing the template code for the model
 
             $ altwalker init -l python test-project
 
-        Using the ``-l python`` option will generate a python package containing the template code for the model (``test-poject/tests``).
+        Using the ``-l python`` option will generate a python package containing the template code for the model (``tests/``).
+
+        .. code::
+
+            test-project/
+            ├── models/
+            │   ├── default.json
+            └── tests/
+                ├── __init__.py
+                └── test.py
 
     .. group-tab:: C#/.NET
 
@@ -42,33 +52,25 @@ and a test package containing the template code for the model
         .. code::
 
             test-project/
-                models/
-                    default.json
-                tests/
-                    Program.cs
-                    ModelName.cs
-                    tests.csproj
+            ├── models/
+            │   ├── default.json
+            └── tests/
+                ├── Program.cs
+                └── tests.csproj
 
         The ``Program.cs`` contains the entry point of the tests and starts the ``ExecutorService``.
 
         .. code-block:: c#
 
-            public class Program {
-
-                public static void Main(string[] args) {
+            public class Program
+            {
+                public static void Main(string[] args)
+                {
                     ExecutorService service = new ExecutorService();
                     service.RegisterModel<DefaultModel>();
                     service.Run(args);
                 }
             }
-
-    .. group-tab:: Custom Executor
-
-        .. code::
-
-            $ altwalker init test-project
-
-        Not using the ``-l`` options will generate an empty ``test-poject/tests`` directory.
 
 .. note::
 
@@ -94,12 +96,15 @@ To run the tests for the `default.json` model, run the following command:
             $ altwalker online -x c# tests -m models/default.json "random(edge_coverage(100))"
 
 
-The above command runs the tests found within the ``tests`` folder,
-based on the model defined in ``default.json`` and using the
-``random(edge_coverage(100))`` stop condition.
+The above command runs the tests found within the ``tests`` folder, based on the
+model defined in ``default.json`` and using the ``random(edge_coverage(100))``
+stop condition.
 
-Start from an existing model
-----------------------------
+
+Start from existing models
+--------------------------
+
+You can use the ``init`` command to generate a new project form existing models.
 
 The ``init`` command creates a project directory with your model(s),
 generates the code template for the model(s) and initialize a git repository.
@@ -119,15 +124,7 @@ run the following command:
 
         .. code::
 
-            $ altwalker init -l c# test-project -m path/to/model-name.json
-
-    .. group-tab:: Custom Executor
-
-        .. code::
-
-            $ altwalker init test-project -m path/to/model-name.json
-
-        Not using the ``-l`` options will generate an empty ``test-poject/tests`` directory.
+            $ altwalker init -l dotnet test-project -m path/to/model-name.json
 
 
 .. note::
@@ -153,18 +150,28 @@ name of you model file and run the following command:
         .. code::
 
             $ cd test-project
-            $ altwalker online -x c# tests -m models/model-name.json.json "random(edge_coverage(100))"
+            $ altwalker online -x dotnet tests -m models/model-name.json.json "random(edge_coverage(100))"
 
 
 The above command runs the tests found within the ``tests`` folder,
 based on the model defined in ``default.json`` and using the
 ``random(edge_coverage(100))`` stop condition.
 
-Generate a code template for your models
-----------------------------------------
 
-You can use the ``generate`` command to generate a new test package for
-your model(s).
+Check your models
+-----------------
+
+You can use the ``check`` command to check your models for issues.
+
+.. code::
+
+    $ altwalker check -m models/model-name.json "random(never)"
+
+
+Verify your code
+----------------
+
+You can use the ``verify`` command to check your code against the models for issues.
 
 .. tabs::
 
@@ -172,19 +179,13 @@ your model(s).
 
         .. code::
 
-            $ altwalker generate -l python path/for/test-project/ -m path/to/models.json
-
-        The ``generate`` command will generate a test package named ``tests`` containing the code
-        template for the modele(s), inside the ``path/for/package/`` directory.
+            $ altwalker verify tests -l python -m models/model-name.json
 
     .. group-tab:: C#/.NET
 
         .. code::
 
-            $ altwalker generate -l c# path/for/test-project/ -m path/to/models.json
-
-        The generate command creates ``path/for/test-project`` directory containing
-        ``test-project.csproj`` file, ``Program.cs`` and the code template for the model(s).
+            $ altwalker verify tests -l dotnet -m models/model-name.json
 
 
 Further Reading/Useful Links
@@ -192,7 +193,7 @@ Further Reading/Useful Links
 
 Depending on how new you are to AltWalker you can:
 
-- read about how to design your models on the :doc:`modeling` section
-- read about how to structure your tests on the :doc:`tests-structure` section
-- checkout the :doc:`examples`
-- dig deeper into the :doc:`cli`.
+- Read about how to design your models on the :doc:`core/modeling` section
+- Read about how to structure your tests on the :doc:`core/tests-structure` section
+- Checkout the :doc:`examples`
+- Dig deeper into the :doc:`cli`

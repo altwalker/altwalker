@@ -18,7 +18,7 @@ Version 0.2.6
 
 (bugfix release)
 
-- Fix issue where PythonExectuor doesn't work with decorated functions. (`#93`_)
+- Fix issue where ``PythonExectuor`` doesn't work with decorated functions. (`#93`_)
 - Unload previously loaded tests modules. (`#94`_)
 - Update executeStep from HttpExecutor to post data dictionary inside the json ``data`` property. (`#96`_)
 - Fix issue where the ``test.py`` module is executed twice. (`#98`_)
@@ -77,7 +77,7 @@ Version 0.2.2
 - Add a ``Reporting`` class that can combine multiple reporters.
 - Add a ``PathReporter`` that keeps a list of all executed steps.
 - Add ``host`` parameter to ``create_planner``.
-- Update the reproter protocol. (`#53`_)
+- Update the reporter protocol. (`#53`_)
 - Invalidate caches before loading module for python. (`#48`_)
 - Fix issues where ``--start-element`` option doesn't pass the value to GraphWalker. (`#63`_)
 
@@ -90,7 +90,7 @@ Version 0.2.1
 
 (bugfix release)
 
-- Fix issue with loding test code in python.
+- Fix issue with loading test code in python.
 
 Version 0.2.0
 -------------

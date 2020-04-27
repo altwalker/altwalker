@@ -1,11 +1,15 @@
 /* Base */
 
+a {
+    color: #3498db;
+}
+
 a:hover {
     color: #16a085;
 }
 
 .rst-content a:visited {
-    color: #8e44ad;
+    color: #9b59b6;
 }
 
 .rst-content a:hover {
@@ -13,6 +17,10 @@ a:hover {
 }
 
 /* Navigation Bar  */
+
+.wy-nav-top {
+    background-color: #27ae60;
+}
 
 .wy-side-nav-search {
     background-color: #27ae60;
@@ -42,7 +50,6 @@ a:hover {
 .wy-menu-vertical p.caption {
     color: #27ae60;
 }
-
 
 /* Content */
 
@@ -185,9 +192,27 @@ a:hover {
 	background: #3498db;
 }
 
-/* Search highlight */
+/* Search Highlight */
 
 .rst-content .highlighted {
     background-color: #27ae60;
     color: #ecf0f1;
+}
+
+/* Code Documentation */
+
+.rst-content dl:not(.docutils) dt {
+    background: #ebfaf2;
+    color: #27ae60;
+    border-top: solid 3px #27ae60;
+}
+
+.rst-content tt, .rst-content tt, .rst-content code {
+    color: #2c3e50
+}
+
+/* Code Tabs */
+
+.sphinx-tabs .sphinx-menu a.item {
+    color: #27ae60 !important;
 }

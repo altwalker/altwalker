@@ -11,6 +11,7 @@ public classes and functions.
 
 .. module:: altwalker
 
+
 Walker
 ------
 
@@ -21,7 +22,7 @@ Walker
 .. autoclass:: Walker
     :members:
 
-**Examples**:
+**Examples**
 
 You can run the tests using the :func:`Walker.run` method::
 
@@ -96,10 +97,12 @@ Executor
 
 .. module:: altwalker.executor
 
+
 .. currentmodule:: altwalker.executor
 
 The role of the executor is to handle the test execution. Every executor
 should have all the methods form the :class:`~altwalker.executor.Executor`.
+
 
 .. autoclass:: Executor
     :members:
@@ -125,6 +128,15 @@ should have all the methods form the :class:`~altwalker.executor.Executor`.
 .. autoclass:: DotnetExecutor
     :members:
     :inherited-members:
+
+
+.. autofunction:: create_http_executor
+
+
+.. autofunction:: create_python_executor
+
+
+.. autofunction:: create_dotnet_executor
 
 
 .. autofunction:: create_executor

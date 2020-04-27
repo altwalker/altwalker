@@ -6,6 +6,7 @@ Command Line Interface
     :local:
     :backlinks: none
 
+
 ----------
 Invocation
 ----------
@@ -20,6 +21,7 @@ command line:
 .. code-block:: console
 
     $ python -m altwalker [...]
+
 
 ----
 Help
@@ -50,6 +52,7 @@ Running ``altwalker`` can result in five  different exit codes:
 * **Exit Code 3:** GraphWalker errors.
 * **Exit Code 4:** AltWalker internal errors.
 
+
 --------
 Commands
 --------
@@ -58,14 +61,19 @@ Commands
    :prog: altwalker
    :commands: init, generate, check, verify, online, offline, walk
 
-----
+
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:init
    :prog: altwalker init
    :show-nested:
 
+.. note::
 
-**Examples:**
+    The ``-m/--model`` is **not required** and can be used multiple times to provide
+    multiple models.
+
+**Examples**
 
 .. code-block:: console
 
@@ -75,18 +83,18 @@ The command will create a directory named ``test-project`` with the following
 structure::
 
     test-project/
-        .git
-        models/
-            default.json
-        tests/
-            __init__.py
-            test.py
+    ├── .git/
+    ├── models/
+    │   └── default.json
+    └── tests/
+        ├── __init__.py
+        └── test.py
 
 * **test-project**: The project root directory.
 * **models**: A directory containing the models files
-    (``.json`` or ``.graphml``).
+  (``.json`` or ``.graphml``).
 * **tests**: A python package containing the test code.
-* **tests/tests.py**: A python module containing the code for the models.
+* **tests/tests.py**: A python module containing the code for the model(s).
 
 If you don't want ``test-project`` to be git repository run the command with
 ``--no-git``:
@@ -95,53 +103,56 @@ If you don't want ``test-project`` to be git repository run the command with
 
     $ altwalker init test-project -l python --no-git
 
-
 .. note::
     If you don't have ``git`` installed on your machine use the ``--no-git`` flag.
 
-
 If you specify models (with the ``-m/--models`` option) ``init`` will copy the
 models in the  ``models`` directory and ``test.py`` will contain a template
-with all the classes and methods needed for
-the models:
+with all the classes and methods needed for the models:
 
 .. code-block:: console
 
     $ altwalker init test-project -m ./first.json -m ./second.json -l python
 
-
 The ``test-project`` directory will have the following structure::
 
     test-project/
-        .git
-        models/
-            first.json
-            second.json
-        tests/
-            __init__.py
-            test.py
+    ├── .git/
+    ├── models/
+    │   ├── first.json
+    │   └── second.json
+    └── tests/
+        ├── __init__.py
+        └── test.py
 
 
-----
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:generate
    :prog: altwalker generate
    :show-nested:
 
+.. note::
 
-**Examples**:
+    The ``-m/--model`` is **required** and can be used multiple times to provide
+    multiple models. The ``generate`` command will generate a class for each model
+    you provide.
+
+**Examples**
 
 .. code-block:: console
 
-    $ altwalker generate test-project -m models/models.json
+    $ altwalker generate . -m models/models.json
 
 The command will create a directory named ``test`` with the following
 structure::
 
     test-project/
-        tests/
-            __init__.py
-            test.py
+    ├── models/
+    │   ├── models.json
+    └── tests/
+        ├── __init__.py
+        └── test.py
 
 For a `models.json` file with a simple model named ``Model``, with an edge
 named ``edge_name`` and a vertex named ``vertex_name``, ``test.py`` will
@@ -156,99 +167,143 @@ containe::
             pass
 
 
-The ``-m/--model`` option is required and can be used multiple times. And
-the ``generate`` command will generate a class for each model you provide.
-
-
-----
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:check
    :prog: altwalker check
    :show-nested:
 
+.. note::
+
+    The ``-m/--model`` is **required** and can be use it multiple times to provide
+    multiple models.
 
 .. note::
 
-    The ``-m/--model`` is required but you can use it multiple times to provide
-    multiple models:
+    For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_condtion``.
 
-**Further Reading/Useful Links**:
+      * ``model_path``: Is the file (``.json`` or ``.graphml``) containing the model(s).
+      * ``stop_condition``: Is a string that specifies the generator and the stop condition.
 
-For more details and a list of all available Generators and Sotop Conditions read the :doc:`path-generation` or the
-`GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
+    For example: ``"random(never)"``, ``"a_star(reached_edge(edge_name))"`` where ``random`` and ``a_star``
+    are the generators; ``never`` and ``reached_edge(edge_name)`` are the stop conditions.
 
-**Examples**:
+    Further Reading/Useful Links:
+
+      * :doc:`core/path-generation`
+      * `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
+
+**Examples**
 
 .. command-output:: altwalker check -m models/blog-navigation.json "random(never)" -m models/blog-post.json "random(never)"
     :cwd: _static/
 
+If the models are not valid the command will return a list of errors:
 
 .. command-output:: altwalker check -m models/invalid.json "random(never)"
     :cwd: _static/
     :returncode: 4
 
 
-----
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:verify
    :prog: altwalker verify
    :show-nested:
 
+.. note::
 
-**Examples:**
+    The ``-m/--model`` is **required** and can be use it multiple times to provide
+    multiple models.
+
+**Examples**
 
 .. code-block:: console
 
-    $ altwalker verify tests -m models.json
+    $ altwalker verify tests -m models/default.json
+    Verifying code agains models:
+
+        * ModelName [PASSED]
+
     No issues found with the code.
+
 
 The ``verify`` command will check that every element from the provided
 models is implemented in the ``tests/test.py`` (models as classes and
 vertices/edges as methods inside the model class).
 
-If methods or classes are missing the command will return a list of errors:
+If methods or classes are missing the command will return a list of errors
+and code suggestions to fix the errors:
 
 .. code-block:: console
 
-    $ altwalker verify tests -m models.json
-    AltWalker Error: Expected to find vertex_0 method in class Model_A.
-    Expected to find vertex_1 method in class Model_A.
-    Expected to find vertex_2 method in class Model_A.
-    Expected to find class Model_B.
-    Expected to find vertex_0 method in class Model_B.
-    Expected to find vertex_1 method in class Model_B.
-    Expected to find edge_0 method in class Model_B.
-    Expected to find edge_1 method in class Model_B.
+    Verifying code agains models:
+
+    * ModelName [FAILED]
+
+        Expected to find method 'edge_A' in class 'ModelName'.
+        Expected to find method 'vertex_B' in class 'ModelName'.
+        Expected to find method 'vertex_A' in class 'ModelName'.
+        Expected to find class 'ModelName'.
 
 
-----
+    Code suggestions:
+
+    # Append the following class to your test file.
+
+    class ModelName:
+
+        def edge_A(self):
+            pass
+
+        def vertex_A(self):
+            pass
+
+        def vertex_B(self):
+            pass
+
+If you don't need the code suggestions you can add ``--no-suggestions`` flag.
+
+.. code-block:: console
+
+    Verifying code agains models:
+
+    * ModelName [FAILED]
+
+        Expected to find method 'edge_A' in class 'ModelName'.
+        Expected to find method 'vertex_B' in class 'ModelName'.
+        Expected to find method 'vertex_A' in class 'ModelName'.
+        Expected to find class 'ModelName'.
+
+
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:online
    :prog: altwalker online
    :show-nested:
 
-**Examples:**
+.. note::
 
-For the ``-m/--model`` option you need to pass a ``model_path`` and a
-``stop_condtion``.
+    The ``-m/--model`` is **required** and can be use it multiple times to provide
+    multiple models.
 
-* **model_path**: Is the file (``.json`` or ``.graphml``) containing
-    the model(s).
-* **stop_condition**: Is a string that specifies the generator and
-    the stop condition.
+.. note::
 
-    For example ``random(never)``, ``a_star(reached_edge(edge_name))``,
-    where ``random``, ``a_star`` are the generators and ``never``,
-    ``reached_edge(edge_name)`` are the stop conditions.
+    For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_condtion``.
 
-    For more details and a list of all available options read the
-    `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
+      * ``model_path``: Is the file (``.json`` or ``.graphml``) containing the model(s).
+      * ``stop_condition``: Is a string that specifies the generator and the stop condition.
+
+    For example: ``"random(never)"``, ``"a_star(reached_edge(edge_name))"`` where ``random`` and ``a_star``
+    are the generators; ``never`` and ``reached_edge(edge_name)`` are the stop conditions.
+
+    Further Reading/Useful Links:
+
+      * :doc:`core/path-generation`
+      * `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
 
 
-The ``-m/--model`` is required but you can use it multiple times to provide
-multiple models.
-
-For example:
+**Examples**
 
 .. code-block:: console
 
@@ -296,7 +351,8 @@ step the current list of all unvisited elements:
         }
     ]
 
-----
+
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:offline
    :prog: altwalker offline
@@ -304,116 +360,64 @@ step the current list of all unvisited elements:
 
 .. note::
 
-    If you are using in your models guards and in the test code you update the models data,
-    the offline command may produce invalid paths.
-
-**Examples:**
-
-For the ``-m/--model`` option you need to pass a ``model_path`` and a
-``stop_condition``.
-
-* **model_path**: Is the file (``.json`` or ``.graphml``) containing
-    the model(s).
-* **stop_condition**: Is a string that specifies the generator and
-    the stop condition.
-
-    For example ``random(reached_vertex(vertex_name))``,
-    ``a_star(reached_edge(edge_name))``,where ``random``, ``a_star`` are the
-    generators and ``reached_vertex(vertex_name)``, ``reached_edge(edge_name)``
-    are the stop conditions.
-
-    For more details and a list of all available options read the
-    `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
-
+    The ``-m/--model`` is **required** and can be use it multiple times to provide
+    multiple models.
 
 .. note::
 
-    The ``never`` and ``time_duration`` stop condition is not usable with the ``offline``
+    For the ``-m/--model`` option you need to pass a ``model_path`` and a ``stop_condtion``.
+
+      * ``model_path``: Is the file (``.json`` or ``.graphml``) containing the model(s).
+      * ``stop_condition``: Is a string that specifies the generator and the stop condition.
+
+    For example: ``"random(never)"``, ``"a_star(reached_edge(edge_name))"`` where ``random`` and ``a_star``
+    are the generators; ``never`` and ``reached_edge(edge_name)`` are the stop conditions.
+
+    Further Reading/Useful Links:
+
+      * :doc:`core/path-generation`
+      * `GraphWalker Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_.
+
+.. warning::
+
+    1. If you are using in your model(s) guards and in the test code you update the models data,
+    the ``offline`` command may produce invalid paths.
+
+    2. The ``never`` and ``time_duration`` stop condition is not usable with the ``offline``
     command only with the ``online`` command.
 
+**Example**
 
-The ``-m/--model`` is required but you can use it multiple times to provide
-multiple models.
-
-Example:
-
-.. code-block:: console
-
-    $ altwalker offline -m models.json "random(vertex_coverage(100))"
-    [
-        {
-            "id": "v0",
-            "modelName": "Example",
-            "name": "start_vertex"
-        },
-        {
-            "id": "e0",
-            "modelName": "Example",
-            "name": "from_start_to_end"
-        },
-        {
-            "id": "v1",
-            "modelName": "Example",
-            "name": "end_vertex"
-        }
-    ]
-
-
+.. command-output:: altwalker offline -m models/login.json "random(length(5))"
+    :cwd: _static/
+    :returncode: 0
 
 If you want to save the steps in a ``.json`` file you can use the
 ``-f/--output-file <FILE_NAME>`` option:
 
 .. code-block:: console
 
-    $ altwalker offline -m models.json "random(vertex_coverage(100))" -f steps.json
-
-
+    $ altwalker offline -m models/login.json "random(length(5))" --output-file steps.json
 
 If you use the ``-o/--verbose`` flag, the command will add for each step
-``data`` (the data for the current module) and ``properties``
-(the properties of the current step defined in the model)::
+``data`` (the data for the current module), ``actions`` (the actions
+of the current step as defined in the model) and ``properties`` (the properties
+of the current step as defined in the model).
 
-    {
-        "id": "v0",
-        "name": "vertex_A",
-        "modelName": "ModelName",
-
-        "data": {
-            "a": "0",
-            "b": "0",
-            "itemsInCart": "0"
-        },
-        "properties": []
-    }
+.. command-output:: altwalker offline -m models/login.json "random(length(5))" --verbose
+    :cwd: _static/
+    :returncode: 0
 
 If you use the ``-u/--unvisited`` flag, the command will add for each step the
 current list of all unvisited elements, the number of elements and the number
-of unvisited elements::
+of unvisited elements.
 
-    {
-        "id": "v0",
-        "name": "vertex_A",
-        "modelName": "ModelName",
+.. command-output:: altwalker offline -m models/login.json "random(length(1))" --unvisited
+    :cwd: _static/
+    :returncode: 0
 
-        "numberOfElements": 3,
-        "numberOfUnvisitedElements": 3,
-        "unvisitedElements": [
-            {
-                "elementId": "v0",
-                "elementName": "vertex_A"
-            },
-            {
-                "elementId": "v1",
-                "elementName": "vertex_B"
-            },
-            {
-                "elementId": "e0",
-                "elementName": "edge_A"
-            }
-        ]
-    }
 
-----
+-------------------------------------------------------------------
 
 .. click:: altwalker.cli:walk
    :prog: altwalker walk
@@ -423,8 +427,6 @@ of unvisited elements::
 
 Usually the ``walk`` command will execute a path generated by the ``offline``
 command, but it can execute any list of steps, that respects that format.
-
-A simple example:
 
 .. code-block:: console
 

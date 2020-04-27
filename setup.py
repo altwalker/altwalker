@@ -4,7 +4,7 @@ from altwalker.__version__ import VERSION
 
 
 NAME = 'altwalker'
-DESCRIPTION = 'Altwalker is an open source, Model-Based Testing framework. Write your tests in Python or C# and use GraphWalker to generate a path through your model.'
+DESCRIPTION = 'AltWalker is an open source Model-Based Testing framework that supports running tests writen in python3 and .NET/C#. You design your tests as a directed graph and AltWalker generates test cases from your graph (using GraphWalker) and executes them.'
 URL = 'https://gitlab.com/altom/altwalker/altwalker/'
 EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'
@@ -48,10 +48,18 @@ setup(
 
     classifiers=[
         "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
+
+        "Intended Audience :: Developers",
+        "Intended Audience :: Other Audience",
+
+        "Environment :: Console",
 
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 
         "Programming Language :: C#",
+        "Programming Language :: Cython",
+        "Programming Language :: Python :: Implementation",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
         "Programming Language :: Python :: 3 :: Only",
@@ -60,11 +68,13 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
 
         "Operating System :: OS Independent",
 
+        "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Testing",
-        "Topic :: Software Development :: Libraries"
+        "Topic :: Software Development :: Testing :: Acceptance",
     ],
     keywords="model-based-testing testing tests",
 )

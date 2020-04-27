@@ -1,6 +1,12 @@
 # Overview
 
-__AltWalker__ is an open source, Model-Based Testing framework for automating your test execution. You design your tests as a directed graph and AltWalker executes them. It relies on [GraphWalker](http://graphwalker.github.io/) to generate paths through your graph.
+*AltWalker* is an open source Model-Based Testing framework that supports running
+tests writen in python3 and .NET/C#. You design your tests as a directed graph
+and AltWalker generates test cases from your graph (using [GraphWalker](http://graphwalker.github.io/)) and executes them.
+
+```eval_rst
+.. image:: _static/img/demo.gif
+```
 
 ## Model-Based Testing
 
@@ -23,7 +29,7 @@ __Why use Model-Based Testing__:
 
 ## AltWalker
 
-AltWalker is a test execution tool, which  aims to make it easy to write and run your model-based tests. AltWalker uses GraphWalker to generate a path through the models.
+AltWalker is a test execution tool, which  aims to make it easy to write and run your model-based tests. It uses GraphWalker to generate a path through the models.
 
 For the test structure it uses an Object-Oriented approach inspired by python's `unittest` module. Every model is mapped to a class with the same name and each vertex and edge from the model is mapped to a method inside the class.
 
@@ -62,12 +68,9 @@ AltWalker has the following components:
 
     Currently AltWalker provides three executors:
 
-    * Python Executor (Built-in)
-    * [C#/.NET Executor](https://www.nuget.org/packages/AltWalker.Executor/)
-
-    And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
-    more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html)
-    page.
+    * *Python Executor* (Built-in)
+    * [*C#/.NET Executor*](https://www.nuget.org/packages/AltWalker.Executor/)
+    * *Http Executor* that allows you to hook up your own executor via HTTP. You can read more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html) page.
 
 * __Walker__: the test runner. Coordinates the execution of a test asking the `Planner`
     for the next step, executing the step using the `Executor` and reporting the progress

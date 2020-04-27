@@ -2,10 +2,10 @@
 Welcome to AltWalker's documentation!
 =====================================
 
-AltWalker is an open source, Model-Based Testing framework for automating your test
-execution. You design your tests as a directed graph and AltWalker executes
-them. It relies on `GraphWalker <http://graphwalker.github.io/>`_ to generate
-paths through your tests graph.
+AltWalker is an open source Model-Based Testing framework that supports running
+tests written in python3 and .NET/C#. You design your tests as a directed graph
+and AltWalker generates test cases from your graph (using `GraphWalker <http://graphwalker.github.io/>`_)
+and executes them.
 
 Get started with :doc:`installation` and then get a quick overview with
 the :doc:`quickstart`. There is also a list of :doc:`how-tos` and a list
@@ -14,6 +14,9 @@ how to use each feature of AltWalker in more details.
 
 Join our Gitter chat room `here <https://gitter.im/altwalker/community>`_ to chat
 with us or with other members of the community.
+
+.. image:: _static/img/demo.gif
+
 
 Documentation
 =============
@@ -27,11 +30,9 @@ usage patterns.
     overview
     installation
     quickstart
-    modeling
-    path-generation
-    tests-structure
-    how-tos
+    core
     examples
+    how-tos
     faq
     cli
     api
@@ -57,6 +58,7 @@ usage patterns.
     :caption: Community:
 
     Gitter <https://gitter.im/altwalker/community>
+    Libraries.io <https://libraries.io/pypi/altwalker>
 
 
 Indices and Tables

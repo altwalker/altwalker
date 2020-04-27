@@ -12,4 +12,5 @@ recommonmark
 sphinx-rtd-theme
 sphinx-click
 sphinx-tabs
+sphinx-notfound-page
 sphinxcontrib-programoutput

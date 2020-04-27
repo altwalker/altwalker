@@ -123,7 +123,7 @@ def verify_code(path, executor, model_paths, url):
         path (:obj:`str`): The path to the project root.
         executor (:obj:`str`): The type of executor.
         model_paths (:obj:`list`): A sequence of path to model files.
-        url (:obj:`str`): The URL of the executor service (e.g http://localhost:5000).
+        url (:obj:`str`): The URL of the executor service (e.g http://localhost:5000/).
 
     Raises:
         GraphWalkerException: If an error is raised by the methods command.

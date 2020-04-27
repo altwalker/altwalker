@@ -26,7 +26,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["--help", "-h"])
 model_and_generator_option = click.option(
     "--model", "-m", "models",
     type=(click.Path(exists=True, dir_okay=False), str), required=True, multiple=True,
-    help="The model, as a graphml/json file followed by generator with stop condition.")
+    help="The model as a graphml/json file followed by generator with stop condition.")
 
 model_file_option = click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
                                  required=True, multiple=True,
@@ -87,7 +87,7 @@ def add_options(options):
               default="CRITICAL", show_default=True, envvar="GRAPHWALKER_LOG_LEVEL",
               help="Sets the GraphWalker logger level to the specified level.")
 def cli(log_level, log_file, graphwalker_log_level):
-    """A command line tool for running model-based tests."""
+    """A command line tool for running Model-Based tests."""
 
     os.environ["GRAPHWALKER_LOG_LEVEL"] = graphwalker_log_level.upper()
     logging.basicConfig(filename=log_file, level=log_level.upper())
@@ -97,7 +97,7 @@ def cli(log_level, log_file, graphwalker_log_level):
 @add_options([model_and_generator_option, blocked_option])
 @handle_errors
 def check(models, blocked):
-    """Check and analyze model(s) for issues."""
+    """Check and analyze models for issues."""
 
     status = cli_check(models, blocked=blocked)
 
@@ -114,7 +114,7 @@ def check(models, blocked):
 @add_options([model_file_option, executor_option, url_option])
 @handle_errors
 def verify(test_package, executor_type, models, **options):
-    """Verify and analyze test code against model(s)."""
+    """Verify and analyze test code for issues."""
 
     status = cli_verify(test_package, executor_type, models, **options)
 
@@ -125,7 +125,7 @@ def verify(test_package, executor_type, models, **options):
 
 
 @cli.command()
-@click.argument("dest_dir", type=click.Path(exists=False, file_okay=False))
+@click.argument("output_dir", type=click.Path(exists=False, file_okay=False))
 @click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
               required=False, multiple=True,
               help="The model, as a graphml/json file.")
@@ -133,20 +133,20 @@ def verify(test_package, executor_type, models, **options):
               help="If set to true will initialize a git repository.", show_default=True)
 @add_options([language_option])
 @handle_errors
-def init(dest_dir, models, git, language):
+def init(output_dir, models, git, language):
     """Initialize a new project."""
 
-    cli_init(dest_dir, model_paths=models, language=language, git=git)
+    cli_init(output_dir, model_paths=models, language=language, git=git)
 
 
 @cli.command()
-@click.argument("dest_dir", type=click.Path(exists=False))
+@click.argument("output_dir", default="tests", type=click.Path(exists=False))
 @add_options([model_file_option, language_option])
 @handle_errors
-def generate(dest_dir, models, language):
-    """Generate test code template based on the given model(s)."""
+def generate(output_dir, models, language):
+    """Generate template code."""
 
-    cli_generate(dest_dir, models, language=language)
+    cli_generate(output_dir, models, language=language)
 
 
 @cli.command()
@@ -169,7 +169,7 @@ def online(test_package, executor_type, **options):
 @add_options([model_and_generator_option, start_element_option, verbose_option, unvisted_option, blocked_option])
 @handle_errors
 def offline(models, **options):
-    """Generate a test path once, that can be runned later."""
+    """Generate a test path."""
 
     cli_offline(models, **options)
 

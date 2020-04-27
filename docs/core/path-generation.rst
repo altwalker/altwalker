@@ -1,14 +1,12 @@
 Path Generation
 ===============
 
-AltWalker relies on GraphWalker to generate paths through your graph.
-
 Path generation consists of two parts: *"how to cover?"* (generators) and
 *"what to cover?"* (stop conditions).
 
-GraphWalker uses **generators** and **stop conditions** to decide how to
-walk through the model(s) (directed graph) and when the path (test sequence) is
-completed.
+AltWalker relies on GraphWalker to generate paths through your graph. Both use
+**generators** and **stop conditions** to decide how to walk through the models
+(directed graphs) and when the path (test sequence) is completed.
 
 .. contents:: Table of Contents
     :local:
@@ -21,6 +19,14 @@ A **generator** is an algorithm that decides how to traverse a model. Different
 generators will generate different test sequences, and they will navigate in
 different ways.
 
+Generators:
+
+  - :ref:`core/path-generation:Random`
+  - :ref:`core/path-generation:Weighted Random`
+  - :ref:`core/path-generation:Quick Random`
+  - :ref:`core/path-generation:A Star`
+
+
 Random
 ~~~~~~
 
@@ -28,13 +34,13 @@ Navigate through the models in a completely random manner, also called
 **random walk**. This algorithm selects randomly an out-edge from a vertex,
 and repeats the process for the next vertex.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
     random(<stop_conditions>)
 
-**Examples**:
+**Examples**
 
 Walk randomly until the path sequence has reached a length of 100 elements.
 
@@ -56,13 +62,13 @@ Same as the random path generator, but will use weights when generating a
 path. A weight is assigned to an edge, and it represents the probability
 of an edge getting chosen.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
     weighted_random(<stop_conditions>)
 
-**Examples**:
+**Examples**
 
 Walk randomly with weights until the path sequence has reached a length of 100
 elements.
@@ -76,9 +82,9 @@ Walk randomly with weights and never stop.
 .. code::
 
     weighted_random(never)
-    
-`See the format for adding weights <modeling.html#formats>`_
-    
+
+See the format for adding :ref:`weights <core/modeling:Edge>`.
+
 
 Quick Random
 ~~~~~~~~~~~~
@@ -97,13 +103,13 @@ sequences.
 The downside is when used in conjunction with **guards**, the
 algorithm can choose a path which is blocked by a guard.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
     quick_random(<stop_conditions>)
 
-**Examples**:
+**Examples**
 
 Randomly chooses an edge not visited until the path sequence has reached a
 length of 100 elements.
@@ -124,7 +130,7 @@ A Star
 Generates the shortest path to a specific vertex or edge, using the
 `A* search algorithm <https://en.wikipedia.org/wiki/A*_search_algorithm>`_.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
@@ -136,7 +142,7 @@ Generates the shortest path to a specific vertex or edge, using the
     or an edge (``reached_vertex`` or ``reached_edge``).
 
 
-**Examples**:
+**Examples**
 
 Walks the shortest path to the vertex ``v_name`` and then stops.
 
@@ -159,6 +165,17 @@ A **stop condition** is responsible for deciding when a path is completed. The
 **generator** will generate a new step in the path until the **stop condition**
 is fulfilled.
 
+Stop Conditions:
+
+  - :ref:`core/path-generation:Vertex Coverage and Edge Coverage`
+  - :ref:`core/path-generation:Requirement Coverage`
+  - :ref:`core/path-generation:Dependency Edge Coverage`
+  - :ref:`core/path-generation:Reached Vertex and Reached Edge`
+  - :ref:`core/path-generation:Time Duration`
+  - :ref:`core/path-generation:Length`
+  - :ref:`core/path-generation:Never`
+
+
 Vertex Coverage and Edge Coverage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -169,7 +186,7 @@ elements is reached.
 If an element is traversed more than once, it still counts as 1 when
 calculating the percentage coverage.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
@@ -179,7 +196,7 @@ calculating the percentage coverage.
 
     edge_coverage(<percentage>)
 
-**Examples**:
+**Examples**
 
 Randomly chooses an edge not visited until the vertex coverage has reached 50%.
 
@@ -204,21 +221,22 @@ The path is completed when the percentage of traversed requirements is reached.
 If a requirement is traversed more than once, it still counts as 1 when
 calculating the percentage covered.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
     requirement_coverage(<percentage>)
 
-**Examples**:
+**Examples**
 
 Walks randomly until the requirements coverage has reached 25%.
 
 .. code::
 
     random(requirement_coverage(25))
-    
-`See the format for adding requirements <modeling.html#formats>`_
+
+See the format for adding :ref:`requirements <core/modeling:Vertex>`.
+
 
 Dependency Edge Coverage
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,13 +247,13 @@ dependency threshold.
 The path is completed when all of the traversed edges with dependency higher or
 equal to the threshold are reached.
 
-**Syntax**:
+**Syntax**
 
 .. code::
 
     dependency_edge_coverage(<dependency_threshold>)
 
-**Examples**:
+**Examples**
 
 Walks randomly until all the edges with dependency higher or equal to 85
 are reached.
@@ -243,9 +261,9 @@ are reached.
 .. code::
 
     random(dependency_edge_coverage(85))
-    
-`See the format for adding dependencies <modeling.html#formats>`_
 
+
+See the format for adding :ref:`dependencies <core/modeling:Edge>`.
 
 
 Reached Vertex and Reached Edge
@@ -256,7 +274,7 @@ an element.
 
 The path is completed when the element is reached.
 
-**Examples**:
+**Examples**
 
 Walks randomly until the vertex ``v_name`` is reached.
 
@@ -291,7 +309,7 @@ models have not been visited.
     The ``time_duration`` stop condition is not allowed with ``offline`` mode.
 
 
-**Examples**:
+**Examples**
 
 Walks randomly for 500 seconds:
 
@@ -309,13 +327,14 @@ numbers of edge-vertex pairs generated by a generator.
 For example, if the number is 110, the test sequence would be 220 elements
 (110 pairs of edges and vertices).
 
-**Examples**:
+**Examples**
 
 Walks randomly until the path sequence has reached a length of 24 elements:
 
 .. code::
 
     random(length(24))
+
 
 Never
 ~~~~~
@@ -328,7 +347,7 @@ This special stop condition will never stop the generator.
     The ``never`` stop condition is not allowed with ``offline`` mode.
 
 
-**Examples**:
+**Examples**
 
 Walks randomly forever:
 
@@ -342,7 +361,7 @@ Combining Stop Conditions
 
 Multiple stop conditions can be set using logical `or`, `and`, `||`, `&&`.
 
-**Examples**:
+**Examples**
 
 Walks randomly until the edge coverage has reached 100%, or we have
 executed for 500 seconds.
@@ -358,12 +377,13 @@ the vertex: ``v_name``.
 
     random(reached_vertex(v_name) && edge_coverage(100))
 
+
 Chaining Generators
 -------------------
 
 Generators can be chained one after another.
 
-**Examples**:
+**Examples**
 
 Walks randomly until the edge coverage has reached 100% and
 it reached the vertex: ``v_name``. Then starts walking randomly
@@ -377,6 +397,6 @@ for 1 hour.
 Further Reading/Useful Links
 ----------------------------
 
-* `GraphWalker Documentation on Generators and Stop Conditions <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_
+* GraphWalker Documentation on `Generators and Stop Conditions <https://github.com/GraphWalker/graphwalker-project/wiki/Generators-and-stop-conditions>`_
 * `A* search algorithm <https://en.wikipedia.org/wiki/A*_search_algorithm>`_
 * `Dijkstra's algorithm <https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm>`_

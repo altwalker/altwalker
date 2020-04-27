@@ -1,25 +1,24 @@
 Tests Structure
 ===============
 
-To run tests using AltWalker you need a model(s) and tests implementing
-the model(s).
+To run tests using AltWalker you need a models and tests implementing
+the models.
 
 Usually your project will look like this:
 
 .. code::
 
-    project-root/
-        models/
-            ...
-        tests/
-            ...
+    test-project/
+    ├── models/
+    │   └── ...
+    └── tests/
+        └── ...
 
-Inside the ``models`` directory you will keep your model(s), and inside the
+Inside the ``models`` directory you will keep your models, and inside the
 ``tests`` directory you will have a test package containing the implementation
-of the model(s).
+of the models.
 
 Now AltWalker supports two languages: Python and C#/.NET.
-
 
 .. contents:: Table of Contents
     :local:
@@ -37,10 +36,12 @@ Structure
 
         .. code::
 
-            project-root/
-                tests/
-                    __init__.py
-                    test.py
+            test-project/
+            ├── models/
+            │   └── ...
+            └── tests/
+                ├── __init__.py
+                └── test.py
 
         Inside ``test.py`` each model is implemented in a class, and each
         vertex/edge in a method inside the class.
@@ -70,41 +71,71 @@ Structure
 
     .. group-tab:: C#/.NET
 
-        AltWalker requires a c# console application that depends on `altwalker.executor <https://www.nuget.org/packages/AltWalker.Executor/>`_ from NuGet and runs the ``ExecutorService``.
+        AltWalker requires a C# console application that depends on `AltWalker.Executor <https://www.nuget.org/packages/AltWalker.Executor/>`_ from NuGet and runs the ``ExecutorService``.
+
+        .. code::
+
+            test-project/
+            ├── models/
+            │   └── ...
+            └── tests/
+                ├── Program.cs
+                └── test-project.csproj
 
         .. code-block:: c#
 
-            /// The implementation of the model named ModelA.
-            public class ModelA {
+            /// Program.cs
+            using Altom.AltWalker;
 
-                /// The implementation of the vertex named vertex_a.
-                public void vertex_a() {}
+            namespace Test.Project
+            {
+                /// The implementation of the model named ModelA.
+                public class ModelA
+                {
+                    /// The implementation of the vertex named vertex_a.
+                    public void vertex_a() {}
 
-                /// The implementation of the edge named edge_a
-                public void edge_a() {}
-            }
+                    /// The implementation of the edge named edge_a
+                    public void edge_a() {}
+                }
 
-            public class Program {
-                    public static void Main (string[] args) {
+                /// The implementation of the model named ModelB.
+                public class ModelB
+                {
+                    /// The implementation of the vertex named vertex_b.
+                    public void vertex_b() {}
+
+                    /// The implementation of the edge named edge_b
+                    public void edge_b() {}
+                }
+
+                public class Program
+                {
+                    public static void Main (string[] args)
+                    {
                         ExecutorService service = new ExecutorService();
-                        service.RegisterSetup<Setup>();
+
+                        service.RegisterModel<ModelA>();
+                        service.RegisterModel<ModelB>();
+
                         service.Start(args);
                     }
                 }
+            }
 
-        The ``altwalker.executor`` targets .netstandard 2.0.
+        The ``AltWalker.Executor`` targets .netstandard 2.0.
 
 Fixtures
 --------
 
-AltWalker implements four test fixtures inspired by JUnit and the python
+AltWalker implements four test :term:`fixtures<Test Fixture>` inspired by JUnit and the python
 unittest module:
 
 - ``setUpRun``: Will be executed first, before anything else.
 - ``tearDownRun``: Will be executed last.
 - ``setUpModel``: Will be executed before executing any step from this model.
 - ``tearDownModel``: Will be executed after executing all steps from this
-    model.
+  model.
 
 All fixtures are optional.
 
@@ -139,39 +170,48 @@ All fixtures are optional.
 
     .. group-tab:: C#/.NET
 
-        Define ``setUpModel`` and ``tearDownModel`` inside the model class.
+        Define ``setUpRun`` and ``tearDownRun`` inside a ``Setup`` class, and
+        register it inside the executor service: ``ExecutorService.RegisterSetup<T>();``
 
-        Define ``setUpRun`` and ``tearDownRun`` inside a Setup class, and register it inside the executor service: ``ExecutorService.RegisterSetup<T>();``
+        Define ``setUpModel`` and ``tearDownModel`` inside the model class.
 
         .. code-block:: c#
 
-            /// The implementation of the model named ModelA.
-            public class ModelA {
+            /// Program.cs
+            using Altom.AltWalker;
 
-                /// Will be executed before executing all steps from this model
-                public void setUpModel() {}
+            namespace Test.Project
+            {
+                public class Setup
+                {
+                    /// Will be executed first, before anything else.
+                    public void setUpRun() {}
 
-                /// Will be executed after executing all steps from this model
-                public void tearDownModel() {}
-            }
+                    /// Will be executed first, after anything else.
+                    public void tearDownRun() {}
+                }
 
-            public class Startup {
+                /// The implementation of the model named ModelA.
+                public class ModelA
+                {
+                    /// Will be executed before executing all steps from this model
+                    public void setUpModel() {}
 
-                /// Will be executed first, before anything else.
-                public void setUpRun() {}
+                    /// Will be executed after executing all steps from this model
+                    public void tearDownModel() {}
+                }
 
-                /// Will be executed first, after anything else.
-                public void tearDownRun() {}
-            }
+                public class Program
+                {
+                    public static void Main (string[] args)
+                    {
+                        ExecutorService service = new ExecutorService();
 
-            public class Program {
-                public static void Main (string[] args) {
-                    ExecutorService service = new ExecutorService();
+                        service.RegisterSetup<Setup>();
+                        service.RegisterModel<ModelA>();
 
-                    service.RegisterModel<MyModel>();
-                    service.RegisterSetup<Setup>();
-
-                    service.Start(args);
+                        service.Start(args);
+                    }
                 }
             }
 
@@ -184,6 +224,9 @@ graphs execution context provided by GraphWalker.
 In order to read/update the graph data from your tests, you need to define the
 method with a parameter, and AltWalker will pass the graph data to your method.
 This method is a way of executing actions from you test code.
+
+Updating the graph data can affect the path generation so this feature in not
+available in :ref:`core/running-tests:Offline Mode`.
 
 .. tabs::
 
@@ -265,3 +308,22 @@ This method is a way of executing actions from you test code.
             .. code-block:: c#
 
                 bool value = data["boolean"] == "true";
+
+Verify your code
+----------------
+
+You can use the ``verify`` command to check your code against the models for issues.
+
+.. tabs::
+
+    .. group-tab:: Python
+
+        .. code::
+
+            $ altwalker verify tests -l python -m models/model-name.json
+
+    .. group-tab:: C#/.NET
+
+        .. code::
+
+            $ altwalker verify tests -l dotnet -m models/model-name.json

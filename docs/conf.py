@@ -48,9 +48,11 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.autosectionlabel',
     'sphinx_rtd_theme',
     'sphinx_click.ext',
     'sphinx_tabs.tabs',
+    'notfound.extension',
     'sphinxcontrib.programoutput'
 ]
 
@@ -94,6 +96,12 @@ pygments_style = None
 # a list of builtin themes.
 # html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
+
+# If given, this must be the name of an image file (path relative to the configuration
+# directory) that is the favicon of the docs. Modern browsers use this as the icon for
+# tabs, windows and bookmarks. It should be a Windows-style icon file (.ico), which is
+# 16x16 or 32x32 pixels large.
+html_favicon = ''
 
 # If given, this must be the name of an image file (path relative to the configuration
 # directory) that is the logo of the docs. It is placed at the top of the sidebar;
@@ -234,6 +242,12 @@ napoleon_google_docstring = True
 # To add links to modules and objects in the Python standard library
 # documentation.
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+
+
+# -- Options for Autosection Label
+
+# True to prefix each section label with the name of the document it is in, followed by a colon.
+autosectionlabel_prefix_document = True
 
 
 # -- Configuration for AutoStructify -----------------------------------------
