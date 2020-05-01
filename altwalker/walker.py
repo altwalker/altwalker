@@ -127,13 +127,13 @@ class Walker:
         data_before = self._planner.get_data()
 
         self._reporter.step_start(step)
-        result = self._executor.execute_step(step.get("modelName"), step.get("name"), data_before)
-        self._reporter.step_end(step, result)
+        step_result = self._executor.execute_step(step.get("modelName"), step.get("name"), data_before)
+        self._reporter.step_end(step, step_result)
 
-        data_after = result.get("data")
+        data_after = step_result.get("data")
         self._update_data(data_before, data_after)
 
-        error = result.get("error")
+        error = step_result.get("error")
         if error:
             self._planner.fail(error["message"])
 

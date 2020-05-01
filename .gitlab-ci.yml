@@ -41,7 +41,7 @@ integration test:
 
 dotnet integration tests:
   stage: test
-  image: altwalker/tests:dotnet-v2.2
+  image: altwalker/tests:dotnet-v2.1
   artifacts:
     paths:
       - "*.log"
@@ -65,7 +65,7 @@ tox:
 
 dotnet functional tests:
   stage: test
-  image: altwalker/tests:dotnet-v2.2
+  image: altwalker/tests:dotnet-v2.1
   artifacts:
     paths:
       - "*.log"
@@ -110,7 +110,7 @@ python functional tests:
 
 http functional tests:
   stage: test
-  image: altwalker/tests:dotnet-v2.2
+  image: altwalker/tests:dotnet-v2.1
   artifacts:
     paths:
       - "*.log"

@@ -40,7 +40,7 @@ of your project.
         .. code-block:: docker
             :caption: Dockerfile
 
-            FROM altwalker/altwalker:latest-dotnet-2.2
+            FROM altwalker/altwalker:latest-dotnet-2.1
 
             COPY . /my-tests
             WORKDIR  /my-tests
@@ -94,7 +94,7 @@ using the AltWalker Docker image directly:
 
         .. code-block:: console
 
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.2 \
+            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
                 altwalker online [...]
 
 
@@ -113,5 +113,5 @@ Example:
 
         .. code-block:: console
 
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.2 \
+            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
                 altwalker online tests -m models/default.json "random(vertex_coverage(100))"

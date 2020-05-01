@@ -53,7 +53,8 @@ extensions = [
     'sphinx_click.ext',
     'sphinx_tabs.tabs',
     'notfound.extension',
-    'sphinxcontrib.programoutput'
+    'sphinxcontrib.programoutput',
+    'recommonmark'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -139,11 +140,11 @@ html_css_files = [
 #
 # # For integrating Gitlabå
 html_context = {
-    "display_gitlab": True, # Integrate Gitlab
-    "gitlab_user": "altom/altwalker", # Username
-    "gitlab_repo": "altwalker", # Repo name
-    "gitlab_version": "master", # Version
-    "conf_py_path": "/docs/", # Path in the checkout to the docs root
+    "display_gitlab": True,  # Integrate Gitlab
+    "gitlab_user": "altom/altwalker",  # Username
+    "gitlab_repo": "altwalker",  # Repo name
+    "gitlab_version": "master",  # Version
+    "conf_py_path": "/docs/",  # Path in the checkout to the docs root
 }
 
 # -- Options for HTMLHelp output ---------------------------------------------

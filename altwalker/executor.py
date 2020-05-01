@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 _PREV_LOADED_PACKAGE_PATH = None
 
 
-def get_output(callable, *args, **kwargs):
+def get_step_result(callable, *args, **kwargs):
     """Call a callable object and return the output from stdout, error message and
     traceback if an error occurred.
 
@@ -36,6 +36,7 @@ def get_output(callable, *args, **kwargs):
         if an error occurred::
 
             {
+                "result": Any
                 "output": "",
                 "error": {
                     "message": "",
@@ -44,22 +45,24 @@ def get_output(callable, *args, **kwargs):
             }
     """
 
-    result = {}
+    step_result = {}
     output = io.StringIO()
 
     with redirect_stdout(output):
         try:
-            callable(*args, **kwargs)
+            ret = callable(*args, **kwargs)
+            if ret is not None:
+                step_result["result"] = ret
         except (KeyboardInterrupt, Exception) as e:
-            result["error"] = {
+            step_result["error"] = {
                 "message": str(e) or type(e).__name__,
                 "trace": str(traceback.format_exc())
             }
 
-    result["output"] = output.getvalue()
+    step_result["output"] = output.getvalue()
     output.close()
 
-    return result
+    return step_result
 
 
 def _is_parent_path(parent, child):
@@ -433,12 +436,13 @@ class PythonExecutor(Executor):
             If ``model_name`` is ``None`` the step is a fixture.
 
         Returns:
-            A dict containing the graph data, the output of the step, and the error message with the trace
-            if an error occurred::
+            A dict containing the graph data, the output of the step, the result returned by the step method,
+            and the error message with the trace if an error occurred::
 
                 {
                     "output": "",
                     "data": {},
+                    "result": Any,
                     "error": {
                         "message": "",
                         "trace": ""
@@ -462,9 +466,9 @@ class PythonExecutor(Executor):
         nr_args = len(spec.parameters)
 
         if nr_args == 0:
-            output = get_output(func)
+            step_result = get_step_result(func)
         elif nr_args == 1:
-            output = get_output(func, data)
+            step_result = get_step_result(func, data)
         else:
             func_name = "{}.{}".format(model_name, name) if model_name else name
             type_ = "method" if model_name else "function"
@@ -473,8 +477,8 @@ class PythonExecutor(Executor):
 
             raise ExecutorException(error_message.format(func_name, type_, 0, 1, nr_args))
 
-        output["data"] = data
-        return output
+        step_result["data"] = data
+        return step_result
 
 
 class DotnetExecutorService:
@@ -646,9 +650,9 @@ def _call_create_executor_function(executor_type, *args, **kwargs):
         generate_func = _CREATE_EXECUTOR_FUNCTIONS[executor_type.lower()]
     except KeyError:
         raise AltWalkerException(
-                "Executor type '{}' is not supported. Supported executor types are: {}."
-                .format(executor_type, ", ".join(SUPPORTED_EXECUTORS))
-            )
+            "Executor type '{}' is not supported. Supported executor types are: {}."
+            .format(executor_type, ", ".join(SUPPORTED_EXECUTORS))
+        )
 
     return generate_func(*args, **kwargs)
 

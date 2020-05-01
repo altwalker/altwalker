@@ -58,12 +58,12 @@ class Reporter:
             step (:obj:`dict`): The step that will be executed next.
         """
 
-    def step_end(self, step, result):
+    def step_end(self, step, step_result):
         """Report the result of the step execution.
 
         Args:
             step (:obj:`dict`): The step just executed.
-            result (:obj:`dict`): The result of the step.
+            step_result (:obj:`dict`): The result of the step.
         """
 
     def error(self, step, message, trace=None):
@@ -152,16 +152,16 @@ class Reporting:
         for reporter in self._reporters.values():
             reporter.step_start(step)
 
-    def step_end(self, step, result):
+    def step_end(self, step, step_result):
         """Report the result of the step execution on all reporters.
 
         Args:
             step (:obj:`dict`): The step just executed.
-            result (:obj:`dict`): The result of the step.
+            step_result (:obj:`dict`): The result of the step.
         """
 
         for reporter in self._reporters.values():
-            reporter.step_end(step, result)
+            reporter.step_end(step, step_result)
 
     def error(self, step, message, trace=None):
         """Report an unexpected error on all reporters.
@@ -208,21 +208,26 @@ class _Formater(Reporter):
 
         self._log(_add_timestamp(message))
 
-    def step_end(self, step, result):
+    def step_end(self, step, step_result):
         """Report the result of the step execution.
 
         Args:
             step (:obj:`dict`): The step just executed.
-            result (:obj:`dict`): The result of the step.
+            step_result (:obj:`dict`): The result of the step.
         """
 
-        error = result.get("error")
+        error = step_result.get("error")
         status = "FAIL" if error else "PASSED"
         message = "{} Status: {}\n".format(_format_step(step), status)
 
-        output = result.get("output")
+        output = step_result.get("output")
+        result = step_result.get("result")
+
         if output:
             message += "Output:\n{}".format(output)
+
+        if result:
+            message += "\nResult: {}\n".format(json.dumps(result, sort_keys=True, indent=4))
 
         if error:
             message += "\nError: {}\n".format(error["message"])
@@ -285,24 +290,30 @@ class FileReporter(_Formater):
 class ClickReporter(_Formater):
     """This reporter outputs using the :func:`click.echo` function."""
 
-    def step_end(self, step, result):
+    def step_end(self, step, step_result):
         """Outputs a colored output for the result of the step execution.
 
         Args:
             step (:obj:`dict`): The step just executed.
-            result (:obj:`dict`): The result of the step.
+            step_result (:obj:`dict`): The result of the step.
         """
 
-        error = result.get("error")
+        error = step_result.get("error")
 
         status = "FAIL" if error else "PASSED"
         status = click.style(status, fg="red" if error else "green")
 
         message = "{} Status: {}\n".format(_format_step(step), status)
 
-        output = result.get("output")
+        output = step_result.get("output")
+        result = step_result.get("result")
+
         if output:
             message += "Output:\n{}".format(click.style(output, fg="cyan"))
+
+        if result:
+            message += "\nResult:\n{}".format(click.style(json.dumps(result,
+                                                                     sort_keys=True, indent=4), fg="magenta"))
 
         if error:
             message += "\nError: {}\n".format(click.style(error["message"], fg="red"))
@@ -346,7 +357,7 @@ class PathReporter(Reporter):
 
         self._path = []
 
-    def step_end(self, step, result):
+    def step_end(self, step, step_result):
         """Save the step in a list, if the step is not a fixture."""
 
         if step.get("id"):

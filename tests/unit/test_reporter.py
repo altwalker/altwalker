@@ -128,17 +128,17 @@ class TestReporting(unittest.TestCase):
     def test_step_end(self):
         self.register_reporter()
 
-        result = {
+        step_result = {
             "output": "Outptut message.",
             "error": {
                 "message": "Error message",
                 "trace": "Traceback"
             }
         }
-        self.reporting.step_end(self.step, result)
+        self.reporting.step_end(self.step, step_result)
 
-        self.reporter_a.step_end.assert_called_once_with(self.step, result)
-        self.reporter_b.step_end.assert_called_once_with(self.step, result)
+        self.reporter_a.step_end.assert_called_once_with(self.step, step_result)
+        self.reporter_b.step_end.assert_called_once_with(self.step, step_result)
 
     def test_error(self):
         self.register_reporter()
@@ -190,41 +190,56 @@ class TestFormater(unittest.TestCase):
         self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
 
     def test_step_end(self):
-        result = {
+        step_result = {
             "output": "",
         }
-        self.formater.step_end(self.step, result)
+        self.formater.step_end(self.step, step_result)
 
         self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
 
     def test_step_end_with_output(self):
-        result = {
+        step_result = {
             "output": "Step output.",
         }
-        self.formater.step_end(self.step, result)
+        self.formater.step_end(self.step, step_result)
 
         self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
 
     def test_step_end_with_error(self):
-        result = {
+        step_result = {
             "output": "",
             "error": {
                 "message": "Error message"
             }
         }
-        self.formater.step_end(self.step, result)
+        self.formater.step_end(self.step, step_result)
+
+        self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
+
+    def test_step_end_with_result(self):
+        step_result = {
+            "result": {"prop": "val"},
+        }
+
+        def log(string):
+            self.assertIn("Result:", string)
+            self.assertIn("\"prop\"", string)
+            self.assertIn("\"val\"", string)
+        self.formater._log.side_effect = log
+
+        self.formater.step_end(self.step, step_result)
 
         self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
 
     def test_step_end_with_trace(self):
-        result = {
+        step_result = {
             "output": "",
             "error": {
                 "message": "Error message",
                 "trace": "Traceback"
             }
         }
-        self.formater.step_end(self.step, result)
+        self.formater.step_end(self.step, step_result)
 
         self.assertEqual(self.formater._log.mock_calls, [mock.ANY])
 
@@ -308,47 +323,63 @@ class TestClickReporter(unittest.TestCase):
     def test_step_end(self):
         self.reporter._log = mock.Mock(spec=Reporter._log)
 
-        result = {
+        step_result = {
             "output": "",
         }
-        self.reporter.step_end(self.step, result)
+        self.reporter.step_end(self.step, step_result)
 
         self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
 
     def test_step_end_with_output(self):
         self.reporter._log = mock.Mock(spec=Reporter._log)
 
-        result = {
+        step_result = {
             "output": "Step output.",
         }
-        self.reporter.step_end(self.step, result)
+        self.reporter.step_end(self.step, step_result)
+
+        self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
+
+    def test_step_end_with_result(self):
+        self.reporter._log = mock.Mock(spec=Reporter._log)
+        step_result = {
+            "result": {"prop": "val"},
+        }
+
+        def log(string):
+            self.assertIn("Result:", string)
+            self.assertIn("\"prop\"", string)
+            self.assertIn("\"val\"", string)
+        self.reporter._log.side_effect = log
+
+        self.reporter.step_end(self.step, step_result)
 
         self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
 
     def test_step_end_with_error(self):
         self.reporter._log = mock.Mock(spec=Reporter._log)
 
-        result = {
+        step_result = {
             "output": "",
             "error": {
                 "message": "Error message"
             }
         }
-        self.reporter.step_end(self.step, result)
+        self.reporter.step_end(self.step, step_result)
 
         self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
 
     def test_step_end_with_trace(self):
         self.reporter._log = mock.Mock(spec=Reporter._log)
 
-        result = {
+        step_result = {
             "output": "",
             "error": {
                 "message": "Error message",
                 "trace": "Traceback"
             }
         }
-        self.reporter.step_end(self.step, result)
+        self.reporter.step_end(self.step, step_result)
 
         self.assertEqual(self.reporter._log.mock_calls, [mock.ANY])
 

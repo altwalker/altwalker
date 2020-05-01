@@ -175,6 +175,8 @@ Should executes the step. Is used by the `online` and `walk` commands.
             "output": "",
             "data": {
             },
+            "result": {
+            },
             "error": {
                 "message": "",
                 "trace": ""
@@ -185,7 +187,9 @@ Should executes the step. Is used by the `online` and `walk` commands.
 
     The `output` is the output of the step. It is required.
 
-    The `data` key form the response should be the data modified by your tests. It is not required.
+    The `data` key from the response should be the data modified by your tests. It is not required.
+
+    The `result` is the value returned by the step. It is not required. It can be of any type.
 
     The `error` key should be present only if the step failed.
 

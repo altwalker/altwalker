@@ -1,28 +1,37 @@
+import os
 import sys
 import unittest
 import unittest.mock as mock
 
 from altwalker.exceptions import ExecutorException, AltWalkerException
 from altwalker.executor import _pop_previously_loaded_modules, _is_parent_path, \
-    get_output, load, create_executor, create_python_executor, \
+    get_step_result, load, create_executor, create_python_executor, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
-class TestGetOutput(unittest.TestCase):
+class TestGetStepResult(unittest.TestCase):
 
     def test_output(self):
         func = mock.Mock()
         func.side_effect = lambda: print("message")
 
-        result = get_output(func)
+        result = get_step_result(func)
 
         func.assert_called_once_with()
         self.assertEqual(result["output"], "message\n")
 
+    def test_result(self):
+        func = mock.Mock()
+        func.side_effect = lambda: {"prop": "val"}
+
+        result = get_step_result(func)
+
+        self.assertEqual(result["result"], {"prop": "val"})
+
     def test_not_error(self):
         func = mock.Mock()
 
-        result = get_output(func)
+        result = get_step_result(func)
 
         func.assert_called_once_with()
         self.assertFalse("error" in result)
@@ -31,20 +40,20 @@ class TestGetOutput(unittest.TestCase):
         func = mock.Mock()
         func.side_effect = Exception("Error message.")
 
-        result = get_output(func)
+        result = get_step_result(func)
 
         func.assert_called_once_with()
         self.assertTrue("error" in result)
 
     def test_args(self):
         func = mock.Mock()
-        get_output(func, "argument_1", "argument_2")
+        get_step_result(func, "argument_1", "argument_2")
 
         func.assert_called_once_with("argument_1", "argument_2")
 
     def test_kwargs(self):
         func = mock.Mock()
-        get_output(func, key="value")
+        get_step_result(func, key="value")
 
         func.assert_called_once_with(key="value")
 
@@ -404,8 +413,8 @@ class TestCreatePythonExecutor(unittest.TestCase):
 
     @mock.patch("altwalker.executor.load")
     def test_load(self, load_mock):
-        create_python_executor("base/path/tests/")
-        load_mock.assert_called_once_with("base/path", "tests", "test")
+        create_python_executor(os.sep.join(["base", "path", "tests"]))
+        load_mock.assert_called_once_with(os.sep.join(["base", "path"]), "tests", "test")
 
 
 class TestCreateExecutor(unittest.TestCase):
