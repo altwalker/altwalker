@@ -46,6 +46,9 @@ class Walker:
                 if not self._status:
                     break
 
+            if not step.get("name"):
+                continue
+
             self._status = self._run_step(step)
             step["status"] = self._status
 
