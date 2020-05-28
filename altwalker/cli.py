@@ -16,8 +16,8 @@ from altwalker.generate import SUPPORTED_LANGUAGES
 from altwalker.executor import SUPPORTED_EXECUTORS
 
 
-# replace the default warning formating
-warnings.formatwarning = click_formatwarning
+warnings.formatwarning = click_formatwarning  # replace the default warning formating
+warnings.simplefilter("default")  # print the first occurrence of warnings
 
 
 CONTEXT_SETTINGS = dict(help_option_names=["--help", "-h"])
@@ -52,8 +52,17 @@ executor_option = click.option("--executor", "-x", "--language", "-l", "executor
                                default="python", show_default=True,
                                help="Configure the executor to be used.")
 
-url_option = click.option("--url", default="http://localhost:5000/", show_default=True,
-                          help="The url for the executor.")
+url_option = click.option("--url", help="This option is deprecated, use --executor-url insted. [DEPRECATED]")
+
+executor_url_option = click.option("--executor-url", default="http://localhost:5000/", show_default=True,
+                                   help="The url for the executor.")
+
+
+graphwalker_host_option = click.option("--gw-host", help="The url for the GraphWalker REST service (e.g localhost).")
+
+port_option = click.option("--port", "-p", help="This option is deprecated, use --gw-port insted. [DEPRECATED]")
+
+graphwalker_port_option = click.option("--gw-port", default=8887, help="Sets the port of the GraphWalker service.")
 
 
 report_file_option = click.option("--report-file", type=click.Path(exists=False, dir_okay=False),
@@ -111,10 +120,18 @@ def check(models, blocked):
 @click.argument("test_package", type=click.Path(exists=True))
 @click.option("--suggestions/--no-suggestions", "suggestions", default=True, is_flag=True,
               help="If set will print code suggestions for missing steps.", show_default=True)
-@add_options([model_file_option, executor_option, url_option])
+@add_options([model_file_option, executor_option, url_option, executor_url_option])
 @handle_errors
 def verify(test_package, executor_type, models, **options):
     """Verify and analyze test code for issues."""
+
+    if options["url"]:
+        warnings.warn(
+            "The --url option is deprecated, use --executor-url insted.",
+            DeprecationWarning)
+
+    options["url"] = options["url"] or options["executor_url"]
+    del options["executor_url"]
 
     status = cli_verify(test_package, executor_type, models, **options)
 
@@ -151,14 +168,28 @@ def generate(output_dir, models, language):
 
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
-@click.option("--port", "-p", default=8887,
-              help="Sets the port of the GraphWalker service.")
-@add_options([model_and_generator_option, start_element_option, executor_option, url_option,
-              verbose_option, unvisted_option, blocked_option, report_path_option, report_path_file_option,
-              report_file_option])
+@add_options([graphwalker_host_option, port_option, graphwalker_port_option,
+              model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
+              verbose_option, unvisted_option, blocked_option,
+              report_path_option, report_path_file_option, report_file_option])
 @handle_errors
 def online(test_package, executor_type, **options):
     """Generate and run a test path."""
+
+    options["host"] = options["gw_host"]
+    del options["gw_host"]
+
+    if options["port"]:
+        warnings.warn("The --port/-p option is deprecated, use --gw-port insted.", DeprecationWarning)
+
+    options["port"] = options["port"] or options["gw_port"]
+    del options["gw_port"]
+
+    if options["url"]:
+        warnings.warn("The --url option is deprecated, use --executor-url insted.", DeprecationWarning)
+
+    options["url"] = options["url"] or options["executor_url"]
+    del options["executor_url"]
 
     cli_online(test_package, executor_type, **options)
 
@@ -177,10 +208,16 @@ def offline(models, **options):
 @cli.command()
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_file", type=click.Path(exists=True, dir_okay=False))
-@add_options([executor_option, url_option, report_path_option, report_path_file_option, report_file_option])
+@add_options([executor_option, url_option, executor_url_option,
+              report_path_option, report_path_file_option, report_file_option])
 @handle_errors
-def walk(test_package, steps_file, executor_type, url, report_path, report_path_file, report_file):
+def walk(test_package, steps_file, executor_type, url, executor_url, report_path, report_path_file, report_file):
     """Run the tests with steps from a file."""
 
-    cli_walk(test_package, executor_type, steps_file, url=url, report_path=report_path,
+    if url:
+        warnings.warn("The --url option is deprecated, use --executor-url insted.", DeprecationWarning)
+
+    executor_url = url or executor_url
+
+    cli_walk(test_package, executor_type, steps_file, url=executor_url, report_path=report_path,
              report_path_file=report_path_file, report_file=report_file)

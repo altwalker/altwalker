@@ -1,6 +1,7 @@
 import abc
 import warnings
 
+from altwalker.model import get_models
 from altwalker.graphwalker import GraphWalkerService, GraphWalkerClient
 
 
@@ -210,7 +211,10 @@ def create_planner(models=None, steps=None, host=None, port=8887, start_element=
 
     if host:
         client = GraphWalkerClient(host=host, port=port, verbose=verbose)
-        return OnlinePlanner(client)
+        planner = OnlinePlanner(client)
+        planner.load(get_models(x[0] for x in models))
+
+        return planner
 
     service = GraphWalkerService(port=port, models=models, start_element=start_element,
                                  unvisited=unvisited, blocked=blocked)

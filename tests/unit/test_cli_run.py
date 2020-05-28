@@ -122,7 +122,14 @@ class TestRunTests(unittest.TestCase):
         run_tests("path/to/tests", "executor_type")
 
         create_planner.assert_called_once_with(
-            models=None, port=8887, steps=None, start_element=None,
+            models=None, host=None, port=8887, steps=None, start_element=None,
+            verbose=False, unvisited=False, blocked=False)
+
+    def test_create_planner_host(self, create_planner, create_executor, create_walker):
+        run_tests("path/to/tests", "executor_type", host="127.0.0.1")
+
+        create_planner.assert_called_once_with(
+            models=None, host="127.0.0.1", port=8887, steps=None, start_element=None,
             verbose=False, unvisited=False, blocked=False)
 
     def test_kill_planner(self, create_planner, create_executor, create_walker):

@@ -88,7 +88,7 @@ def _echo_status(status):
 
 
 def run_tests(path, executor_type, url=None, models=None, steps=None, port=8887, start_element=None,
-              verbose=False, unvisited=False, blocked=False, **kwargs):
+              verbose=False, unvisited=False, blocked=False, host=None, **kwargs):
     """Run tests.
 
     Args:
@@ -109,7 +109,7 @@ def run_tests(path, executor_type, url=None, models=None, steps=None, port=8887,
 
     try:
         planner = create_planner(models=models, steps=steps, port=port, start_element=start_element,
-                                 verbose=verbose, unvisited=unvisited, blocked=blocked)
+                                 verbose=verbose, unvisited=unvisited, blocked=blocked, host=host)
         executor = create_executor(os.path.abspath(path), executor_type, url=url)
         reporter = create_reporters(**kwargs)
         walker = create_walker(planner, executor, reporter=reporter)
@@ -147,7 +147,7 @@ def cli_run(path, executor_type, url="http://localhost:5000/", models=None, step
 
 
 def cli_online(test_package, executor_type, url="http://localhost:5000/", models=None, port=None, start_element=None,
-               verbose=False, unvisited=False, blocked=False, report_file=None,
+               verbose=False, unvisited=False, blocked=False, host=None, report_file=None,
                report_path=False, report_path_file=None):
 
     cli_run(
@@ -158,6 +158,7 @@ def cli_online(test_package, executor_type, url="http://localhost:5000/", models
         port=port,
         start_element=start_element,
         verbose=verbose, unvisited=unvisited, blocked=blocked,
+        host=host,
         report_path=report_path,
         report_path_file=report_path_file, report_file=report_file
     )
