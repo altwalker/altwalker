@@ -142,7 +142,7 @@ name of you model file and run the following command:
         .. code::
 
             $ cd test-project
-            $ altwalker online tests -m models/model-name.json.json "random(edge_coverage(100))"
+            $ altwalker online tests -m models/model-name.json "random(edge_coverage(100))"
 
 
     .. group-tab:: C#/.NET
@@ -150,7 +150,7 @@ name of you model file and run the following command:
         .. code::
 
             $ cd test-project
-            $ altwalker online -x c# tests -m models/model-name.json.json "random(edge_coverage(100))"
+            $ altwalker online -x c# tests -m models/model-name.json "random(edge_coverage(100))"
 
 
 The above command runs the tests found within the ``tests`` folder, based on the model
