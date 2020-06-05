@@ -7,9 +7,10 @@ pytest
 pytest-cov
 pytest-timeout
 
-Sphinx
+Sphinx==2.4.4
 recommonmark
 sphinx-rtd-theme
 sphinx-click
 sphinx-tabs
 sphinxcontrib-programoutput
+
