@@ -206,11 +206,11 @@ class TestGeneratePythonTests(GenerateTestsTestCase):
         expected_code = (
             "\n"
             "class ModelName:\n\n"
-            "    def edge_A(self):\n"
-            "        pass\n\n"
             "    def vertex_A(self):\n"
             "        pass\n\n"
             "    def vertex_B(self):\n"
+            "        pass\n\n"
+            "    def edge_A(self):\n"
             "        pass\n\n"
         )
 
@@ -239,11 +239,11 @@ class TestGeneratePythonTests(GenerateTestsTestCase):
         expected_code = (
             "\n"
             "class ModelName:\n\n"
-            "    def edge_A(self):\n"
-            "        pass\n\n"
             "    def vertex_A(self):\n"
             "        pass\n\n"
             "    def vertex_B(self):\n"
+            "        pass\n\n"
+            "    def edge_A(self):\n"
             "        pass\n\n"
         )
 

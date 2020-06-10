@@ -22,7 +22,7 @@ MOCK_MODELS = {
             ],
             "edges": [
                 {
-                    "name": "edge_bloked",
+                    "name": "edge_blocked",
                     "properties": {
                         "blocked": True
                     }
@@ -85,13 +85,13 @@ class TestJsonMethods(unittest.TestCase):
         self.models = MOCK_MODELS
 
         self.expected_methods = {
-            "ModelA": {"vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"},
-            "ModelB": {"vertex_name", "edge_name"}
+            "ModelA": ["vertex_blocked", "vertex_not_blocked", "edge_blocked", "edge_not_blocked"],
+            "ModelB": ["vertex_name", "edge_name"]
         }
 
         self.filtered_expected_methods = {
-            "ModelA": {"vertex_not_blocked", "edge_not_blocked"},
-            "ModelB": {"vertex_name", "edge_name"}
+            "ModelA": ["vertex_not_blocked", "edge_not_blocked"],
+            "ModelB": ["vertex_name", "edge_name"]
         }
 
     def test_models(self, read_mock):

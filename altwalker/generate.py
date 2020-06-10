@@ -159,7 +159,7 @@ def generate_empty_tests(output_dir, methods=None, package_name="tests"):
 
 
 def generate_python_methods(methods_list):
-    methods_code = [_PYTHON_METOHD_TEMPLATE.format(name) for name in sorted(methods_list)]
+    methods_code = [_PYTHON_METOHD_TEMPLATE.format(name) for name in methods_list]
     return "\n".join(methods_code)
 
 
@@ -195,7 +195,7 @@ def generate_python_tests(output_dir, methods, package_name="tests"):
 
 
 def generate_dotnet_methods(methods_list):
-    methods_code = [_DOTNET_METHOD_TEMPLATE.format(name) for name in sorted(methods_list)]
+    methods_code = [_DOTNET_METHOD_TEMPLATE.format(name) for name in methods_list]
     return "\n".join(methods_code)
 
 
@@ -264,9 +264,9 @@ def _call_generate_function(language, functions, *args, **kwargs):
         generate_func = functions[language.lower()]
     except KeyError:
         raise AltWalkerException(
-                "Language '{}' is not supported. Supported languages are: {}."
-                .format(language, ", ".join(functions.keys()))
-            )
+            "Language '{}' is not supported. Supported languages are: {}."
+            .format(language, ", ".join(functions.keys()))
+        )
 
     return generate_func(*args, **kwargs)
 

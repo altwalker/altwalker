@@ -25,7 +25,9 @@ def _json_methods(model_path, blocked=False):
         vertices = {vertex["name"] for vertex in model["vertices"] if not _is_element_blocked(vertex, blocked=blocked)}
         edges = {edge["name"] for edge in model["edges"] if not _is_element_blocked(edge, blocked=blocked)}
 
-        methods[name] = vertices | edges
+        edges = edges.difference(vertices)
+
+        methods[name] = sorted(vertices) + sorted(edges)
 
     return methods
 

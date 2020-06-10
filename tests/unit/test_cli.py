@@ -188,7 +188,7 @@ class TestVerify(unittest.TestCase):
     def test_url(self, cli_verify_mock):
         with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
-                verify, ["--url", "http://127.0.0.1:5000/", "tests", "-m", "models.json"])
+                verify, ["--executor-url", "http://127.0.0.1:5000/", "tests", "-m", "models.json"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
             cli_verify_mock.assert_called_once_with(
