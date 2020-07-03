@@ -45,6 +45,7 @@ usage patterns.
     PyPI Releases <https://pypi.org/project/altwalker/>
     Source Code <https://gitlab.com/altom/altwalker/altwalker>
     Model Editor <https://altom.gitlab.io/altwalker/model-editor>
+    VS Code Extension <https://marketplace.visualstudio.com/items?itemName=Altom.altwalker-model-visualizer>
     Issue Tracker <https://gitlab.com/altom/altwalker/altwalker/issues>
     Docker Hub <https://hub.docker.com/u/altwalker>
 
