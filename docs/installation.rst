@@ -53,10 +53,10 @@ To install GraphWalker you can run the following command:
 
         .. code-block:: console
 
-            $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar && \
+            $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.2.0/graphwalker-cli-4.2.0.jar && \
               mkdir -p ~/graphwalker && \
-              mv graphwalker-cli-4.0.1.jar ~/graphwalker/ && \
-              echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.1.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
+              mv graphwalker-cli-4.2.0.jar ~/graphwalker/ && \
+              echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.2.0.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
               chmod +x ~/graphwalker/graphwalker-cli.sh && \
               ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 
@@ -70,10 +70,10 @@ To install GraphWalker you can run the following command:
               cd C:\
               mkdir graphwalker
               cd graphwalker
-              powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar' -outfile 'graphwalker-cli-4.0.1.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
+              powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.2.0/graphwalker-cli-4.2.0.jar' -outfile 'graphwalker-cli-4.2.0.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
               @echo off
               @echo @echo off> gw.bat
-              @echo java -jar C:\graphwalker\graphwalker-cli-4.0.1.jar %*>> gw.bat
+              @echo java -jar C:\graphwalker\graphwalker-cli-4.2.0.jar %*>> gw.bat
               @echo on
 
 After installing GraphWalker check that you installed the correct version:
