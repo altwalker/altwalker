@@ -3,6 +3,7 @@ import warnings
 import logging
 
 import click
+from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
 from altwalker._utils import click_formatwarning
 from altwalker._cli_check import cli_check
@@ -83,7 +84,11 @@ def add_options(options):
     return _add_options
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
+@click.group(
+    context_settings=CONTEXT_SETTINGS,
+    cls=HelpColorsGroup,
+    help_headers_color='yellow',
+    help_options_color='green')
 @click.version_option(None, "--version", "-v", prog_name="AltWalker")
 @click.option("--log-level",
               type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], case_sensitive=False),
@@ -96,7 +101,7 @@ def add_options(options):
               default="CRITICAL", show_default=True, envvar="GRAPHWALKER_LOG_LEVEL",
               help="Sets the GraphWalker logger level to the specified level.")
 def cli(log_level, log_file, graphwalker_log_level):
-    """A command line tool for running Model-Based tests."""
+    """A command line tool for running Model-Based Tests."""
 
     os.environ["GRAPHWALKER_LOG_LEVEL"] = graphwalker_log_level.upper()
     logging.basicConfig(filename=log_file, level=log_level.upper())
@@ -166,7 +171,9 @@ def generate(output_dir, models, language):
     cli_generate(output_dir, models, language=language)
 
 
-@cli.command()
+@cli.command(
+    cls=HelpColorsCommand,
+    help_options_custom_colors={'--url': 'red', '-p,': 'red'})
 @click.argument("test_package", type=click.Path(exists=True))
 @add_options([graphwalker_host_option, port_option, graphwalker_port_option,
               model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
