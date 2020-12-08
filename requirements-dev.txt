@@ -7,7 +7,7 @@ pytest
 pytest-cov
 pytest-timeout
 
-Sphinx==2.4.4
+Sphinx>=3.0.0
 recommonmark
 sphinx-rtd-theme
 sphinx-click

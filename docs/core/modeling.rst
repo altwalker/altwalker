@@ -331,7 +331,7 @@ A single model and his data can be stored in one single ``.graphml`` file. The n
 **Further Reading/Useful Links**
 
 - `GraphML <https://en.wikipedia.org/wiki/GraphML>`_ file format.
-- For documentation about ``.graphml`` model format check `GraphWalker's documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Creating-a-model-using-yEd>`_.
+- For documentation about the ``.graphml`` model format check `GraphWalker's documentation on Using yEd <https://github.com/GraphWalker/graphwalker-project/wiki/Creating-a-model-using-yEd>`_.
 - For creating or modifying graphml models you can use `yEd editor <http://www.yworks.com/en/products_yed_about.html>`_.
 
 
@@ -358,12 +358,25 @@ You can also check for issues in the model(s) using the `check` command:
 Tooling
 -------
 
-For **json** you can check `AltWalker's Model-Editor <https://altom.gitlab.io/altwalker/model-editor>`_, the editor
-allows you to visualize the model while you are working on it.
+Tools for JSON
+~~~~~~~~~~~~~~
+
+For **JSON** you can check `AltWalker's Model-Editor <https://altom.gitlab.io/altwalker/model-editor>`_, the editor
+allows you to visualize and edit your models.
 
 .. figure:: ../_static/img/model-editor.png
 
     Screenshot taken from the Model-Editor.
+
+And if you are using VS Code you can check out the `AltWalker's Model-Visualizer Extension <https://marketplace.visualstudio.com/items?itemName=Altom.altwalker-model-visualizer>`_, the extension
+allows you to visualize your model while you are working on it.
+
+.. figure:: ../_static/img/vs-code-extension.png
+
+    Screenshot taken from the AltWalker Model-Visualizer VS Code Extension.
+
+Tools for GraphML
+~~~~~~~~~~~~~~~~~
 
 For **GraphML** you can use `yEd editor <http://www.yworks.com/en/products_yed_about.html>`_ and GraphWalker
 has a tutorial on how to `design models <https://github.com/GraphWalker/graphwalker-project/wiki/Creating-a-model-using-yEd>`_ using it.

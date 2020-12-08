@@ -4,15 +4,13 @@ Log data from your tests
 
 Logging information is critical to the development and maintainance of your tests. AltWalker collects stdout and returned data from your tests.
 
-
-
 .. contents:: Table of Contents
     :local:
     :backlinks: none
 
 
 Stdout
---------
+------
 
 AltWalker captues stdout data from each test and outputs it to the stdout of altwalker cli, or to a file if ``--report-file`` option is used.
 
@@ -34,7 +32,7 @@ AltWalker captues stdout data from each test and outputs it to the stdout of alt
             Output:
             Simple.vertex_a
 
-        
+
 
     .. group-tab:: C#/.NET
 
@@ -78,6 +76,7 @@ AltWalker captues stdout data from each test and outputs it to the stdout of alt
 
 Returned data from tests
 ------------------------
+
 AltWalker captures return value from each test and outputs it to the stdout of altwalker cli, or to a file if ``--report-file`` option is used.
 
 .. tabs::
@@ -100,8 +99,6 @@ AltWalker captures return value from each test and outputs it to the stdout of a
             {
                 "key": "value"
             }
-
-        
 
     .. group-tab:: C#/.NET
 

@@ -12,6 +12,6 @@ if you need more tutorials or have questions.
     how-tos/actions-and-guards
     how-tos/shared-state
     how-tos/environment-variables
+    how-tos/logs
     how-tos/run-tests-with-docker
     how-tos/custom-executor
-    how-tos/logs
