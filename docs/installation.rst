@@ -7,7 +7,7 @@ Installation
 
     Read more in the: :doc:`how-tos/run-tests-with-docker` section.
 
-**Pythons**: Python 3.4, 3.5, 3.6, 3.7, 3.8, PyPy3
+**Pythons**: Python 3.5, 3.6, 3.7, 3.8, 3.9, PyPy3
 
 **Platforms**: Unix/Posix and Windows
 
@@ -17,7 +17,7 @@ Prerequisites
 -------------
 
 * `Python3 <https://www.python.org/>`_ (with pip3)
-* `Java 8 <https://openjdk.java.net/>`_
+* `Java 11 <https://openjdk.java.net/>`_
 * `GraphWalker CLI <http://graphwalker.github.io/>`_
 * `.NET Core <https://dotnet.microsoft.com/>`_ (Optional)
 * `git <https://git-scm.com/>`_ (Optional)
@@ -53,12 +53,12 @@ To install GraphWalker you can run the following command:
 
         .. code-block:: console
 
-            $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.2.0/graphwalker-cli-4.2.0.jar && \
-              mkdir -p ~/graphwalker && \
-              mv graphwalker-cli-4.2.0.jar ~/graphwalker/ && \
-              echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.2.0.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
-              chmod +x ~/graphwalker/graphwalker-cli.sh && \
-              ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
+            $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.3.0/graphwalker-cli-4.3.0.jar && \
+              mkdir -p ~/.graphwalker && \
+              mv graphwalker-cli-4.3.0.jar ~/.graphwalker/ && \
+              echo -e '#!/bin/bash\njava -jar ~/.graphwalker/graphwalker-cli-4.3.0.jar "$@"' > ~/.graphwalker/graphwalker-cli.sh && \
+              chmod +x ~/.graphwalker/graphwalker-cli.sh && \
+              ln -s ~/.graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 
         Here is a more detailed `tutorial <https://github.com/GraphWalker/graphwalker-project/wiki/Command-Line-Tool#creating-a-script-facilitating-command-line-handling-on-a-linux-machine>`_ for macOS/linux.
 
@@ -70,10 +70,10 @@ To install GraphWalker you can run the following command:
               cd C:\
               mkdir graphwalker
               cd graphwalker
-              powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.2.0/graphwalker-cli-4.2.0.jar' -outfile 'graphwalker-cli-4.2.0.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
+              powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.3.0/graphwalker-cli-4.3.0.jar' -outfile 'graphwalker-cli-4.3.0.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
               @echo off
               @echo @echo off> gw.bat
-              @echo java -jar C:\graphwalker\graphwalker-cli-4.2.0.jar %*>> gw.bat
+              @echo java -jar C:\graphwalker\graphwalker-cli-4.3.0.jar %*>> gw.bat
               @echo on
 
 After installing GraphWalker check that you installed the correct version:

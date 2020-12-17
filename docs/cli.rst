@@ -66,7 +66,7 @@ Commands
 
 .. click:: altwalker.cli:init
    :prog: altwalker init
-   :show-nested:
+   :nested:
 
 .. note::
 
@@ -130,7 +130,7 @@ The ``test-project`` directory will have the following structure::
 
 .. click:: altwalker.cli:generate
    :prog: altwalker generate
-   :show-nested:
+   :nested:
 
 .. note::
 
@@ -171,7 +171,7 @@ containe::
 
 .. click:: altwalker.cli:check
    :prog: altwalker check
-   :show-nested:
+   :nested:
 
 .. note::
 
@@ -209,7 +209,7 @@ If the models are not valid the command will return a list of errors:
 
 .. click:: altwalker.cli:verify
    :prog: altwalker verify
-   :show-nested:
+   :nested:
 
 .. note::
 
@@ -280,7 +280,7 @@ If you don't need the code suggestions you can add ``--no-suggestions`` flag.
 
 .. click:: altwalker.cli:online
    :prog: altwalker online
-   :show-nested:
+   :nested:
 
 .. note::
 
@@ -356,7 +356,7 @@ step the current list of all unvisited elements:
 
 .. click:: altwalker.cli:offline
    :prog: altwalker offline
-   :show-nested:
+   :nested:
 
 .. note::
 
@@ -421,7 +421,7 @@ of unvisited elements.
 
 .. click:: altwalker.cli:walk
    :prog: altwalker walk
-   :show-nested:
+   :nested:
 
 **Examples:**
 

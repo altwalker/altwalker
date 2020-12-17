@@ -1,195 +1,112 @@
-import subprocess
-import unittest
 import unittest.mock as mock
+import json
 import platform
+import subprocess
+
+import pytest
 
 from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, _create_command, \
     _execute_command, _get_error_message, offline, methods, check
 
 
-class TestGetErrorMessage(unittest.TestCase):
+class TestGetErrorMessage:
 
-    def test_no_error(self):
-        self.assertIsNone(_get_error_message("No error message."))
-        self.assertIsNone(_get_error_message("[HttpServer] Started"))
+    @pytest.mark.parametrize(
+        "logs",
+        [
+            "No error message.",
+            "[HttpServer] Started"
+        ]
+    )
+    def test_no_error(self, logs):
+        assert _get_error_message(logs) is None
 
-    def test_for_erros(self):
-        message = "An error occurred when running command:\n{}\n"
-        errors = [
+    @pytest.mark.parametrize(
+        "error_message",
+        [
             "No valid generator found.",
             "No valid stop condition found.",
             "Address already in use."
         ]
-
-        for error in errors:
-            self.assertEqual(_get_error_message(message.format(error)), error)
-
-
-class TestGraphWalkerClient(unittest.TestCase):
-
-    def setUp(self):
-        self.client = GraphWalkerClient(host="1.2.3.4", port="9999")
-
-    def test_init(self):
-        self.assertEqual(self.client.base, "http://1.2.3.4:9999/graphwalker")
-
-    def test_validate_response(self):
-        response = mock.MagicMock()
-
-        # Should not raise exception for status code 200
-        response.status_code = 200
-        self.client._validate_response(response)
-
-        # Should raise exception for any other status exept 200
-        response.status_code = 404
-
-        with self.assertRaises(GraphWalkerException) as error:
-            self.client._validate_response(response)
-
-        self.assertEqual(str(error.exception), "GraphWalker responded with status code: 404.")
-
-    def test_get_body(self):
-        body = mock.MagicMock()
-
-        # Should return the rest of the body if result is ok
-        body.json.return_value = {"result": "ok", "data": "data"}
-
-        self.assertEqual(self.client._get_body(body), {"data": "data"})
-
-        # Should raise exception if the error key is present
-        body.json.return_value = {"result": "nok", "error": "error message"}
-
-        with self.assertRaises(GraphWalkerException) as error:
-            self.client._get_body(body)
-
-        self.assertEqual(str(error.exception), "GraphWalker responded with the error: error message.")
-
-        # Should raise exception if no error key and the result is nok
-        body.json.return_value = {"result": "nok"}
-
-        with self.assertRaises(GraphWalkerException) as error:
-            self.client._get_body(body)
-
-        self.assertEqual(str(error.exception), "GraphWalker responded with an nok status.")
-
-        # Should raise exception if no error key and the result is neither ok nor nok
-        body.json.return_value = {"result": ""}
-
-        with self.assertRaises(GraphWalkerException) as error:
-            self.client._get_body(body)
-
-        self.assertEqual(str(error.exception), "GraphWalker did not respond with an ok status.")
-
-    def test_set_data(self):
-        self.client._put = mock.MagicMock()
-
-        self.client.set_data("key", 1)
-        self.client._put.assert_called_once_with("/setData/key=1")
-
-    def test_set_data_true(self):
-        self.client._put = mock.MagicMock()
-
-        self.client.set_data("key", True)
-        self.client._put.assert_called_once_with("/setData/key=true")
-
-    def test_set_data_false(self):
-        self.client._put = mock.MagicMock()
-
-        self.client.set_data("key", False)
-        self.client._put.assert_called_once_with("/setData/key=false")
-
-    def test_set_data_str(self):
-        self.client._put = mock.MagicMock()
-
-        self.client.set_data("key", "str")
-        self.client._put.assert_called_once_with("/setData/key=%22str%22")
+    )
+    def test_for_erros(self, error_message):
+        base = "An error occurred when running command:\n{}\n"
+        assert _get_error_message(base.format(error_message)) == error_message
 
 
 @mock.patch("altwalker._utils.get_command", side_effect=lambda command: [command])
-class TestCreateCommand(unittest.TestCase):
+class TestCreateCommand:
 
-    @mock.patch("platform.system", return_value="Linux")
-    def test_method(self, get_gw, system):
-        command = _create_command("online")
-        self.assertEqual(command[3], "online")
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "check",
+            "methods",
+            "online",
+            "offline"
+        ]
+    )
+    def test_command(self, get_gw, command):
+        result = _create_command(command)
+        assert ["gw", command] == result
 
-    @mock.patch("platform.system", return_value="Linux")
-    def test_model_path(self, get_gw, system):
-        command = _create_command("online", model_path="model_path")
-        self.assertListEqual(["--model", "model_path"], command[4:])
+    def test_debug(self, get_gw):
+        result = _create_command("offline", debug="OFF")
+        assert ["gw", "--debug", "OFF", "offline"] == result
 
-    @mock.patch("platform.system", return_value="Linux")
-    def test_models(self, get_gw, system):
-        command = _create_command("online")
-        self.assertNotIn("--model", command)
+    def test_model_path(self, get_gw):
+        result = _create_command("online", model_path="model.json")
+        assert ["gw", "online", "--model", "model.json"] == result
 
-        models = [("model_path", "stop_condition")]
-        command = _create_command("online", models=models)
-        self.assertListEqual(["--model", "model_path", "stop_condition"], command[4:])
+    def test_models(self, get_gw):
+        models = [("model.json", "random(never)")]
+        result = _create_command("online", models=models)
+        assert ["gw", "online", "--model", "model.json", "random(never)"] == result
 
-        models = [("model_path_1", "stop_condition_1"), ("model_path_2", "stop_condition_2")]
-        command = _create_command("online", models=models)
+        models = [("model_1", "stop_condition_1"), ("model_2", "stop_condition_2")]
+        result = _create_command("online", models=models)
+        assert [
+            "gw", "online", "--model", "model_1", "stop_condition_1", "--model", "model_2", "stop_condition_2"
+        ] == result
 
-        self.assertListEqual(
-            ["--model", "model_path_1", "stop_condition_1", "--model", "model_path_2", "stop_condition_2"],
-            command[4:])
-
-    @mock.patch("platform.system", return_value="Linux")
-    def test_port(self, get_gw, system):
-        command = _create_command("online")
-        self.assertNotIn("--port", command)
-
+    def test_port(self, get_gw):
         port = 9999
-        command = _create_command("online", port=port)
-        self.assertListEqual(["--port", str(port)], command[4:])
+        result = _create_command("online", port=port)
+        assert ["gw", "online", "--port", str(port)] == result
 
-    @mock.patch("platform.system", return_value="Linux")
-    def test_service(self, get_gw, system):
-        command = _create_command("online")
-        self.assertNotIn("--service", command)
-
+    def test_service(self, get_gw):
         service = "RESTFUL"
-        command = _create_command("online", service=service)
-        self.assertListEqual(["--service", service], command[4:])
+        result = _create_command("online", service=service)
+        assert ["gw", "online", "--service", service] == result
 
-    @mock.patch("platform.system", return_value="Linux")
-    def test_start_element(self, get_gw, system):
-        command = _create_command("online")
-        self.assertNotIn("--start-element", command)
-
+    def test_start_element(self, get_gw):
         start_element = "start_vertex"
-        command = _create_command("online", start_element=start_element)
-        self.assertListEqual(["--start-element", start_element], command[4:])
+        result = _create_command("online", start_element=start_element)
+
+        assert ["gw", "online", "--start-element", start_element] == result
 
     def test_verbose(self, get_gw):
-        command = _create_command("online")
-        self.assertNotIn("--verbose", command)
-
-        command = _create_command("online", verbose=True)
-        self.assertIn("--verbose", command)
+        result = _create_command("online", verbose=True)
+        assert "--verbose" in result
 
     def test_unvisited(self, get_gw):
-        command = _create_command("online")
-        self.assertNotIn("--unvisited", command)
+        result = _create_command("online", unvisited=True)
+        assert "--unvisited" in result
 
-        command = _create_command("online", unvisited=True)
-        self.assertIn("--unvisited", command)
-
-    def test_blocked(self, get_gw):
-        command = _create_command("online")
-        self.assertNotIn("--blocked", command)
-
-        command = _create_command("online", blocked=False)
-        self.assertIn("--blocked", command)
-        self.assertIn("False", command)
-
-        command = _create_command("online", blocked=True)
-        self.assertIn("--blocked", command)
-        self.assertIn("True", command)
+    @pytest.mark.parametrize(
+        "blocked",
+        [
+            True,
+            False,
+        ]
+    )
+    def test_blocked(self, get_gw, blocked):
+        result = _create_command("online", blocked=blocked)
+        assert ["gw", "online", "--blocked", str(blocked)] == result
 
 
 @mock.patch("subprocess.Popen")
-class TestExecuteCommand(unittest.TestCase):
+class TestExecuteCommand:
 
     def test_popen(self, popen_mock):
         popen_mock.return_value.communicate.return_value = (b"output", None)
@@ -198,13 +115,13 @@ class TestExecuteCommand(unittest.TestCase):
 
         if platform.system() == "Windows":
             popen_mock.assert_called_once_with(
-                ["cmd.exe", "/C", "gw", "--debug", "OFF", "offline"],
+                ["cmd.exe", "/C", "gw", "offline"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         else:
             popen_mock.assert_called_once_with(
-                ["gw", "--debug", "OFF", "offline"],
+                ["gw", "offline"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
@@ -212,18 +129,20 @@ class TestExecuteCommand(unittest.TestCase):
     def test_error(self, popen_mock):
         popen_mock.return_value.communicate.return_value = (None, b"error message")
 
-        with self.assertRaisesRegex(GraphWalkerException, "error message"):
+        with pytest.raises(GraphWalkerException) as excinfo:
             _execute_command("offline")
+
+        assert "error message" in str(excinfo.value)
 
     def test_output(self, popen_mock):
         popen_mock.return_value.communicate.return_value = (b"output", None)
 
         output = _execute_command("offline")
-        self.assertEqual(output, "output")
+        assert output == "output"
 
 
 @mock.patch("altwalker.graphwalker._execute_command")
-class TestOffline(unittest.TestCase):
+class TestOffline:
 
     def test_execute_command(self, command_mock):
         models = [("model_path", "stop_condition")]
@@ -235,59 +154,74 @@ class TestOffline(unittest.TestCase):
             start_element="start_element",
             verbose=True,
             unvisited=True,
-            blocked=True)
+            blocked=True
+        )
 
     def test_step(self, command_mock):
-        output = "{" \
-            '"modelName": "Example",' \
-            '"data": [],' \
-            '"currentElementID": "v0",' \
-            '"currentElementName": "start_vertex",' \
-            '"properties": []' \
-            "}"
+        output = json.dumps({
+            "currentElementID": "v0",
+            "currentElementName": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        })
 
         command_mock.return_value = output
 
-        step = {"name": "start_vertex", "modelName": "Example", "id": "v0"}
+        step = {
+            "id": "v0",
+            "name": "start_vertex",
+            "modelName": "Example"
+        }
 
-        steps = offline([])
-        self.assertListEqual(steps, [step])
+        steps = offline(mock.sentinel.models)
+        assert steps == [step]
 
     def test_steps(self, command_mock):
-        output = "{" \
-            '"modelName": "Example",' \
-            '"data": [],' \
-            '"currentElementID": "v0",' \
-            '"currentElementName": "start_vertex",' \
-            '"properties": []' \
-            "}"
+        output = json.dumps({
+            "currentElementID": "v0",
+            "currentElementName": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        })
 
-        command_mock.return_value = output + "\n" + output + "\n"
+        command_mock.return_value = "{0}\n{0}\n".format(output)
 
-        step = {"name": "start_vertex", "modelName": "Example", "id": "v0"}
+        step = {
+            "id": "v0",
+            "name": "start_vertex",
+            "modelName": "Example"
+        }
 
-        steps = offline([])
-        self.assertListEqual(steps, [step, step])
+        steps = offline(mock.sentinel.models)
+        assert steps == [step, step]
 
     def test_verbose(self, command_mock):
-        output = "{" \
-            '"modelName": "Example",' \
-            '"data": [],' \
-            '"currentElementID": "v0",' \
-            '"currentElementName": "start_vertex",' \
-            '"properties": []' \
-            "}"
+        output = json.dumps({
+            "currentElementID": "v0",
+            "currentElementName": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        })
 
         command_mock.return_value = output
 
-        step = {"name": "start_vertex", "modelName": "Example", "id": "v0", "data": {}, "properties": []}
+        step = {
+            "id": "v0",
+            "name": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        }
 
-        steps = offline([], verbose=True)
-        self.assertListEqual(steps, [step])
+        steps = offline(mock.sentinel.models, verbose=True)
+        assert steps == [step]
 
 
 @mock.patch("altwalker.graphwalker._execute_command")
-class TestCheck(unittest.TestCase):
+class TestCheck:
 
     def test_execute_command(self, command_mock):
         models = [("model_path", "stop_condition")]
@@ -297,7 +231,7 @@ class TestCheck(unittest.TestCase):
 
 
 @mock.patch("altwalker.graphwalker._execute_command")
-class TestMethods(unittest.TestCase):
+class TestMethods:
 
     def test_execute_command(self, command_mock):
         model_path = "model_path"
@@ -305,10 +239,148 @@ class TestMethods(unittest.TestCase):
 
         command_mock.assert_called_once_with("methods", model_path=model_path, blocked=True)
 
-    def test_methods(self, command_mock):
-        model_path = "model_path"
-        command_mock.return_value = """step_A\nstep_B\nstep_C\n"""
+    @pytest.mark.parametrize(
+        "output, expected",
+        [
+            ("", []),
+            ("step_A\n", ["step_A"]),
+            ("step_A\nstep_B\n", ["step_A", "step_B"]),
+            ("step_A\nstep_B\nstep_C\n", ["step_A", "step_B", "step_C"]),
+        ]
+    )
+    def test_methods(self, command_mock, output, expected):
+        command_mock.return_value = output
+        result = methods(mock.sentinel.model_path, blocked=True)
 
-        output = methods(model_path, blocked=True)
+        assert result == expected
 
-        self.assertListEqual(output, ["step_A", "step_B", "step_C"])
+
+class TestGraphWalkerClient:
+
+    @pytest.fixture(autouse=True)
+    def graphwalker_client(self):
+        self.client = GraphWalkerClient(host="1.2.3.4", port="9999")
+
+    def test_init(self):
+        assert self.client.base == "http://1.2.3.4:9999/graphwalker"
+
+    @pytest.mark.parametrize(
+        "message, expected",
+        [
+            (
+                "",
+                "Unknown%20error."
+            ),
+            (
+                "Error message.",
+                "Error%20message."
+            ),
+            (
+                "Error message with URL: http://example.com/of/url",
+                "Error%20message%20with%20URL%3A%20http%3A%2F%2Fexample.com%2Fof%2Furl"
+            ),
+            (
+                "Special charaters that should be encoded: $&+,/:;=?@<>#%",
+                "Special%20charaters%20that%20should%20be%20encoded%3A%20%24%26%2B%2C%2F%3A%3B%3D%3F%40%3C%3E%23%25"
+            )
+        ]
+    )
+    def test_normalize_fail_message(self, message, expected):
+        assert self.client._normalize_fail_message(message) == expected
+
+    def test_validate_response(self):
+        response = mock.Mock()
+
+        # Should not raise exception for status code 200
+        response.status_code = 200
+        self.client._validate_response(response)
+
+        # Should raise exception for any other status exept 200
+        response.status_code = 404
+
+        with pytest.raises(GraphWalkerException) as excinfo:
+            self.client._validate_response(response)
+
+        assert "GraphWalker responded with status code: 404." == str(excinfo.value)
+
+    def test_get_body(self):
+        body = mock.Mock()
+        body.json.return_value = {"result": "ok", "data": "data"}
+
+        assert self.client._get_body(body) == {"data": "data"}
+
+    @pytest.mark.parametrize(
+        "response, error",
+        [
+            ({"result": ""}, "GraphWalker did not respond with an ok status."),
+            ({"result": "nok"}, "GraphWalker responded with an nok status."),
+            ({"result": "nok", "error": "error message"}, "GraphWalker responded with the error: error message.")
+        ]
+    )
+    def test_get_body_error(self, response, error):
+        body = mock.Mock()
+        body.json.return_value = response
+
+        with pytest.raises(GraphWalkerException) as excinfo:
+            self.client._get_body(body)
+
+        assert error == str(excinfo.value)
+
+    def test_get_next(self):
+        self.client._get = mock.Mock(return_value={
+            "currentElementID": "v0",
+            "currentElementName": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        })
+
+        expected = {
+            "id": "v0",
+            "name": "start_vertex",
+            "modelName": "Example"
+        }
+        step = self.client.get_next()
+
+        assert step == expected
+
+    def test_get_next_verbose(self):
+        self.client.verbose = True
+        self.client._get = mock.Mock(return_value={
+            "currentElementID": "v0",
+            "currentElementName": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        })
+
+        expected = {
+            "id": "v0",
+            "name": "start_vertex",
+            "modelName": "Example",
+            "data": {},
+            "properties": []
+        }
+        step = self.client.get_next()
+
+        assert step == expected
+
+    @pytest.mark.parametrize(
+        "key, value, url",
+        [
+            ("isUserLoggedIn", True, "/setData/isUserLoggedIn=true"),
+            ("isUserLoggedIn", False, "/setData/isUserLoggedIn=false"),
+            ("count", 0, "/setData/count=0"),
+            ("count", 1, "/setData/count=1"),
+            ("count", -1, "/setData/count=-1"),
+            ("count", 1.33, "/setData/count=1.33"),
+            ("string", "abc", "/setData/string=%22abc%22"),
+            ("message", "Test mesasge.", "/setData/message=%22Test%20mesasge.%22"),
+            ("url", "url/example/", "/setData/url=%22url%2Fexample%2F%22"),
+        ]
+    )
+    def test_set_data(self, key, value, url):
+        self.client._put = mock.Mock()
+
+        self.client.set_data(key, value)
+        self.client._put.assert_called_once_with(url)
