@@ -1,34 +1,17 @@
 import json
 import datetime
+from enum import Enum
 
 import click
 
 
-def _add_timestamp(string):
-    return "[{}] {}".format(datetime.datetime.now(), string)
+class Status(Enum):
+    RUNNING = "RUNNING..."
+    PASSED = "PASSED"
+    FAILED = "FAILED"
 
-
-def _format_step(step):
-    if step.get("modelName"):
-        string = "{}.{}".format(step["modelName"], step["name"])
-    else:
-        string = "{}".format(step["name"])
-
-    return string
-
-
-def _format_step_info(step):
-    string = ""
-
-    if step.get("data"):
-        data = json.dumps(step["data"], sort_keys=True, indent=4)
-        string += "\nData:\n{}\n".format(data)
-
-    if step.get("unvisitedElements"):
-        unvisited_elements = json.dumps(step["unvisitedElements"], sort_keys=True, indent=4)
-        string += "\nUnvisited Elements:\n{}\n".format(unvisited_elements)
-
-    return string
+    def __str__(self):
+        return self.value
 
 
 class Reporter:
@@ -196,6 +179,62 @@ class Reporting:
 class _Formater(Reporter):
     """Format the message for reporting."""
 
+    def _timestamp(self):
+        return datetime.datetime.now()
+
+    def _add_timestamp(self, message):
+        return "[{timestamp}] {message}".format(timestamp=self._timestamp(), message=message)
+
+    def _format_step_name(self, step):
+        if step.get("modelName"):
+            string = "{}.{}".format(step["modelName"], step["name"])
+        else:
+            string = "{}".format(step["name"])
+
+        return string
+
+    def _format_status(self, status):
+        return str(status)
+
+    def _format_data(self, data):
+        if data:
+            content = "\n".join(["  {}: {}".format(key, value) for key, value in data.items()])
+
+            return "\nData:\n\n{}\n".format(content)
+
+        return ""
+
+    def _format_unvisited(self, unvisited):
+        if unvisited:
+            content = "\n".join(["  * {elementId} - {elementName}".format(**element) for element in unvisited])
+
+            return "\nUnvisited Elements:\n\n{}\n".format(content)
+
+        return ""
+
+    def _format_output(self, output):
+        if output:
+            return "\nOutput:\n\n{}\n".format(output.strip(" \n"))
+
+        return ""
+
+    def _format_result(self, result):
+        if result:
+            content = json.dumps(result, sort_keys=True, indent=4)
+
+            return "\nResult:\n\n{}\n".format(content)
+
+        return ""
+
+    def _format_error(self, error):
+        if error:
+            message = "\nError: {}\n".format(error["message"])
+
+            if error.get("trace"):
+                message += "\n{}\n".format(error["trace"])
+
+            return message
+
     def step_start(self, step):
         """Report the starting execution of a step.
 
@@ -203,10 +242,14 @@ class _Formater(Reporter):
             step (:obj:`dict`): The step that will be executed next.
         """
 
-        message = "{} Running".format(_format_step(step))
-        message += _format_step_info(step)
+        message = "{step_name} - {status}{data}{unvisited}".format(
+            status=self._format_status(Status.RUNNING),
+            step_name=self._format_step_name(step),
+            data=self._format_data(step.get("data")),
+            unvisited=self._format_unvisited(step.get("unvisitedElements"))
+        )
 
-        self._log(_add_timestamp(message))
+        self._log(self._add_timestamp(message))
 
     def step_end(self, step, step_result):
         """Report the result of the step execution.
@@ -216,26 +259,21 @@ class _Formater(Reporter):
             step_result (:obj:`dict`): The result of the step.
         """
 
-        error = step_result.get("error")
-        status = "FAIL" if error else "PASSED"
-        message = "{} Status: {}\n".format(_format_step(step), status)
-
         output = step_result.get("output")
         result = step_result.get("result")
+        error = step_result.get("error")
 
-        if output:
-            message += "Output:\n{}".format(output)
+        status = Status.FAILED if error else Status.PASSED
 
-        if result:
-            message += "\nResult: {}\n".format(json.dumps(result, sort_keys=True, indent=4))
+        message = "{step_name} - {status}{output}{result}{error}".format(
+            status=self._format_status(status),
+            step_name=self._format_step_name(step),
+            output=self._format_output(output),
+            result=self._format_result(result),
+            error=self._format_error(error)
+        )
 
-        if error:
-            message += "\nError: {}\n".format(error["message"])
-
-            if error.get("trace"):
-                message += "\n{}\n".format(error["trace"])
-
-        self._log(_add_timestamp(message))
+        self._log(self._add_timestamp(message))
 
     def error(self, step, message, trace=None):
         """Report an unexpected error.
@@ -245,16 +283,18 @@ class _Formater(Reporter):
             message (:obj:`str`): The message of the error.
             trace (:obj:`str`): The traceback.
         """
+
         if step:
-            string = "Unexpected error occurred while running {}.\n".format(_format_step(step))
+            error_message = "Unexpected error occurred while running {}.".format(self._format_step_name(step))
         else:
-            string = "Unexpected error occurred.\n"
-        string += "{}\n".format(message)
+            error_message = "Unexpected error occurred."
 
-        if trace:
-            string += "\n{}\n".format(trace)
+        message = "{message}{error}".format(
+            message=error_message,
+            error=self._format_error({"message": message, "trace": trace})
+        )
 
-        self._log(_add_timestamp(string))
+        self._log(self._add_timestamp(message))
 
 
 class PrintReporter(_Formater):
@@ -290,57 +330,67 @@ class FileReporter(_Formater):
 class ClickReporter(_Formater):
     """This reporter outputs using the :func:`click.echo` function."""
 
-    def step_end(self, step, step_result):
-        """Outputs a colored output for the result of the step execution.
+    def _timestamp(self):
+        return click.style(str(datetime.datetime.now()), fg="bright_black", bold=True)
 
-        Args:
-            step (:obj:`dict`): The step just executed.
-            step_result (:obj:`dict`): The result of the step.
-        """
+    def _format_status(self, status):
+        colors = {
+            Status.RUNNING: "yellow",
+            Status.PASSED: "green",
+            Status.FAILED: "red"
+        }
 
-        error = step_result.get("error")
+        return click.style(str(status), fg=colors.get(status, "white"), bold=True)
 
-        status = "FAIL" if error else "PASSED"
-        status = click.style(status, fg="red" if error else "green")
+    def _format_data(self, data):
+        if data:
+            title = click.style("Data:",  fg="bright_black", underline=True)
+            content = "\n".join([
+                "  {}: {}".format(click.style(key, fg="yellow", bold=True), value) for key, value in data.items()
+            ])
 
-        message = "{} Status: {}\n".format(_format_step(step), status)
+            return "\n{}\n\n{}\n".format(title, content)
 
-        output = step_result.get("output")
-        result = step_result.get("result")
+        return ""
 
+    def _format_unvisited(self, unvisited):
+        if unvisited:
+            title = click.style("Unvisited Elements:",  fg="bright_black", underline=True)
+            content = "\n".join(["  * {elementId} - {elementName}".format(**element) for element in unvisited])
+
+            return "\n{}\n\n{}\n".format(title, content)
+
+        return ""
+
+    def _format_output(self, output):
         if output:
-            message += "Output:\n{}".format(click.style(output, fg="cyan"))
+            title = click.style("Output:",  fg="bright_black", underline=True)
+            content = click.style(output.strip(" \n"), fg="cyan")
 
+            return "\n{}\n\n{}\n".format(title, content)
+
+        return ""
+
+    def _format_result(self, result):
         if result:
-            message += "\nResult:\n{}".format(click.style(json.dumps(result,
-                                                                     sort_keys=True, indent=4), fg="magenta"))
+            title = click.style("Result:",  fg="bright_black", underline=True)
+            content = click.style(json.dumps(result, sort_keys=True, indent=4), fg="bright_magenta")
 
+            return "\n{}\n\n{}\n".format(title, content)
+
+        return ""
+
+    def _format_error(self, error):
         if error:
-            message += "\nError: {}\n".format(click.style(error["message"], fg="red"))
+            title = click.style("Error:", fg="bright_black", underline=True)
+            content = click.style(error["message"], fg="red", bold=True)
 
             if error.get("trace"):
-                message += "\n{}\n".format(click.style(error["trace"], fg="red"))
+                content += "\n\n{}".format(click.style(error["trace"], fg="red"))
 
-        self._log(_add_timestamp(message))
+            return "\n{} {}\n".format(title, content)
 
-    def error(self, step, message, trace=None):
-        """Outputs a colored output for an unexpected error.
-
-        Args:
-            step (:obj:`dict`): The step executed when the error occurred.
-            message (:obj:`str`): The message of the error.
-            trace (:obj:`str`): The traceback.
-        """
-        if step:
-            string = "Unexpected error occurred while running {}.\n".format(_format_step(step))
-        else:
-            string = "Unexpected error occurred.\n"
-        string += "Error: {}\n".format(click.style(message, fg="red"))
-
-        if trace:
-            string += "\n{}\n".format(click.style(trace, fg="red"))
-
-        self._log(_add_timestamp(string))
+        return ""
 
     def _log(self, string):
         """Prints the string using the :func:`click.echo` function."""

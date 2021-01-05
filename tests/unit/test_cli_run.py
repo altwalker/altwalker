@@ -102,7 +102,7 @@ class _TestEchoStatus(unittest.TestCase):
         self.assertGreater(echo.call_count, 0)
         self.assertGreater(secho.call_count, 0)
 
-        self.assertEqual([mock.call(" PASS ", bg="green")], secho.mock_calls)
+        self.assertEqual([mock.call(" PASSED ", bg="green")], secho.mock_calls)
 
     def test_fail(self, echo, secho):
         _echo_status(False)
@@ -110,7 +110,7 @@ class _TestEchoStatus(unittest.TestCase):
         self.assertGreater(echo.call_count, 0)
         self.assertGreater(secho.call_count, 0)
 
-        self.assertEqual([mock.call(" FAIL ", bg="red")], secho.mock_calls)
+        self.assertEqual([mock.call(" FAILED ", bg="red")], secho.mock_calls)
 
 
 @mock.patch("altwalker._cli_run.create_walker")

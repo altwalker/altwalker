@@ -80,7 +80,7 @@ def _echo_statistics(statistics):
 def _echo_status(status):
     """Pretty-print status."""
 
-    status_message = "PASS" if status else "FAIL"
+    status_message = "PASSED" if status else "FAILED"
 
     click.echo("Status: ", nl=False)
     click.secho(" {} ".format(status_message), bg="green" if status else "red")
