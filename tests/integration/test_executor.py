@@ -10,7 +10,6 @@ def test_dotnet_executor_service():
     assert service._process.poll() is None
 
     service.kill()
-    service._process.wait()
 
     assert service._process.poll() is not None
 

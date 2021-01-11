@@ -1,7 +1,6 @@
 """A collection of function and class that interact with the Graphwalker command and REST service."""
 
 import urllib.parse
-import subprocess
 import logging
 import time
 import json
@@ -10,7 +9,7 @@ import os
 
 import requests
 
-from altwalker._utils import kill, get_command, url_join
+from altwalker._utils import url_join, execute_command, Command
 from altwalker.exceptions import GraphWalkerException
 
 
@@ -78,7 +77,7 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
         list: A list containing the executable followed command and options.
     """
 
-    command = get_command("gw")
+    command = ["gw"]
 
     if debug:
         command.extend(("--debug", _get_log_level(debug)))
@@ -126,7 +125,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
         blocked (:obj:`bool`): Run the command with the blcoked flag.
 
     Returns:
-        :string: The output of the command.
+        string: The output of the command.
 
     Raises:
         GraphWalkerException: If GraphWalker return an error.
@@ -136,9 +135,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
                               verbose=verbose, unvisited=unvisited, blocked=blocked)
 
     logger.debug("Executed command {}".format(" ".join(command)))
-
-    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
+    output, error = execute_command(command)
 
     if error:
         error = error.decode("utf-8").strip()
@@ -249,15 +246,16 @@ class GraphWalkerService:
         self.port = port
         self.output_file = output_file
 
+        self.debug = os.environ.get("GRAPHWALKER_LOG_LEVEL")
+
         command = _create_command("online", models=models, port=port, service="RESTFUL", start_element=start_element,
-                                  verbose=True, unvisited=unvisited, blocked=blocked,
-                                  debug=os.environ.get("GRAPHWALKER_LOG_LEVEL"))
+                                  verbose=True, unvisited=unvisited, blocked=blocked, debug=self.debug)
 
-        logger.debug("Starting GraphWalker Service on port: {}".format(self.port))
-        logger.debug("Command: {}".format(" ".join(command)))
+        self._process = Command(command, self.output_file)
 
-        self._process = subprocess.Popen(
-            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT, start_new_session=True)
+        logger.debug("GraphWalker Service started with command: {}".format(" ".join(command)))
+        logger.debug("GraphWalker Service running on port: {}".format(self.port))
+        logger.debug("GraphWalker Service running with pid: {}".format(self._process.pid))
 
         # Ignore bare 'except' error because we re-raise the exception.
         try:
@@ -312,8 +310,7 @@ class GraphWalkerService:
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
 
         logger.debug("Kill the GraphWalker Service on port: {}".format(self.port))
-        if self._process and self._process.poll() is None:
-            kill(self._process.pid)
+        self._process.kill()
 
 
 class GraphWalkerClient:

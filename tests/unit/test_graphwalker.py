@@ -1,7 +1,5 @@
 import unittest.mock as mock
 import json
-import platform
-import subprocess
 
 import pytest
 
@@ -34,7 +32,6 @@ class TestGetErrorMessage:
         assert _get_error_message(base.format(error_message)) == error_message
 
 
-@mock.patch("altwalker._utils.get_command", side_effect=lambda command: [command])
 class TestCreateCommand:
 
     @pytest.mark.parametrize(
@@ -46,19 +43,19 @@ class TestCreateCommand:
             "offline"
         ]
     )
-    def test_command(self, get_gw, command):
+    def test_command(self, command):
         result = _create_command(command)
         assert ["gw", command] == result
 
-    def test_debug(self, get_gw):
+    def test_debug(self):
         result = _create_command("offline", debug="OFF")
         assert ["gw", "--debug", "OFF", "offline"] == result
 
-    def test_model_path(self, get_gw):
+    def test_model_path(self):
         result = _create_command("online", model_path="model.json")
         assert ["gw", "online", "--model", "model.json"] == result
 
-    def test_models(self, get_gw):
+    def test_models(self):
         models = [("model.json", "random(never)")]
         result = _create_command("online", models=models)
         assert ["gw", "online", "--model", "model.json", "random(never)"] == result
@@ -69,27 +66,27 @@ class TestCreateCommand:
             "gw", "online", "--model", "model_1", "stop_condition_1", "--model", "model_2", "stop_condition_2"
         ] == result
 
-    def test_port(self, get_gw):
+    def test_port(self):
         port = 9999
         result = _create_command("online", port=port)
         assert ["gw", "online", "--port", str(port)] == result
 
-    def test_service(self, get_gw):
+    def test_service(self):
         service = "RESTFUL"
         result = _create_command("online", service=service)
         assert ["gw", "online", "--service", service] == result
 
-    def test_start_element(self, get_gw):
+    def test_start_element(self):
         start_element = "start_vertex"
         result = _create_command("online", start_element=start_element)
 
         assert ["gw", "online", "--start-element", start_element] == result
 
-    def test_verbose(self, get_gw):
+    def test_verbose(self):
         result = _create_command("online", verbose=True)
         assert "--verbose" in result
 
-    def test_unvisited(self, get_gw):
+    def test_unvisited(self):
         result = _create_command("online", unvisited=True)
         assert "--unvisited" in result
 
@@ -100,42 +97,31 @@ class TestCreateCommand:
             False,
         ]
     )
-    def test_blocked(self, get_gw, blocked):
+    def test_blocked(self, blocked):
         result = _create_command("online", blocked=blocked)
         assert ["gw", "online", "--blocked", str(blocked)] == result
 
 
-@mock.patch("subprocess.Popen")
+@mock.patch("altwalker.graphwalker.execute_command")
 class TestExecuteCommand:
 
-    def test_popen(self, popen_mock):
-        popen_mock.return_value.communicate.return_value = (b"output", None)
+    def test_popen(self, execute_command_mock):
+        execute_command_mock.return_value = (b"output", None)
 
         _execute_command("offline")
 
-        if platform.system() == "Windows":
-            popen_mock.assert_called_once_with(
-                ["cmd.exe", "/C", "gw", "offline"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        else:
-            popen_mock.assert_called_once_with(
-                ["gw", "offline"],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+        execute_command_mock.assert_called_once_with(["gw", "offline"])
 
-    def test_error(self, popen_mock):
-        popen_mock.return_value.communicate.return_value = (None, b"error message")
+    def test_error(self, execute_command_mock):
+        execute_command_mock.return_value = (None, b"error message")
 
         with pytest.raises(GraphWalkerException) as excinfo:
             _execute_command("offline")
 
         assert "error message" in str(excinfo.value)
 
-    def test_output(self, popen_mock):
-        popen_mock.return_value.communicate.return_value = (b"output", None)
+    def test_output(self, execute_command_mock):
+        execute_command_mock.return_value = (b"output", None)
 
         output = _execute_command("offline")
         assert output == "output"

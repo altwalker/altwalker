@@ -1,8 +1,6 @@
 import functools
 import platform
 import subprocess
-import signal
-import os
 
 import psutil
 import click
@@ -12,22 +10,10 @@ def _get_issues(issues):
     return functools.reduce(lambda acc, cur: acc.union(cur), issues.values(), set())
 
 
-def kill(pid):
-    """Send the SIGINT signal to a process and all its children."""
+def click_formatwarning(message, category, filename, lineno, file=None, line=None):
+    """Format a warning on a single line and style the text."""
 
-    process = psutil.Process(pid)
-
-    for child in process.children(recursive=True):
-        os.kill(child.pid, signal.SIGINT)
-
-    os.kill(process.pid, signal.SIGINT)
-
-
-def get_command(command_name):
-    command = ["cmd.exe", "/C"] if platform.system() == "Windows" else []
-    command.append(command_name)
-
-    return command
+    return click.style("{}: {}\n".format(category.__name__, message), fg="yellow")
 
 
 def url_join(base, url):
@@ -36,19 +22,81 @@ def url_join(base, url):
     return "{}/{}".format(base.strip("/"), url.strip("/"))
 
 
-def has_git():
-    """Returns True if it can run ``git --version``, otherwise returns False."""
+def prefix_command(command):
+    """Prefix a command list with ``["cmd.exe", "/C"]`` on Windows, on Linux and POSIX return the command."""
+
+    prefix = ["cmd.exe", "/C"] if platform.system() == "Windows" else []
+    prefix.extend(command)
+
+    return prefix
+
+
+def execute_command(command, timeout=None):
+    """Execute a command using ``subprocess.Popen`` and return the output.
+
+    Returns:
+        tuple: Returns a tuple ``(stdout_data, stderr_data)``.
+    """
+
+    command = prefix_command(command)
+
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = process.communicate(timeout=None)
+
+    process.terminate()
+    process.wait()
+
+    return output, error
+
+
+def has_command(command, timeout=None):
+    """Returns True if it can run the command, otherwise returns False."""
 
     try:
-        process = subprocess.Popen(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        response = process.communicate()
-
+        response = execute_command(command, timeout=None)
         return response[1] == b""
-    except FileNotFoundError:
+    except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
 
 
-def click_formatwarning(message, category, filename, lineno, file=None, line=None):
-    """Format a warning on a single line and style the text."""
+def has_git(timeout=None):
+    """Returns True if it can run ``git --version``, otherwise returns False."""
 
-    return click.style("{}: {}\n".format(category.__name__, message), fg="yellow")
+    return has_command(["git", "--version"], timeout=None)
+
+
+class Command:
+    """Run a command in a new process using ``psutil.Popen``."""
+
+    def __init__(self, command, output_file):
+        self.command = prefix_command(command)
+        self.output_file = output_file
+        self.file_handler = open(self.output_file, "w")
+
+        self.process = psutil.Popen(command, stdout=self.file_handler, stderr=self.file_handler,
+                                    start_new_session=True)
+
+    @property
+    def pid(self):
+        return self.process.pid
+
+    def poll(self):
+        return self.process.poll()
+
+    def wait(self, timeout=None):
+        self.process.wait(timeout=timeout)
+
+    def kill(self):
+        """Kill the process and all its children."""
+
+        if self.process and self.process.poll() is None:
+            for child in self.process.children(recursive=True):
+                child.kill()
+                child.wait(1)
+
+            self.process.kill()
+            self.process.wait(1)
+
+        if self.file_handler:
+            self.file_handler.close()
+            self.file_handler = None

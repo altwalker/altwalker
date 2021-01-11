@@ -81,10 +81,10 @@ dotnet functional tests:
     - dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
     - cd dotnet-example
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
-    - altwalker verify tests/ -m models/default.json -x c# --url http://localhost:4200/
-    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --url http://localhost:4200/
+    - altwalker verify tests/ -m models/default.json -x c# --executor-url http://localhost:4200/
+    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --executor-url http://localhost:4200/
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
-    - altwalker walk tests/ steps.json -x c# --url http://localhost:4200/
+    - altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
 python functional tests:
   stage: test
@@ -128,10 +128,10 @@ http functional tests:
     - dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
     - sleep 10
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
-    - altwalker verify tests/ -m models/default.json -x http --url http://localhost:4200/
-    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --url http://localhost:4200/
+    - altwalker verify tests/ -m models/default.json -x http --executor-url http://localhost:4200/
+    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
-    - altwalker walk tests/ steps.json -x http --url http://localhost:4200/
+    - altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
 
 lint:
   stage: lint

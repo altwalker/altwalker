@@ -6,7 +6,6 @@ import time
 import copy
 import traceback
 import logging
-import subprocess
 import importlib
 import importlib.util
 from contextlib import redirect_stdout
@@ -14,7 +13,7 @@ from inspect import signature
 
 import requests
 
-from altwalker._utils import kill, get_command, url_join
+from altwalker._utils import url_join, Command
 from altwalker.exceptions import AltWalkerException, ExecutorException
 
 
@@ -500,44 +499,47 @@ class DotnetExecutorService:
 
         command = self._create_command(path, url=server_url)
 
-        logger.debug("Starting .NET Executor Service from {} on {}".format(path,  server_url))
-        logger.debug("Command: {}".format(" ".join(command)))
+        self._process = Command(command, self.output_file)
 
-        self._process = subprocess.Popen(
-            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
+        logger.debug("Dotnet Executor Service started from {} on {}".format(path, server_url))
+        logger.debug("Dotnet Executor Service started with command: {}".format(" ".join(command)))
+        logger.debug("Dotnet Executor Service running with pid: {}".format(self._process.pid))
 
-        self._read_logs()
+        # Ignore bare 'except' error because we re-raise the exception.
+        try:
+            self._read_logs()
+        except:  # noqa: E722
+            self.kill()
+            raise
 
     def _read_logs(self):
         """Read logs to check if the service started correctly."""
 
-        fp = open(self.output_file)
+        with open(self.output_file) as fp:
+            while 1:
+                where = fp.tell()
+                line = fp.readline()
+                if not line:
+                    time.sleep(0.1)
+                    fp.seek(where)
+                else:
+                    if "Now listening on:" in line:
+                        break
 
-        while 1:
-            where = fp.tell()
-            line = fp.readline()
-            if not line:
-                time.sleep(0.1)
-                fp.seek(where)
-            else:
-                if "Now listening on:" in line:
-                    break
+                if self._process.poll() is not None:
+                    self._raise_error()
 
-            if self._process.poll() is not None:
-                logger.debug(
-                    "Could not start .NET Executor service from {} on {}"
-                    .format(self.path, self.server_url))
-                logger.debug("Process exit code: {}".format(self._process.poll()))
+    def _raise_error(self):
+        logger.error("Could not start Dotnet Executor service from {} on {}".format(self.path, self.server_url))
+        logger.error("Process exit code: {}".format(self._process.poll()))
 
-                raise ExecutorException(
-                    "Could not start .NET Executor service from {} on {}\nCheck the log file at: {}"
-                    .format(self.path, self.server_url, self.output_file))
-
-        fp.close()
+        raise ExecutorException(
+            "Could not start .NET Executor service from {} on {}\nCheck the log file at: {}"
+            .format(self.path, self.server_url, self.output_file))
 
     @staticmethod
     def _create_command(path, url="http://localhost:5000/"):
-        command = get_command("dotnet")
+        command = ["dotnet"]
 
         if os.path.isdir(path):
             command.append("run")
@@ -558,7 +560,7 @@ class DotnetExecutorService:
         """
 
         logger.debug("Kill the .NET Executor Service from {} on {}".format(self.path, self.server_url))
-        kill(self._process.pid)
+        self._process.kill()
 
 
 class DotnetExecutor(HttpExecutor):
