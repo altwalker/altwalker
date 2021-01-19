@@ -43,7 +43,7 @@ class TestWalker(WalkerTestCase):
             self.assertTrue(False, "setUpRun should fail")
 
         self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
-        self.reporter.end.assert_called_once_with()
+        self.reporter.end.assert_called_once_with(statistics=mock.ANY, status=False)
 
     def test_tearDownRun(self):
         self.walker._run_step = mock.Mock()
@@ -488,7 +488,7 @@ class TestItter(WalkerTestCase):
             pass
 
         self.reporter.start.assert_called_once_with()
-        self.reporter.end.assert_called_once_with()
+        self.reporter.end.assert_called_once_with(statistics=mock.ANY, status=mock.ANY)
 
     def test_get_next_fail(self):
         self.walker._setUpRun.return_value = True

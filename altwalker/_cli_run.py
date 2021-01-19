@@ -3,88 +3,11 @@
 import os
 import json
 
-import click
-
 from altwalker.exceptions import FailedTestsError
 from altwalker.planner import create_planner
 from altwalker.executor import create_executor
 from altwalker.walker import create_walker
 from altwalker.reporter import create_reporters
-
-
-def _percentege_color(percentage):
-    if percentage < 50:
-        return "red"
-
-    if percentage < 80:
-        return "yellow"
-
-    return "green"
-
-
-def _style_percentage(percentege):
-    return click.style("{}%".format(percentege), fg=_percentege_color(percentege))
-
-
-def _style_fail(number):
-    color = "red" if number > 0 else "green"
-
-    return click.style(str(number), fg=color)
-
-
-def _echo_stat(title, value, indent=2):
-    title = " " * indent + title.ljust(30, ".")
-    value = str(value).rjust(15, ".")
-
-    click.echo(title + value)
-
-
-def _echo_statistics(statistics):
-    """Pretty-print statistics."""
-
-    click.echo("Statistics:")
-    click.echo()
-
-    total_models = statistics["totalNumberOfModels"]
-    completed_models = statistics["totalCompletedNumberOfModels"]
-    model_coverage = _style_percentage(completed_models * 100 // total_models)
-
-    _echo_stat("Model Coverage", model_coverage)
-    _echo_stat("Number of Models", click.style(str(total_models), fg="white"))
-    _echo_stat("Completed Models", click.style(str(completed_models), fg="white"))
-
-    _echo_stat("Failed Models", _style_fail(statistics["totalFailedNumberOfModels"]))
-    _echo_stat("Incomplete Models", _style_fail(statistics["totalIncompleteNumberOfModels"]))
-    _echo_stat("Not Executed Models", _style_fail(statistics["totalNotExecutedNumberOfModels"]))
-    click.echo()
-
-    edge_coverage = _style_percentage(statistics["edgeCoverage"])
-    _echo_stat("Edge Coverage", edge_coverage)
-
-    total_edges = statistics["totalNumberOfEdges"]
-    _echo_stat("Number of Edges", click.style(str(total_edges), fg="white"))
-    _echo_stat("Visited Edges", click.style(str(statistics["totalNumberOfVisitedEdges"]), fg="white"))
-    _echo_stat("Unvisited Edges", click.style(str(statistics["totalNumberOfUnvisitedEdges"]), fg="white"))
-    click.echo()
-
-    vertex_coverage = _style_percentage(statistics["vertexCoverage"])
-    _echo_stat("Vertex Coverage", vertex_coverage)
-
-    total_vertices = statistics["totalNumberOfVertices"]
-    _echo_stat("Number of Vertices", click.style(str(total_vertices), fg="white"))
-    _echo_stat("Visited Vertices", click.style(str(statistics["totalNumberOfVisitedVertices"]), fg="white"))
-    _echo_stat("Unvisited Vertices", click.style(str(statistics["totalNumberOfUnvisitedVertices"]), fg="white"))
-    click.echo()
-
-
-def _echo_status(status):
-    """Pretty-print status."""
-
-    status_message = "PASSED" if status else "FAILED"
-
-    click.echo("Status: ", nl=False)
-    click.secho(" {} ".format(status_message), bg="green" if status else "red")
-    click.echo()
 
 
 def run_tests(path, executor_type, url=None, models=None, steps=None, port=8887, start_element=None,
@@ -132,15 +55,9 @@ def cli_run(path, executor_type, url="http://localhost:5000/", models=None, step
 
     kwargs["report_path"] = kwargs.get("report_path", False) or bool(kwargs.get("report_path_file"))
 
-    click.echo("Running:")
     status, statistics, _ = run_tests(path, executor_type, url=url, models=models, steps=steps,
                                       port=port, start_element=start_element, verbose=verbose,
                                       unvisited=unvisited, blocked=blocked, **kwargs)
-
-    if statistics:
-        _echo_statistics(statistics)
-
-    _echo_status(status)
 
     if not status:
         raise FailedTestsError()

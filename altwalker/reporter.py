@@ -1,17 +1,9 @@
 import json
 import datetime
-from enum import Enum
 
 import click
 
-
-class Status(Enum):
-    RUNNING = "RUNNING..."
-    PASSED = "PASSED"
-    FAILED = "FAILED"
-
-    def __str__(self):
-        return self.value
+import altwalker._prettier as prettier
 
 
 class Reporter:
@@ -27,7 +19,7 @@ class Reporter:
             message (:obj:`str`): A message.
         """
 
-    def end(self, message=None):
+    def end(self, message=None, statistics=None, status=None):
         """Report the end of a run.
 
         Args:
@@ -115,7 +107,7 @@ class Reporting:
         for reporter in self._reporters.values():
             reporter.start(message=message)
 
-    def end(self, message=None):
+    def end(self, message=None, statistics=None, status=None):
         """Report the end of a run on all reporters.
 
         Args:
@@ -123,7 +115,7 @@ class Reporting:
         """
 
         for reporter in self._reporters.values():
-            reporter.end(message=message)
+            reporter.end(message=message, statistics=statistics, status=status)
 
     def step_start(self, step):
         """Report the starting execution of a step on all reporters.
@@ -176,64 +168,29 @@ class Reporting:
         return result
 
 
-class _Formater(Reporter):
-    """Format the message for reporting."""
+class ClickReporter(Reporter):
+    """This reporter outputs using the :func:`click.echo` function."""
 
     def _timestamp(self):
-        return datetime.datetime.now()
+        return click.style(str(datetime.datetime.now()), fg="bright_black", bold=True)
 
     def _add_timestamp(self, message):
         return "[{timestamp}] {message}".format(timestamp=self._timestamp(), message=message)
 
-    def _format_step_name(self, step):
-        if step.get("modelName"):
-            string = "{}.{}".format(step["modelName"], step["name"])
-        else:
-            string = "{}".format(step["name"])
+    def _log(self, string):
+        """Prints the string using the :func:`click.echo` function."""
 
-        return string
+        click.echo(string)
 
-    def _format_status(self, status):
-        return str(status)
+    def start(self, message=None):
+        self._log("Running:\n")
 
-    def _format_data(self, data):
-        if data:
-            content = "\n".join(["  {}: {}".format(key, value) for key, value in data.items()])
+    def end(self, message=None, statistics=None, status=None):
+        if statistics:
+            self._log(prettier.format_statistics(statistics))
 
-            return "\nData:\n\n{}\n".format(content)
-
-        return ""
-
-    def _format_unvisited(self, unvisited):
-        if unvisited:
-            content = "\n".join(["  * {elementId} - {elementName}".format(**element) for element in unvisited])
-
-            return "\nUnvisited Elements:\n\n{}\n".format(content)
-
-        return ""
-
-    def _format_output(self, output):
-        if output:
-            return "\nOutput:\n\n{}\n".format(output.strip(" \n"))
-
-        return ""
-
-    def _format_result(self, result):
-        if result:
-            content = json.dumps(result, sort_keys=True, indent=4)
-
-            return "\nResult:\n\n{}\n".format(content)
-
-        return ""
-
-    def _format_error(self, error):
-        if error:
-            message = "\nError: {}\n".format(error["message"])
-
-            if error.get("trace"):
-                message += "\n{}\n".format(error["trace"])
-
-            return message
+        if status is not None:
+            self._log(prettier.format_run_status(status))
 
     def step_start(self, step):
         """Report the starting execution of a step.
@@ -242,14 +199,24 @@ class _Formater(Reporter):
             step (:obj:`dict`): The step that will be executed next.
         """
 
-        message = "{step_name} - {status}{data}{unvisited}".format(
-            status=self._format_status(Status.RUNNING),
-            step_name=self._format_step_name(step),
-            data=self._format_data(step.get("data")),
-            unvisited=self._format_unvisited(step.get("unvisitedElements"))
+        data = step.get("data")
+        unvisited_elements = step.get("unvisitedElements")
+
+        text = "{step_name} - {status}".format(
+            step_name=prettier.format_step_name(step),
+            status=prettier.format_step_status(prettier.Status.RUNNING),
         )
 
-        self._log(self._add_timestamp(message))
+        if data:
+            text += "\n{}".format(prettier.format_data(step.get("data"), prefix="  "))
+
+        if unvisited_elements:
+            title = click.style("Unvisited Elements:", fg="bright_black", underline=True)
+            text += "\n{}".format(
+                prettier.format_unvisited_elements(unvisited_elements, title=title, prefix="  ")
+            )
+
+        self._log(self._add_timestamp(text))
 
     def step_end(self, step, step_result):
         """Report the result of the step execution.
@@ -263,17 +230,23 @@ class _Formater(Reporter):
         result = step_result.get("result")
         error = step_result.get("error")
 
-        status = Status.FAILED if error else Status.PASSED
+        status = prettier.Status.FAILED if error else prettier.Status.PASSED
 
-        message = "{step_name} - {status}{output}{result}{error}".format(
-            status=self._format_status(status),
-            step_name=self._format_step_name(step),
-            output=self._format_output(output),
-            result=self._format_result(result),
-            error=self._format_error(error)
+        text = "{step_name} - {status}".format(
+            step_name=prettier.format_step_name(step),
+            status=prettier.format_step_status(status)
         )
 
-        self._log(self._add_timestamp(message))
+        if output:
+            text += "\n{}\n".format(prettier.format_output(output, prefix="  "))
+
+        if result:
+            text += "\n{}\n".format(prettier.format_result(result, prefix="  "))
+
+        if error:
+            text += "\n{}\n".format(prettier.format_error(error, prefix="  "))
+
+        self._log(self._add_timestamp(text))
 
     def error(self, step, message, trace=None):
         """Report an unexpected error.
@@ -285,28 +258,19 @@ class _Formater(Reporter):
         """
 
         if step:
-            error_message = "Unexpected error occurred while running {}.".format(self._format_step_name(step))
+            error_message = "Unexpected error occurred while running {}.".format(prettier.format_step_name(step))
         else:
             error_message = "Unexpected error occurred."
 
         message = "{message}{error}".format(
             message=error_message,
-            error=self._format_error({"message": message, "trace": trace})
+            error=prettier.format_error({"message": message, "trace": trace})
         )
 
         self._log(self._add_timestamp(message))
 
 
-class PrintReporter(_Formater):
-    """This reporter outputs to stdout using the buildin :func:`print` function."""
-
-    def _log(self, string):
-        """Prints the string using the buildin :func:`print` function."""
-
-        print(string)
-
-
-class FileReporter(_Formater):
+class FileReporter(ClickReporter):
     """This reporter outputs to a file.
 
     Attributes:
@@ -324,78 +288,7 @@ class FileReporter(_Formater):
 
     def _log(self, string):
         with open(self._file, "a") as fp:
-            fp.write(string + "\n")
-
-
-class ClickReporter(_Formater):
-    """This reporter outputs using the :func:`click.echo` function."""
-
-    def _timestamp(self):
-        return click.style(str(datetime.datetime.now()), fg="bright_black", bold=True)
-
-    def _format_status(self, status):
-        colors = {
-            Status.RUNNING: "yellow",
-            Status.PASSED: "green",
-            Status.FAILED: "red"
-        }
-
-        return click.style(str(status), fg=colors.get(status, "white"), bold=True)
-
-    def _format_data(self, data):
-        if data:
-            title = click.style("Data:",  fg="bright_black", underline=True)
-            content = "\n".join([
-                "  {}: {}".format(click.style(key, fg="yellow", bold=True), value) for key, value in data.items()
-            ])
-
-            return "\n{}\n\n{}\n".format(title, content)
-
-        return ""
-
-    def _format_unvisited(self, unvisited):
-        if unvisited:
-            title = click.style("Unvisited Elements:",  fg="bright_black", underline=True)
-            content = "\n".join(["  * {elementId} - {elementName}".format(**element) for element in unvisited])
-
-            return "\n{}\n\n{}\n".format(title, content)
-
-        return ""
-
-    def _format_output(self, output):
-        if output:
-            title = click.style("Output:",  fg="bright_black", underline=True)
-            content = click.style(output.strip(" \n"), fg="cyan")
-
-            return "\n{}\n\n{}\n".format(title, content)
-
-        return ""
-
-    def _format_result(self, result):
-        if result:
-            title = click.style("Result:",  fg="bright_black", underline=True)
-            content = click.style(json.dumps(result, sort_keys=True, indent=4), fg="bright_magenta")
-
-            return "\n{}\n\n{}\n".format(title, content)
-
-        return ""
-
-    def _format_error(self, error):
-        if error:
-            title = click.style("Error:", fg="bright_black", underline=True)
-            content = click.style(error["message"], fg="red", bold=True)
-
-            if error.get("trace"):
-                content += "\n\n{}".format(click.style(error["trace"], fg="red"))
-
-            return "\n{} {}\n".format(title, content)
-
-        return ""
-
-    def _log(self, string):
-        """Prints the string using the :func:`click.echo` function."""
-
-        click.echo(string)
+            click.echo(string, file=fp, color=False)
 
 
 class PathReporter(Reporter):
@@ -413,7 +306,7 @@ class PathReporter(Reporter):
         if step.get("id"):
             self._path.append(step)
 
-    def end(self, message=None):
+    def end(self, message=None, statistics=None, status=None):
         steps = json.dumps(self._path, sort_keys=True, indent=4)
 
         if self._file:

@@ -28,7 +28,7 @@ class Walker:
 
         # if setUpRun failed stop
         if not self._status:
-            self._reporter.end()
+            self._reporter.end(statistics=self._planner.get_statistics(), status=self._status)
             return
 
         while self._status and self._planner.has_next():
@@ -60,7 +60,7 @@ class Walker:
         status = self._tearDownRun()
         self._status = self._status & status
 
-        self._reporter.end()
+        self._reporter.end(statistics=self._planner.get_statistics(), status=self._status)
 
     @property
     def status(self):

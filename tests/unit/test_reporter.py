@@ -3,7 +3,7 @@ import unittest.mock as mock
 
 import pytest
 
-from altwalker.reporter import Reporter, Reporting, _Formater, PrintReporter, FileReporter, ClickReporter, \
+from altwalker.reporter import Reporter, Reporting, ClickReporter, FileReporter, \
     PathReporter
 
 
@@ -62,10 +62,10 @@ class TestReporting:
         self.register_reporter()
 
         message = "Example message"
-        self.reporting.end(message=message)
+        self.reporting.end(message=message, statistics=mock.sentinel.statistics, status=True)
 
-        self.reporter_a.end.assert_called_once_with(message=message)
-        self.reporter_b.end.assert_called_once_with(message=message)
+        self.reporter_a.end.assert_called_once_with(message=message, statistics=mock.sentinel.statistics, status=True)
+        self.reporter_b.end.assert_called_once_with(message=message, statistics=mock.sentinel.statistics, status=True)
 
     def test_step_start(self):
         self.register_reporter()
@@ -120,139 +120,6 @@ class TestReporting:
         assert report["reporter_a"] == mock.sentinel.report_a
 
         assert "report_b" not in report
-
-
-class TestFormater:
-
-    @pytest.fixture(autouse=True)
-    def formater(self):
-        self.formater = _Formater()
-        self.formater._log = mock.Mock(spec=Reporter._log)
-
-        self.step = {
-            "id": "v_0",
-            "name": "step_name",
-            "modelName": "ModelName"
-        }
-
-    @pytest.mark.parametrize(
-        "step, expected", [
-            ({"name": "step_name"}, "step_name"),
-            ({"modelName": "ModelName", "name": "step_name"}, "ModelName.step_name")
-        ]
-    )
-    def test_format_step_name(self, step, expected):
-        assert self.formater._format_step_name(step) == expected
-
-    def test_step_start(self):
-        self.formater.step_start(self.step)
-        assert self.formater._log.called
-
-    def test_step_end(self):
-        step_result = {
-            "output": "",
-        }
-        self.formater.step_end(self.step, step_result)
-
-        assert self.formater._log.called
-
-    def test_step_end_with_output(self):
-        step_result = {
-            "output": "Step output.",
-        }
-        self.formater.step_end(self.step, step_result)
-
-        assert self.formater._log.called
-
-    def test_step_end_with_error(self):
-        step_result = {
-            "output": "",
-            "error": {
-                "message": "Error message"
-            }
-        }
-        self.formater.step_end(self.step, step_result)
-
-        assert self.formater._log.called
-
-    def test_step_end_with_result(self):
-        step_result = {
-            "result": {"prop": "val"},
-        }
-
-        def log(string):
-            assert "Result:" in string
-            assert "\"prop\"" in string
-            assert "\"val\"" in string
-
-        self.formater._log.side_effect = log
-
-        self.formater.step_end(self.step, step_result)
-
-        assert self.formater._log.called
-
-    def test_step_end_with_trace(self):
-        step_result = {
-            "output": "",
-            "error": {
-                "message": "Error message",
-                "trace": "Traceback"
-            }
-        }
-        self.formater.step_end(self.step, step_result)
-
-        assert self.formater._log.called
-
-    def test_error(self):
-        error_message = "Error message."
-        self.formater.error(self.step, error_message)
-
-        assert self.formater._log.called
-
-    def test_error_with_trace(self):
-        error_message = "Error message."
-        trace = "Traceback"
-        self.formater.error(self.step, error_message, trace=trace)
-
-        assert self.formater._log.called
-
-    def test_error_no_step(self):
-        error_message = "Error message."
-        self.formater.error(None, error_message)
-
-        assert self.formater._log.called
-
-
-class TestPrintReporter:
-
-    def test_reporter(self):
-        with mock.patch("altwalker.reporter.print") as print_:
-            reporter = PrintReporter()
-
-            message = "Log message."
-            reporter._log(message)
-
-            print_.assert_called_once_with(message)
-
-
-class TestFileReporter:
-
-    def test_reporter(self, tmpdir):
-        report_path = os.path.join(str(tmpdir), "report.log")
-        FileReporter(report_path)
-
-        assert os.path.isfile(report_path)
-
-    def test_log(self, tmpdir):
-        report_path = os.path.join(str(tmpdir), "report.log")
-        open_ = mock.mock_open()
-
-        with mock.patch('altwalker.reporter.open', open_, create=True):
-            reporter = FileReporter(report_path)
-            message = "Log message."
-            reporter._log(message)
-
-            open_().write.assert_called_once_with(message + "\n")
 
 
 class TestClickReporter:
@@ -351,6 +218,25 @@ class TestClickReporter:
         self.reporter.error(None, error_message)
 
         assert self.reporter._log.called
+
+
+class TestFileReporter:
+
+    def test_reporter(self, tmpdir):
+        report_path = os.path.join(str(tmpdir), "report.log")
+        FileReporter(report_path)
+
+        assert os.path.isfile(report_path)
+
+    def test_log(self, tmpdir):
+        report_path = os.path.join(str(tmpdir), "report.log")
+        reporter = FileReporter(report_path)
+
+        message = "Log message."
+        reporter._log(message)
+
+        with open(report_path, "r") as fp:
+            assert fp.read() == message + "\n"
 
 
 class TestPathReporter:
