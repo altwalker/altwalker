@@ -186,11 +186,8 @@ class ClickReporter(Reporter):
         self._log("Running:\n")
 
     def end(self, message=None, statistics=None, status=None):
-        if statistics:
-            self._log(prettier.format_statistics(statistics))
-
-        if status is not None:
-            self._log(prettier.format_run_status(status))
+        self._log(prettier.format_statistics(statistics))
+        self._log(prettier.format_run_status(status))
 
     def step_start(self, step):
         """Report the starting execution of a step.
@@ -264,7 +261,7 @@ class ClickReporter(Reporter):
 
         message = "{message}{error}".format(
             message=error_message,
-            error=prettier.format_error({"message": message, "trace": trace})
+            error=prettier.format_error({"message": message, "trace": trace}, prefix="  ")
         )
 
         self._log(self._add_timestamp(message))
