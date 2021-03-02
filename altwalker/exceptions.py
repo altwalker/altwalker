@@ -68,7 +68,7 @@ def handle_errors(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except GraphWalkerException as error:
             raise GraphWalkerError(error)
         except AltWalkerException as error:

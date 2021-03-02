@@ -1,19 +1,7 @@
-import functools
 import platform
 import subprocess
 
 import psutil
-import click
-
-
-def _get_issues(issues):
-    return functools.reduce(lambda acc, cur: acc.union(cur), issues.values(), set())
-
-
-def click_formatwarning(message, category, filename, lineno, file=None, line=None):
-    """Format a warning on a single line and style the text."""
-
-    return click.style("{}: {}\n".format(category.__name__, message), fg="yellow")
 
 
 def url_join(base, url):

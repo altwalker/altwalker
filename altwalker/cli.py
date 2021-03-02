@@ -5,16 +5,10 @@ import logging
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
-from altwalker._utils import click_formatwarning
-from altwalker._cli_check import cli_check
-from altwalker._cli_verify import cli_verify
-from altwalker._cli_init import cli_init
-from altwalker._cli_generate import cli_generate
-from altwalker._cli_offline import cli_offline
-from altwalker._cli_run import cli_online, cli_walk
-from altwalker.exceptions import handle_errors
 from altwalker.generate import SUPPORTED_LANGUAGES
 from altwalker.executor import SUPPORTED_EXECUTORS
+from altwalker._cli import click_formatwarning, cli_init, cli_generate, cli_check, cli_verify, \
+    cli_offline, cli_online, cli_walk
 
 
 warnings.formatwarning = click_formatwarning  # replace the default warning formating
@@ -23,57 +17,82 @@ warnings.simplefilter("default")  # print the first occurrence of warnings
 
 CONTEXT_SETTINGS = dict(help_option_names=["--help", "-h"])
 
+# mark deprecated options with red in the help messages
+HELP_OPTIONS_CUSTOM_COLORS = {
+    "--url": "red",
+    "-p,": "red"
+}
+
 
 model_and_generator_option = click.option(
-    "--model", "-m", "models",
-    type=(click.Path(exists=True, dir_okay=False), str), required=True, multiple=True,
-    help="The model as a graphml/json file followed by generator with stop condition.")
+    "--model", "-m", "models", type=(click.Path(exists=True, dir_okay=False), str),
+    required=True, multiple=True,
+    help="The model as a graphml/json file followed by a generator with a stop condition.")
 
-model_file_option = click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
-                                 required=True, multiple=True,
-                                 help="The model, as a graphml/json file.")
-
-start_element_option = click.option("--start-element", "-e",
-                                    help="Sets the starting element in the first model.")
-
-verbose_option = click.option("--verbose", "-o", default=False, is_flag=True,
-                              help="Will also print the model data and the properties for each step.")
-
-unvisted_option = click.option("--unvisited", "-u", default=False, is_flag=True,
-                               help="Will also print the remaining unvisited elements in the model.")
-
-blocked_option = click.option("--blocked", "-b", default=False, is_flag=True,
-                              help="Will fiter out elements with the keyword BLOCKED.")
-
-language_option = click.option("--language", "-l", type=click.Choice(SUPPORTED_LANGUAGES, case_sensitive=False),
-                               help="The programming language of the tests.")
-
-executor_option = click.option("--executor", "-x", "--language", "-l", "executor_type",
-                               type=click.Choice(SUPPORTED_EXECUTORS, case_sensitive=False),
-                               default="python", show_default=True,
-                               help="Configure the executor to be used.")
-
-url_option = click.option("--url", help="This option is deprecated, use --executor-url insted. [DEPRECATED]")
-
-executor_url_option = click.option("--executor-url", default="http://localhost:5000/", show_default=True,
-                                   help="The url for the executor.")
+model_file_option = click.option(
+    "--model", "-m", "model_paths", type=click.Path(exists=True, dir_okay=False),
+    required=True, multiple=True,
+    help="The model as a graphml/json file.")
 
 
-graphwalker_host_option = click.option("--gw-host", help="The url for the GraphWalker REST service (e.g localhost).")
+start_element_option = click.option(
+    "--start-element", "-e",
+    help="Sets the starting element in the first model.")
 
-port_option = click.option("--port", "-p", help="This option is deprecated, use --gw-port insted. [DEPRECATED]")
+verbose_option = click.option(
+    "--verbose", "-o", default=False, show_default=True, is_flag=True,
+    help="Will also print the model data and the properties for each step.")
 
-graphwalker_port_option = click.option("--gw-port", default=8887, help="Sets the port of the GraphWalker service.")
+unvisted_option = click.option(
+    "--unvisited", "-u", default=False, show_default=True, is_flag=True,
+    help="Will also print the remaining unvisited elements in the model.")
+
+blocked_option = click.option(
+    "--blocked", "-b", default=False, show_default=True, is_flag=True,
+    help="Will filter out elements with the blocked property.")
+
+language_option = click.option(
+    "--language", "-l", type=click.Choice(SUPPORTED_LANGUAGES, case_sensitive=False),
+    help="Configure the programming language of the tests.")
+
+executor_option = click.option(
+    "--executor", "-x", "--language", "-l", "executor_type",
+    type=click.Choice(SUPPORTED_EXECUTORS, case_sensitive=False),
+    default="python", show_default=True,
+    help="Configure the executor to be used.")
 
 
-report_file_option = click.option("--report-file", type=click.Path(exists=False, dir_okay=False),
-                                  help="Save the report in a file.")
+url_option = click.option(
+    "--url", help="This option is deprecated, use --executor-url instead. [deprecated]")
 
-report_path_option = click.option("--report-path", default=False, is_flag=True,
-                                  help="Report the execution path.")
+executor_url_option = click.option(
+    "--executor-url", help="Sets the url for the executor.")
 
-report_path_file_option = click.option("--report-path-file", type=click.Path(exists=False, dir_okay=False),
-                                       help="Report the execution path to a file.")
+
+graphwalker_host_option = click.option(
+    "--gw-host",
+    help="Sets the host of the GraphWalker REST service.")
+
+port_option = click.option(
+    "--port", "-p",
+    help="This option is deprecated, use --gw-port instead. [deprecated]")
+
+graphwalker_port_option = click.option(
+    "--gw-port", default=8887, show_default=True,
+    help="Sets the port of the GraphWalker REST service.")
+
+
+report_file_option = click.option(
+    "--report-file", type=click.Path(exists=False, dir_okay=False),
+    help="Save the report in a file.")
+
+report_path_option = click.option(
+    "--report-path", default=False, is_flag=True,
+    help="Report the execution path.")
+
+report_path_file_option = click.option(
+    "--report-path-file", type=click.Path(exists=False, dir_okay=False),
+    help="Report the execution path to a file.")
 
 
 def add_options(options):
@@ -93,7 +112,7 @@ def add_options(options):
 @click.option("--log-level",
               type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], case_sensitive=False),
               default="CRITICAL", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
-              help="Sets the logger level to the specified level.")
+              help="Sets the AltWalker logger level to the specified level.")
 @click.option("--log-file", type=click.Path(exists=False, dir_okay=False), envvar="ALTWALKER_LOG_FILE",
               help="Sends logging output to a file.")
 @click.option("--graphwalker-log-level",
@@ -107,124 +126,123 @@ def cli(log_level, log_file, graphwalker_log_level):
     logging.basicConfig(filename=log_file, level=log_level.upper())
 
 
-@cli.command()
+@cli.command(
+    cls=HelpColorsCommand,
+    help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @add_options([model_and_generator_option, blocked_option])
-@handle_errors
 def check(models, blocked):
     """Check and analyze models for issues."""
 
     status = cli_check(models, blocked=blocked)
 
-    if status:
-        exit(0)
-    else:
+    if not status:
         exit(4)
 
 
-@cli.command()
+@cli.command(
+    cls=HelpColorsCommand,
+    help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("test_package", type=click.Path(exists=True))
 @click.option("--suggestions/--no-suggestions", "suggestions", default=True, is_flag=True,
-              help="If set will print code suggestions for missing steps.", show_default=True)
+              help="If set will print code suggestions for missing elements.", show_default=True)
 @add_options([model_file_option, executor_option, url_option, executor_url_option])
-@handle_errors
-def verify(test_package, executor_type, models, **options):
+def verify(test_package, model_paths, **options):
     """Verify and analyze test code for issues."""
 
     if options["url"]:
-        warnings.warn(
-            "The --url option is deprecated, use --executor-url insted.",
-            DeprecationWarning)
+        warnings.warn("The --url option is deprecated, use --executor-url instead.", DeprecationWarning)
 
-    options["url"] = options["url"] or options["executor_url"]
-    del options["executor_url"]
+    options["executor_url"] = options["url"] or options["executor_url"]
 
-    status = cli_verify(test_package, executor_type, models, **options)
+    status = cli_verify(
+        test_package, model_paths,
+        executor_type=options["executor_type"], executor_url=options["executor_url"],
+        suggestions=options["suggestions"])
 
-    if status:
-        exit(0)
-    else:
+    if not status:
         exit(4)
 
 
-@cli.command()
+@cli.command(
+    cls=HelpColorsCommand,
+    help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("output_dir", type=click.Path(exists=False, file_okay=False))
-@click.option("--model", "-m", "models", type=click.Path(exists=True, dir_okay=False),
+@click.option("--model", "-m", "model_paths", type=click.Path(exists=True, dir_okay=False),
               required=False, multiple=True,
               help="The model, as a graphml/json file.")
 @click.option("--git/--no-git", " /-n", "git", default=True, is_flag=True,
               help="If set to true will initialize a git repository.", show_default=True)
 @add_options([language_option])
-@handle_errors
-def init(output_dir, models, git, language):
+def init(output_dir, model_paths, git, language):
     """Initialize a new project."""
 
-    cli_init(output_dir, model_paths=models, language=language, git=git)
+    cli_init(output_dir, model_paths=model_paths, language=language, git=git)
 
 
 @cli.command()
 @click.argument("output_dir", default="tests", type=click.Path(exists=False))
 @add_options([model_file_option, language_option])
-@handle_errors
-def generate(output_dir, models, language):
-    """Generate template code."""
+def generate(output_dir, model_paths, language):
+    """Generate template code based on the models."""
 
-    cli_generate(output_dir, models, language=language)
+    cli_generate(output_dir, model_paths, language=language)
 
 
 @cli.command(
     cls=HelpColorsCommand,
-    help_options_custom_colors={'--url': 'red', '-p,': 'red'})
+    help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("test_package", type=click.Path(exists=True))
 @add_options([graphwalker_host_option, port_option, graphwalker_port_option,
               model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
               verbose_option, unvisted_option, blocked_option,
               report_path_option, report_path_file_option, report_file_option])
-@handle_errors
-def online(test_package, executor_type, **options):
+def online(test_package, models, **options):
     """Generate and run a test path."""
 
-    options["host"] = options["gw_host"]
-    del options["gw_host"]
-
     if options["port"]:
-        warnings.warn("The --port/-p option is deprecated, use --gw-port insted.", DeprecationWarning)
+        warnings.warn("The --port/-p option is deprecated, use --gw-port instead.", DeprecationWarning)
 
-    options["port"] = options["port"] or options["gw_port"]
-    del options["gw_port"]
+    options["gw_port"] = options["port"] or options["gw_port"]
 
     if options["url"]:
-        warnings.warn("The --url option is deprecated, use --executor-url insted.", DeprecationWarning)
+        warnings.warn("The --url option is deprecated, use --executor-url instead.", DeprecationWarning)
 
-    options["url"] = options["url"] or options["executor_url"]
-    del options["executor_url"]
+    options["executor_url"] = options["url"] or options["executor_url"]
 
-    cli_online(test_package, executor_type, **options)
+    cli_online(
+        test_package, models, executor_type=options["executor_type"], executor_url=options["executor_url"],
+        gw_host=options["gw_host"], gw_port=options["gw_port"], start_element=options["start_element"],
+        verbose=options["verbose"], unvisited=options["unvisited"], blocked=options["blocked"],
+        report_file=options["report_file"], report_path=options["report_path"],
+        report_path_file=options["report_path_file"])
 
 
-@cli.command()
+@cli.command(
+    cls=HelpColorsCommand,
+    help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.option("--output-file", "-f", type=click.File(mode="w", lazy=True, atomic=True),
               help="Output file.")
 @add_options([model_and_generator_option, start_element_option, verbose_option, unvisted_option, blocked_option])
-@handle_errors
 def offline(models, **options):
     """Generate a test path."""
 
     cli_offline(models, **options)
 
 
-@cli.command()
+@cli.command(
+    cls=HelpColorsCommand,
+    help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_file", type=click.Path(exists=True, dir_okay=False))
 @add_options([executor_option, url_option, executor_url_option,
               report_path_option, report_path_file_option, report_file_option])
-@handle_errors
 def walk(test_package, steps_file, executor_type, url, executor_url, report_path, report_path_file, report_file):
     """Run the tests with steps from a file."""
 
     if url:
-        warnings.warn("The --url option is deprecated, use --executor-url insted.", DeprecationWarning)
+        warnings.warn("The --url option is deprecated, use --executor-url instead.", DeprecationWarning)
 
     executor_url = url or executor_url
 
-    cli_walk(test_package, executor_type, steps_file, url=executor_url, report_path=report_path,
+    cli_walk(test_package, steps_file, executor_type=executor_type, executor_url=executor_url, report_path=report_path,
              report_path_file=report_path_file, report_file=report_file)

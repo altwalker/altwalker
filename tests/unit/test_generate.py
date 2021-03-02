@@ -401,7 +401,7 @@ class TestsCallGenerateFunction(unittest.TestCase):
 
             self.functions[language].assert_called_once_with()
 
-    def test_args_and_kargs(self):
+    def test_args_and_kwargs(self):
         for language in self.functions.keys():
             _call_generate_function(language, self.functions, language, x=language)
 

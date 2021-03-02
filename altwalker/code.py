@@ -1,9 +1,9 @@
 """A collection of util functions for validating code against model(s)."""
 
 import os
+import itertools
 
 import altwalker.graphwalker as graphwalker
-from altwalker._utils import _get_issues
 from altwalker.exceptions import ValidationException
 from altwalker.model import _read_json, validate_models
 from altwalker.executor import create_executor
@@ -112,7 +112,7 @@ def validate_code(executor, methods):
     """
 
     issues = _validate_code(executor, methods)
-    issues_messages = _get_issues(issues)
+    issues_messages = set(itertools.chain(*issues.values()))
 
     if issues_messages:
         raise ValidationException("\n".join(issues_messages))

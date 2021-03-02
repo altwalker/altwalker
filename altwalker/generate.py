@@ -271,12 +271,12 @@ def _call_generate_function(language, functions, *args, **kwargs):
     return generate_func(*args, **kwargs)
 
 
-def generate_methods(language, *args, **kargs):
-    return _call_generate_function(language, _GENERATE_METHODS_FUNCTIONS, *args, **kargs)
+def generate_methods(language, *args, **kwargs):
+    return _call_generate_function(language, _GENERATE_METHODS_FUNCTIONS, *args, **kwargs)
 
 
-def generate_class(language, *args, **kargs):
-    return _call_generate_function(language, _GENERATE_CLASS_FUNCTIONS, *args, **kargs)
+def generate_class(language, *args, **kwargs):
+    return _call_generate_function(language, _GENERATE_CLASS_FUNCTIONS, *args, **kwargs)
 
 
 def generate_code(language, *args, **kwargs):

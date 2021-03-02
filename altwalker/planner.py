@@ -212,7 +212,7 @@ def create_planner(models=None, steps=None, host=None, port=8887, start_element=
     if host:
         client = GraphWalkerClient(host=host, port=port, verbose=verbose)
         planner = OnlinePlanner(client)
-        planner.load(get_models(x[0] for x in models))
+        planner.load(get_models(model for model, stop_condition in models))
 
         return planner
 

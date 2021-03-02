@@ -51,6 +51,9 @@ def _normalize_step(step, verbose=False):
     if verbose:
         step["data"] = {k: v for data in step["data"] for k, v in data.items()}
 
+    if step.get("actions"):
+        step["actions"] = [action.get("Action") for action in step["actions"]]
+
     step["id"] = step.pop("currentElementID")
     step["name"] = step.pop("currentElementName")
 

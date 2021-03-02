@@ -5,7 +5,6 @@ import keyword
 import itertools
 from collections import defaultdict
 
-from altwalker._utils import _get_issues
 from altwalker.exceptions import ValidationException
 import altwalker.graphwalker as graphwalker
 
@@ -320,7 +319,7 @@ def validate_json_models(model_json):
     """
 
     issues = _validate_models(model_json)
-    issues_messages = _get_issues(issues)
+    issues_messages = set(itertools.chain(*issues.values()))
 
     if issues_messages:
         raise ValidationException("\n".join(issues_messages))
@@ -355,5 +354,6 @@ def check_models(models, blocked=False):
     validate_models([model_path for model_path, _ in models if model_path.endswith(".json")])
 
     output = graphwalker.check(models, blocked=blocked)
+
     if not output.startswith("No issues found with the model(s)"):
         raise ValidationException(output)

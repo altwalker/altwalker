@@ -336,7 +336,7 @@ def create_reporters(report_file=None, report_path=False, report_path_file=None)
     reporting = Reporting()
     reporting.register("click", ClickReporter())
 
-    if report_path:
+    if report_path or report_path_file:
         reporting.register("path", PathReporter(file=report_path_file, stdout=True))
 
     if report_file:

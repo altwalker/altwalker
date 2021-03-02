@@ -605,6 +605,7 @@ class TestFormatStatistics:
 
         assert actual == "\n".join(expected) + "\n\n\n"
 
+    @pytest.mark.skipif(sys.version_info < (3, 6), reason="Requires python3.6 or higher")
     def test_format_requirements_tabel(statistics):
         statistics = {
             "requirementCoverage": 100,

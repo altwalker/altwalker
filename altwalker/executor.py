@@ -207,7 +207,7 @@ class HttpExecutor(Executor):
     }
 
     def __init__(self, url="http://localhost:5000"):
-        self.url = url
+        self.url = url or "http://localhost:5000"
         self.base = url_join(self.url, "altwalker/")
 
         logging.debug("Initate an HttpExecutor to connect to {} service".format(self.url))
@@ -494,14 +494,14 @@ class DotnetExecutorService:
 
     def __init__(self, path, server_url="http://localhost:5000/", output_file="dotnet-executor.log"):
         self.path = path
-        self.server_url = server_url
+        self.server_url = server_url or "http://localhost:5000/"
         self.output_file = output_file
 
-        command = self._create_command(path, url=server_url)
+        command = self._create_command(path, url=self.server_url)
 
         self._process = Command(command, self.output_file)
 
-        logger.debug("Dotnet Executor Service started from {} on {}".format(path, server_url))
+        logger.debug("Dotnet Executor Service started from {} on {}".format(path, self.server_url))
         logger.debug("Dotnet Executor Service started with command: {}".format(" ".join(command)))
         logger.debug("Dotnet Executor Service running with pid: {}".format(self._process.pid))
 
@@ -659,7 +659,7 @@ def _call_create_executor_function(executor_type, *args, **kwargs):
     return generate_func(*args, **kwargs)
 
 
-def create_executor(path, executor_type, url="http://localhost:5000/", *args, **kwargs):
+def create_executor(path, executor_type, *args, url="http://localhost:5000/", **kwargs):
     """Creates an executor.
 
     Args:
