@@ -25,7 +25,7 @@ def validate(model_paths, *args):
 
 
 def check(models, *args, blocked=False, **kwargs):
-    """Check and analyze model(s) for issues using the GraphWalker check command."""
+    """Check and analyze models for issues using the GraphWalker check command."""
 
     output = graphwalker.check(models, blocked=blocked)
 
@@ -63,10 +63,10 @@ def init(output_dir, *args, model_paths=None, language=None, git=True, **kwargs)
     init_project(output_dir, model_paths=model_paths, language=language, git=git)
 
 
-def generate(output_dir, model_paths, *args, language=None, package_name="tests", **kwargs):
+def generate(output_dir, model_paths, *args, language=None, **kwargs):
     """Generate template code."""
 
-    generate_tests(output_dir, model_paths, language=language, package_name=package_name)
+    generate_tests(output_dir, model_paths, language=language)
 
 
 def _normalize_stop_condition(stop_condition):

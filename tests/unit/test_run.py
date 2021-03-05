@@ -124,7 +124,7 @@ class TestGenerate:
     def test_generate(self, generate_tests_mock):
         generate(".", self.model_paths)
 
-        generate_tests_mock.assert_called_once_with(".", self.model_paths, language=None, package_name="tests")
+        generate_tests_mock.assert_called_once_with(".", self.model_paths, language=None)
 
 
 @pytest.mark.parametrize(

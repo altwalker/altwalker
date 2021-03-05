@@ -37,7 +37,7 @@ class TestGraphWalkerService:
         with pytest.raises(GraphWalkerException) as excinfo:
             GraphWalkerService(port=9001)
 
-        assert "An error occured while trying to start the GraphWalker Service on port" in str(excinfo.value)
+        assert "An error occurred while trying to start the GraphWalker Service on port" in str(excinfo.value)
         assert "Address already in use" in str(excinfo.value)
 
         service.kill()
@@ -46,14 +46,14 @@ class TestGraphWalkerService:
         with pytest.raises(GraphWalkerException) as excinfo:
             GraphWalkerService(models=[("tests/common/models/shop.json", "invalid_generator(never)")])
 
-        assert "An error occured while trying to start the GraphWalker Service on port" in str(excinfo.value)
+        assert "An error occurred while trying to start the GraphWalker Service on port" in str(excinfo.value)
         assert "No suitable generator found with name:" in str(excinfo.value)
 
     def test_invalid_stop_condition(self):
         with pytest.raises(GraphWalkerException) as excinfo:
             GraphWalkerService(models=[("tests/common/models/shop.json", "random(invalid_stop_condition)")])
 
-        assert "An error occured while trying to start the GraphWalker Service on port" in str(excinfo.value)
+        assert "An error occurred while trying to start the GraphWalker Service on port" in str(excinfo.value)
         assert "No valid stop condition found." in str(excinfo.value)
 
     def test_logs(self):
@@ -115,7 +115,7 @@ class TestGraphWalkerClient:
         [
             ("isUserLoggedIn", True, "true"),
             ("isUserLoggedIn", False, "false"),
-            ("message", "Test mesasge.", "Test mesasge."),
+            ("message", "Test message.", "Test message."),
             ("url", "url/example/", "url/example/"),
             ("count", 0, "0"),
             ("count", 1, "1"),

@@ -1,3 +1,5 @@
+"""Utility functions and classes used by AltWalker internally."""
+
 import platform
 import subprocess
 

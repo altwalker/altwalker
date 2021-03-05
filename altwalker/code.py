@@ -45,11 +45,11 @@ def _graphml_methods(model_path, blocked=False):
 
 
 def get_methods(model_paths, blocked=False):
-    """Return all requrired methods for all models.
+    """Return all required methods for all models.
 
     Args:
         model_paths (:obj:`list`): A sequence of path to model files.
-        blocked (:obj:`bool`): If set to true will fiter out elements with the keyword ``blocked``.
+        blocked (:obj:`bool`): If set to true will filter out elements with the keyword ``blocked``.
 
     Returns:
         dict: A dict containing each model name as a key and a list containing its required methods as values.

@@ -787,7 +787,7 @@ class _TestValidateModels(unittest.TestCase):
     def test_duplicate_ids(self):
         issues = _validate_models(DUPLICATE_IDS_MODELS)
 
-        self.assertEqual(issues["UnknownSorceFile::ModelA"], {"Id 'v0' is not unique."})
+        self.assertEqual(issues["UnknownSourceFile::ModelA"], {"Id 'v0' is not unique."})
 
 
 class TestValidateJsonModels(unittest.TestCase):

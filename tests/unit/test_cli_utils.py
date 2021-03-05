@@ -4,7 +4,7 @@ import pytest
 
 from altwalker.exceptions import AltWalkerError, FailedTestsError
 from altwalker._cli import _echo_model_issues, _cli_validate_models, _cli_check_models, _echo_code_issues, \
-    _echo_sugesstions, cli_check, cli_verify, cli_init, cli_generate, cli_online, cli_offline, cli_walk
+    _echo_suggestions, cli_check, cli_verify, cli_init, cli_generate, cli_online, cli_offline, cli_walk
 
 
 @mock.patch("click.secho")
@@ -231,7 +231,7 @@ class TestEchoSugesstions:
             "ModelA": {"vertex_A", "edge_A", "vertex_B", "edge_B"}
         }
 
-        _echo_sugesstions(self.language, methods, missing_methods)
+        _echo_suggestions(self.language, methods, missing_methods)
         generate_class_mock.assert_called_once_with(
             self.language,
             "ModelA", {"vertex_A", "edge_A", "vertex_B", "edge_B"}
@@ -249,7 +249,7 @@ class TestEchoSugesstions:
             "ModelA": {"vertex_A", "edge_A"}
         }
 
-        _echo_sugesstions(self.language, methods, missing_methods)
+        _echo_suggestions(self.language, methods, missing_methods)
         generate_methods_mock.assert_called_once_with(self.language, {"vertex_A", "edge_A"})
 
     def test_no_missing_methods(self, secho_mock, generate_methods_mock, generate_class_mock):
@@ -264,13 +264,13 @@ class TestEchoSugesstions:
             "ModelA": set()
         }
 
-        _echo_sugesstions(self.language, methods, missing_methods)
+        _echo_suggestions(self.language, methods, missing_methods)
 
         assert not generate_methods_mock.called
         assert not generate_class_mock.called
 
 
-@mock.patch("altwalker._cli._echo_sugesstions")
+@mock.patch("altwalker._cli._echo_suggestions")
 @mock.patch("altwalker._cli._echo_code_issues")
 @mock.patch("altwalker._cli.run.verify")
 @mock.patch("click.secho")

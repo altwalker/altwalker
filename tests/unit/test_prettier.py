@@ -423,7 +423,7 @@ class TestFormatRequirements:
         ]
     )
     def test_normalize_requirement(self, requirement, expected):
-        assert prettier.RquirementsFormatter._normalize_requirement(requirement) == expected
+        assert prettier.RequirementsFormatter._normalize_requirement(requirement) == expected
 
     def test_normalize_requirements(self):
         requirements = [
@@ -436,7 +436,7 @@ class TestFormatRequirements:
             {"key": "Requirement 2", "modelName": "ModelName2"}
         ]
 
-        assert prettier.RquirementsFormatter._normalize_requirements(requirements) == expected
+        assert prettier.RequirementsFormatter._normalize_requirements(requirements) == expected
 
     def test_group_requirements(self):
         requirements = [
@@ -451,7 +451,7 @@ class TestFormatRequirements:
             "ModelName2": {"Requirement 3", "Requirement 4"}
         }
 
-        assert prettier.RquirementsFormatter._group_requirements(requirements) == expected
+        assert prettier.RequirementsFormatter._group_requirements(requirements) == expected
 
     def test_no_requirements(self):
         assert prettier.format_requirements(None) == ""

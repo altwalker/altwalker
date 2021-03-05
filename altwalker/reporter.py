@@ -151,7 +151,7 @@ class Reporting:
             reporter.error(step, message, trace=trace)
 
     def report(self):
-        """Returns the reports from all registerd reporters.
+        """Returns the reports from all registered reporters.
 
         Returns:
             dict: Containing all the reports from all the register reports.

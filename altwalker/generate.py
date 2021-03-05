@@ -22,7 +22,7 @@ class {}:
 {}
 """
 
-_PYTHON_METOHD_TEMPLATE = """\
+_PYTHON_METHOD_TEMPLATE = """\
     def {}(self):
         pass
 """
@@ -159,7 +159,7 @@ def generate_empty_tests(output_dir, methods=None, package_name="tests"):
 
 
 def generate_python_methods(methods_list):
-    methods_code = [_PYTHON_METOHD_TEMPLATE.format(name) for name in methods_list]
+    methods_code = [_PYTHON_METHOD_TEMPLATE.format(name) for name in methods_list]
     return "\n".join(methods_code)
 
 
@@ -174,7 +174,7 @@ def generate_python_code(methods):
         methods (:obj:`dict`): The keys are class names and the values are all
             methods for that class.
 
-    Reuturn:
+    Returns:
         str: The python source code.
     """
 

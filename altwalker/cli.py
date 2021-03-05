@@ -43,7 +43,7 @@ verbose_option = click.option(
     "--verbose", "-o", default=False, show_default=True, is_flag=True,
     help="Will also print the model data and the properties for each step.")
 
-unvisted_option = click.option(
+unvisited_option = click.option(
     "--unvisited", "-u", default=False, show_default=True, is_flag=True,
     help="Will also print the remaining unvisited elements in the model.")
 
@@ -194,7 +194,7 @@ def generate(output_dir, model_paths, language):
 @click.argument("test_package", type=click.Path(exists=True))
 @add_options([graphwalker_host_option, port_option, graphwalker_port_option,
               model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
-              verbose_option, unvisted_option, blocked_option,
+              verbose_option, unvisited_option, blocked_option,
               report_path_option, report_path_file_option, report_file_option])
 def online(test_package, models, **options):
     """Generate and run a test path."""
@@ -222,7 +222,7 @@ def online(test_package, models, **options):
     help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.option("--output-file", "-f", type=click.File(mode="w", lazy=True, atomic=True),
               help="Output file.")
-@add_options([model_and_generator_option, start_element_option, verbose_option, unvisted_option, blocked_option])
+@add_options([model_and_generator_option, start_element_option, verbose_option, unvisited_option, blocked_option])
 def offline(models, **options):
     """Generate a test path."""
 

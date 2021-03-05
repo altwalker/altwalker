@@ -94,7 +94,7 @@ class TableFormatter:
 
 
 class UnvisitedElementsFormatter:
-    """Formats a list of unvisited elementes ``list`` into a “pretty” string.
+    """Formats a list of unvisited elements ``list`` into a “pretty” string.
 
     Made for the ``verticesNotVisited``, ``edgesNotVisited`` and ``unvisitedElements``
     returned by the GraphWalker REST API.
@@ -123,7 +123,7 @@ class UnvisitedElementsFormatter:
         return format_unordered_list(cls._normalize_elements(elements), title=title, prefix=prefix)
 
 
-class RquirementsFormatter:
+class RequirementsFormatter:
     """Formats a requirement ``list`` into a “pretty” string.
 
     Made for ``requirementsPassed``, ``requirementsNotCovered`` and ``requirementsFailed``
@@ -169,7 +169,7 @@ class RquirementsFormatter:
 class StatisticsFormatter:
     """Formats a run statistics into a “pretty” string.
 
-    Made for the ``statistics`` retured by the GraphWalker API.
+    Made for the ``statistics`` returned by the GraphWalker API.
     """
 
     @staticmethod
@@ -433,7 +433,7 @@ def format_output(output, prefix=None):
 
 
 def format_result(result, prefix=None):
-    """Formats a result object retured by a test method into a “pretty” string."""
+    """Formats a result object returned by a test method into a “pretty” string."""
 
     prefix = prefix or ""
     title = click.style("Result:", fg="bright_black")
@@ -463,7 +463,7 @@ def format_error(error, prefix=None):
 
 
 def format_unvisited_elements(elements, title=None, prefix=None):
-    """Formats a list of unvisited elementes ``list`` into a “pretty” string.
+    """Formats a list of unvisited elements ``list`` into a “pretty” string.
 
     Made for the ``verticesNotVisited``, ``edgesNotVisited`` and ``unvisitedElements``
     returned by the GraphWalker REST API.
@@ -479,13 +479,13 @@ def format_requirements(requirements, title=None, prefix=None, color=None):
     returned by the GraphWalker API.
     """
 
-    return RquirementsFormatter.format(requirements, title=title, prefix=prefix, color=color)
+    return RequirementsFormatter.format(requirements, title=title, prefix=prefix, color=color)
 
 
 def format_statistics(statistics):
     """Formats a run statistics into a “pretty” string.
 
-    Made for the ``statistics`` retured by the GraphWalker API.
+    Made for the ``statistics`` returned by the GraphWalker API.
     """
 
     return StatisticsFormatter.format(statistics)

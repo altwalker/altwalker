@@ -94,7 +94,7 @@ def _echo_code_issues(issues):
         click.secho("No issues found with the code.\n")
 
 
-def _echo_sugesstions(language, methods, missing_methods):
+def _echo_suggestions(language, methods, missing_methods):
     click.secho("\nCode suggestions:\n", bold=True, fg="cyan")
 
     for model, elements in missing_methods.items():
@@ -110,13 +110,13 @@ def _echo_sugesstions(language, methods, missing_methods):
 
 @handle_errors
 def cli_verify(test_package, model_paths, executor_type=None, executor_url=None, suggestions=False):
-    click.secho("Verifying code agains models:\n", bold=True, fg="green")
+    click.secho("Verifying code against models:\n", bold=True, fg="green")
 
     response = run.verify(test_package, model_paths, executor_type=executor_type, executor_url=executor_url)
     _echo_code_issues(response["issues"])
 
     if suggestions and not response["status"]:
-        _echo_sugesstions(executor_type, response["methods"], response["missing"])
+        _echo_suggestions(executor_type, response["methods"], response["missing"])
 
     return response["status"]
 

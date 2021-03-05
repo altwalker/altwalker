@@ -4,7 +4,7 @@ from altwalker.__version__ import VERSION
 
 
 NAME = 'altwalker'
-DESCRIPTION = 'AltWalker is an open source Model-Based Testing framework that supports running tests writen in python3 and .NET/C#. You design your tests as a directed graph and AltWalker generates test cases from your graph (using GraphWalker) and executes them.'
+DESCRIPTION = 'AltWalker is an open source Model-Based Testing framework that supports running tests written in python3 and .NET/C#. You design your tests as a directed graph and AltWalker generates test cases from your graph (using GraphWalker) and executes them.'
 URL = 'https://gitlab.com/altom/altwalker/altwalker/'
 EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'

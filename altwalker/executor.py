@@ -183,9 +183,9 @@ class Executor(metaclass=abc.ABCMeta):
                     }
                 }
 
-            If no error occured the ``error`` key can be omitted or set to ``None``.
+            If no error occurred the ``error`` key can be omitted or set to ``None``.
 
-            If the graph data is not used or modiffied the ``data`` key can be omitted or set to ``None``.
+            If the graph data is not used or modified the ``data`` key can be omitted or set to ``None``.
         """
 
 
@@ -284,7 +284,7 @@ class HttpExecutor(Executor):
         has_model = payload.get("hasModel", None)
 
         if has_model is None:
-            raise ExecutorException("Invaild response. The payload must include the key: hasModel.")
+            raise ExecutorException("Invalid response. The payload must include the key: hasModel.")
 
         return payload["hasModel"]
 
@@ -303,7 +303,7 @@ class HttpExecutor(Executor):
         has_step = payload.get("hasStep", None)
 
         if has_step is None:
-            raise ExecutorException("Invaild response. The payload must include the key: hasStep.")
+            raise ExecutorException("Invalid response. The payload must include the key: hasStep.")
 
         return has_step
 
@@ -332,7 +332,7 @@ class HttpExecutor(Executor):
         payload = self._post("executeStep", params={"modelName": model_name, "name": name}, json={"data": data})
 
         if payload.get("output") is None:
-            raise ExecutorException("Invaild response. The payload must include the key: output.")
+            raise ExecutorException("Invalid response. The payload must include the key: output.")
 
         return payload
 
@@ -448,9 +448,9 @@ class PythonExecutor(Executor):
                     }
                 }
 
-            If no error occured the ``error`` key can be omitted or set to ``None``.
+            If no error occurred the ``error`` key can be omitted or set to ``None``.
 
-            If the graph data is not used or modiffied the ``data`` key can be omitted or set to ``None``.
+            If the graph data is not used or modified the ``data`` key can be omitted or set to ``None``.
         """
 
         data = copy.deepcopy(data) if data else {}
@@ -564,7 +564,7 @@ class DotnetExecutorService:
 
 
 class DotnetExecutor(HttpExecutor):
-    """Starts a C#/.NET executor service, and alows you to interact with it.
+    """Starts a C#/.NET executor service, and allows you to interact with it.
 
     Args:
         path: The path of the console application project, dll or exe, that starts an ``ExecutorService``.

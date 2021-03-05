@@ -1,6 +1,6 @@
 # AltWalker
 
-Altwalker is an open source, Model-Based Testing framework.
+AltWalker is an open source, Model-Based Testing framework.
 
 Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
 
@@ -24,7 +24,7 @@ and AltWalker generates test cases from your graph (using [GraphWalker](http://g
 ### Model-Based Testing
 
 [Model-Based Testing](https://en.wikipedia.org/wiki/Model-based_testing) is a testing
-technique which offers a way of generating test cases based on models that describe the behaviour
+technique which offers a way of generating test cases based on models that describe the behavior
 (functionality) of the system under test.
 
 The goal when designing models is to represent the part of the system under test, usually

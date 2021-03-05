@@ -34,7 +34,7 @@ class Planner(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def restart(self):
-        """Resets the currnet path and the statistics."""
+        """Resets the current path and the statistics."""
 
     @abc.abstractmethod
     def fail(self, message):
@@ -115,7 +115,7 @@ class OfflinePlanner(Planner):
     """Plan a path from a list of steps.
 
     Args:
-        path: A sequens of steps. A setep is a dict containing a ``name``
+        path: A sequence of steps. A step is a dict containing a ``name``
             and a ``modelName``.
     """
 
@@ -152,7 +152,17 @@ class OfflinePlanner(Planner):
         return self._position < len(self._path)
 
     def get_next(self):
-        """Get the next element form the path."""
+        """Get the next element form the path.
+
+        Returns:
+            dict: A dictionary containing the step id, name and model::
+
+                {
+                    "id": step_id,
+                    "name": step_name,
+                    "modelName": model_name
+                }
+        """
 
         step = self._path[self._position]
         self._position += 1

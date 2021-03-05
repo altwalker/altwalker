@@ -73,7 +73,7 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
         start_element (:obj:`str`): A starting element for the first model.
         verbose (:obj:`bool`): Run the command with the verbose flag.
         unvisited (:obj:`bool`): Run the command with the unvisited flag.
-        blocked (:obj:`bool`): Run the command with the blcoked flag.
+        blocked (:obj:`bool`): Run the command with the blocked flag.
         debug (:obj:`str`): Sets the log level.
 
     Returns:
@@ -125,7 +125,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
         start_element (:obj:`str`): A starting element for the first model.
         verbose (:obj:`bool`): Run the command with the verbose flag.
         unvisited (:obj:`bool`): Run the command with the unvisited flag.
-        blocked (:obj:`bool`): Run the command with the blcoked flag.
+        blocked (:obj:`bool`): Run the command with the blocked flag.
 
     Returns:
         string: The output of the command.
@@ -152,13 +152,13 @@ def check(models, blocked=None):
 
     Args:
         models (:obj:`list`): A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        blocked (:obj:`bool`): Run the command with the blcoked flag.
+        blocked (:obj:`bool`): Run the command with the blocked flag.
 
     Returns:
         str: The output form GraphWalker check.
 
     Raises:
-        GraphWalkerException: If an error occured while running the command, or
+        GraphWalkerException: If an error occurred while running the command, or
             the command outputs to ``stderr``.
     """
 
@@ -170,13 +170,13 @@ def methods(model_path, blocked=False):
 
     Args:
         model_path (:obj:`list`): A path to a model.
-        blcked (:obj:`bool`): Run the command with the blcoked flag.
+        blocked (:obj:`bool`): Run the command with the blocked flag.
 
     Returns:
         list: A sequence of all unique names of vertices and edges in the model.
 
     Raises:
-        GraphWalkerException: If an error occured while running the command, or
+        GraphWalkerException: If an error occurred while running the command, or
             the command outputs to ``stderr``.
     """
 
@@ -208,17 +208,17 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
         start_element (:obj:`str`): A starting element for the first model.
         verbose (:obj:`bool`): Run the command with the verbose flag.
         unvisited (:obj:`bool`): Run the command with the unvisited flag.
-        blocked (:obj:`bool`): Run the command with the blcoked flag.
+        blocked (:obj:`bool`): Run the command with the blocked flag.
 
     Returns:
         list: A sequence of steps.
 
     Raises:
-        GraphWalkerException: If an error occured while running the command, or
+        GraphWalkerException: If an error occurred while running the command, or
             the command outputs to ``stderr``.
     """
 
-    # Always call the commmand with the verbose flag to get the modelName for each step
+    # Always call the command with the verbose flag to get the modelName for each step
     output = _execute_command("offline", models=models, start_element=start_element,
                               verbose=True, unvisited=unvisited, blocked=blocked)
 
@@ -302,7 +302,7 @@ class GraphWalkerService:
 
         if error:
             raise GraphWalkerException(
-                "An error occured while trying to start the GraphWalker Service on port: {}\n{}\n\n{}"
+                "An error occurred while trying to start the GraphWalker Service on port: {}\n{}\n\n{}"
                 .format(self.port, error, more_info))
 
         raise GraphWalkerException(
@@ -416,7 +416,7 @@ class GraphWalkerClient:
         self._post("/load", data=json.dumps(model))
 
     def has_next(self):
-        """Returns True if a new step is available. If True, then the fulfilment
+        """Returns True if a new step is available. If True, then the fulfillment
         of the stop conditions has not yet been reached.
 
         Makes a GET request at ``/hasNext``.
@@ -453,7 +453,7 @@ class GraphWalkerClient:
                     "name": step_name,
                     "modelName": model_name,
                     "numberOfElements": number_of_element,
-                    "numberOfUnvisitedElements": number_of_unvisted_elements,
+                    "numberOfUnvisitedElements": number_of_unvisited_elements,
                     "unvisitedElements": []
                 }
         """
@@ -514,7 +514,7 @@ class GraphWalkerClient:
     def get_statistics(self):
         """Returns the statistics for the current session.
 
-        Makes a GET request at ``/getStatistcs``.
+        Makes a GET request at ``/getStatistics``.
 
         Returns:
             dict: The statistics.

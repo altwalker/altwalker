@@ -293,7 +293,7 @@ def _validate_models(models_json):
         issues["global"].add("No models found.")
 
     for model in models:
-        key = "{}::{}".format(model.get("sourceFile", "UnknownSorceFile"), model.get("name", "UnnamedModel"))
+        key = "{}::{}".format(model.get("sourceFile", "UnknownSourceFile"), model.get("name", "UnnamedModel"))
         issues[key].update(_validate_model(model))
 
         for element in itertools.chain(model.get("edges", []), model.get("vertices", [])):
@@ -344,7 +344,7 @@ def check_models(models, blocked=False):
 
     Args:
         models: A sequence of tuples containing the ``model_path`` and the ``stop_condition``.
-        blocked (:obj:`bool`): If set to true will fiter out elements with the keyword ``blocked``.
+        blocked (:obj:`bool`): If set to true will filter out elements with the keyword ``blocked``.
 
     Raises:
         GraphWalkerException: If an error is raised by the check command.
