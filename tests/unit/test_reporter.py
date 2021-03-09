@@ -1,4 +1,5 @@
 import os
+import json
 import unittest.mock as mock
 
 import pytest
@@ -10,7 +11,7 @@ from altwalker.reporter import Reporter, Reporting, ClickReporter, FileReporter,
 class TestReporting:
 
     @pytest.fixture(autouse=True)
-    def reporting(self):
+    def setup(self):
         self.reporting = Reporting()
 
         self.reporter_a = mock.Mock(spec=Reporter)
@@ -125,7 +126,7 @@ class TestReporting:
 class TestClickReporter:
 
     @pytest.fixture(autouse=True)
-    def reporter(self):
+    def setup(self):
         self.reporter = ClickReporter()
         self.reporter._log = mock.Mock(spec=Reporter._log)
 
@@ -242,7 +243,7 @@ class TestFileReporter:
 class TestPathReporter:
 
     @pytest.fixture(autouse=True)
-    def reporter(self):
+    def setup(self):
         self.reporter = PathReporter()
 
     def test_reporter(self):
@@ -291,3 +292,51 @@ class TestPathReporter:
         report = self.reporter.report()
 
         assert report == []
+
+    def test_file(self, tmpdir):
+        report_file = "{}/path.json".format(tmpdir)
+        self.reporter._file = report_file
+
+        step_a = {
+            "id": "0",
+            "name": "step_a",
+            "modelName": "ModelName"
+        }
+
+        step_b = {
+            "id": "1",
+            "name": "step_b",
+            "modelName": "ModelName"
+        }
+
+        self.reporter.step_end(step_a, {})
+        self.reporter.step_end(step_b, {})
+        self.reporter.end()
+
+        with open(report_file) as fp:
+            assert json.load(fp) == self.reporter.report()
+
+    @pytest.mark.parametrize("verbose", [True, False])
+    @mock.patch("click.secho")
+    def test_verbose(self, secho_mock, verbose, tmpdir):
+        report_file = "{}/path.json".format(tmpdir)
+        self.reporter._file = report_file
+        self.reporter._verbose = verbose
+
+        step_a = {
+            "id": "0",
+            "name": "step_a",
+            "modelName": "ModelName"
+        }
+
+        step_b = {
+            "id": "1",
+            "name": "step_b",
+            "modelName": "ModelName"
+        }
+
+        self.reporter.step_end(step_a, {})
+        self.reporter.step_end(step_b, {})
+        self.reporter.end()
+
+        assert secho_mock.called == verbose

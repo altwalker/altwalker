@@ -270,7 +270,7 @@ class ClickReporter(Reporter):
 class FileReporter(ClickReporter):
     """This reporter outputs to a file.
 
-    Attributes:
+    Args:
         file (:obj:`str`): A path to a file to log the output.
 
     Note:
@@ -289,11 +289,19 @@ class FileReporter(ClickReporter):
 
 
 class PathReporter(Reporter):
-    """This reporter keeps a list of all execute steps (without fixtures)."""
+    """This reporter keeps a list of all execute steps (without fixtures).
 
-    def __init__(self, file=None, stdout=False):
+    Args:
+        file (:obj:`str`): A path to a file to log execution path.
+        verbose (:obj:`bool`): Will print more details to stdout.
+
+    Note:
+        If the path already exists the reporter will overwrite the content.
+    """
+
+    def __init__(self, file="path.json", verbose=False):
         self._file = file
-        self._stdout = False if file else stdout
+        self._verbose = verbose
 
         self._path = []
 
@@ -306,13 +314,14 @@ class PathReporter(Reporter):
     def end(self, message=None, statistics=None, status=None):
         steps = json.dumps(self._path, sort_keys=True, indent=4)
 
-        if self._file:
-            with open(self._file, "w") as fp:
-                fp.write(steps)
-        elif self._stdout:
-            click.secho("Steps:\n")
-            click.secho(steps, fg="cyan")
-            click.secho()
+        with open(self._file, "w") as fp:
+            fp.write(steps)
+
+        if self._verbose:
+            click.secho(
+                "Execution path written to file: {}.\n".format(click.style(self._file, fg="green")),
+                bold=True
+            )
 
     def report(self):
         """Return a list of all executed steps.
@@ -324,20 +333,21 @@ class PathReporter(Reporter):
         return self._path
 
 
-def create_reporters(report_file=None, report_path=False, report_path_file=None):
+def create_reporters(report_file=None, report_path=False, report_path_file=None, verbose=True):
     """Create a reporter collection.
 
     Args:
         report_file (:obj:`str`): A file path. If set will add a ``FileReporter``.
         report_path (:obj:`bool`): If set to true will add a ``PathReporter``.
         report_path_file (:obj:`str`): If set will set the file for ``PathReporter``.
+        verbose (:obj:`bool`): If set some reporters will print more details to stdout.
     """
 
     reporting = Reporting()
     reporting.register("click", ClickReporter())
 
     if report_path or report_path_file:
-        reporting.register("path", PathReporter(file=report_path_file, stdout=True))
+        reporting.register("path", PathReporter(report_path_file or "path.json", verbose=verbose))
 
     if report_file:
         reporting.register("file", FileReporter(report_file))

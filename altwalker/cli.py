@@ -88,11 +88,11 @@ report_file_option = click.option(
 
 report_path_option = click.option(
     "--report-path", default=False, is_flag=True,
-    help="Report the execution path.")
+    help="Report the execution path and save it into a file (path.json by default).")
 
 report_path_file_option = click.option(
     "--report-path-file", type=click.Path(exists=False, dir_okay=False),
-    help="Report the execution path to a file.")
+    help="Set the report path file.")
 
 
 def add_options(options):

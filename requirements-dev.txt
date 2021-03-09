@@ -14,3 +14,4 @@ sphinx-click
 sphinx-tabs
 sphinx-notfound-page
 sphinxcontrib-programoutput
+doc8
