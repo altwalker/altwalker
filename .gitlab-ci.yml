@@ -5,7 +5,7 @@ stages:
   - deploy
 
 default:
-  image: altwalker/graphwalker:4.3.0
+  image: altwalker/graphwalker:4.3.1
 
   before_script:
     - export LC_ALL=C.UTF-8
