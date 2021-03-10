@@ -332,7 +332,7 @@ Offline Mode
 
 .. code-block:: console
 
-    $ altwalker offline -l c# -m models/navigation.json "random(length(15))" -f steps.json
+    $ altwalker offline -m models/navigation.json "random(length(15))" -f steps.json
 
 Generates a valid path through the test graph and saves the list of
 steps into ``steps.json``.
