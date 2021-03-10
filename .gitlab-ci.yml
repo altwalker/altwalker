@@ -151,7 +151,7 @@ docs:
     - python3 -m pip install --editable .
     - cd docs
     - make html
-    - cp -r _build/html ../documentation
+    - cp -r build/html ../documentation
 
 pages:
   stage: deploy
