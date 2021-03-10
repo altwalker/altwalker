@@ -7,6 +7,11 @@ stages:
 default:
   image: altwalker/graphwalker:4.3.1
 
+  artifacts:
+    paths:
+      - "*.log"
+    when: always
+
   before_script:
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install -r requirements-dev.txt
@@ -30,20 +35,12 @@ integration test:
   stage: test
   tags:
     - docker
-  artifacts:
-    paths:
-      - "*.log"
-    when: always
   script:
     - pytest -x -s -m "not dotnet" tests/integration
 
 dotnet integration tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
-  artifacts:
-    paths:
-      - "*.log"
-    when: always
   script:
     - pytest -x -s -m dotnet tests/integration
 
@@ -52,10 +49,6 @@ tox:
   stage: test
   tags:
     - docker
-  artifacts:
-    paths:
-      - "*.log"
-    when: always
   before_script:
     - tox --version
   script:
@@ -64,10 +57,6 @@ tox:
 dotnet functional tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
-  artifacts:
-    paths:
-      - "*.log"
-    when: always
   before_script:
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install --editable .
@@ -86,10 +75,6 @@ dotnet functional tests:
 
 python functional tests:
   stage: test
-  artifacts:
-    paths:
-      - "*.log"
-    when: always
   before_script:
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install --editable .
@@ -106,10 +91,6 @@ python functional tests:
 http functional tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
-  artifacts:
-    paths:
-      - "*.log"
-    when: always
   before_script:
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install --editable .
@@ -157,7 +138,7 @@ pages:
     - docker
   artifacts:
     paths:
-    - public
+      - public
   only:
     - master
   script:
