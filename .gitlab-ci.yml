@@ -8,8 +8,6 @@ default:
   image: altwalker/graphwalker:4.3.1
 
   before_script:
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install -r requirements-dev.txt
 
@@ -93,10 +91,7 @@ python functional tests:
       - "*.log"
     when: always
   before_script:
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
     - python3 -m pip install -r requirements.txt --user
-    - python3 -m pip install idna==2.8
     - python3 -m pip install --editable .
   script:
     - altwalker --version
@@ -151,7 +146,7 @@ docs:
     - python3 -m pip install --editable .
     - cd docs
     - make html
-    - cp -r _build/html ../documentation
+    - cp -r build/html ../documentation
 
 pages:
   stage: deploy

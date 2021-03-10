@@ -1,6 +1,47 @@
 Changelog
 =========
 
+All notable changes to this project will be documented in this file.
+
+The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_,
+and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
+
+
+Version 0.3.0
+-------------
+
+- Add requirements statistics from GraphWalker in report. (`#143`_)
+- Add support for GraphWalker 4.3.0 and 4.3.1. (`#138`_, `#149`_)
+- Add option for GraphWalker host for the ``online`` command. (`#126`_)
+- Add support for edges without name. (`#125`_)
+- Add option for GraphWalker log level. (`#119`_)
+- Update the ``verify`` to output code suggestion for missing methods and classes. (`#101`_, `#106`_)
+- Add an option to print the report path in a file. (`#108`_)
+- Handel ``KeyboardInterrupt`` exception when executing tests to capture the method output. (`#107`_)
+- Update CLI command output. (`#105`_, `#116`_, `#117`_, `#140`_)
+- Fix issue where ``tearDownRun`` and ``tearDownModels`` do not run if a ``GraphWalkerException`` is raised. (`#110`_)
+- Fix issue where ``Reporter.end`` is not call in case ``setUpRun`` fails. (`#109`_)
+- Fix issue where he ``verify`` command doesn't work with paths ending with a path separator. (`#122`_)
+
+.. _#101: https://gitlab.com/altom/altwalker/altwalker/issues/101
+.. _#105: https://gitlab.com/altom/altwalker/altwalker/issues/105
+.. _#106: https://gitlab.com/altom/altwalker/altwalker/issues/106
+.. _#107: https://gitlab.com/altom/altwalker/altwalker/issues/107
+.. _#108: https://gitlab.com/altom/altwalker/altwalker/issues/108
+.. _#109: https://gitlab.com/altom/altwalker/altwalker/issues/109
+.. _#110: https://gitlab.com/altom/altwalker/altwalker/issues/110
+.. _#116: https://gitlab.com/altom/altwalker/altwalker/issues/116
+.. _#117: https://gitlab.com/altom/altwalker/altwalker/issues/117
+.. _#119: https://gitlab.com/altom/altwalker/altwalker/issues/119
+.. _#122: https://gitlab.com/altom/altwalker/altwalker/issues/122
+.. _#125: https://gitlab.com/altom/altwalker/altwalker/issues/125
+.. _#126: https://gitlab.com/altom/altwalker/altwalker/issues/126
+.. _#138: https://gitlab.com/altom/altwalker/altwalker/issues/138
+.. _#140: https://gitlab.com/altom/altwalker/altwalker/issues/140
+.. _#143: https://gitlab.com/altom/altwalker/altwalker/issues/143
+.. _#149: https://gitlab.com/altom/altwalker/altwalker/issues/149
+
+
 Version 0.2.7
 -------------
 
@@ -12,6 +53,7 @@ Version 0.2.7
 .. _#99: https://gitlab.com/altom/altwalker/altwalker/issues/99
 .. _#102: https://gitlab.com/altom/altwalker/altwalker/issues/102
 .. _#103: https://gitlab.com/altom/altwalker/altwalker/issues/103
+
 
 Version 0.2.6
 -------------
@@ -43,6 +85,7 @@ Version 0.2.5
 .. _#84: https://gitlab.com/altom/altwalker/altwalker/issues/84
 .. _#85: https://gitlab.com/altom/altwalker/altwalker/issues/85
 
+
 Version 0.2.4
 -------------
 
@@ -53,6 +96,7 @@ Version 0.2.4
 
 .. _#75: https://gitlab.com/altom/altwalker/altwalker/issues/75
 .. _#76: https://gitlab.com/altom/altwalker/altwalker/issues/76
+
 
 Version 0.2.3
 -------------
@@ -68,6 +112,7 @@ Version 0.2.3
 .. _#67: https://gitlab.com/altom/altwalker/altwalker/issues/67
 .. _#70: https://gitlab.com/altom/altwalker/altwalker/issues/70
 .. _#72: https://gitlab.com/altom/altwalker/altwalker/issues/72
+
 
 Version 0.2.2
 -------------
@@ -85,12 +130,14 @@ Version 0.2.2
 .. _#53: https://gitlab.com/altom/altwalker/altwalker/issues/53
 .. _#48: https://gitlab.com/altom/altwalker/altwalker/issues/48
 
+
 Version 0.2.1
 -------------
 
 (bugfix release)
 
 - Fix issue with loading test code in python.
+
 
 Version 0.2.0
 -------------
@@ -103,6 +150,7 @@ Version 0.2.0
 .. _#35: https://gitlab.com/altom/altwalker/altwalker/issues/35
 .. _#29: https://gitlab.com/altom/altwalker/altwalker/issues/29
 
+
 Version 0.1.1
 -------------
 
@@ -111,6 +159,7 @@ Version 0.1.1
 - Fix issue where output of a failed step is not reported. (`#20`_)
 
 .. _#20: https://gitlab.com/altom/altwalker/altwalker/issues/20
+
 
 Version 0.1.0
 -------------
