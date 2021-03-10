@@ -2,4 +2,5 @@ requests
 psutil
 GitPython
 click
+click-help-colors
 colorama;platform_system=="Windows"

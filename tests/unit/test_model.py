@@ -1,52 +1,128 @@
 import os
+import json
 import unittest
 import unittest.mock as mock
 
-from altwalker.model import PYTHON_KEYWORDS, CSHARP_KEYWORDS, ValidationException, _read_json, _is_keyword, \
-    _is_element_blocked, _graphml_methods, _json_methods, validate_code, validate_model, validate_models, \
-    validate_element, get_models, get_methods, check_models, verify_code
+from altwalker.model import PYTHON_KEYWORDS, CSHARP_KEYWORDS, ValidationException, _read_json, get_models, \
+    _is_keyword, _validate_element_name, _validate_actions, _validate_vertex, _validate_requirements, \
+    _validate_weight, _validate_edge, _validate_model, _validate_models, validate_json_models, validate_models, \
+    check_models
 
 
-class TestIsKeyword(unittest.TestCase):
+MOCK_MODELS = {
+    "name": "Mock models for tests",
+    "models": [
+        {
+            "name": "ModelA",
+            "startElementId": "v0",
+            "generator": "random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "vertex_1"
+                },
+                {
+                    "id": "v1",
+                    "name": "vertex_1",
+                    "sharedState": "link"
+                }
+            ],
+            "edges": [
+            ]
+        },
+        {
+            "name": "ModelA",
+            "generator": "random(never)",
+            "vertices": [
+                {
+                    "id": "v2",
+                    "name": "vertex_1",
+                    "sharedState": "link"
+                }
+            ],
+            "edges": []
+        }
+    ]
+}
 
-    def test_keyword(self):
-        for keyword in PYTHON_KEYWORDS | CSHARP_KEYWORDS:
-            self.assertTrue(_is_keyword(keyword))
+NO_MODELS = {
+    "name": "Mock models for tests",
+    "models": []
+}
 
-    def test_not_kewords(self):
-        for not_keyword in ["not_a_keyword", "definitely_not_a_keyword"]:
-            self.assertFalse(_is_keyword(not_keyword))
+NO_NAME_MODELS = {
+    "models": []
+}
+
+DUPLICATE_IDS_MODELS = {
+    "name": "Mock models for tests",
+    "models": [
+        {
+            "name": "ModelA",
+            "startElementId": "v0",
+            "generator": "random(vertex_coverage(100))",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "vertex_1"
+                },
+                {
+                    "id": "v1",
+                    "name": "vertex_1"
+                }
+            ],
+            "edges": []
+        },
+        {
+            "name": "ModelA",
+            "startElementId": "v0",
+            "generator": "random(length(25))",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "vertex_1"
+                }
+            ],
+            "edges": []
+        }
+    ]
+}
+
+MULTIPLE_ERRORS_MODELS = {
+    "name": "Mock models for tests",
+    "models": [
+        {
+            "name": "ModelA",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "vertex_1"
+                },
+                {
+                    "id": "v1",
+                    "name": "vertex_1"
+                }
+            ],
+            "edges": []
+        },
+        {
+            "name": "ModelA",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "vertex_1"
+                },
+                {
+                    "name": "vertex_2"
+                }
+            ],
+            "edges": []
+        }
+    ]
+}
 
 
-class TestValidateElement(unittest.TestCase):
-
-    def test_validation(self):
-        # Should return true for valid names
-        self.assertTrue(validate_element("method_A"))
-        self.assertTrue(validate_element("Method_A"))
-        self.assertTrue(validate_element("Method_1"))
-
-    def test_validation_for_invalid_method(self):
-        # Should return false for strings with numbers as first character
-        self.assertFalse(validate_element("1_method"))
-
-    def test_validation_for_spaces(self):
-        # Should return false for strings with extra spaces
-        self.assertFalse(validate_element("method "))
-
-    def test_validation_for_invalid_characters(self):
-        # Should return false for unaccepted characters
-
-        characters = "!@#$%^&*+-/=<>~`,./;:'\"][}{)(|"
-
-        for character in characters:
-            self.assertFalse(validate_element("method_" + character))
-
-        for character in characters:
-            self.assertFalse(validate_element(character + "_method"))
-
-
-class TestReadJson(unittest.TestCase):
+class _TestReadJson(unittest.TestCase):
 
     def test_error(self):
         file_name = "error.json"
@@ -59,62 +135,681 @@ class TestReadJson(unittest.TestCase):
 
         os.remove(file_name)
 
+    def test_valid(self):
+        file_name = "valid.json"
 
-class TestValidateModel(unittest.TestCase):
+        with open(file_name, "w") as fp:
+            fp.write(json.dumps(NO_MODELS))
 
-    def test_valid_model(self):
+        json_models = _read_json(file_name)
+        self.assertEqual(json_models, NO_MODELS)
+
+        os.remove(file_name)
+
+
+class TestGetModels(unittest.TestCase):
+
+    def test_no_files(self):
+        result = get_models([])
         models = {
-            "models": [
+            'name': 'Unnamed Model Suite',
+            'models': []
+        }
+
+        self.assertEqual(result, models)
+
+    def test_no_models(self):
+        result = get_models(["tests/common/models/no-models.json"])
+        models = {
+            'name': 'No models',
+            'models': []
+        }
+
+        self.assertEqual(result, models)
+
+    def test_one_file(self):
+        result = get_models(["tests/common/models/simple.json"])
+        model = _read_json("tests/common/models/simple.json")
+        model["models"][0]["sourceFile"] = "tests/common/models/simple.json"
+
+        self.assertEqual(len(result["models"]), 1)
+        self.assertEqual(result["models"], model["models"])
+
+    def test_two_files(self):
+        result = get_models(["tests/common/models/simple.json", "tests/common/models/simple.json"])
+        model = _read_json("tests/common/models/simple.json")
+        model["models"][0]["sourceFile"] = "tests/common/models/simple.json"
+
+        self.assertEqual(len(result["models"]), 2)
+        self.assertEqual(result["models"], model["models"] + model["models"])
+
+    def test_no_name(self):
+        result = get_models(["tests/common/models/no-name.json"])
+        self.assertEqual(result["name"], "Unnamed Model Suite")
+
+
+class _TestIsKeyword(unittest.TestCase):
+
+    def test_keyword(self):
+        for keyword in PYTHON_KEYWORDS | CSHARP_KEYWORDS:
+            self.assertTrue(_is_keyword(keyword))
+
+    def test_not_kewords(self):
+        for not_keyword in ["not_a_keyword", "definitely_not_a_keyword"]:
+            self.assertFalse(_is_keyword(not_keyword))
+
+
+class _TestValidateElementName(unittest.TestCase):
+    valid_names = ["method_A", "Method_A", "Method_1"]
+    invalid_names = ["0_method", "1_method", "method a"]
+
+    def test_valid_names(self):
+        for name in self.valid_names:
+            self.assertEqual(_validate_element_name(name), set())
+
+    def test_invalid_identifiers(self):
+        for name in self.invalid_names:
+            self.assertEqual(_validate_element_name(name), {"Name '{}' is not a valid identifier.".format(name)})
+
+    def test_extra_spaces(self):
+        for name in self.valid_names:
+            name = name + " "
+            self.assertEqual(_validate_element_name(name), {"Name '{}' is not a valid identifier.".format(name)})
+
+        for name in self.valid_names:
+            name = " " + name
+            self.assertEqual(_validate_element_name(name), {"Name '{}' is not a valid identifier.".format(name)})
+
+        for name in self.valid_names:
+            name = " " + name + " "
+            self.assertEqual(_validate_element_name(name), {"Name '{}' is not a valid identifier.".format(name)})
+
+    def test_invalid_characters(self):
+        characters = "!@#$%^&*+-/=<>~`,./;:'\"][}{)(|"
+
+        for name in self.valid_names:
+            for character in characters:
+                name = character + name
+                self.assertEqual(_validate_element_name(name), {"Name '{}' is not a valid identifier.".format(name)})
+
+            for character in characters:
+                name = name + character
+                self.assertEqual(_validate_element_name(name), {"Name '{}' is not a valid identifier.".format(name)})
+
+    def test_keywords(self):
+        for keyword in PYTHON_KEYWORDS | CSHARP_KEYWORDS:
+            self.assertEqual(_validate_element_name(keyword), {"Name '{}' is a reserve keyword.".format(keyword)})
+
+
+class _TestValidateActions(unittest.TestCase):
+
+    def test_actions(self):
+        actions = [
+            "a = 1",
+            "b = 2"
+        ]
+        self.assertEqual(_validate_actions("v0", actions), set())
+
+    def test_invalid_actions(self):
+        actions = {}
+        self.assertEqual(
+            _validate_actions("v0", actions),
+            {"Edge 'v0' has invalid actions. Actions must be a list of strings."})
+
+    def test_empty_action(self):
+        actions = [
+            "a = 1",
+            ""
+        ]
+        self.assertEqual(
+            _validate_actions("v0", actions),
+            {"Edge 'v0' has an invalid action. Action cannot be an empty string."})
+
+    def test_invalid_action(self):
+        actions = [
+            1,
+            {},
+            []
+        ]
+
+        for action in actions:
+            self.assertEqual(
+                _validate_actions("v0", [action]),
+                {"Edge 'v0' has an invalid action. Each action must be a string."})
+
+
+class _TestValidateRequirements(unittest.TestCase):
+
+    def test_valid_requirements(self):
+        requirements = [
+            "requirement1",
+            "requirement2"
+        ]
+        self.assertEqual(_validate_requirements("v0", requirements), set())
+
+    def test_invalid_requirements(self):
+        requirements = {}
+        self.assertEqual(
+            _validate_requirements("v0", requirements),
+            {"Vertex 'v0' has invalid requirements. Requirements must be a list of strings."})
+
+    def test_empty_requirement(self):
+        requirements = [
+            "requirement1",
+            ""
+        ]
+        self.assertEqual(
+            _validate_requirements("v0", requirements),
+            {"Vertex 'v0' has an invalid requirement. Requirement cannot be an empty string."})
+
+    def test_invalid_requirement(self):
+        requirements = [
+            1,
+            {},
+            []
+        ]
+
+        for requirement in requirements:
+            self.assertEqual(
+                _validate_requirements("v0", [requirement]),
+                {"Vertex 'v0' has an invalid requirement. Each requirements must be a string."})
+
+
+class _TestValidateWeight(unittest.TestCase):
+
+    def test_valid_weight(self):
+        weights = [x / 10.0 for x in range(0, 11, 1)]
+
+        for weight in weights:
+            self.assertEqual(_validate_weight("e0", weight), set())
+
+    def test_invalid_weight(self):
+        weights = [x / 10.0 for x in range(-10, 0, 1)]
+        weights.extend(x / 10.0 for x in range(11, 20, 1))
+
+        for weight in weights:
+            self.assertEqual(
+                _validate_weight("e0", weight),
+                {"Edge 'e0' has an ivalid weight of: {}. The weight must be a value between 0 and 1.".format(weight)}
+            )
+
+
+class _TestValidateVertex(unittest.TestCase):
+
+    def test_valid(self):
+        vertex = {
+            "id": "v1",
+            "name": "v_name"
+        }
+
+        self.assertEqual(_validate_vertex(vertex), set())
+
+    def test_no_id(self):
+        vertex = {
+            "name": "v_name"
+        }
+
+        self.assertEqual(_validate_vertex(vertex), {"Each vertex must have an id."})
+
+        vertex = {
+            "id": "",
+            "name": "v_name"
+        }
+
+        self.assertEqual(_validate_vertex(vertex), {"Each vertex must have an id."})
+
+    def test_no_name(self):
+        vertex = {
+            "id": "v0"
+        }
+
+        self.assertEqual(_validate_vertex(vertex), {"Vertex 'v0' doesn't have a name."})
+
+    def test_invalid_names(self):
+        vertex = {
+            "id": "v0",
+            "name": "v name"
+        }
+
+        self.assertEqual(_validate_vertex(vertex), {"Name 'v name' is not a valid identifier."})
+
+    def test_keyword_name(self):
+        vertex = {
+            "id": "v0",
+            "name": "return"
+        }
+
+        self.assertEqual(_validate_vertex(vertex), {"Name 'return' is a reserve keyword."})
+
+    def test_invalid_shared_state(self):
+        vertex = {
+            "id": "v1",
+            "name": "v_name",
+            "sharedState": {}
+        }
+        error_message = "Vertex 'v1' has an invalid sharedState. Shared states must be strings."
+
+        self.assertEqual(_validate_vertex(vertex), {error_message})
+
+
+class _TestValidateEdge(unittest.TestCase):
+
+    def test_valid_edge(self):
+        edge = {
+            "id": "e0",
+            "name": "v_name",
+            "sourceVertexId": "v0",
+            "targetVertexId": "v1"
+        }
+
+        self.assertEqual(_validate_edge(edge), set())
+
+    def test_no_id(self):
+        edge = {
+            "name": "v_name",
+            "sourceVertexId": "v0",
+            "targetVertexId": "v1"
+        }
+
+        self.assertEqual(_validate_edge(edge), {'Each edge must have an id.'})
+
+    def test_no_name(self):
+        edge = {
+            "id": "e0",
+            "sourceVertexId": "v0",
+            "targetVertexId": "v1"
+        }
+
+        self.assertEqual(_validate_edge(edge), set())
+
+    def test_invalid_name(self):
+        edge = {
+            "id": "e0",
+            "name": "e name",
+            "sourceVertexId": "v0",
+            "targetVertexId": "v1"
+        }
+
+        self.assertEqual(_validate_edge(edge), {"Name 'e name' is not a valid identifier."})
+
+    def test_keyword_name(self):
+        edge = {
+            "id": "e0",
+            "name": "return",
+            "sourceVertexId": "v0",
+            "targetVertexId": "v1"
+        }
+
+        self.assertEqual(_validate_edge(edge), {"Name 'return' is a reserve keyword."})
+
+    def test_no_target_vertex_id(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v0"
+        }
+
+        self.assertEqual(_validate_edge(edge), {"Edge 'e0' doesn't have a targetVertexId."})
+
+    def test_no_source_vertex_id(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "targetVertexId": "v0"
+        }
+
+        self.assertEqual(_validate_edge(edge, is_start_element=True), set())
+
+    def test_weight(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        weights = [x / 10.0 for x in range(0, 11, 1)]
+
+        for weight in weights:
+            edge["weight"] = weight
+            self.assertEqual(_validate_edge(edge), set())
+
+    def test_invalid_weight(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        weights = [-2, -1, 2, 3]
+        error_message = "Edge 'e0' has an ivalid weight of: {}. The weight must be a value between 0 and 1."
+
+        for weight in weights:
+            edge["weight"] = weight
+            self.assertEqual(_validate_edge(edge), {error_message.format(weight)})
+
+    def test_not_start_element(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "targetVertexId": "v0"
+        }
+        error_message = "Edge 'e0' is not a start element and it doesn't have a sourceVertexId."
+
+        self.assertEqual(_validate_edge(edge, is_start_element=False), {error_message})
+
+    def test_invalid_dependency(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        dependencies = [
+            "a", "b", "c",
+            "1a", "2b", "3c",
+            "a1", "b2", "c3",
+            "1.1", "2.2", "3.3",
+            1.0, 2.0, 3.0,
+            1.1, 2.2, 3.3
+        ]
+        error_message = "Edge 'e0' has an ivalid dependency of: {}. The dependency must be a valid integer number."
+
+        for dependency in dependencies:
+            edge["dependency"] = dependency
+            self.assertEqual(_validate_edge(edge), {error_message.format(dependency)})
+
+    def test_dependency(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        dependencies = ["1", "2", "3", 1, 2, 3]
+
+        for dependency in dependencies:
+            edge["dependency"] = dependency
+            self.assertEqual(_validate_edge(edge), set())
+
+    def test_guard(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "guard": "isTrue == true",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+
+        self.assertEqual(_validate_edge(edge), set())
+
+    def test_invalid_guard(self):
+        edge = {
+            "id": "e0",
+            "name": "e_name",
+            "sourceVertexId": "v1",
+            "targetVertexId": "v0"
+        }
+        guards = [1, 2, 3, {}, []]
+
+        for guard in guards:
+            edge["guard"] = guard
+            self.assertEqual(_validate_edge(edge), {"Edge 'e0' has an ivalid guard. The guard must be a string."})
+
+
+class _TestValidateModel(unittest.TestCase):
+
+    def test_valid(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v0",
+            "generator": "random(never)",
+            "vertices": [
                 {
-                    "name": "Model_A",
-                    "vertices": [
-                        {
-                            "name": "vertex_A"
-                        }
-                    ],
-                    "edges": [
-                        {
-                            "name": "edge_A"
-                        }
-                    ]
+                    "id": "v0",
+                    "name": "v_name"
+                }
+            ],
+            "edges": [
+
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), set())
+
+    def test_no_name(self):
+        model = {
+            "startElementId": "v0",
+            "generator": "random(vertex_coverage(100))",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_name"
+                }
+            ],
+            "edges": [
+
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {"Each model must have a name."})
+
+    def test_empty_name(self):
+        model = {
+            "name": "",
+            "startElementId": "v0",
+            "generator": "quick_random(vertex_coverage(100))",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {"Each model must have a name."})
+
+    def test_invalid_name(self):
+        model = {
+            "name": "Model A",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {"Name 'Model A' is not a valid identifier."})
+
+    def test_keyword_name(self):
+        model = {
+            "name": "return",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_name"
+                }
+            ],
+            "edges": [
+
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {"Name 'return' is a reserve keyword."})
+
+    def test_no_vertices(self):
+        model = {
+            "name": "Model",
+            "startElementId": "e0",
+            "generator": "weighted_random(never)",
+            "edges": [
+                {
+                    "id": "e0",
+                    "name": "e_name",
+                    "sourceVertexId": "v0",
+                    "targetVertexId": "v1"
                 }
             ]
         }
 
-        validate_model(models)
+        self.assertEqual(_validate_model(model), {'Each model must have a list of vertices.'})
 
-    def test_invalid_model(self):
-        models = {
-            "models": [
+    def test_no_edges(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
+            "vertices": [
                 {
-                    "name": "Model A",
-                    "vertices": [
-                        {
-                            "name": "1vertex"
-                        }
-                    ],
-                    "edges": [
-                        {
-                            "name": "1edge"
-                        }
-                    ]
+                    "id": "v0",
+                    "name": "v_name"
                 }
             ]
         }
 
-        with self.assertRaises(ValidationException) as cm:
-            validate_model(models)
+        self.assertEqual(_validate_model(model), {'Each model must have a list of edges.'})
 
-        message = str(cm.exception)
+    def test_invalid_vertex(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                },
+                {
+                    "name": "v_name"
+                }
+            ],
+            "edges": [
 
-        # Should return a correct message
-        self.assertIn("Invalid model name: Model A.\n", message)
-        self.assertIn("Invalid vertex name: 1vertex.\n", message)
-        self.assertIn("Invalid edge name: 1edge.\n", message)
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {'Each vertex must have an id.'})
+
+    def test_invalid_edge(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v0",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+                {
+                    "name": "v_name"
+                }
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {'Each edge must have an id.'})
+
+    def test_invalid_generator(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v0",
+            "generator": 1,
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {'The generator must be a string.'})
+
+    def test_start_element_no_found(self):
+        model = {
+            "name": "Model",
+            "startElementId": "v1",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), {"Starting element 'v1' was not found."})
+
+    def test_edge_as_start_element(self):
+        model = {
+            "name": "Model",
+            "startElementId": "e0",
+            "generator": "weighted_random(never)",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "v_vertex"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e0",
+                    "name": "e_edge",
+                    "targetVertexId": "v0"
+                }
+            ]
+        }
+
+        self.assertEqual(_validate_model(model), set())
 
 
-@mock.patch("altwalker.model.validate_model")
-@mock.patch("altwalker.model._read_json")
+class _TestValidateModels(unittest.TestCase):
+
+    def test_no_models(self):
+        issues = _validate_models(NO_MODELS)
+
+        self.assertEqual(issues["global"], {'No models found.'})
+
+    def test_duplicate_ids(self):
+        issues = _validate_models(DUPLICATE_IDS_MODELS)
+
+        self.assertEqual(issues["UnknownSourceFile::ModelA"], {"Id 'v0' is not unique."})
+
+
+class TestValidateJsonModels(unittest.TestCase):
+
+    def test_valid(self):
+        validate_json_models(MOCK_MODELS)
+
+    def test_no_models(self):
+        with self.assertRaises(ValidationException):
+            validate_json_models(NO_MODELS)
+
+    def test_duplicate_ids(self):
+        with self.assertRaises(ValidationException):
+            validate_json_models(DUPLICATE_IDS_MODELS)
+
+    def test_multiple_erros(self):
+        with self.assertRaises(ValidationException):
+            validate_json_models(MULTIPLE_ERRORS_MODELS)
+
+
+@mock.patch("altwalker.model.validate_json_models")
+@mock.patch("altwalker.model.get_models")
 class TestValidateModels(unittest.TestCase):
 
     def test_read_json(self, read_mock, validate_mock):
@@ -122,239 +817,14 @@ class TestValidateModels(unittest.TestCase):
 
         validate_models(["first.json", "second.json"])
 
-        read_mock.assert_any_call("first.json")
-        read_mock.assert_any_call("second.json")
+        read_mock.assert_any_call(["first.json", "second.json"])
 
     def test_validate_model(self, read_mock, validate_mock):
-        read_mock.side_effect = ["first.json", "second.json"]
+        read_mock.return_value = mock.sentinel.models
 
         validate_models(["first.json", "second.json"])
 
-        validate_mock.assert_any_call("first.json")
-        validate_mock.assert_any_call("second.json")
-
-
-class TestValidateCode(unittest.TestCase):
-
-    def setUp(self):
-        self.methods = {
-            "Model_A": ["vertex_A", "edge_A"]
-        }
-
-        self.executor = mock.MagicMock()
-
-    def test_valid_code(self):
-        self.executor.has_model.return_value = True
-        self.executor.has_step.return_value = True
-
-        validate_code(self.executor, self.methods)
-
-    def test_invalid_code(self):
-        self.executor.has_model.return_value = False
-        self.executor.has_step.return_value = False
-
-        with self.assertRaises(ValidationException) as cm:
-            validate_code(self.executor, self.methods)
-
-        message = str(cm.exception)
-
-        expected = "Expected to find class Model_A.\n" + \
-                   "Expected to find vertex_A method in class Model_A.\n" + \
-                   "Expected to find edge_A method in class Model_A.\n"
-
-        self.assertEqual(expected, message)
-
-
-@mock.patch("altwalker.model.validate_code")
-@mock.patch("altwalker.model.get_methods")
-@mock.patch("altwalker.model.validate_models")
-@mock.patch("altwalker.model.create_executor")
-class TestVerifyCode(unittest.TestCase):
-    def test_verify_code(self, create_executor_mock, validate_models_mock, methods_mock, validate_code_mock):
-        executor = mock.MagicMock()
-        create_executor_mock.return_value = executor
-        verify_code("/path/to/package", "executorname", ["models.json"], None)
-        create_executor_mock.assert_called_once_with("/path/to/package", "executorname", None)
-        validate_models_mock.assert_called_once_with(["models.json"])
-        methods_mock.assert_called_once_with(["models.json"])
-        executor.kill.assert_called_once_with()
-
-    def test_validate_code(self, create_executor_mock, validate_models_mock, methods_mock, validate_code_mock):
-        executor = mock.MagicMock()
-        create_executor_mock.return_value = executor
-
-        methods = {
-            "ModelA": ["vertex_A"]
-        }
-        methods_mock.return_value = methods
-
-        verify_code("/path/to/package", "executorname", ["models.json"], None)
-        validate_code_mock.assert_called_once_with(executor, methods)
-        executor.kill.assert_called_once_with()
-
-
-class TestIsElementBlocked(unittest.TestCase):
-
-    def test_element_blocked_and_blocked_enabled(self):
-        element = {"properties": {"blocked": False}}
-        self.assertTrue(_is_element_blocked(element, blocked=True))
-
-    def test_element_blocked_and_blocked_disabled(self):
-        element = {"properties": {"blocked": True}}
-        self.assertTrue(_is_element_blocked(element, blocked=False))
-
-    def test_element_not_blocked_and_blocked_enabled(self):
-        element = {"properties": {"blocked": False}}
-        self.assertTrue(_is_element_blocked(element, blocked=False))
-
-    def test_element_not_blocked_and_blocked_disabled(self):
-        element = {"properties": {"blocked": True}}
-        self.assertFalse(_is_element_blocked(element, blocked=True))
-
-
-@mock.patch("altwalker.model._read_json")
-class TestJsonMethods(unittest.TestCase):
-
-    def setUp(self):
-        self.models = {
-            "models": [
-                {
-                    "name": "ModelA",
-                    "vertices": [
-                        {
-                            "name": "vertex_blocked",
-                            "properties": {
-                                "blocked": True
-                            }
-                        },
-                        {
-                            "name": "vertex_not_blocked",
-                        }
-                    ],
-                    "edges": [
-                        {
-                            "name": "edge_bloked",
-                            "properties": {
-                                "blocked": True
-                            }
-                        },
-                        {
-                            "name": "edge_not_blocked",
-                        }
-                    ]
-                },
-                {
-                    "name": "ModelB",
-                    "vertices": [
-                        {
-                            "name": "vertex_name",
-                            "properties": {
-                                "blocked": False
-                            }
-                        }
-                    ],
-                    "edges": [
-                        {
-                            "name": "edge_name",
-                            "properties": {
-                                "blocked": False
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
-
-    def test_models(self, read_mock):
-        read_mock.return_value = self.models
-
-        output = _json_methods("model_path")
-        self.assertSequenceEqual({"ModelA", "ModelB"}, output.keys())
-
-    def test_blocked_disable(self, read_mock):
-        read_mock.return_value = self.models
-
-        output = _json_methods("model_path")
-        self.assertListEqual(
-            output["ModelA"],
-            sorted(set(["vertex_blocked", "vertex_not_blocked", "edge_bloked", "edge_not_blocked"])))
-        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
-
-    def test_blocked_enable(self, read_mock):
-        read_mock.return_value = self.models
-
-        output = _json_methods("model_path", blocked=True)
-        self.assertListEqual(output["ModelA"], sorted(set(["vertex_not_blocked", "edge_not_blocked"])))
-        self.assertListEqual(output["ModelB"], sorted(set(["vertex_name", "edge_name"])))
-
-
-@mock.patch("altwalker.graphwalker.methods")
-class TestGraphmlMethods(unittest.TestCase):
-
-    def test_methods(self, methods_mock):
-        _graphml_methods("model.graphml")
-        methods_mock.assert_called_once_with("model.graphml", blocked=False)
-
-    def test_blocked(self, methods_mock):
-        _graphml_methods("model.graphml", blocked=True)
-        methods_mock.assert_called_once_with("model.graphml", blocked=True)
-
-    def test_name(self, methods_mock):
-        result = _graphml_methods("model.graphml")
-
-        self.assertIn("model", result)
-
-    def test_result(self, methods_mock):
-        methods_mock.return_value = ["method_A", "method_B"]
-
-        result = _graphml_methods("model.graphml")
-
-        self.assertListEqual(result["model"], ["method_A", "method_B"])
-
-
-@mock.patch("altwalker.model._json_methods")
-@mock.patch("altwalker.model._graphml_methods")
-class TestGetMetohds(unittest.TestCase):
-
-    def test_json(self, graphml_mock, json_mock):
-        get_methods(["model.json"])
-
-        json_mock.assert_called_once_with("model.json", blocked=False)
-        graphml_mock.assert_not_called()
-
-    def test_graphml(self, graphml_mock, json_mock):
-        get_methods(["model.graphml"])
-
-        graphml_mock.assert_called_once_with("model.graphml", blocked=False)
-        json_mock.assert_not_called()
-
-    def test_invalid_format(self, graphml_mock, json_mock):
-        get_methods(["model.txt"])
-
-        json_mock.assert_not_called()
-        graphml_mock.assert_not_called()
-
-    def test_both(self, graphml_mock, json_mock):
-        get_methods(["model.json", "model.graphml"])
-
-        json_mock.assert_called_once_with("model.json", blocked=False)
-        graphml_mock.assert_called_once_with("model.graphml", blocked=False)
-
-    def test_blocked(self, graphml_mock, json_mock):
-        get_methods(["model.json", "model.graphml"], blocked=True)
-
-        json_mock.assert_called_once_with("model.json", blocked=True)
-        graphml_mock.assert_called_once_with("model.graphml", blocked=True)
-
-    def test_result(self, graphml_mock, json_mock):
-        json_mock.return_value = {"modelA": ["method_A", "method_B"]}
-        graphml_mock.return_value = {"modelB": ["method_C", "method_D"]}
-
-        result = get_methods(["model.json", "model.graphml"])
-
-        self.assertSequenceEqual({"modelA", "modelB"}, result.keys())
-        self.assertListEqual(result["modelA"], ["method_A", "method_B"])
-        self.assertListEqual(result["modelB"], ["method_C", "method_D"])
+        validate_mock.assert_any_call(mock.sentinel.models)
 
 
 @mock.patch("altwalker.model.validate_models")
@@ -394,13 +864,3 @@ class TestCheckModels(unittest.TestCase):
 
         with self.assertRaisesRegex(ValidationException, "Error message."):
             check_models(self.models, blocked=True)
-
-
-class TestGetModels(unittest.TestCase):
-
-    def test_get_models(self):
-        result = get_models(["tests/common/models/simple.json", "tests/common/models/simple.json"])
-        model = _read_json("tests/common/models/simple.json")
-
-        self.assertEqual(len(result["models"]), 2)
-        self.assertListEqual(result["models"], model["models"] + model["models"])

@@ -1,9 +1,51 @@
+import abc
 import warnings
 
+from altwalker.model import get_models
 from altwalker.graphwalker import GraphWalkerService, GraphWalkerClient
 
 
-class OnlinePlanner:
+class Planner(metaclass=abc.ABCMeta):
+    """An abstract class that defines the planner protocol."""
+
+    @abc.abstractmethod
+    def kill(self):
+        """Cleanup resources and kill processes if needed."""
+
+    @abc.abstractmethod
+    def load(self, models):
+        """Load the models."""
+
+    @abc.abstractmethod
+    def has_next(self):
+        """Return ``True`` if there is a next step available."""
+
+    @abc.abstractmethod
+    def get_next(self):
+        """Return the next step available, if there is one."""
+
+    @abc.abstractmethod
+    def get_data(self):
+        """Get the current data values for the current model."""
+
+    @abc.abstractmethod
+    def set_data(self, key, value):
+        """Set data in the current model."""
+
+    @abc.abstractmethod
+    def restart(self):
+        """Resets the current path and the statistics."""
+
+    @abc.abstractmethod
+    def fail(self, message):
+        """Marks the last step as failed."""
+
+    @abc.abstractmethod
+    def get_statistics(self):
+        """Return the statistics for the current path."""
+
+
+class OnlinePlanner(Planner):
     """Plan a path using the GraphWalker REST service and client.
 
     The path generation is done at run-time, one step at a time, using
@@ -69,11 +111,11 @@ class OnlinePlanner:
         return statistics
 
 
-class OfflinePlanner:
+class OfflinePlanner(Planner):
     """Plan a path from a list of steps.
 
     Args:
-        path: A sequens of steps. A setep is a dict containing a ``name``
+        path: A sequence of steps. A step is a dict containing a ``name``
             and a ``modelName``.
     """
 
@@ -98,13 +140,29 @@ class OfflinePlanner:
         self._path = list(path)
         self.restart()
 
+    def kill(self):
+        """This method does nothing."""
+
+    def load(self, models):
+        """This method does nothing."""
+
     def has_next(self):
         """Check if there are more element in path."""
 
         return self._position < len(self._path)
 
     def get_next(self):
-        """Get the next element form the path."""
+        """Get the next element form the path.
+
+        Returns:
+            dict: A dictionary containing the step id, name and model::
+
+                {
+                    "id": step_id,
+                    "name": step_name,
+                    "modelName": model_name
+                }
+        """
 
         step = self._path[self._position]
         self._position += 1
@@ -135,9 +193,6 @@ class OfflinePlanner:
 
         return {}
 
-    def kill(self):
-        """This method does nothing."""
-
 
 def create_planner(models=None, steps=None, host=None, port=8887, start_element=None,
                    verbose=False, unvisited=False, blocked=False):
@@ -166,7 +221,10 @@ def create_planner(models=None, steps=None, host=None, port=8887, start_element=
 
     if host:
         client = GraphWalkerClient(host=host, port=port, verbose=verbose)
-        return OnlinePlanner(client)
+        planner = OnlinePlanner(client)
+        planner.load(get_models(model for model, stop_condition in models))
+
+        return planner
 
     service = GraphWalkerService(port=port, models=models, start_element=start_element,
                                  unvisited=unvisited, blocked=blocked)

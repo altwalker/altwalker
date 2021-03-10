@@ -1,0 +1,19 @@
+{
+    "name": "This is a simple model for the integration tests",
+    "models": [
+      {
+        "name": "Simple",
+        "generator": "random(edge_coverage(100) && vertex_coverage(100))",
+        "vertices": [
+          {
+            "name": "vertex_a"
+          },
+          {
+            "id": "v1"
+          }
+        ],
+        "edges": [
+        ]
+      }
+    ]
+  }

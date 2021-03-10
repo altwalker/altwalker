@@ -4,24 +4,24 @@ import sys
 import abc
 import time
 import copy
-import inspect
 import traceback
 import logging
-import subprocess
 import importlib
 import importlib.util
 from contextlib import redirect_stdout
+from inspect import signature
 
 import requests
 
-from altwalker._utils import kill, get_command, url_join
-from altwalker.exceptions import ExecutorException
+from altwalker._utils import url_join, Command
+from altwalker.exceptions import AltWalkerException, ExecutorException
+
 
 logger = logging.getLogger(__name__)
-prev_loaded_package_path = None
+_PREV_LOADED_PACKAGE_PATH = None
 
 
-def get_output(callable, *args, **kwargs):
+def get_step_result(callable, *args, **kwargs):
     """Call a callable object and return the output from stdout, error message and
     traceback if an error occurred.
 
@@ -35,6 +35,7 @@ def get_output(callable, *args, **kwargs):
         if an error occurred::
 
             {
+                "result": Any
                 "output": "",
                 "error": {
                     "message": "",
@@ -43,41 +44,47 @@ def get_output(callable, *args, **kwargs):
             }
     """
 
-    result = {}
+    step_result = {}
     output = io.StringIO()
 
     with redirect_stdout(output):
         try:
-            callable(*args, **kwargs)
-        except Exception as e:
-            result["error"] = {
-                "message": str(e),
+            ret = callable(*args, **kwargs)
+            if ret is not None:
+                step_result["result"] = ret
+        except (KeyboardInterrupt, Exception) as e:
+            step_result["error"] = {
+                "message": str(e) or type(e).__name__,
                 "trace": str(traceback.format_exc())
             }
 
-    result["output"] = output.getvalue()
+    step_result["output"] = output.getvalue()
     output.close()
 
-    return result
+    return step_result
 
 
 def _is_parent_path(parent, child):
-    parent = os.path.abspath(parent) + os.sep
+    parent = os.path.abspath(parent)
+    if not parent.endswith(os.sep):
+        parent = parent + os.sep
     child = os.path.abspath(child)
     commonprefix = os.path.commonprefix([parent, child])
     return commonprefix == parent
 
 
 def _pop_previously_loaded_modules(path, package):
-    global prev_loaded_package_path
+    global _PREV_LOADED_PACKAGE_PATH
 
-    if prev_loaded_package_path is not None:
+    if _PREV_LOADED_PACKAGE_PATH is not None:
         for module_key in list(sys.modules):
             if module_key.startswith(package + ".") and \
+                    hasattr(sys.modules[module_key], "__file__") and \
                     sys.modules[module_key].__file__ and \
-                    _is_parent_path(prev_loaded_package_path, sys.modules[module_key].__file__):
+                    _is_parent_path(_PREV_LOADED_PACKAGE_PATH, sys.modules[module_key].__file__):
                 sys.modules.pop(module_key)
-    prev_loaded_package_path = os.path.abspath(os.path.join(path, package, ""))
+
+    _PREV_LOADED_PACKAGE_PATH = os.path.abspath(os.path.join(path, package, ""))
 
 
 def load(path, package, module):
@@ -176,9 +183,9 @@ class Executor(metaclass=abc.ABCMeta):
                     }
                 }
 
-            If no error occured the ``error`` key can be omitted or set to ``None``.
+            If no error occurred the ``error`` key can be omitted or set to ``None``.
 
-            If the graph data is not used or modiffied the ``data`` key can be omitted or set to ``None``.
+            If the graph data is not used or modified the ``data`` key can be omitted or set to ``None``.
         """
 
 
@@ -199,8 +206,8 @@ class HttpExecutor(Executor):
         465: "Test Code Not Loaded"
     }
 
-    def __init__(self, url):
-        self.url = url
+    def __init__(self, url="http://localhost:5000"):
+        self.url = url or "http://localhost:5000"
         self.base = url_join(self.url, "altwalker/")
 
         logging.debug("Initate an HttpExecutor to connect to {} service".format(self.url))
@@ -256,7 +263,7 @@ class HttpExecutor(Executor):
             path (:obj:`str`): The path to the test code.
         """
 
-        self._post("load", json={"path": os.path.abspath(path)})
+        self._post("load", json={"path": path})
 
     def reset(self):
         """Makes an PUT at ``/reset``."""
@@ -277,7 +284,7 @@ class HttpExecutor(Executor):
         has_model = payload.get("hasModel", None)
 
         if has_model is None:
-            raise ExecutorException("Invaild response. The payload must include the key: hasModel.")
+            raise ExecutorException("Invalid response. The payload must include the key: hasModel.")
 
         return payload["hasModel"]
 
@@ -296,7 +303,7 @@ class HttpExecutor(Executor):
         has_step = payload.get("hasStep", None)
 
         if has_step is None:
-            raise ExecutorException("Invaild response. The payload must include the key: hasStep.")
+            raise ExecutorException("Invalid response. The payload must include the key: hasStep.")
 
         return has_step
 
@@ -325,7 +332,7 @@ class HttpExecutor(Executor):
         payload = self._post("executeStep", params={"modelName": model_name, "name": name}, json={"data": data})
 
         if payload.get("output") is None:
-            raise ExecutorException("Invaild response. The payload must include the key: output.")
+            raise ExecutorException("Invalid response. The payload must include the key: output.")
 
         return payload
 
@@ -368,12 +375,17 @@ class PythonExecutor(Executor):
         """This method does nothing."""
 
     def load(self, path):
+        """Load the test code from a path and reset the current execution."""
+
         self.reset()
 
         path, package = os.path.split(path)
         self._module = load(path, package, "test")
+        self.reset()
 
     def reset(self):
+        """Reset the current execution."""
+
         self._instances = {}
 
     def has_model(self, name):
@@ -423,21 +435,22 @@ class PythonExecutor(Executor):
             If ``model_name`` is ``None`` the step is a fixture.
 
         Returns:
-            A dict containing the graph data, the output of the step, and the error message with the trace
-            if an error occurred::
+            A dict containing the graph data, the output of the step, the result returned by the step method,
+            and the error message with the trace if an error occurred::
 
                 {
                     "output": "",
                     "data": {},
+                    "result": Any,
                     "error": {
                         "message": "",
                         "trace": ""
                     }
                 }
 
-            If no error occured the ``error`` key can be omitted or set to ``None``.
+            If no error occurred the ``error`` key can be omitted or set to ``None``.
 
-            If the graph data is not used or modiffied the ``data`` key can be omitted or set to ``None``.
+            If the graph data is not used or modified the ``data`` key can be omitted or set to ``None``.
         """
 
         data = copy.deepcopy(data) if data else {}
@@ -448,13 +461,13 @@ class PythonExecutor(Executor):
         else:
             func = getattr(self._module, name)
 
-        spec = inspect.signature(func)
+        spec = signature(func)
         nr_args = len(spec.parameters)
 
         if nr_args == 0:
-            output = get_output(func)
+            step_result = get_step_result(func)
         elif nr_args == 1:
-            output = get_output(func, data)
+            step_result = get_step_result(func, data)
         else:
             func_name = "{}.{}".format(model_name, name) if model_name else name
             type_ = "method" if model_name else "function"
@@ -463,12 +476,12 @@ class PythonExecutor(Executor):
 
             raise ExecutorException(error_message.format(func_name, type_, 0, 1, nr_args))
 
-        output["data"] = data
-        return output
+        step_result["data"] = data
+        return step_result
 
 
 class DotnetExecutorService:
-    """Starts a .NET executor service.
+    """Starts a C#/.NET executor service.
 
     * ``dotnet run -p <path>`` - is used to compile and run the console app project.
     * ``dotnet <path>`` - is used to run compiled exe or dll.
@@ -479,51 +492,54 @@ class DotnetExecutorService:
         output_file: A file for the output of the command.
     """
 
-    def __init__(self, path, server_url, output_file="dotnet-executor.log"):
+    def __init__(self, path, server_url="http://localhost:5000/", output_file="dotnet-executor.log"):
         self.path = path
-        self.server_url = server_url
+        self.server_url = server_url or "http://localhost:5000/"
         self.output_file = output_file
 
-        command = self._create_command(path, server_url)
+        command = self._create_command(path, url=self.server_url)
 
-        logger.debug("Starting .NET Executor Service from {} on `{}`".format(path,  server_url))
-        logger.debug("Command: {}".format(" ".join(command)))
+        self._process = Command(command, self.output_file)
 
-        self._process = subprocess.Popen(
-            command, stdout=open(output_file, "w"), stderr=subprocess.STDOUT)
+        logger.debug("Dotnet Executor Service started from {} on {}".format(path, self.server_url))
+        logger.debug("Dotnet Executor Service started with command: {}".format(" ".join(command)))
+        logger.debug("Dotnet Executor Service running with pid: {}".format(self._process.pid))
 
-        self._read_logs()
+        # Ignore bare 'except' error because we re-raise the exception.
+        try:
+            self._read_logs()
+        except:  # noqa: E722
+            self.kill()
+            raise
 
     def _read_logs(self):
         """Read logs to check if the service started correctly."""
 
-        fp = open(self.output_file)
+        with open(self.output_file) as fp:
+            while 1:
+                where = fp.tell()
+                line = fp.readline()
+                if not line:
+                    time.sleep(0.1)
+                    fp.seek(where)
+                else:
+                    if "Now listening on:" in line:
+                        break
 
-        while 1:
-            where = fp.tell()
-            line = fp.readline()
-            if not line:
-                time.sleep(0.1)
-                fp.seek(where)
-            else:
-                if "Now listening on:" in line:
-                    break
+                if self._process.poll() is not None:
+                    self._raise_error()
 
-            if self._process.poll() is not None:
-                logger.debug(
-                    "Could not start .NET Executor service from {} on `{}`"
-                    .format(self.path, self.server_url))
-                logger.debug("Process exit code: {}".format(self._process.poll()))
+    def _raise_error(self):
+        logger.error("Could not start Dotnet Executor service from {} on {}".format(self.path, self.server_url))
+        logger.error("Process exit code: {}".format(self._process.poll()))
 
-                raise ExecutorException(
-                    "Could not start .NET Executor service from {} on {}\nCheck the log file at: {}"
-                    .format(self.path, self.server_url, self.output_file))
-
-        fp.close()
+        raise ExecutorException(
+            "Could not start .NET Executor service from {} on {}\nCheck the log file at: {}"
+            .format(self.path, self.server_url, self.output_file))
 
     @staticmethod
-    def _create_command(path, url):
-        command = get_command("dotnet")
+    def _create_command(path, url="http://localhost:5000/"):
+        command = ["dotnet"]
 
         if os.path.isdir(path):
             command.append("run")
@@ -538,35 +554,35 @@ class DotnetExecutorService:
         """Kill the .NET executor service process.
 
         Note:
-            If the path given was a project path and the service was started with `dotnet run`
-            kills the main process and child process, because `dotnet run` starts the service
+            If the path given was a project path and the service was started with ``dotnet run``
+            kills the main process and child process, because ``dotnet run`` starts the service
             in a child process.
         """
 
         logger.debug("Kill the .NET Executor Service from {} on {}".format(self.path, self.server_url))
-        kill(self._process.pid)
+        self._process.kill()
 
 
 class DotnetExecutor(HttpExecutor):
-    """Starts a .NET executor service, and alows you to interact with it.
+    """Starts a C#/.NET executor service, and allows you to interact with it.
 
     Args:
         path: The path of the console application project, dll or exe, that starts an ``ExecutorService``.
         url: The url for the service to listen (e.g. http://localhost:5000/).
     """
 
-    def __init__(self, path, url):
-        super().__init__(url)
+    def __init__(self, path, url="http://localhost:5000/"):
+        super().__init__(url=url)
 
-        self._service = DotnetExecutorService(path, url)
+        self._service = DotnetExecutorService(path, server_url=url)
 
     def load(self, path):
         """Kill the executor service and start a new one with the given path."""
 
-        logger.debug("Restart the .NET Executor service from {} on {}".format(path, self.base))
+        logger.debug("Restart the .NET Executor service from {} on {}".format(path, self.url))
 
         self._service.kill()
-        self._service = DotnetExecutorService(path, self.base)
+        self._service = DotnetExecutorService(path, server_url=self.url)
 
     def kill(self):
         """Kill the executor service."""
@@ -574,8 +590,16 @@ class DotnetExecutor(HttpExecutor):
         self._service.kill()
 
 
-def create_http_executor(path, url):
-    """Creates a HTTP executor."""
+def create_http_executor(path, *args, url="http://localhost:5000/", **kwargs):
+    """Creates a HTTP executor.
+
+    Args:
+        path: The path to the tests.
+        url: The url for the executor service (e.g. http://localhost:5000/).
+
+    Returns:
+        :obj:`HttpExecutor`: A HTTP executor.
+    """
 
     executor = HttpExecutor(url)
     executor.load(path)
@@ -583,38 +607,68 @@ def create_http_executor(path, url):
     return executor
 
 
-def create_dotnet_executor(path, url):
-    """Creates a .NET executor."""
+def create_python_executor(path, *args, **kwargs):
+    """Creates a Python executor.
 
-    return DotnetExecutor(path, url)
+    Args:
+        path: The path to the tests.
 
+    Returns:
+        :obj:`PythonExecutor`: A Python executor.
+    """
 
-def create_python_executor(path):
-    """Creates a Python executor."""
-
-    path, package = os.path.split(path)
+    path, package = os.path.split(path.rstrip(os.path.sep))
     module = load(path, package, "test")
 
     return PythonExecutor(module)
 
 
-def create_executor(path, type_, url=None):
+def create_dotnet_executor(path, *args, url="http://localhost:5000/", **kwargs):
+    """Creates a C#/.NET executor.
+
+    Args:
+        path: The path to the tests.
+        url: The url for the service to listen (e.g. http://localhost:5000/).
+
+    Returns:
+        :obj:`DotnetExecutor`: A C#/.NET executor.
+    """
+
+    return DotnetExecutor(path, url=url)
+
+
+_CREATE_EXECUTOR_FUNCTIONS = {
+    "http": create_http_executor,
+    "python": create_python_executor,
+    "dotnet": create_dotnet_executor,
+    "c#": create_dotnet_executor,
+}
+
+SUPPORTED_EXECUTORS = _CREATE_EXECUTOR_FUNCTIONS.keys()
+
+
+def _call_create_executor_function(executor_type, *args, **kwargs):
+    try:
+        generate_func = _CREATE_EXECUTOR_FUNCTIONS[executor_type.lower()]
+    except KeyError:
+        raise AltWalkerException(
+            "Executor type '{}' is not supported. Supported executor types are: {}."
+            .format(executor_type, ", ".join(SUPPORTED_EXECUTORS))
+        )
+
+    return generate_func(*args, **kwargs)
+
+
+def create_executor(path, executor_type, *args, url="http://localhost:5000/", **kwargs):
     """Creates an executor.
 
     Args:
         path: The path to the tests.
-        type_: The type of the executor (e.g. http, python, dotnet).
-        url: The url for the executor service.
+        executor_type: The type of the executor (e.g. http, python, dotnet).
+        url: The url for the executor service (e.g. http://localhost:5000/).
 
     Raises:
-        ValueError: If the ``type_`` is not supported.
+        AltWalkerException: If the ``executor_type`` is not supported.
     """
 
-    if type_ == "http":
-        return create_http_executor(path, url)
-    elif type_ == "python":
-        return create_python_executor(path)
-    elif type_ == "dotnet" or type_ == "c#":
-        return create_dotnet_executor(path, url)
-    else:
-        raise ValueError("{} is not a supported executor type.".format(type_))
+    return _call_create_executor_function(executor_type, path, *args, url=url, **kwargs)

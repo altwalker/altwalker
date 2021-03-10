@@ -1,5 +1,6 @@
 import traceback
 
+from altwalker.exceptions import GraphWalkerException
 from altwalker.reporter import Reporter
 
 
@@ -27,10 +28,16 @@ class Walker:
 
         # if setUpRun failed stop
         if not self._status:
+            self._reporter.end(statistics=self._planner.get_statistics(), status=self._status)
             return
 
-        while self._planner.has_next() and self._status:
-            step = self._planner.get_next()
+        while self._status and self._planner.has_next():
+            try:
+                step = self._planner.get_next()
+            except GraphWalkerException as ex:
+                self._reporter.error(None, str(ex))
+                self._status = False
+                break
 
             if step["modelName"] not in self._models:
                 self._status = self._setUpModel(step["modelName"])
@@ -38,6 +45,9 @@ class Walker:
                 # if setUpModel failed stop executing steps
                 if not self._status:
                     break
+
+            if not step.get("name"):
+                continue
 
             self._status = self._run_step(step)
             step["status"] = self._status
@@ -50,7 +60,7 @@ class Walker:
         status = self._tearDownRun()
         self._status = self._status & status
 
-        self._reporter.end()
+        self._reporter.end(statistics=self._planner.get_statistics(), status=self._status)
 
     @property
     def status(self):
@@ -120,13 +130,13 @@ class Walker:
         data_before = self._planner.get_data()
 
         self._reporter.step_start(step)
-        result = self._executor.execute_step(step.get("modelName"), step.get("name"), data_before)
-        self._reporter.step_end(step, result)
+        step_result = self._executor.execute_step(step.get("modelName"), step.get("name"), data_before)
+        self._reporter.step_end(step, step_result)
 
-        data_after = result.get("data")
+        data_after = step_result.get("data")
         self._update_data(data_before, data_after)
 
-        error = result.get("error")
+        error = step_result.get("error")
         if error:
             self._planner.fail(error["message"])
 
@@ -136,7 +146,10 @@ class Walker:
         if not self._executor.has_step(step.get("modelName"), step.get("name")):
             if not optional:
                 self._planner.fail("Step not found.")
-                self._reporter.error(step, "Step not found.")
+                self._reporter.error(
+                    step,
+                    "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
+                )
 
             return optional
 

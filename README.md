@@ -1,8 +1,10 @@
 # AltWalker
 
-AltWalker is an open source, Model-Based Testing framework. Write your tests in Python or C# and use GraphWalker to generate a path through your model.
+AltWalker is an open source, Model-Based Testing framework.
 
 Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
+
+Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
 
 ## Table of Contents
 
@@ -15,14 +17,14 @@ Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
 
 ## Overview
 
-AltWalker is an open source, Model-Based testing framework for automating your test execution. You
-design your tests as a directed graph and AltWalker executes them. It relies on
-[GraphWalker](http://graphwalker.github.io/) to generate paths through your graph.
+*AltWalker* is an open source Model-Based Testing framework that supports running
+tests written in python3 and .NET/C#. You design your tests as a directed graph
+and AltWalker generates test cases from your graph (using [GraphWalker](http://graphwalker.github.io/)) and executes them.
 
 ### Model-Based Testing
 
 [Model-Based Testing](https://en.wikipedia.org/wiki/Model-based_testing) is a testing
-technique which offers a way of generating test cases based on models that describe the behaviour
+technique which offers a way of generating test cases based on models that describe the behavior
 (functionality) of the system under test.
 
 The goal when designing models is to represent the part of the system under test, usually
@@ -114,10 +116,10 @@ Prerequisites:
 * MacOS/Linux:
 
 ```bash
-$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar && \
+$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.3.0/graphwalker-cli-4.3.0.jar && \
   mkdir -p ~/graphwalker && \
-  mv graphwalker-cli-4.0.1.jar ~/graphwalker/ && \
-  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.0.1.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
+  mv graphwalker-cli-4.3.0.jar ~/graphwalker/ && \
+  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.3.0.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
   chmod +x ~/graphwalker/graphwalker-cli.sh && \
   ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
 ```
@@ -228,10 +230,10 @@ $ pip3 install -r requirements.txt && \
 $ pytest tests -s -v
 ```
 
-#### Running tests with tox inside docker
+#### Running tests with tox inside Docker
 
 ```
-$ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" robert96/graphwalker-cli:tox tox
+$ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" altwalker/tests:tox tox
 ```
 
 ### CLI

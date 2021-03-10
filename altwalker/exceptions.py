@@ -1,7 +1,11 @@
 import functools
+import logging
 
 import click
 from click._compat import get_text_stderr
+
+
+logger = logging.getLogger(__name__)
 
 
 class GraphWalkerException(Exception):
@@ -41,7 +45,7 @@ class GraphWalkerError(click.ClickException):
         if file is None:
             file = get_text_stderr()
 
-        click.secho("GraphWalker Error:\n", file=file, bold=True, fg="red")
+        click.secho("GraphWalker Error: ", file=file, bold=True, fg="red", nl=False)
         click.secho("{}\n".format(self.format_message()), file=file, fg="red")
 
 
@@ -54,7 +58,7 @@ class AltWalkerError(click.ClickException):
         if file is None:
             file = get_text_stderr()
 
-        click.secho("AltWalker Error:\n", file=file, bold=True, fg="red")
+        click.secho("AltWalker Error: ", file=file, bold=True, fg="red", nl=False)
         click.secho("{}\n".format(self.format_message()), file=file, fg="red")
 
 
@@ -64,7 +68,7 @@ def handle_errors(func):
     @functools.wraps(func)
     def wrap(*args, **kwargs):
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except GraphWalkerException as error:
             raise GraphWalkerError(error)
         except AltWalkerException as error:
@@ -72,6 +76,7 @@ def handle_errors(func):
         except click.ClickException:
             raise
         except Exception as error:
+            logger.exception(error)
             raise click.ClickException(error)
 
     return wrap

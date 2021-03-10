@@ -1,28 +1,9 @@
+"""Utility functions and classes used by AltWalker internally."""
+
 import platform
 import subprocess
-import signal
-import os
 
 import psutil
-import click
-
-
-def kill(pid):
-    """Send the SIGINT signal to a process and all its children."""
-
-    process = psutil.Process(pid)
-
-    for child in process.children(recursive=True):
-        os.kill(child.pid, signal.SIGINT)
-
-    os.kill(process.pid, signal.SIGINT)
-
-
-def get_command(command_name):
-    command = ["cmd.exe", "/C"] if platform.system() == "Windows" else []
-    command.append(command_name)
-
-    return command
 
 
 def url_join(base, url):
@@ -31,94 +12,81 @@ def url_join(base, url):
     return "{}/{}".format(base.strip("/"), url.strip("/"))
 
 
-def has_git():
-    """Returns True if it can run ``git --version``, otherwise returns False."""
+def prefix_command(command):
+    """Prefix a command list with ``["cmd.exe", "/C"]`` on Windows, on Linux and POSIX return the command."""
+
+    prefix = ["cmd.exe", "/C"] if platform.system() == "Windows" else []
+    prefix.extend(command)
+
+    return prefix
+
+
+def execute_command(command, timeout=None):
+    """Execute a command using ``subprocess.Popen`` and return the output.
+
+    Returns:
+        tuple: Returns a tuple ``(stdout_data, stderr_data)``.
+    """
+
+    command = prefix_command(command)
+
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = process.communicate(timeout=None)
+
+    process.terminate()
+    process.wait()
+
+    return output, error
+
+
+def has_command(command, timeout=None):
+    """Returns True if it can run the command, otherwise returns False."""
 
     try:
-        process = subprocess.Popen(["git", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        response = process.communicate()
-
+        response = execute_command(command, timeout=None)
         return response[1] == b""
-    except FileNotFoundError:
+    except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
 
 
-def click_formatwarning(message, category, filename, lineno, file=None, line=None):
-    """Format a warning on a single line and style the text."""
+def has_git(timeout=None):
+    """Returns True if it can run ``git --version``, otherwise returns False."""
 
-    return click.style("{}: {}\n".format(category.__name__, message), fg="yellow")
-
-
-def _percentege_color(percentage):
-    if percentage < 50:
-        return "red"
-
-    if percentage < 80:
-        return "yellow"
-
-    return "green"
+    return has_command(["git", "--version"], timeout=None)
 
 
-def _style_percentage(percentege):
-    return click.style("{}%".format(percentege), fg=_percentege_color(percentege))
+class Command:
+    """Run a command in a new process using ``psutil.Popen``."""
 
+    def __init__(self, command, output_file):
+        self.command = prefix_command(command)
+        self.output_file = output_file
+        self.file_handler = open(self.output_file, "w")
 
-def _style_fail(number):
-    color = "red" if number > 0 else "green"
+        self.process = psutil.Popen(command, stdout=self.file_handler, stderr=self.file_handler,
+                                    start_new_session=True)
 
-    return click.style(str(number), fg=color)
+    @property
+    def pid(self):
+        return self.process.pid
 
+    def poll(self):
+        return self.process.poll()
 
-def _echo_stat(title, value, indent=2):
-    title = " " * indent + title.ljust(30, ".")
-    value = str(value).rjust(15, ".")
+    def wait(self, timeout=None):
+        self.process.wait(timeout=timeout)
 
-    click.echo(title + value)
+    def kill(self):
+        """Kill the process and all its children."""
 
+        if self.process and self.process.poll() is None:
+            for child in self.process.children(recursive=True):
+                child.kill()
+                child.wait(1)
 
-def echo_statistics(statistics):
-    """Pretty-print statistics."""
+            self.process.kill()
+            self.process.wait(1)
 
-    click.echo("Statistics:")
-    click.echo()
-
-    total_models = statistics["totalNumberOfModels"]
-    completed_models = statistics["totalCompletedNumberOfModels"]
-    model_coverage = _style_percentage(completed_models * 100 // total_models)
-
-    _echo_stat("Model Coverage", model_coverage)
-    _echo_stat("Number of Models", click.style(str(total_models), fg="white"))
-    _echo_stat("Completed Models", click.style(str(completed_models), fg="white"))
-
-    _echo_stat("Failed Models", _style_fail(statistics["totalFailedNumberOfModels"]))
-    _echo_stat("Incomplete Models", _style_fail(statistics["totalIncompleteNumberOfModels"]))
-    _echo_stat("Not Executed Models", _style_fail(statistics["totalNotExecutedNumberOfModels"]))
-    click.echo()
-
-    edge_coverage = _style_percentage(statistics["edgeCoverage"])
-    _echo_stat("Edge Coverage", edge_coverage)
-
-    total_edges = statistics["totalNumberOfEdges"]
-    _echo_stat("Number of Edges", click.style(str(total_edges), fg="white"))
-    _echo_stat("Visited Edges", click.style(str(statistics["totalNumberOfVisitedEdges"]), fg="white"))
-    _echo_stat("Unvisited Edges", click.style(str(statistics["totalNumberOfUnvisitedEdges"]), fg="white"))
-    click.echo()
-
-    vertex_coverage = _style_percentage(statistics["vertexCoverage"])
-    _echo_stat("Vertex Coverage", vertex_coverage)
-
-    total_vertices = statistics["totalNumberOfVertices"]
-    _echo_stat("Number of Vertices", click.style(str(total_vertices), fg="white"))
-    _echo_stat("Visited Vertices", click.style(str(statistics["totalNumberOfVisitedVertices"]), fg="white"))
-    _echo_stat("Unvisited Vertices", click.style(str(statistics["totalNumberOfUnvisitedVertices"]), fg="white"))
-    click.echo()
-
-
-def echo_status(status):
-    """Pretty-print status."""
-
-    status_message = "PASS" if status else "FAIL"
-
-    click.echo("Status: ", nl=False)
-    click.secho(" {} ".format(status_message), bg="green" if status else "red")
-    click.echo()
+        if self.file_handler:
+            self.file_handler.close()
+            self.file_handler = None

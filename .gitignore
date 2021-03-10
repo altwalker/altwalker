@@ -15,10 +15,11 @@ lib/
 .pytest_cache/
 
 # pytest coverage
+htmlcov/
+coverage/
 .coverage
 .coverage.*
 .coverage.xml
-htmlcov/
 
 # tox
 .tox/

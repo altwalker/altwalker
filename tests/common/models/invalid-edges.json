@@ -1,0 +1,52 @@
+{
+    "name": "This is a simple model for the integration tests",
+    "models": [
+      {
+        "name": "Simple",
+        "generator": "random(edge_coverage(100) && vertex_coverage(100))",
+        "vertices": [
+          {
+            "id": "v0",
+            "name": "vertex_a"
+          },
+          {
+            "id": "v1",
+            "name": "vertex_b"
+          }
+        ],
+        "edges": [
+            {
+                "name": "edge_a",
+                "sourceVertexId": "v0",
+                "targetVertexId": "v1"
+            },
+            {
+                "id": "e0",
+                "name": "edge_a",
+                "sourceVertexId": "v0"
+            },
+            {
+                "id": "e1",
+                "name": "edge_c",
+                "sourceVertexId": "v0",
+                "targetVertexId": "v1",
+                "weight": -1
+            },
+            {
+                "id": "e2",
+                "name": "edge_c",
+                "sourceVertexId": "v0",
+                "targetVertexId": "v1",
+                "weight": 2
+            },
+            {
+                "id": "e3",
+                "name": "edge_c",
+                "sourceVertexId": "v0",
+                "targetVertexId": "v1",
+                "weight": "a"
+            }
+        ]
+      }
+    ]
+  }

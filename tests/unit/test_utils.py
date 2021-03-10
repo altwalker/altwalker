@@ -1,156 +1,110 @@
-import platform
-import unittest
+import subprocess
 import unittest.mock as mock
 
-from altwalker._utils import get_command, url_join, has_git, _percentege_color, \
-    _style_percentage, _style_fail, _echo_stat, echo_statistics, echo_status
+import pytest
+
+from altwalker._utils import prefix_command, url_join, has_command, has_git
 
 
-class TestGetCommand(unittest.TestCase):
+class TestUrlJoin:
 
-    def test_get_command(self):
-        if platform.system() == "Windows":
-            self.assertListEqual(get_command("gw"), ["cmd.exe", "/C", "gw"])
-        else:
-            self.assertListEqual(get_command("gw"), ["gw"])
+    @pytest.mark.parametrize(
+        "base, url, expected",
+        [
+            ("http://localhost:5000", "altwalker", "http://localhost:5000/altwalker"),
+            ("http://localhost:5000", "/altwalker", "http://localhost:5000/altwalker"),
+            ("http://localhost:5000", "/altwalker/", "http://localhost:5000/altwalker"),
+            ("http://localhost:5000/", "altwalker", "http://localhost:5000/altwalker"),
+            ("http://localhost:5000/", "/altwalker", "http://localhost:5000/altwalker"),
+            ("http://localhost:5000/", "/altwalker/", "http://localhost:5000/altwalker")
+        ]
+    )
+    def test_url_join(self, base, url, expected):
+        assert url_join(base, url) == expected
 
 
-class TestUrlJoin(unittest.TestCase):
+class TestPrefixCommand:
 
-    def test_url_join(self):
-        expected = "http://localhost:5000/altwalker"
+    @mock.patch("platform.system", return_value="Linux")
+    @pytest.mark.parametrize(
+        "command",
+        [
+            ["gw"],
+            ["gw", "--help"],
+            ["gw", "--version"],
+            ["git"],
+            ["git", "--help"],
+            ["git", "--version"]
+        ]
+    )
+    def test_prefix_command_linux(self, platform, command):
+        assert prefix_command(command) == command
 
-        self.assertEqual(url_join("http://localhost:5000", "altwalker"), expected)
-        self.assertEqual(url_join("http://localhost:5000", "/altwalker"), expected)
-        self.assertEqual(url_join("http://localhost:5000", "/altwalker/"), expected)
-        self.assertEqual(url_join("http://localhost:5000/", "altwalker"), expected)
-        self.assertEqual(url_join("http://localhost:5000/", "/altwalker"), expected)
-        self.assertEqual(url_join("http://localhost:5000/", "/altwalker/"), expected)
+    @mock.patch("platform.system", return_value="Windows")
+    @pytest.mark.parametrize(
+        "command, expected",
+        [
+            (["gw"], ["cmd.exe", "/C", "gw"]),
+            (["gw", "--help"], ["cmd.exe", "/C", "gw", "--help"]),
+            (["gw", "--version"], ["cmd.exe", "/C", "gw", "--version"]),
+            (["git"], ["cmd.exe", "/C", "git"]),
+            (["git", "--help"], ["cmd.exe", "/C", "git", "--help"]),
+            (["git", "--version"], ["cmd.exe", "/C", "git", "--version"]),
+        ]
+    )
+    def test_prefix_command_windows(self, platform, command, expected):
+        assert prefix_command(command) == expected
 
 
 @mock.patch("subprocess.Popen")
-class TestHasGit(unittest.TestCase):
+@mock.patch("altwalker._utils.prefix_command", side_effect=lambda command: command)
+class TestHasCommand:
 
-    def test_has_git(self, popen):
+    def test_has_command(self, prefix_command_mock, popen_mock):
         process = mock.Mock()
         process.communicate.return_value = (b"git version 2.20.1", b"")
-        popen.return_value = process
+        popen_mock.return_value = process
 
-        self.assertTrue(has_git())
+        assert has_command(["git", "--version"])
 
-    def test_stderr(self, popen):
+    def test_error(self, prefix_command_mock, popen_mock):
         process = mock.Mock()
         process.communicate.return_value = (b"", b"git not installed")
-        popen.return_value = process
+        popen_mock.return_value = process
 
-        self.assertFalse(has_git())
+        assert not has_command(["git", "--version"])
 
-    def test_for_file_not_found(self, popen):
-        popen.side_effect = FileNotFoundError("Message")
-        self.assertFalse(has_git())
+    def test_for_file_not_found(self, prefix_command_mock, popen_mock):
+        popen_mock.side_effect = FileNotFoundError("Message")
+        assert not has_command(["git", "--version"])
 
-
-class TestPercentageColor(unittest.TestCase):
-
-    def test_red(self):
-        for percentage in range(0, 50):
-            self.assertEqual(_percentege_color(percentage), "red")
-
-    def test_yellow(self):
-        for percentage in range(50, 80):
-            self.assertEqual(_percentege_color(percentage), "yellow")
-
-    def test_green(self):
-        for percentage in range(80, 100):
-            self.assertEqual(_percentege_color(percentage), "green")
+    def test_for_timeout(self, prefix_command_mock, popen_mock):
+        popen_mock.side_effect = subprocess.TimeoutExpired("git --version", timeout=1)
+        assert not has_command(["git", "--version"])
 
 
-class TestStylePercentage(unittest.TestCase):
+@mock.patch("subprocess.Popen")
+@mock.patch("altwalker._utils.prefix_command", side_effect=lambda command: command)
+class TestHasGit:
 
-    def test_message(self):
-        for percentage in range(0, 100):
-            self.assertIn("{}%".format(percentage), _style_percentage(percentage))
+    def test_has_git(self, prefix_command_mock, popen_mock):
+        process = mock.Mock()
+        process.communicate.return_value = (b"git version 2.20.1", b"")
+        popen_mock.return_value = process
 
+        assert has_git()
 
-class TestStyleFail(unittest.TestCase):
+    def test_error(self, prefix_command_mock, popen_mock):
+        process = mock.Mock()
+        process.communicate.return_value = (b"", b"git not installed")
+        popen_mock.return_value = process
 
-    def test_message(self):
-        for number in range(0, 100):
-            self.assertIn(str(number), _style_fail(number))
+        assert not has_git()
 
+    def test_for_file_not_found(self, prefix_command_mock, popen_mock):
+        popen_mock.side_effect = FileNotFoundError("Message")
+        assert not has_git()
 
-@mock.patch("click.echo")
-class TestEchoStat(unittest.TestCase):
-
-    def test_message(self, echo):
-        title = "Title"
-        value = 100
-
-        _echo_stat(title, value)
-
-        echo.assert_called_once_with(mock.ANY)
-
-
-@mock.patch("altwalker._utils._echo_stat")
-@mock.patch("click.echo")
-class TestEchoStatistics(unittest.TestCase):
-
-    def test_statistics(self, echo, echo_stat):
-        statistics = {
-            "edgeCoverage": 100,
-            "edgesNotVisited": [],
-            "totalCompletedNumberOfModels": 1,
-            "totalFailedNumberOfModels": 0,
-            "totalIncompleteNumberOfModels": 0,
-            "totalNotExecutedNumberOfModels": 0,
-            "totalNumberOfEdges": 1,
-            "totalNumberOfModels": 1,
-            "totalNumberOfUnvisitedEdges": 0,
-            "totalNumberOfUnvisitedVertices": 0,
-            "totalNumberOfVertices": 2,
-            "totalNumberOfVisitedEdges": 1,
-            "totalNumberOfVisitedVertices": 2,
-            "vertexCoverage": 100,
-            "verticesNotVisited": []
-        }
-
-        echo_statistics(statistics)
-
-        self.assertGreater(echo.call_count, 0)
-        echo_stat.assert_any_call("Model Coverage", mock.ANY)
-        echo_stat.assert_any_call("Number of Models", mock.ANY)
-        echo_stat.assert_any_call("Completed Models", mock.ANY)
-        echo_stat.assert_any_call("Failed Models", mock.ANY)
-        echo_stat.assert_any_call("Incomplete Models", mock.ANY)
-        echo_stat.assert_any_call("Not Executed Models", mock.ANY)
-
-        echo_stat.assert_any_call("Edge Coverage", mock.ANY)
-        echo_stat.assert_any_call("Number of Edges", mock.ANY)
-        echo_stat.assert_any_call("Visited Edges", mock.ANY)
-        echo_stat.assert_any_call("Unvisited Edges", mock.ANY)
-
-        echo_stat.assert_any_call("Vertex Coverage", mock.ANY)
-        echo_stat.assert_any_call("Number of Vertices", mock.ANY)
-        echo_stat.assert_any_call("Visited Vertices", mock.ANY)
-        echo_stat.assert_any_call("Unvisited Vertices", mock.ANY)
-
-
-@mock.patch("click.secho")
-@mock.patch("click.echo")
-class TestEchoStatus(unittest.TestCase):
-
-    def test_pass(self, echo, secho):
-        echo_status(True)
-
-        self.assertGreater(echo.call_count, 0)
-        self.assertGreater(secho.call_count, 0)
-
-        self.assertEqual([mock.call(" PASS ", bg="green")], secho.mock_calls)
-
-    def test_fail(self, echo, secho):
-        echo_status(False)
-
-        self.assertGreater(echo.call_count, 0)
-        self.assertGreater(secho.call_count, 0)
-
-        self.assertEqual([mock.call(" FAIL ", bg="red")], secho.mock_calls)
+    def test_for_timeout(self, prefix_command_mock, popen_mock):
+        popen_mock.side_effect = subprocess.TimeoutExpired("git --version", timeout=1)
+        assert not has_git()
