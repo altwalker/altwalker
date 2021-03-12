@@ -9,6 +9,8 @@ from altwalker.graphwalker import check, methods, offline, GraphWalkerException,
 
 pytestmark = pytest.mark.graphwalker
 
+os.environ["GRAPHWALKER_LOG_LEVEL"] = "DEBUG"
+
 
 class TestGraphWalkerService:
 
@@ -128,6 +130,23 @@ class TestGraphWalkerClient:
         data = self.client.get_data()
 
         assert data[key] == expected
+
+    @pytest.mark.skip(reason="Global attributes are broken in GraphWalker 4.3.1")
+    @pytest.mark.parametrize(
+        "key, value",
+        [
+            ("global.isUserLoggedIn", True),
+            ("global.isUserLoggedIn", False),
+            ("global.message", "Test message."),
+            ("global.url", "url/example/"),
+            ("global.count", 0),
+            ("global.count", 1),
+            ("global.count", 1.33),
+            ("global.count", -1)
+        ]
+    )
+    def test_set_global_data(self, key, value):
+        self.client.set_data(key, value)
 
     def test_restart(self):
         while self.client.has_next():
