@@ -3,6 +3,7 @@ import datetime
 
 import click
 
+import altwalker._xml as xml
 import altwalker._prettier as prettier
 
 
@@ -275,6 +276,7 @@ class FileReporter(ClickReporter):
 
     Note:
         If the path already exists the reporter will overwrite the content.
+
     """
 
     def __init__(self, file):
@@ -297,6 +299,7 @@ class PathReporter(Reporter):
 
     Note:
         If the path already exists the reporter will overwrite the content.
+
     """
 
     def __init__(self, file="path.json", verbose=False):
@@ -333,23 +336,72 @@ class PathReporter(Reporter):
         return self._path
 
 
-def create_reporters(report_file=None, report_path=False, report_path_file=None, verbose=True):
+class JUnitXMLReporter(Reporter):
+    """This reporter generates a JUnit style XML.
+
+    Args:
+        file (:obj:`str`): A path to a file to log execution path.
+        prettyxml (:obj:`bool`): Will generate a pretty-printed version of the document.
+        verbose (:obj:`bool`): Will print more details to stdout.
+
+    """
+
+    def __init__(self, file="report.xml", prettyxml=True, verbose=False):
+        self._file = file
+        self._verbose = verbose
+        self._prettyxml = prettyxml
+
+        self._generator = xml.JUnitGenerator()
+
+    def start(self, message=None):
+        self._generator.start()
+
+    def end(self, message=None, statistics=None, status=None):
+        self._generator.end(statistics=statistics)
+        self._generator.write(filename=self._file)
+
+        if self._verbose:
+            click.secho(
+                "JUnit XML written to file: {}.\n".format(click.style(self._file, fg="green")),
+                bold=True
+            )
+
+    def step_start(self, step):
+        self._generator.step_start()
+
+    def step_end(self, step, result):
+        self._generator.step_end(step, result)
+
+    def error(self, step, message, trace=None):
+        self._generator.error(step, message, trace=trace)
+
+    def report(self):
+        return self._generator.to_string()
+
+
+def create_reporters(report_file=None, report_path=False, report_path_file=None,
+                     report_xml=False, report_xml_file=None, verbose=True):
     """Create a reporter collection.
 
     Args:
         report_file (:obj:`str`): A file path. If set will add a ``FileReporter``.
         report_path (:obj:`bool`): If set to true will add a ``PathReporter``.
         report_path_file (:obj:`str`): If set will set the file for ``PathReporter``.
+        report_xml (:obj:`bool`): If set to true will add a ``JUnitXMLReporter``.
+        report_xml_file (:obj:`str`): If set will set the file for ``JUnitXMLReporter``.
         verbose (:obj:`bool`): If set some reporters will print more details to stdout.
     """
 
     reporting = Reporting()
     reporting.register("click", ClickReporter())
 
-    if report_path or report_path_file:
-        reporting.register("path", PathReporter(report_path_file or "path.json", verbose=verbose))
-
     if report_file:
         reporting.register("file", FileReporter(report_file))
+
+    if report_xml or report_xml_file:
+        reporting.register("junit", JUnitXMLReporter(file=report_xml_file or "report.xml", verbose=verbose))
+
+    if report_path or report_path_file:
+        reporting.register("path", PathReporter(file=report_path_file or "path.json", verbose=verbose))
 
     return reporting

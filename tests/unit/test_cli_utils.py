@@ -387,22 +387,22 @@ class TestCliOnline:
         self.models = [("models.json", "random(never)"), ]
 
     def test_online(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": True
         }
 
         cli_online(".", self.models)
 
-        create_reporters_mock.assert_called_once_with(report_file=None, report_path=False, report_path_file=None)
+        create_reporters_mock.assert_called_once_with()
         online_mock.assert_called_once_with(
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_error(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -410,15 +410,15 @@ class TestCliOnline:
         with pytest.raises(FailedTestsError):
             cli_online(".", self.models)
 
-        create_reporters_mock.assert_called_once_with(report_file=None, report_path=False, report_path_file=None)
+        create_reporters_mock.assert_called_once_with()
         online_mock.assert_called_once_with(
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_executor_type(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -430,10 +430,10 @@ class TestCliOnline:
             '.', self.models, executor_type="dotnet", executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_executor_url(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -445,10 +445,10 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url="http://localhost:8080/",
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_gw_host(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -460,10 +460,10 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url=None,
             gw_host="localhost", gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_gw_port(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -475,10 +475,10 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8080, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_start_element(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -490,10 +490,10 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element="v_start",
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_verbose(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -505,10 +505,10 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=True, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_unvisited(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -520,10 +520,10 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=True, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_blocked(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
@@ -535,25 +535,31 @@ class TestCliOnline:
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=True,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
     def test_reporter(self, create_reporters_mock, online_mock):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         online_mock.return_value = {
             "status": False
         }
 
         with pytest.raises(FailedTestsError):
             cli_online(
-                ".", self.models, report_file="altwalker-report.log", report_path=True, report_path_file="steps.json")
+                ".", self.models,
+                report_file="altwalker-report.log",
+                report_path=True, report_path_file="steps.json",
+                report_xml=True, report_xml_file="altwalker.xml")
 
         create_reporters_mock.assert_called_once_with(
-            report_file="altwalker-report.log", report_path=True, report_path_file="steps.json")
+            report_file="altwalker-report.log",
+            report_path=True, report_path_file="steps.json",
+            report_xml=True, report_xml_file="altwalker.xml")
+
         online_mock.assert_called_once_with(
             '.', self.models, executor_type=None, executor_url=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
-            reporter=mock.sentinel.reproter)
+            reporter=mock.sentinel.reporter)
 
 
 @mock.patch("altwalker._cli.run.offline")
@@ -648,7 +654,7 @@ class TestCliOffline:
 class TestCliWalk:
 
     def test_walk(self, create_reporters_mock, walk_mock, tmpdir):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         walk_mock.return_value = {
             "status": True
         }
@@ -660,12 +666,12 @@ class TestCliWalk:
 
         cli_walk("tests", steps_file)
 
-        create_reporters_mock.assert_called_once_with(report_file=None, report_path=False, report_path_file=None)
+        create_reporters_mock.assert_called_once_with()
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reproter)
+            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reporter)
 
     def test_error(self, create_reporters_mock, walk_mock, tmpdir):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         walk_mock.return_value = {
             "status": False
         }
@@ -678,12 +684,12 @@ class TestCliWalk:
         with pytest.raises(FailedTestsError):
             cli_walk("tests", steps_file)
 
-        create_reporters_mock.assert_called_once_with(report_file=None, report_path=False, report_path_file=None)
+        create_reporters_mock.assert_called_once_with()
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reproter)
+            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reporter)
 
     def test_executor_type(self, create_reporters_mock, walk_mock, tmpdir):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         walk_mock.return_value = {
             "status": True
         }
@@ -696,10 +702,10 @@ class TestCliWalk:
         cli_walk("tests", steps_file, executor_type="dotnet")
 
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type="dotnet", executor_url=None, reporter=mock.sentinel.reproter)
+            "tests", {}, executor_type="dotnet", executor_url=None, reporter=mock.sentinel.reporter)
 
     def test_executor_url(self, create_reporters_mock, walk_mock, tmpdir):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         walk_mock.return_value = {
             "status": True
         }
@@ -712,10 +718,10 @@ class TestCliWalk:
         cli_walk("tests", steps_file, executor_url="http://localhost:8080/")
 
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url="http://localhost:8080/", reporter=mock.sentinel.reproter)
+            "tests", {}, executor_type=None, executor_url="http://localhost:8080/", reporter=mock.sentinel.reporter)
 
     def test_reporter(self, create_reporters_mock, walk_mock, tmpdir):
-        create_reporters_mock.return_value = mock.sentinel.reproter
+        create_reporters_mock.return_value = mock.sentinel.reporter
         walk_mock.return_value = {
             "status": True
         }
@@ -726,9 +732,15 @@ class TestCliWalk:
             fp.write("{}")
 
         cli_walk(
-            "tests", steps_file, report_file="altwalker-report.log", report_path=True, report_path_file="steps.json")
+            "tests", steps_file,
+            report_file="altwalker-report.log",
+            report_path=True, report_path_file="steps.json",
+            report_xml=True, report_xml_file="altwalker.xml")
 
         create_reporters_mock.assert_called_once_with(
-            report_file="altwalker-report.log", report_path=True, report_path_file="steps.json")
+            report_file="altwalker-report.log",
+            report_path=True, report_path_file="steps.json",
+            report_xml=True, report_xml_file="altwalker.xml")
+
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reproter)
+            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reporter)

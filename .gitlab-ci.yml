@@ -13,6 +13,7 @@ default:
     when: always
 
   before_script:
+    - python3 -m pip install --upgrade pip
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install -r requirements-dev.txt
 
@@ -58,6 +59,7 @@ dotnet functional tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
   before_script:
+    - python3 -m pip install --upgrade pip
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install --editable .
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
@@ -76,6 +78,7 @@ dotnet functional tests:
 python functional tests:
   stage: test
   before_script:
+    - python3 -m pip install --upgrade pip
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install --editable .
   script:
@@ -92,6 +95,7 @@ http functional tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
   before_script:
+    - python3 -m pip install --upgrade pip
     - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install --editable .
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip

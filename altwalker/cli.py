@@ -74,7 +74,7 @@ graphwalker_host_option = click.option(
     help="Sets the host of the GraphWalker REST service.")
 
 port_option = click.option(
-    "--port", "-p",
+    "--port", "-p", type=int,
     help="This option is deprecated, use --gw-port instead. [deprecated]")
 
 graphwalker_port_option = click.option(
@@ -93,6 +93,14 @@ report_path_option = click.option(
 report_path_file_option = click.option(
     "--report-path-file", type=click.Path(exists=False, dir_okay=False),
     help="Set the report path file.")
+
+report_xml_option = click.option(
+    "--report-xml", default=False, is_flag=True,
+    help="Report the execution path and save it into a file (report.xml by default).")
+
+report_xml_file_option = click.option(
+    "--report-xml-file", type=click.Path(exists=False, dir_okay=False),
+    help="Set the xml report file.")
 
 
 def add_options(options):
@@ -195,7 +203,8 @@ def generate(output_dir, model_paths, language):
 @add_options([graphwalker_host_option, port_option, graphwalker_port_option,
               model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
               verbose_option, unvisited_option, blocked_option,
-              report_path_option, report_path_file_option, report_file_option])
+              report_path_option, report_path_file_option, report_file_option,
+              report_xml_option, report_xml_file_option])
 def online(test_package, models, **options):
     """Generate and run a test path."""
 
@@ -214,7 +223,8 @@ def online(test_package, models, **options):
         gw_host=options["gw_host"], gw_port=options["gw_port"], start_element=options["start_element"],
         verbose=options["verbose"], unvisited=options["unvisited"], blocked=options["blocked"],
         report_file=options["report_file"], report_path=options["report_path"],
-        report_path_file=options["report_path_file"])
+        report_path_file=options["report_path_file"], report_xml=options["report_xml"],
+        report_xml_file=options["report_xml_file"])
 
 
 @cli.command(
@@ -235,8 +245,9 @@ def offline(models, **options):
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_file", type=click.Path(exists=True, dir_okay=False))
 @add_options([executor_option, url_option, executor_url_option,
-              report_path_option, report_path_file_option, report_file_option])
-def walk(test_package, steps_file, executor_type, url, executor_url, report_path, report_path_file, report_file):
+              report_path_option, report_path_file_option, report_file_option,
+              report_xml_option, report_xml_file_option])
+def walk(test_package, steps_file, executor_type, url, executor_url, **options):
     """Run the tests with steps from a file."""
 
     if url:
@@ -244,5 +255,4 @@ def walk(test_package, steps_file, executor_type, url, executor_url, report_path
 
     executor_url = url or executor_url
 
-    cli_walk(test_package, steps_file, executor_type=executor_type, executor_url=executor_url, report_path=report_path,
-             report_path_file=report_path_file, report_file=report_file)
+    cli_walk(test_package, steps_file, executor_type=executor_type, executor_url=executor_url, **options)

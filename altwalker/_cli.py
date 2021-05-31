@@ -157,9 +157,8 @@ def cli_generate(dest_dir, model_paths, language="python"):
 
 @handle_errors
 def cli_online(test_package, models, *args, executor_type=None, executor_url=None, gw_host=None, gw_port=8887,
-               start_element=None, verbose=False, unvisited=False, blocked=False,
-               report_file=None, report_path=False, report_path_file=None):
-    reporter = create_reporters(report_file=report_file, report_path=report_path, report_path_file=report_path_file)
+               start_element=None, verbose=False, unvisited=False, blocked=False, **kwargs):
+    reporter = create_reporters(**kwargs)
     response = run.online(
         test_package, models,
         executor_type=executor_type, executor_url=executor_url,
@@ -186,12 +185,11 @@ def cli_offline(models, output_file=None, start_element=None, verbose=False, unv
 
 
 @handle_errors
-def cli_walk(test_package, steps_file, executor_type=None, executor_url=None,
-             report_file=None, report_path=False, report_path_file=None):
+def cli_walk(test_package, steps_file, executor_type=None, executor_url=None, **kwargs):
     with open(steps_file) as fp:
         steps = json.load(fp)
 
-    reporter = create_reporters(report_file=report_file, report_path=report_path, report_path_file=report_path_file)
+    reporter = create_reporters(**kwargs)
     response = run.walk(test_package, steps, executor_type=executor_type, executor_url=executor_url, reporter=reporter)
 
     if not response["status"]:

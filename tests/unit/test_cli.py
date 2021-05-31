@@ -389,7 +389,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize("model_option", MODELS_OPTIONS)
@@ -412,7 +414,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize(
@@ -439,7 +443,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize("start_element_option", START_ELEMENT_OPTIONS)
@@ -463,7 +469,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize("verbose_option", VERBOSE_OPTIONS)
@@ -485,7 +493,9 @@ class TestOnline:
                 verbose=True,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize("unvisited_option", UNVISITED_OPTIONS)
@@ -507,7 +517,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize("blocked_option", BLOCKED_OPTIONS)
@@ -529,7 +541,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize("port_option", PORT_OPTIONS)
@@ -552,7 +566,9 @@ class TestOnline:
                     verbose=False,
                     report_file=None,
                     report_path=False,
-                    report_path_file=None
+                    report_path_file=None,
+                    report_xml=False,
+                    report_xml_file=None
                 )
 
     def test_gw_port(self, cli_online_mock):
@@ -573,7 +589,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_url(self, cli_online_mock):
@@ -596,7 +614,9 @@ class TestOnline:
                     verbose=False,
                     report_file=None,
                     report_path=False,
-                    report_path_file=None
+                    report_path_file=None,
+                    report_xml=False,
+                    report_xml_file=None
                 )
 
     def test_executor_url(self, cli_online_mock):
@@ -618,7 +638,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_report_file(self, cli_online_mock):
@@ -639,7 +661,9 @@ class TestOnline:
                 verbose=False,
                 report_file="output.txt",
                 report_path=False,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_report_path(self, cli_online_mock):
@@ -662,7 +686,9 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=True,
-                report_path_file=None
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_report_path_file(self, cli_online_mock):
@@ -685,7 +711,59 @@ class TestOnline:
                 verbose=False,
                 report_file=None,
                 report_path=False,
-                report_path_file="steps.json"
+                report_path_file="steps.json",
+                report_xml=False,
+                report_xml_file=None
+            )
+
+    def test_report_xml(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                online,
+                ["--report-xml", "package", "-m", "models.json", "random(vertex_coverage(100))"]
+            )
+
+            assert result.exit_code == 0, result.output
+            cli_online_mock.assert_called_once_with(
+                "package", (("models.json", "random(vertex_coverage(100))"), ),
+                executor_type="python",
+                executor_url=None,
+                gw_host=None,
+                gw_port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file=None,
+                report_path=False,
+                report_path_file=None,
+                report_xml=True,
+                report_xml_file=None
+            )
+
+    def test_report_xml_file(self, cli_online_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(
+                online,
+                ["--report-xml-file", "junit.xml", "package", "-m", "models.json", "random(vertex_coverage(100))"]
+            )
+
+            assert result.exit_code == 0, result.output
+            cli_online_mock.assert_called_once_with(
+                "package", (("models.json", "random(vertex_coverage(100))"), ),
+                executor_type="python",
+                executor_url=None,
+                gw_host=None,
+                gw_port=8887,
+                start_element=None,
+                blocked=False,
+                unvisited=False,
+                verbose=False,
+                report_file=None,
+                report_path=False,
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file="junit.xml"
             )
 
 
@@ -844,6 +922,8 @@ class TestWalk:
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     @pytest.mark.parametrize(
@@ -863,6 +943,8 @@ class TestWalk:
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_url(self, cli_walk_mock):
@@ -879,6 +961,8 @@ class TestWalk:
                     report_file=None,
                     report_path=False,
                     report_path_file=None,
+                    report_xml=False,
+                    report_xml_file=None
                 )
 
     def test_executor_url(self, cli_walk_mock):
@@ -894,6 +978,8 @@ class TestWalk:
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_report_file(self, cli_walk_mock):
@@ -909,6 +995,8 @@ class TestWalk:
                 report_file="output.txt",
                 report_path=False,
                 report_path_file=None,
+                report_xml=False,
+                report_xml_file=None,
             )
 
     def test_report_path(self, cli_walk_mock):
@@ -924,6 +1012,8 @@ class TestWalk:
                 report_file=None,
                 report_path=True,
                 report_path_file=None,
+                report_xml=False,
+                report_xml_file=None
             )
 
     def test_report_path_file(self, cli_walk_mock):
@@ -939,4 +1029,40 @@ class TestWalk:
                 report_file=None,
                 report_path=False,
                 report_path_file="new-steps.json",
+                report_xml=False,
+                report_xml_file=None
+            )
+
+    def test_report_xml(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(walk, ["package", "steps.json", "--report-xml"])
+
+            assert result.exit_code == 0, result.output
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "steps.json",
+                executor_type="python",
+                executor_url=None,
+                report_file=None,
+                report_path=False,
+                report_path_file=None,
+                report_xml=True,
+                report_xml_file=None
+            )
+
+    def test_report_xml_file(self, cli_walk_mock):
+        with run_isolation(self.runner, self.files, folders=self.folders):
+            result = self.runner.invoke(walk, ["package", "steps.json", "--report-xml-file", "junit.xml"])
+
+            assert result.exit_code == 0, result.output
+            cli_walk_mock.assert_called_once_with(
+                "package",
+                "steps.json",
+                executor_type="python",
+                executor_url=None,
+                report_file=None,
+                report_path=False,
+                report_path_file=None,
+                report_xml=False,
+                report_xml_file="junit.xml"
             )
