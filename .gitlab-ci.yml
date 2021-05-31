@@ -1,6 +1,8 @@
 stages:
   - lint
   - test
+  - functional
+  - tox
   - docs
   - deploy
 
@@ -14,10 +16,24 @@ default:
 
   before_script:
     - python3 -m pip install --upgrade pip
-    - python3 -m pip install -r requirements.txt --user
     - python3 -m pip install -r requirements-dev.txt
+    - python3 -m pip install -r requirements.txt --user
 
-unit tests:
+lint:
+  stage: lint
+  tags:
+    - docker
+  script:
+    - flake8 altwalker tests
+
+lint-docs:
+  stage: lint
+  tags:
+    - docker
+  script:
+    - doc8 docs
+
+unit-tests:
   stage: test
   tags:
     - docker
@@ -32,31 +48,21 @@ unit tests:
     - python3 -m pip install coverage-badge
     - coverage-badge -o coverage/coverage.svg
 
-integration test:
+integration-test:
   stage: test
   tags:
     - docker
   script:
     - pytest -x -s -m "not dotnet" tests/integration
 
-dotnet integration tests:
+dotnet-integration-tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
   script:
     - pytest -x -s -m dotnet tests/integration
 
-tox:
-  image: altwalker/tests:tox
-  stage: test
-  tags:
-    - docker
-  before_script:
-    - tox --version
-  script:
-    - tox
-
-dotnet functional tests:
-  stage: test
+dotnet-functional-tests:
+  stage: functional
   image: altwalker/tests:dotnet-v2.1
   before_script:
     - python3 -m pip install --upgrade pip
@@ -75,8 +81,8 @@ dotnet functional tests:
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
-python functional tests:
-  stage: test
+python-functional-tests:
+  stage: functional
   before_script:
     - python3 -m pip install --upgrade pip
     - python3 -m pip install -r requirements.txt --user
@@ -91,8 +97,8 @@ python functional tests:
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests steps.json
 
-http functional tests:
-  stage: test
+http-functional-tests:
+  stage: functional
   image: altwalker/tests:dotnet-v2.1
   before_script:
     - python3 -m pip install --upgrade pip
@@ -113,12 +119,31 @@ http functional tests:
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
 
-lint:
-  stage: lint
+remote-graphwalker-functional-tests:
+  stage: functional
+  before_script:
+    - python3 -m pip install --upgrade pip
+    - python3 -m pip install -r requirements.txt --user
+    - python3 -m pip install --editable .
+  script:
+    - gw --debug ALL online --service RESTFUL --port 8080 --verbose &
+    - sleep 10
+    - altwalker --version
+    - altwalker init python-example -l python --no-git
+    - cd python-example
+    - altwalker check -m models/default.json "random(vertex_coverage(100))"
+    - altwalker verify tests -m models/default.json
+    - altwalker online tests -m models/default.json "random(vertex_coverage(100))" --gw-host localhost --gw-port 8080
+
+tox:
+  image: altwalker/tests:tox
+  stage: tox
+  only:
+    - develop
   tags:
     - docker
   script:
-    - flake8 altwalker tests
+    - tox
 
 docs:
   stage: docs
@@ -136,7 +161,7 @@ docs:
 pages:
   stage: deploy
   dependencies:
-    - unit tests
+    - unit-tests
     - docs
   tags:
     - docker

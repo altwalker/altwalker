@@ -89,17 +89,22 @@ Actions
 
 GraphWalker keeps an execution context with data for each model and a global context.
 
-By default GraphWalker tries to access data from the current model context. To access data from the global context, prefix the variable name with `global.`(e.g. `global.count`, `global.isLoggedIn`).
+By default GraphWalker tries to access data from the current model context. To access
+data from the global context, prefix the variable name with ``global.`` (e.g. ``global.count``,
+``global.isLoggedIn``).
 
-An **action** is a piece of JavaScript code that you want the model to execute, in order to modify the data from the context.
+An **action** is a piece of JavaScript code that you want the model to execute, in order to
+modify the data from the context.
 
-Actions can only be placed at an edge or model level. Actions from the model level are executed once, and actions defined on an edge are executed every time the edge is reached.
+Actions can only be placed at an edge or model level. Actions from the model level are
+executed once, and actions defined on an edge are executed every time the edge is reached.
 
 .. tip::
 
   Always initialize your variables in the models level actions.
 
   Note that you can also initialize variables in the global context.
+
 
 **Example**
 
@@ -136,7 +141,8 @@ And to update variable from the global context:
 Guards
 ~~~~~~
 
-A **guard** marks an **edge** as unreachable until the condition it specifies is met. The **guard** is expressed using the data from the context.
+A **guard** marks an **edge** as unreachable until the condition it specifies is met. The
+**guard** is expressed using the data from the context.
 
 Guards can only be placed on edges.
 
@@ -244,10 +250,13 @@ The template for a *vertex*:
         ]
     }
 
-- ``sharedState`` field is optional, it can be used to link to vertices from different models. Any vertices with the same value for ``sharedState`` are linked.
+- ``sharedState`` field is optional, it can be used to link to vertices from different
+  models. Any vertices with the same value for ``sharedState`` are linked.
 - ``properties`` field is optional, it can be used to store pairs of key/data.
-- ``properties.blocked`` field is optional, if set and the commands are run with the ``--blocked`` flag the vertex will be filtered out of the path selection.
-- ``requirements`` field is optional, it can be used to set tags on vertices and use them with ``requirement_coverage``.
+- ``properties.blocked`` field is optional, if set and the commands are run with the
+  ``--blocked`` flag the vertex will be filtered out of the path selection.
+- ``requirements`` field is optional, it can be used to set tags on vertices and use
+  them with ``requirement_coverage``.
 
   Read more about ``requirements`` on :ref:`core/path-generation:Requirement Coverage`.
 
@@ -314,7 +323,8 @@ GraphML
 
 `GraphML <https://en.wikipedia.org/wiki/GraphML>`_ is an XML-based file format for graphs.
 
-A single model and his data can be stored in one single ``.graphml`` file. The name of the model is the name of the file (e.g. for ``login.graphml`` the name of the model is ``login``).
+A single model and his data can be stored in one single ``.graphml`` file. The name of the
+model is the name of the file (e.g. for ``login.graphml`` the name of the model is ``login``).
 
 .. admonition:: Recommendation
 

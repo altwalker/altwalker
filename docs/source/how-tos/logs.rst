@@ -2,7 +2,8 @@
 Log data from your tests
 ========================
 
-Logging information is critical to the development and maintenance of your tests. AltWalker collects stdout and returned data from your tests.
+Logging information is critical to the development and maintenance of your tests. AltWalker
+collects stdout and returned data from your tests.
 
 .. contents:: Table of Contents
     :local:
@@ -12,7 +13,8 @@ Logging information is critical to the development and maintenance of your tests
 Stdout
 ------
 
-AltWalker captues stdout data from each test and outputs it to the stdout of altwalker cli, or to a file if ``--report-file`` option is used.
+AltWalker captures stdout data from each test and outputs it to the stdout of altwalker cli,
+or to a file if ``--report-file`` option is used.
 
 
 .. tabs::
@@ -77,7 +79,8 @@ AltWalker captues stdout data from each test and outputs it to the stdout of alt
 Returned data from tests
 ------------------------
 
-AltWalker captures return value from each test and outputs it to the stdout of altwalker cli, or to a file if ``--report-file`` option is used.
+AltWalker captures return value from each test and outputs it to the stdout of altwalker
+cli, or to a file if ``--report-file`` option is used.
 
 .. tabs::
 
