@@ -109,6 +109,70 @@ _DEFAULT_MODEL = """\
 }
 """
 
+_BASE_GIT_IGNORE = """\
+## AltWalker ##
+*.log
+*.xml
+
+# Operating system-related files
+*.DS_Store
+Thumbs.db
+
+"""
+
+_PYTHON_GIT_IGNORE = """\
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environments
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+"""
+
+_DOTNET_GIT_IGNORE = """\
+## Dotnet ##
+# Build results
+
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
+
+"""
+
 
 def _normalize_namespace(string):
     """Normalize string for a namespace."""
