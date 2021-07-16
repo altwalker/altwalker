@@ -1,7 +1,7 @@
 requests
 psutil
 click
-click-help-colors
+click-help-colors>=0.9.1
 colorama; platform_system == "Windows"
 GitPython==3.1.13; python_version < "3.6"
 GitPython; python_version >= "3.6"
