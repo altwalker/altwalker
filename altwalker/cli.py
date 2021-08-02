@@ -20,7 +20,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["--help", "-h"])
 # mark deprecated options with red in the help messages
 HELP_OPTIONS_CUSTOM_COLORS = {
     "--url": "red",
-    "-p,": "red"
+    "--port": "red"
 }
 
 
