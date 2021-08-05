@@ -396,7 +396,7 @@ class TestSuite:
 
 
 class TestReporter:
-    """A test reporter class that can express test results in a Junit XML report.
+    """A test reporter class that can express test results in a JUnit XML report.
 
     Args:
         test_suites (:obj:`list`): A list of :class:`~TestSuite`.
@@ -463,7 +463,7 @@ class TestReporter:
 
 
 class JUnitGenerator:
-    """A class that can express an AltWalker run in a Junit XML report."""
+    """A class that can express an AltWalker run in a JUnit XML report."""
 
     def __init__(self):
         self.index = 0

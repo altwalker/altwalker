@@ -12,6 +12,7 @@ default:
   artifacts:
     paths:
       - "*.log"
+      - "*.xml"
     when: always
 
   before_script:
@@ -93,7 +94,7 @@ python-functional-tests:
     - cd python-example
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
     - altwalker verify tests -m models/default.json
-    - altwalker online tests -m models/default.json "random(vertex_coverage(100))"
+    - altwalker online tests -m models/default.json "random(vertex_coverage(100))" --report-xml-file report.xml
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests steps.json
 
@@ -140,6 +141,7 @@ tox:
   stage: tox
   only:
     - develop
+    - master
   tags:
     - docker
   script:
