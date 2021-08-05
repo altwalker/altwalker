@@ -1,0 +1,9 @@
+### AltWalker ###
+
+# Logs
+altwalker.log
+report.xml
+
+# Operating system-related files
+*.DS_Store
+Thumbs.db
