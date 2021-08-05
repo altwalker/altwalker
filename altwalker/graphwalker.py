@@ -395,6 +395,7 @@ class GraphWalkerClient:
 
     def _put(self, path):
         response = requests.put(url_join(self.base, path))
+
         self._validate_response(response)
         return self._get_body(response)
 

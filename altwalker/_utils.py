@@ -63,12 +63,28 @@ class Command:
         self.output_file = output_file
         self.file_handler = open(self.output_file, "w")
 
-        self.process = psutil.Popen(command, stdout=self.file_handler, stderr=self.file_handler,
-                                    start_new_session=True)
+        try:
+            self.process = psutil.Popen(
+                command,
+                stdout=self.file_handler,
+                stderr=self.file_handler,
+                start_new_session=True,
+                shell=platform.system() == "Windows"
+            )
+        except Exception:
+            self.clear()
+            raise
 
     @property
     def pid(self):
         return self.process.pid
+
+    def clear(self):
+        """Clear the allocated resources."""
+
+        if self.file_handler:
+            self.file_handler.close()
+            self.file_handler = None
 
     def poll(self):
         return self.process.poll()
@@ -81,12 +97,18 @@ class Command:
 
         if self.process and self.process.poll() is None:
             for child in self.process.children(recursive=True):
-                child.kill()
-                child.wait(1)
+                try:
+                    child.kill()
+                except psutil.NoSuchProcess:
+                    pass
+                finally:
+                    child.wait(1)
 
-            self.process.kill()
-            self.process.wait(1)
+            try:
+                self.process.kill()
+            except psutil.NoSuchProcess:
+                pass
+            finally:
+                self.process.wait(1)
 
-        if self.file_handler:
-            self.file_handler.close()
-            self.file_handler = None
+        self.clear()

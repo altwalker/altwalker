@@ -12,6 +12,7 @@ dist/
 lib/
 
 # pytest
+pytest.xml
 .pytest_cache/
 
 # pytest coverage

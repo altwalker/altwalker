@@ -22,7 +22,8 @@ Executor Routes
 Load
 ----
 
-Should load test code from a given path. AltWalker calls load with the ``TEST_PACKAGE`` argument given to the ``verify``, ``online`` and ``walk`` commands.
+Should load test code from a given path. AltWalker calls load with the ``TEST_PACKAGE``
+argument given to the ``verify``, ``online`` and ``walk`` commands.
 
 * **URL**: ``/load``
 * **Method**: ``POST``

@@ -2,6 +2,7 @@ setuptools>=38.6.0
 wheel>=0.31.0
 twine>=1.11.0
 
+doc8
 flake8
 pytest
 pytest-cov
@@ -14,4 +15,3 @@ sphinx-click
 sphinx-tabs
 sphinx-notfound-page
 sphinxcontrib-programoutput
-doc8

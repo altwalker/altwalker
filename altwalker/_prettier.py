@@ -1,6 +1,7 @@
 """A collection of classes and methods that convert data into “pretty” strings for the CLI."""
 
 import json
+import shutil
 import textwrap
 from collections import defaultdict
 from enum import Enum
@@ -420,7 +421,7 @@ def format_output(output, prefix=None):
     if not output:
         return ""
 
-    width, _ = click.get_terminal_size()
+    width, _ = shutil.get_terminal_size()
     prefix = prefix or ""
     output = fill(output, width=width - len(prefix))
 
@@ -447,7 +448,7 @@ def format_error(error, prefix=None):
     if not error:
         return ""
 
-    width, _ = click.get_terminal_size()
+    width, _ = shutil.get_terminal_size()
     prefix = prefix or ""
 
     title = click.style("Error:", fg="bright_black")
