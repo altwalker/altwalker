@@ -2,12 +2,13 @@
 
 import os
 import re
+import abc
 import shutil
 import logging
 import warnings
 
 from altwalker.__version__ import VERSION
-from altwalker._utils import has_git
+from altwalker._utils import get_resource, has_git, Factory
 from altwalker.exceptions import AltWalkerException
 from altwalker.code import get_methods
 
@@ -16,162 +17,20 @@ logger = logging.getLogger(__name__)
 
 MINOR_VERSION = ".".join(VERSION.split(".")[:2]) + ".*"
 
-_PYTHON_CLASS_TEMPLATE = """\
-class {}:
+_PYTHON_METHOD_TEMPLATE =  get_resource("data/templates/generate/python/method.txt")
+_PYTHON_CLASS_TEMPLATE = get_resource("data/templates/generate/python/class.txt")
 
-{}
-"""
+_DOTNET_METHOD_TEMPLATE = get_resource("data/templates/generate/dotnet/method.txt")
+_DOTNET_CLASS_TEMPLATE = get_resource("data/templates/generate/dotnet/class.txt")
+_DOTNET_NAMESPACE_TEMPLATE = get_resource("data/templates/generate/dotnet/namespace.txt")
+_DOTNET_MAIN_TEMPLATE = get_resource("data/templates/generate/dotnet/main.txt")
 
-_PYTHON_METHOD_TEMPLATE = """\
-    def {}(self):
-        pass
-"""
+_DEFAULT_MODEL = get_resource("data/models/default.json")
+_DOTNET_CSPROJ = get_resource("data/templates/generate/dotnet/csproj.txt")
 
-_DOTNET_NAMESPACE_TEMPLATE = """\
-using Altom.AltWalker;
-
-namespace {}
-{{
-{}
-}}
-"""
-
-_DOTNET_MAIN_TEMPLATE = """\
-    public class Program
-    {{
-
-        public static void Main(string[] args)
-        {{
-            ExecutorService service = new ExecutorService();
-{}
-            service.Run(args);
-        }}
-    }}
-"""
-
-_DOTNET_CLASS_TEMPLATE = """\
-    public class {}
-    {{
-
-{}
-    }}
-"""
-
-_DOTNET_METHOD_TEMPLATE = """\
-        public void {}()
-        {{
-        }}
-"""
-
-_DOTNET_CSPROJ = """\
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <RootNamespace>{}</RootNamespace>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AltWalker.Executor" Version="{}" />
-  </ItemGroup>
-</Project>
-"""
-
-_DEFAULT_MODEL = """\
-{
-    "name": "Default model",
-    "models": [
-        {
-            "name": "ModelName",
-            "generator": "random(edge_coverage(100) && vertex_coverage(100))",
-            "startElementId": "v0",
-            "vertices": [
-                {
-                    "id": "v0",
-                    "name": "vertex_A"
-                },
-                {
-                    "id": "v1",
-                    "name": "vertex_B"
-                }
-            ],
-            "edges": [
-                {
-                    "id": "e0",
-                    "name": "edge_A",
-                    "sourceVertexId": "v0",
-                    "targetVertexId": "v1"
-                }
-            ]
-        }
-    ]
-}
-"""
-
-_BASE_GIT_IGNORE = """\
-## AltWalker ##
-*.log
-*.xml
-
-# Operating system-related files
-*.DS_Store
-Thumbs.db
-
-"""
-
-_PYTHON_GIT_IGNORE = """\
-### Python ###
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Environments
-.env/
-.venv/
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-pythonenv*
-
-"""
-
-_DOTNET_GIT_IGNORE = """\
-## Dotnet ##
-# Build results
-
-[Dd]ebug/
-[Rr]elease/
-x64/
-[Bb]in/
-[Oo]bj/
-
-"""
+_BASE_GIT_IGNORE = get_resource("data/templates/generate/gitignore/base.txt")
+_PYTHON_GIT_IGNORE = get_resource("data/templates/generate/gitignore/python.txt")
+_DOTNET_GIT_IGNORE = get_resource("data/templates/generate/gitignore/dotnet.txt")
 
 
 def _normalize_namespace(string):
@@ -379,11 +238,195 @@ def generate_tests(output_dir, model_paths, *args, language=None, package_name="
         raise
 
 
-def init_project(output_dir, model_paths=None, language=None, git=True):
+
+class Generator(metaclass=abc.ABCMeta):
+    """Abstract base class for generating an AltWalker project.
+
+    Args:
+        output_path (:obj:`str`): The path to the project root.
+        models_path (:obj:`str`): A sequence of paths to model files.
+        git (:obj:`bool`): If set to ``True`` will initialize a git repository and commit the files.
+
+    """
+
+    def __init__(self, output_path, model_paths=None, git=False):
+        self.output_path = output_path
+        self.model_paths = model_paths or []
+
+        self.git = git
+
+    def __repr__(self):
+        return ""
+
+    @property
+    def project_name(self):
+        return os.path.basename(self.output_path)
+
+    def copy_default_model(self):
+        self.model_paths = [os.path.join(self.output_path, "models", "default.json")]
+        os.makedirs(self.output_path)
+
+        with open(os.path.join(self.output_path, "models/default.json"), "w") as fp:
+            fp.write(_DEFAULT_MODEL)
+
+    def copy_models(self):
+        os.makedirs(self.output_path)
+
+        for model_path in self.model_paths:
+            file_name = os.path.basename(model_path)
+            shutil.copyfile(model_path, os.path.join(self.output_path, file_name))
+
+    def git_init(self):
+        self.generate_gitignore()
+        _git_init(self.output_path)
+
+    def generate_models(self):
+        if self.model_paths:
+            self.copy_models()
+        else:
+            self.copy_default_model()
+
+    def generate_gitignore(self):
+        with open(os.path.join(self.output_path, '.gitignore'), 'w') as fp:
+            fp.write(_BASE_GIT_IGNORE)
+
+    @abc.abstractstaticmethod
+    def generate_methods(self, *args, **kwargs):
+        pass
+
+    @abc.abstractstaticmethod
+    def generate_class(self, *args, **kwargs):
+        pass
+
+    @abc.abstractstaticmethod
+    def generate_code(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def generate_tests(self, *args, **kwargs):
+        pass
+
+    def init_project(self, *args, **kwargs):
+        if os.path.exists(self.output_path):
+            raise FileExistsError("The '{}' directory already exists.".format(self.output_path))
+
+        os.makedirs(self.output_path)
+
+        try:
+            self.generate_models()
+
+            if self.git:
+                self.git_init()
+        except Exception as error:
+            logger.exception(error)
+            shutil.rmtree(self.output_path)
+            raise
+
+
+class EmptyGenerator(Generator):
+
+    def generate_methods(self, *args, **kwargs):
+        return ""
+
+    def generate_class(self, *args, **kwargs):
+        return ""
+
+    def generate_code(self, *args, **kwargs):
+        return ""
+
+    def generate_tests(self, package_name="tests"):
+        os.makedirs(os.path.join(self.output_dir, package_name))
+
+
+class PythonGenerator(Generator):
+
+    def generate_methods(self, methods):
+        code = [_PYTHON_METHOD_TEMPLATE.format(name) for name in methods]
+        return "\n".join(code)
+
+    def generate_class(self, class_name, methods):
+        return _PYTHON_CLASS_TEMPLATE.format(class_name, self.generate_methods(methods))
+
+    def generate_code(self, classes):
+        code = [self.generate_class(class_name, methods) for class_name, methods in classes.items()]
+        return "\n{}".format("\n\n".join(code))
+
+    def generate_tests(self, classes, package_name="tests"):
+        base_path = os.path.join(self.output_path, package_name)
+        os.makedirs(base_path)
+
+        open(os.path.join(base_path, "__init__.py"), "w").close()
+
+        with open(os.path.join(base_path, "test.py"), "w") as fp:
+            fp.write(self.generate_code(classes))
+
+
+class DotnetGenerator(Generator):
+
+    def generate_methods(self, methods):
+        code = [_DOTNET_METHOD_TEMPLATE.format(name) for name in methods]
+        return "\n".join(code)
+
+    def generate_class(self, class_name, methods):
+        return _DOTNET_CLASS_TEMPLATE.format(class_name, self.generate_methods(methods))
+
+    def generate_code(self, classes, namespace="Tests"):
+        code = [generate_dotnet_class(class_name, methods) for class_name, methods in classes.items()]
+        code = "\n{}\n".format("\n\n".join(code))
+
+        code += _DOTNET_MAIN_TEMPLATE.format(
+            "\n".join(["            service.RegisterModel<{}>();".format(name) for name in classes.keys()])
+        )
+
+        return _DOTNET_NAMESPACE_TEMPLATE.format(namespace, code)
+
+    def generate_tests(self, classes, package_name="tests"):
+        namespace = _normalize_namespace(self.project_name + "." + package_name)
+        base_path = os.path.join(self.output_path, package_name)
+
+        os.makedirs(base_path)
+
+        with open(os.path.join(base_path, "{}.csproj".format(package_name)), "w") as fp:
+            fp.write(_DOTNET_CSPROJ.format(namespace, MINOR_VERSION))
+
+        with open(os.path.join(base_path, "Program.cs"), "w") as fp:
+            fp.write(generate_dotnet_code(classes, namespace=namespace))
+
+
+_GENERATORS = Factory({
+    "python": PythonGenerator,
+    "dotnet": DotnetGenerator,
+    "c#": DotnetGenerator,
+}, default=EmptyGenerator)
+
+
+def get_support_languages():
+    return _GENERATORS.keys()
+
+
+def generate_methods(methods, language=None):
+    cls = _GENERATORS.get(language)
+    return cls.generate_methods(methods)
+
+
+def generate_class(class_name, methods, language=None):
+    cls = _GENERATORS.get(language)
+    return cls.generate_class(class_name, methods)
+
+
+def generate_tests(output_path, model_paths=None, language=None):
+    """ """
+
+    cls = _GENERATORS.get(language)
+    generator = cls(output_path, model_paths=model_paths)
+    return generator.generate_tests()
+
+
+def init_project(output_path, model_paths=None, language=None, git=True):
     """Initiates a new project.
 
     Args:
-        output_dir: The path to the project root.
+        output_path: The path to the project root.
         language: The language of the project (e.g. python).
         model_paths: A sequence of path to model files.
         git: If set to ``True`` will initialize a git repository and commit the files.
@@ -392,23 +435,6 @@ def init_project(output_dir, model_paths=None, language=None, git=True):
         FileExistsError: If the path ``output_dir`` already exists.
     """
 
-    if os.path.exists(output_dir):
-        raise FileExistsError("The '{}' directory already exists.".format(output_dir))
-
-    os.makedirs(output_dir)
-
-    try:
-        if model_paths:
-            _copy_models(os.path.join(output_dir, "models"), model_paths)
-        else:
-            _create_default_model(os.path.join(output_dir, "models"))
-            model_paths = [os.path.join(output_dir, "models", "default.json")]
-
-        generate_tests(output_dir, model_paths, language=language)
-
-        if git:
-            _git_init(output_dir)
-    except Exception as ex:
-        logger.exception(ex)
-        shutil.rmtree(output_dir)
-        raise
+    cls = _GENERATORS.get(language)
+    generator = cls(output_path, model_paths=model_paths, git=git)
+    return generator.init_project()

@@ -3,7 +3,12 @@
 import platform
 import subprocess
 
+import pkg_resources
 import psutil
+
+
+def get_resource(path):
+    return pkg_resources.resource_string(__name__, path).decode("utf-8")
 
 
 def url_join(base, url):
@@ -31,7 +36,7 @@ def execute_command(command, timeout=None):
     command = prefix_command(command)
 
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate(timeout=None)
+    output, error = process.communicate(timeout=timeout)
 
     process.terminate()
     process.wait()
@@ -43,7 +48,7 @@ def has_command(command, timeout=None):
     """Returns True if it can run the command, otherwise returns False."""
 
     try:
-        response = execute_command(command, timeout=None)
+        response = execute_command(command, timeout=timeout)
         return response[1] == b""
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
@@ -52,7 +57,21 @@ def has_command(command, timeout=None):
 def has_git(timeout=None):
     """Returns True if it can run ``git --version``, otherwise returns False."""
 
-    return has_command(["git", "--version"], timeout=None)
+    return has_command(["git", "--version"], timeout=timeout)
+
+
+class Factory:
+    """Factory class for creating other objects without having to specify the exact class."""
+
+    def __init__(self, map, default=None):
+        self.map = map
+        self.default = default
+
+    def keys(self):
+        return self.map.keys()
+
+    def get(self, key):
+        return map.get(key, default=self.default)
 
 
 class Command:

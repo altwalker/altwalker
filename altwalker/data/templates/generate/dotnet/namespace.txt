@@ -1,0 +1,6 @@
+using Altom.AltWalker;
+
+namespace {}
+{{
+{}
+}}
