@@ -1,5 +1,6 @@
 requests
 psutil
+jinja2
 click
 click-help-colors>=0.9.1
 colorama; platform_system == "Windows"

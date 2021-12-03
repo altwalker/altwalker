@@ -5,10 +5,12 @@ import pytest
 from click.testing import CliRunner
 
 from tests.common.utils import run_isolation
-from altwalker.generate import SUPPORTED_LANGUAGES
+from altwalker.generate import get_supported_languages
 from altwalker.executor import SUPPORTED_EXECUTORS
 from altwalker.cli import check, verify, init, generate, online, offline, walk
 
+
+SUPPORTED_LANGUAGES = get_supported_languages()
 
 MODELS_OPTIONS = ["--model", "-m"]
 EXECUTOR_TYPE_OPTIONS = ["--executor", "-x", "--language", "-l"]

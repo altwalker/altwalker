@@ -5,7 +5,7 @@ import logging
 import click
 from click_help_colors import HelpColorsGroup, HelpColorsCommand
 
-from altwalker.generate import SUPPORTED_LANGUAGES
+from altwalker.generate import get_supported_languages
 from altwalker.executor import SUPPORTED_EXECUTORS
 from altwalker._cli import click_formatwarning, cli_init, cli_generate, cli_check, cli_verify, \
     cli_offline, cli_online, cli_walk
@@ -52,7 +52,7 @@ blocked_option = click.option(
     help="Will filter out elements with the blocked property.")
 
 language_option = click.option(
-    "--language", "-l", type=click.Choice(SUPPORTED_LANGUAGES, case_sensitive=False),
+    "--language", "-l", type=click.Choice(get_supported_languages(), case_sensitive=False),
     help="Configure the programming language of the tests.")
 
 executor_option = click.option(
