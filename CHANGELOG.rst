@@ -7,6 +7,16 @@ The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`
 and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 
+Version 0.3.1
+-------------
+
+- Add a ``JUnitXMLReporter`` that will generate XML test reports that can be read by tools such as Jenkins or Bamboo. (`#150`_)
+- Fix issue where the ``online`` command on Windows throws: *WinError 2 The system cannot find the specified*. (`#158`_)
+
+.. _#150: https://gitlab.com/altom/altwalker/altwalker/issues/150
+.. _#158: https://gitlab.com/altom/altwalker/altwalker/issues/158
+
+
 Version 0.3.0
 -------------
 

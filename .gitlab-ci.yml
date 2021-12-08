@@ -8,12 +8,15 @@ stages:
 
 default:
   image: altwalker/graphwalker:4.3.1
-
+  tags:
+    - docker
   artifacts:
-    paths:
-      - "*.log"
     when: always
-
+    paths:
+      - coverage/
+      - "**/*.log"
+    reports:
+      junit: "**/*.xml"
   before_script:
     - python3 -m pip install --upgrade pip
     - python3 -m pip install -r requirements-dev.txt
@@ -21,45 +24,32 @@ default:
 
 lint:
   stage: lint
-  tags:
-    - docker
   script:
     - flake8 altwalker tests
 
 lint-docs:
   stage: lint
-  tags:
-    - docker
   script:
     - doc8 docs
 
 unit-tests:
   stage: test
-  tags:
-    - docker
-  artifacts:
-    paths:
-      - coverage/
-      - "*.log"
-    when: always
   script:
-    - pytest tests/unit -s --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
+    - pytest tests/unit --junitxml=pytest.xml --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
   after_script:
     - python3 -m pip install coverage-badge
     - coverage-badge -o coverage/coverage.svg
 
 integration-test:
   stage: test
-  tags:
-    - docker
   script:
-    - pytest -x -s -m "not dotnet" tests/integration
+    - pytest -x -m "not dotnet" --junitxml=pytest.xml tests/integration
 
 dotnet-integration-tests:
   stage: test
   image: altwalker/tests:dotnet-v2.1
   script:
-    - pytest -x -s -m dotnet tests/integration
+    - pytest -x -m dotnet --junitxml=pytest.xml tests/integration
 
 dotnet-functional-tests:
   stage: functional
@@ -71,13 +61,13 @@ dotnet-functional-tests:
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
     - unzip artifacts.zip
   script:
-    - altwalker -v
-    - altwalker init dotnet-example -l c# --no-git
+    - altwalker --version
+    - altwalker init dotnet-example --language dotnet --no-git
     - dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
     - cd dotnet-example
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
     - altwalker verify tests/ -m models/default.json -x c# --executor-url http://localhost:4200/
-    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --executor-url http://localhost:4200/
+    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --executor-url http://localhost:4200/ --report-xml-file report.xml
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
@@ -93,7 +83,7 @@ python-functional-tests:
     - cd python-example
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
     - altwalker verify tests -m models/default.json
-    - altwalker online tests -m models/default.json "random(vertex_coverage(100))"
+    - altwalker online tests -m models/default.json "random(vertex_coverage(100))" --report-xml-file report.xml
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests steps.json
 
@@ -107,15 +97,15 @@ http-functional-tests:
     - wget https://gitlab.com/altom/altwalker/dotnet-executor/-/jobs/artifacts/develop/download?job=dotnet%20pack -O artifacts.zip
     - unzip artifacts.zip
   script:
-    - altwalker -v
-    - altwalker init dotnet-example -l c# --no-git
+    - altwalker --version
+    - altwalker init dotnet-example --language dotnet --no-git
     - dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
     - cd dotnet-example
     - dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
     - sleep 10
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
     - altwalker verify tests/ -m models/default.json -x http --executor-url http://localhost:4200/
-    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/
+    - altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/ --report-xml-file report.xml
     - altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
     - altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
 
@@ -129,7 +119,7 @@ remote-graphwalker-functional-tests:
     - gw --debug ALL online --service RESTFUL --port 8080 --verbose &
     - sleep 10
     - altwalker --version
-    - altwalker init python-example -l python --no-git
+    - altwalker init python-example --language python --no-git
     - cd python-example
     - altwalker check -m models/default.json "random(vertex_coverage(100))"
     - altwalker verify tests -m models/default.json
@@ -140,8 +130,7 @@ tox:
   stage: tox
   only:
     - develop
-  tags:
-    - docker
+    - master
   script:
     - tox
 
@@ -163,8 +152,6 @@ pages:
   dependencies:
     - unit-tests
     - docs
-  tags:
-    - docker
   artifacts:
     paths:
       - public
