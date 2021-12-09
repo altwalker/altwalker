@@ -57,7 +57,7 @@ usage patterns.
 
 .. toctree::
     :caption: Community:
-    
+
     Google Group <https://groups.google.com/g/altwalker>
     Gitter <https://gitter.im/altwalker/community>
     Libraries.io <https://libraries.io/pypi/altwalker>
