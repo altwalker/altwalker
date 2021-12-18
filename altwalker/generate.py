@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 MINOR_VERSION = ".".join(VERSION.split(".")[:2]) + ".*"
 
-_PYTHON_METHOD_TEMPLATE =  get_resource("data/templates/generate/python/method.txt")
+_PYTHON_METHOD_TEMPLATE = get_resource("data/templates/generate/python/method.txt")
 _PYTHON_CLASS_TEMPLATE = get_resource("data/templates/generate/python/class.txt")
 
 _DOTNET_METHOD_TEMPLATE = get_resource("data/templates/generate/dotnet/method.txt")
@@ -88,11 +88,13 @@ class Generator(metaclass=abc.ABCMeta):
     def __init__(self, output_path, model_paths=None, git=False):
         self.output_path = output_path
         self.model_paths = model_paths or []
-
         self.git = git
 
     def __repr__(self):
-        return ""
+        return '{}({!r}, {!r}, {!r})'.format(
+           self.__class__.__name__,
+           self.output_path, self.model_paths, self.git
+        )
 
     @property
     def project_name(self):
@@ -233,37 +235,39 @@ class DotnetGenerator(Generator):
             fp.write(self.generate_code(classes, namespace=namespace))
 
 
-_GENERATOR_FACTORY = Factory({
+GENERATOR_FACTORY = Factory({
     "python": PythonGenerator,
     "dotnet": DotnetGenerator,
     "c#": DotnetGenerator,
 }, default=EmptyGenerator)
 
 
+def create_generator(language=None):
+    return GENERATOR_FACTORY.get(language)
+
+
 def get_supported_languages():
-    return _GENERATOR_FACTORY.keys()
+    return GENERATOR_FACTORY.keys()
 
 
 def generate_methods(methods, language=None):
-    cls = _GENERATOR_FACTORY.get(language)
+    cls = GENERATOR_FACTORY.get(language)
     return cls.generate_methods(methods)
 
 
 def generate_class(class_name, methods, language=None):
-    cls = _GENERATOR_FACTORY.get(language)
+    cls = GENERATOR_FACTORY.get(language)
     return cls.generate_class(class_name, methods)
 
 
 def generate_code(output_path, model_paths=None, language=None):
-    cls = _GENERATOR_FACTORY.get(language)
+    cls = GENERATOR_FACTORY.get(language)
     generator = cls(output_path, model_paths=model_paths)
     return generator.generate_code()
 
 
 def generate_tests(output_path, model_paths=None, language=None):
-    """ """
-
-    cls = _GENERATOR_FACTORY.get(language)
+    cls = GENERATOR_FACTORY.get(language)
     generator = cls(output_path, model_paths=model_paths)
     return generator.generate_tests()
 
@@ -281,6 +285,6 @@ def init_project(output_path, model_paths=None, language=None, git=True):
         FileExistsError: If the path ``output_dir`` already exists.
     """
 
-    cls = _GENERATOR_FACTORY.get(language)
+    cls = GENERATOR_FACTORY.get(language)
     generator = cls(output_path, model_paths=model_paths, git=git)
     return generator.init_project()

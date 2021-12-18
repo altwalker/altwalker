@@ -8,6 +8,8 @@ import psutil
 
 
 def get_resource(path):
+    """Return the content of a file from that is included in the package resources."""
+
     return pkg_resources.resource_string(__name__, path).decode("utf-8")
 
 
@@ -71,7 +73,7 @@ class Factory:
         return self.map.keys()
 
     def get(self, key):
-        return map.get(key, default=self.default)
+        return self.map.get(key, default=self.default)
 
 
 class Command:
