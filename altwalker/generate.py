@@ -76,11 +76,11 @@ class Generator(metaclass=abc.ABCMeta):
             fp.write(self.DEFAULT_MODEL)
 
     def copy_models(self):
-        os.makedirs(self.output_path)
+        os.makedirs(os.path.join(self.output_path, "models"))
 
         for model_path in self.model_paths:
             file_name = os.path.basename(model_path)
-            shutil.copyfile(model_path, os.path.join(self.output_path, file_name))
+            shutil.copyfile(model_path, os.path.join(self.output_path, "models", file_name))
 
     def git_init(self):
         self.generate_gitignore()
@@ -96,16 +96,16 @@ class Generator(metaclass=abc.ABCMeta):
         with open(os.path.join(self.output_path, ".gitignore"), "w") as fp:
             fp.write(self.BASE_GITIGNORE)
 
-    @abc.abstractstaticmethod
-    def generate_methods(self, *args, **kwargs):
+    @abc.abstractclassmethod
+    def generate_methods(cls, *args, **kwargs):
         pass
 
-    @abc.abstractstaticmethod
-    def generate_class(self, *args, **kwargs):
+    @abc.abstractclassmethod
+    def generate_class(cls, *args, **kwargs):
         pass
 
-    @abc.abstractstaticmethod
-    def generate_code(self, *args, **kwargs):
+    @abc.abstractclassmethod
+    def generate_code(cls, *args, **kwargs):
         pass
 
     @abc.abstractmethod
@@ -133,17 +133,20 @@ class Generator(metaclass=abc.ABCMeta):
 class EmptyGenerator(Generator):
     """A class for generating an empty AltWalker project."""
 
-    def generate_methods(self, *args, **kwargs):
+    @classmethod
+    def generate_methods(cls, *args, **kwargs):
         return ""
 
-    def generate_class(self, *args, **kwargs):
+    @classmethod
+    def generate_class(cls, *args, **kwargs):
         return ""
 
-    def generate_code(self, *args, **kwargs):
+    @classmethod
+    def generate_code(cls, *args, **kwargs):
         return ""
 
-    def generate_tests(self, package_name="tests"):
-        os.makedirs(os.path.join(self.output_dir, package_name))
+    def generate_tests(self, classes, package_name="tests"):
+        os.makedirs(os.path.join(self.output_path, package_name))
 
 
 class PythonGenerator(Generator):
@@ -165,18 +168,21 @@ class PythonGenerator(Generator):
         with open(os.path.join(output_path, "requirements.txt"), "w") as fp:
             fp.write("altwalker")
 
-    def generate_methods(self, methods):
+    @classmethod
+    def generate_methods(cls, methods):
         env = Environment()
-        template = env.from_string(self.METHODS_TEMPLATE)
+        template = env.from_string(cls.METHODS_TEMPLATE)
         return template.render(methods=methods)
 
-    def generate_class(self, class_name, methods):
-        env = Environment()
-        template = env.from_string(self.CLASS_TEMPLATE)
+    @classmethod
+    def generate_class(cls, class_name, methods):
+        env = Environment(trim_blocks=True)
+        template = env.from_string(cls.CLASS_TEMPLATE)
         return template.render(class_name=class_name, methods=methods)
 
-    def generate_code(self, classes):
-        code = [self.generate_class(class_name, methods) for class_name, methods in classes.items()]
+    @classmethod
+    def generate_code(cls, classes):
+        code = [cls.generate_class(class_name, methods) for class_name, methods in classes.items()]
         return "\n{}".format("\n\n".join(code))
 
     def generate_tests(self, classes, package_name="tests"):
@@ -210,27 +216,31 @@ class DotnetGenerator(Generator):
         with open(os.path.join(self.output_path, ".gitignore"), "a") as fp:
             fp.write(self.DOTNET_GITIGNORE)
 
-    def generate_methods(self, methods):
-        code = [self.METHOD_TEMPLATE.format(name) for name in methods]
+    @classmethod
+    def generate_methods(cls, methods):
+        code = [cls.METHOD_TEMPLATE.format(name) for name in methods]
         return "\n".join(code)
 
-    def generate_class(self, class_name, methods):
-        return self.CLASS_TEMPLATE.format(class_name, self.generate_methods(methods))
+    @classmethod
+    def generate_class(cls, class_name, methods):
+        return cls.CLASS_TEMPLATE.format(class_name, cls.generate_methods(methods))
 
-    def generate_csproj(self):
+    @classmethod
+    def generate_csproj(cls):
         env = Environment()
-        template = env.from_string(self.CSPROJ_TEMPLATE)
-        return template.render(version=self.VERSION_WILDCARD)
+        template = env.from_string(cls.CSPROJ_TEMPLATE)
+        return template.render(version=cls.VERSION_WILDCARD)
 
-    def generate_code(self, classes, namespace="Tests"):
-        code = [self.generate_class(class_name, methods) for class_name, methods in classes.items()]
+    @classmethod
+    def generate_code(cls, classes, namespace="Tests"):
+        code = [cls.generate_class(class_name, methods) for class_name, methods in classes.items()]
         code = "\n{}\n".format("\n\n".join(code))
 
-        code += self.MAIN_TEMPLATE.format(
+        code += cls.MAIN_TEMPLATE.format(
             "\n".join(["            service.RegisterModel<{}>();".format(name) for name in classes.keys()])
         )
 
-        return self.NAMESPACE_TEMPLATE.format(namespace, code)
+        return cls.NAMESPACE_TEMPLATE.format(namespace, code)
 
     def generate_tests(self, classes, package_name="tests"):
         base_path = os.path.join(self.output_path, package_name)
@@ -253,10 +263,6 @@ GeneratorFactory = Factory({
 }, default=EmptyGenerator)
 
 
-def create_generator(language=None):
-    return GeneratorFactory.get(language)
-
-
 def get_supported_languages():
     return GeneratorFactory.keys()
 
@@ -271,10 +277,9 @@ def generate_class(class_name, methods, language=None):
     return cls.generate_class(class_name, methods)
 
 
-def generate_code(output_path, model_paths=None, language=None):
+def generate_code(model_paths=None, language=None):
     cls = GeneratorFactory.get(language)
-    generator = cls(output_path, model_paths=model_paths)
-    return generator.generate_code()
+    return generator.generate_code(model_paths=model_paths)
 
 
 def generate_tests(output_path, model_paths=None, language=None):
@@ -293,7 +298,7 @@ def init_project(output_path, model_paths=None, language=None, git=True):
         git: If set to ``True`` will initialize a git repository and commit the files.
 
     Raises:
-        FileExistsError: If the path ``output_dir`` already exists.
+        FileExistsError: If the path ``output_path`` already exists.
     """
 
     cls = GeneratorFactory.get(language)

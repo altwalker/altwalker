@@ -73,15 +73,15 @@ class TestInit(unittest.TestCase):
         repo = Repo(repo_path)
         commits = list(repo.iter_commits('master'))
 
-        self.assertEqual(len(commits), 1, "Tests repo should have one commit")
-        self.assertEqual(commits[0].summary, "Initial commit", "Commit summary should be 'Initial commit'")
+        assert len(commits) == 1, "Tests repo should have one commit"
+        assert "Initial commit" in commits[0].summary, "Commit summary should be 'Initial commit'"
 
     def test_git(self):
         with run_isolation(self.runner, self.files):
             packagename = "example"
             result = self.runner.invoke(init, [packagename, "--git"])
 
-            self.assertIsNone(result.exception, msg=result.exception)
+            self.assertIsNone(result.exception, msg=str(result.exception) + "\n" + result.output)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
             self._assert_git_repo(packagename)
@@ -118,7 +118,12 @@ class TestInit(unittest.TestCase):
             )
 
             with open("{}/tests/test.py".format(self.packagename), "r") as fp:
-                self.assertEqual(fp.read(), expected_code)
+                code = fp.read()
+                print()
+                print(code)
+                print()
+
+                assert code == expected_code
 
     def test_dotnet(self):
         with run_isolation(self.runner, self.files):
@@ -175,7 +180,7 @@ class TestInit(unittest.TestCase):
             packagename = "example"
             result = self.runner.invoke(init, ["-m", "simple.json", packagename])
 
-            self.assertIsNone(result.exception, msg=result.exception)
+            self.assertIsNone(result.exception, msg=str(result.exception) + "\n" + result.output)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
             self._assert_models_files(packagename, ["simple.json"])

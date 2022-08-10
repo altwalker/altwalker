@@ -1,6 +1,7 @@
-
 class {{ class_name }}:
-    {% for method in methods %}
+
+{% for method in methods %}
     def {{ method }}(self):
         pass
-    {% endfor %}
+
+{% endfor %}
