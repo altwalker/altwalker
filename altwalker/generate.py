@@ -155,7 +155,7 @@ class PythonGenerator(Generator):
     def generate_gitignore(self):
         """Generate the .gitignore for a python project."""
 
-        super(self).generate_gitignore()
+        super().generate_gitignore()
 
         with open(os.path.join(self.output_path, ".gitignore"), "a") as fp:
             fp.write(self.PYTHON_GITIGNORE)
@@ -204,7 +204,7 @@ class DotnetGenerator(Generator):
     def generate_gitignore(self):
         """Generate the .gitignore for a python dotnet."""
 
-        super(self).generate_gitignore()
+        super().generate_gitignore()
 
         with open(os.path.join(self.output_path, ".gitignore"), "a") as fp:
             fp.write(self.DOTNET_GITIGNORE)
