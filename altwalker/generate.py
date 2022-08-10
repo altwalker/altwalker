@@ -73,7 +73,7 @@ class Generator(metaclass=abc.ABCMeta):
         os.makedirs(os.path.join(self.output_path, "models"))
 
         with open(os.path.join(self.output_path, "models/default.json"), "w") as fp:
-            fp.write(_DEFAULT_MODEL)
+            fp.write(self.DEFAULT_MODEL)
 
     def copy_models(self):
         os.makedirs(self.output_path)
