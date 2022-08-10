@@ -46,4 +46,4 @@ class TestPythonGenerator:
         assert code == "\n".join(expected)
 
     def test_generate_code(self):
-        pass 
+        pass
