@@ -233,8 +233,8 @@ class TestEchoSugesstions:
 
         _echo_suggestions(self.language, methods, missing_methods)
         generate_class_mock.assert_called_once_with(
-            self.language,
-            "ModelA", {"vertex_A", "edge_A", "vertex_B", "edge_B"}
+            "ModelA", {"vertex_A", "edge_A", "vertex_B", "edge_B"},
+            language=self.language
         )
 
     def test_missing_methods(self, secho_mock, generate_methods_mock, generate_class_mock):
@@ -250,7 +250,7 @@ class TestEchoSugesstions:
         }
 
         _echo_suggestions(self.language, methods, missing_methods)
-        generate_methods_mock.assert_called_once_with(self.language, {"vertex_A", "edge_A"})
+        generate_methods_mock.assert_called_once_with({"vertex_A", "edge_A"}, language=self.language)
 
     def test_no_missing_methods(self, secho_mock, generate_methods_mock, generate_class_mock):
         generate_methods_mock.return_value = ""
