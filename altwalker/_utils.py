@@ -73,7 +73,7 @@ class Factory:
         return self.map.keys()
 
     def get(self, key):
-        return self.map.get(key, default=self.default)
+        return self.map.get(key, self.default)
 
 
 class Command:
