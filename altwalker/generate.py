@@ -120,6 +120,7 @@ class Generator(metaclass=abc.ABCMeta):
 
         try:
             self.generate_models()
+            self.generate_tests(get_methods(self.model_paths))
 
             if self.git:
                 self.git_init()
