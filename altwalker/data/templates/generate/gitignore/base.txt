@@ -2,6 +2,7 @@
 
 # Logs
 altwalker.log
+graphwalker-service.log
 report.xml
 
 # Operating system-related files

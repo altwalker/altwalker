@@ -277,4 +277,4 @@ Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat 
 
 ## License
 
-AltWalker is licensed under the GNU General Public License v3.0.
+AltWalker is licensed under the [GNU General Public License v3.0](https://gitlab.com/altom/altwalker/altwalker/-/blob/develop/LICENSE).

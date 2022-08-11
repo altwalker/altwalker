@@ -41,7 +41,7 @@ def _git_init(path):
 
 
 class Generator(metaclass=abc.ABCMeta):
-    """Abstract base class for generating an AltWalker project.
+    """Abstract base class for generating a new AltWalker project.
 
     Args:
         output_path (:obj:`str`): The path to the project root.
@@ -67,6 +67,10 @@ class Generator(metaclass=abc.ABCMeta):
     @property
     def project_name(self):
         return os.path.basename(self.output_path)
+
+    @property
+    def gitignore(self):
+        return self.BASE_GITIGNORE
 
     def copy_default_model(self):
         self.model_paths = [os.path.join(self.output_path, "models", "default.json")]
@@ -94,7 +98,7 @@ class Generator(metaclass=abc.ABCMeta):
 
     def generate_gitignore(self):
         with open(os.path.join(self.output_path, ".gitignore"), "w") as fp:
-            fp.write(self.BASE_GITIGNORE)
+            fp.write(self.gitignore)
 
     @abc.abstractclassmethod
     def generate_methods(cls, *args, **kwargs):
@@ -112,7 +116,10 @@ class Generator(metaclass=abc.ABCMeta):
     def generate_tests(self, *args, **kwargs):
         pass
 
-    def init_project(self, *args, **kwargs):
+    def init_package(self):
+        self.generate_tests(get_methods(self.model_paths)) 
+
+    def init_project(self):
         if os.path.exists(self.output_path):
             raise FileExistsError("The '{}' directory already exists.".format(self.output_path))
 
@@ -155,18 +162,12 @@ class PythonGenerator(Generator):
     METHODS_TEMPLATE = get_resource("data/templates/generate/python/methods.jinja")
     CLASS_TEMPLATE = get_resource("data/templates/generate/python/class.jinja")
     PYTHON_GITIGNORE = get_resource("data/templates/generate/gitignore/python.txt")
+    
+    REQUIREMENTS = get_resource("data/templates/generate/python/requirements.txt")
 
-    def generate_gitignore(self):
-        """Generate the .gitignore for a python project."""
-
-        super().generate_gitignore()
-
-        with open(os.path.join(self.output_path, ".gitignore"), "a") as fp:
-            fp.write(self.PYTHON_GITIGNORE)
-
-    def generate_requirements(self, output_path):
-        with open(os.path.join(output_path, "requirements.txt"), "w") as fp:
-            fp.write("altwalker")
+    @property
+    def gitignore(self):
+        return "{}\n{}".format(super().gitignore, self.PYTHON_GITIGNORE)
 
     @classmethod
     def generate_methods(cls, methods):
@@ -185,7 +186,13 @@ class PythonGenerator(Generator):
         code = [cls.generate_class(class_name, methods) for class_name, methods in classes.items()]
         return "\n{}".format("\n\n".join(code))
 
+    def generate_requirements(self):
+        with open(os.path.join(self.output_path, "requirements.txt"), "w") as fp:
+            fp.write(self.REQUIREMENTS)
+
     def generate_tests(self, classes, package_name="tests"):
+        self.generate_requirements()
+
         base_path = os.path.join(self.output_path, package_name)
         os.makedirs(base_path)
 
@@ -208,13 +215,9 @@ class DotnetGenerator(Generator):
 
     DOTNET_GITIGNORE = get_resource("data/templates/generate/gitignore/dotnet.txt")
 
-    def generate_gitignore(self):
-        """Generate the .gitignore for a python dotnet."""
-
-        super().generate_gitignore()
-
-        with open(os.path.join(self.output_path, ".gitignore"), "a") as fp:
-            fp.write(self.DOTNET_GITIGNORE)
+    @property
+    def gitignore(self):
+        return "{}\n{}".format(super().gitignore, self.DOTNET_GITIGNORE)
 
     @classmethod
     def generate_methods(cls, methods):
@@ -285,7 +288,7 @@ def generate_code(model_paths=None, language=None):
 def generate_tests(output_path, model_paths=None, language=None):
     cls = GeneratorFactory.get(language)
     generator = cls(output_path, model_paths=model_paths)
-    return generator.generate_tests()
+    return generator.init_package()
 
 
 def init_project(output_path, model_paths=None, language=None, git=True):
@@ -293,8 +296,8 @@ def init_project(output_path, model_paths=None, language=None, git=True):
 
     Args:
         output_path: The path to the project root.
-        language: The language of the project (e.g. python).
         model_paths: A sequence of path to model files.
+        language: The language of the project (e.g. python).
         git: If set to ``True`` will initialize a git repository and commit the files.
 
     Raises:

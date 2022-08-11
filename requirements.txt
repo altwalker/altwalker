@@ -1,7 +1,10 @@
 requests
-jinja2
+jinja2~=3.1; python_version >= "3.6"
+jinja2==3.0.3; python_version == "3.6"
+jinja2==2.11.3; python_version < "3.6"
 psutil~=5.9
-click~=8.1; python_version >= "3.6"
+click~=8.1; python_version > "3.6"
+click==8.4; python_version == "3.6"
 click~=7.0; python_version < "3.6"
 click-help-colors>=0.9.1
 GitPython==3.1.13; python_version < "3.6"
