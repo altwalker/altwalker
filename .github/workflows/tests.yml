@@ -1,0 +1,50 @@
+on:
+  push:
+    paths:
+      - 'altwalker/**'
+      - 'tests/**'
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
+
+    - name: Run unit tests
+      run: |
+        pytest tests/unit -x -s --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
+
+
+  integration:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up .NET 2.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '2.1'
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
+
+    - name: Run integration tests
+      run: |
+        pytest tests/integration -x -s
