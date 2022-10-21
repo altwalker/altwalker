@@ -1,3 +1,5 @@
+name: Unit Tests & Integration Tests
+
 on:
   push:
     paths:
