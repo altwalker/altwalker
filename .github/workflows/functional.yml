@@ -1,0 +1,116 @@
+name: Functional Tests
+
+on:
+  push:
+    paths:
+      - 'altwalker/**'
+      - 'setup.py'
+
+jobs:
+  remote-graphwalker:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Start GraphWalker REST server
+      run: |
+        gw --debug ALL online --service RESTFUL --port 8080 --verbose &
+
+    - name: Run tests
+      run: |
+        altwalker --version
+        altwalker init python-example -l python --no-git
+        cd python-example
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests -m models/default.json
+        altwalker online tests -m models/default.json "random(vertex_coverage(100))" --gw-host localhost --gw-port 8080
+
+  python:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Run tests
+      run: |
+        altwalker --version
+        altwalker init python-example -l python --no-git
+        cd python-example
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests -m models/default.json
+        altwalker online tests -m models/default.json "random(vertex_coverage(100))" --report-xml-file report.xml
+        altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+        altwalker walk tests steps.json
+
+  dotnet:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        name: dotnet-executor-build
+        repo: altwalker/dotnet-executor
+
+    - name: Display structure of downloaded files
+      run: ls -R
+
+    - name: Setup .NET Core SDK 3.1.x
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '3.1.x'
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Run tests
+      run: |
+        altwalker --version
+
+  http:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core SDK 3.1.x
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '3.1.x'
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Run tests
+      run: |
+        altwalker --version
