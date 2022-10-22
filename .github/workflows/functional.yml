@@ -114,7 +114,15 @@ jobs:
 
     - name: Run tests
       run: |
-        altwalker --version
+        altwalker -v
+        altwalker init dotnet-example -l c# --no-git
+        dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+        cd dotnet-example
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests/ -m models/default.json -x c# --executor-url http://localhost:4200/
+        altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --executor-url http://localhost:4200/
+        altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+        altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
   http:
     runs-on: ubuntu-latest
@@ -132,13 +140,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Download .Net Executor build
+    - name: Download .NET Executor build
       uses: actions/download-artifact@v3
       with:
         name: dotnet-executor-build
-
-    - name: Display structure of downloaded files
-      run: ls -R
 
     - name: Install AltWalker
       run: |
@@ -147,3 +152,13 @@ jobs:
     - name: Run tests
       run: |
         altwalker --version
+        altwalker init dotnet-example -l c# --no-git
+        dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+        cd dotnet-example
+        dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
+        sleep 10
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests/ -m models/default.json -x http --executor-url http://localhost:4200/
+        altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/
+        altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+        altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
