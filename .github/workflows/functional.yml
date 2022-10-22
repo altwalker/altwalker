@@ -7,6 +7,31 @@ on:
       - 'setup.py'
 
 jobs:
+  build-dotnet-executor:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repo: altwalker/dotnet-executor
+
+    - name: Display structure of downloaded files
+      run: ls -R
+
+    - name: Setup .NET Core SDK 3.1.x
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '3.1.x'
+
+    - name: Build
+      run: dotnet pack AltwalkerExecutor
+
+    - name: Upload the build
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-executor-build
+        path: 'AltwalkerExecutor/bin/Debug/AltWalker.Executor.*.nupkg'
+
   remote-graphwalker:
     runs-on: ubuntu-latest
 
@@ -61,17 +86,15 @@ jobs:
 
   dotnet:
     runs-on: ubuntu-latest
+    needs: build-dotnet-executor
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Download artifact
-      uses: dawidd6/action-download-artifact@v2
-      with:
-        github_token: ${{secrets.GITHUB_TOKEN}}
-        name: dotnet-executor-build
-        repo: altwalker/dotnet-executor
-        branch: develop
+    - name: Download .Net Executor build
+        uses: actions/download-artifact@v3
+        with:
+          name: dotnet-executor-build
 
     - name: Display structure of downloaded files
       run: ls -R
@@ -95,6 +118,7 @@ jobs:
 
   http:
     runs-on: ubuntu-latest
+    needs: build-dotnet-executor
 
     steps:
     - uses: actions/checkout@v3
@@ -107,6 +131,14 @@ jobs:
     - uses: altwalker/setup-graphwalker@v1
       with:
         python-version: '3.10'
+
+    - name: Download .Net Executor build
+        uses: actions/download-artifact@v3
+        with:
+          name: dotnet-executor-build
+
+    - name: Display structure of downloaded files
+      run: ls -R
 
     - name: Install AltWalker
       run: |
