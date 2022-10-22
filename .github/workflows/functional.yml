@@ -116,7 +116,7 @@ jobs:
       run: |
         altwalker -v
         altwalker init dotnet-example -l c# --no-git
-        dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+        dotnet restore dotnet-example/tests/tests.csproj -s AltWalker.Executor.*.nupkg -s https://api.nuget.org/v3/index.json
         cd dotnet-example
         altwalker check -m models/default.json "random(vertex_coverage(100))"
         altwalker verify tests/ -m models/default.json -x c# --executor-url http://localhost:4200/
@@ -153,7 +153,7 @@ jobs:
       run: |
         altwalker --version
         altwalker init dotnet-example -l c# --no-git
-        dotnet restore dotnet-example/tests/tests.csproj -s AltwalkerExecutor/bin/Debug/ -s https://api.nuget.org/v3/index.json
+        dotnet restore dotnet-example/tests/tests.csproj -s AltWalker.Executor.*.nupkg -s https://api.nuget.org/v3/index.json
         cd dotnet-example
         dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
         sleep 10
