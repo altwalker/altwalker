@@ -71,6 +71,7 @@ jobs:
         github_token: ${{secrets.GITHUB_TOKEN}}
         name: dotnet-executor-build
         repo: altwalker/dotnet-executor
+        branch: develop
 
     - name: Display structure of downloaded files
       run: ls -R
