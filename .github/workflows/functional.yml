@@ -133,9 +133,9 @@ jobs:
         python-version: '3.10'
 
     - name: Download .Net Executor build
-        uses: actions/download-artifact@v3
-        with:
-          name: dotnet-executor-build
+      uses: actions/download-artifact@v3
+      with:
+        name: dotnet-executor-build
 
     - name: Display structure of downloaded files
       run: ls -R
