@@ -16,10 +16,10 @@ jobs:
         repository: altwalker/dotnet-executor
         ref: develop
 
-    - name: Setup .NET Core SDK 3.1.x
+    - name: Setup .NET Core SDK 2.1
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.x'
+        dotnet-version: '2.1'
 
     - name: Build
       run: dotnet pack AltwalkerExecutor
@@ -97,10 +97,10 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -R
 
-    - name: Setup .NET Core SDK 3.1.x
+    - name: Setup .NET Core SDK 2.1
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.x'
+        dotnet-version: '2.1'
 
     - uses: altwalker/setup-graphwalker@v1
       with:
@@ -122,11 +122,6 @@ jobs:
         altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
         altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
-    - name: Cat logs
-      run: |
-        cat dotnet-example/dotnet-executor.log
-        cat dotnet-executor.log
-
     - name: Upload log files
       uses: actions/upload-artifact@v2
       if: ${{ always() }}
@@ -141,10 +136,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup .NET Core SDK 3.1.x
+    - name: Setup .NET Core SDK 2.1
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.x'
+        dotnet-version: '2.1'
 
     - uses: altwalker/setup-graphwalker@v1
       with:
