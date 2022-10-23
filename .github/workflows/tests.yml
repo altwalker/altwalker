@@ -54,7 +54,7 @@ jobs:
 
   integration:
     runs-on: ubuntu-latest
-    need: lint
+    needs: lint
 
     steps:
     - uses: actions/checkout@v3
