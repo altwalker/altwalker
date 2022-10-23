@@ -122,14 +122,17 @@ jobs:
         altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
         altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
+    - name: Cat logs
+      run: |
+        cat dotnet-example/dotnet-executor.log
+        cat dotnet-executor.log
+
     - name: Upload log files
       uses: actions/upload-artifact@v2
       if: ${{ always() }}
       with:
         name: dotnet-logs
-        path: |
-          '*.log'
-          'dotnet-executor.log'
+        path: '**/*.log'
 
   http:
     runs-on: ubuntu-latest
@@ -158,7 +161,6 @@ jobs:
 
     - name: Run tests
       run: |
-        altwalker --version
         altwalker init dotnet-example -l c# --no-git
         dotnet restore dotnet-example/tests/tests.csproj -s . -s https://api.nuget.org/v3/index.json
         cd dotnet-example
@@ -175,6 +177,4 @@ jobs:
       if: ${{ always() }}
       with:
         name: http-logs
-        path: |
-          '*.log'
-          'dotnet-executor.log'
+        path: '**/*.log'
