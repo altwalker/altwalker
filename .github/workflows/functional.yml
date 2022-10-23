@@ -122,6 +122,13 @@ jobs:
         altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
         altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: dotnet-logs
+        path: '*.log'
+
   http:
     runs-on: ubuntu-latest
     needs: build-dotnet-executor
@@ -160,3 +167,10 @@ jobs:
         altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/
         altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
         altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
+
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: http-logs
+        path: '*.log'
