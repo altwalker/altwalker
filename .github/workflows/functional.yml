@@ -127,7 +127,9 @@ jobs:
       if: ${{ always() }}
       with:
         name: dotnet-logs
-        path: '*.log'
+        path: |
+          '*.log'
+          'dotnet-executor.log'
 
   http:
     runs-on: ubuntu-latest
@@ -173,4 +175,6 @@ jobs:
       if: ${{ always() }}
       with:
         name: http-logs
-        path: '*.log'
+        path: |
+          '*.log'
+          'dotnet-executor.log'
