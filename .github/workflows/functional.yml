@@ -57,6 +57,13 @@ jobs:
         altwalker verify tests -m models/default.json
         altwalker online tests -m models/default.json "random(vertex_coverage(100))" --gw-host localhost --gw-port 8080
 
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: remote-graphwalker-logs
+        path: '**/*.log'
+
   python:
     runs-on: ubuntu-latest
 

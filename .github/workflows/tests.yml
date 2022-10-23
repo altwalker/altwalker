@@ -7,13 +7,32 @@ on:
       - 'tests/**'
 
 jobs:
-  unit:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    - uses: altwalker/setup-graphwalker@v1
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install flake8
+
+    - name: Lint with flake8
+      run: |
+        flake8 .
+
+  unit:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
@@ -26,8 +45,16 @@ jobs:
       run: |
         pytest tests/unit -x -s --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
 
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: unit-logs
+        path: '**/*.log'
+
   integration:
     runs-on: ubuntu-latest
+    need: lint
 
     steps:
     - uses: actions/checkout@v3
@@ -49,3 +76,10 @@ jobs:
     - name: Run integration tests
       run: |
         pytest tests/integration -x -s
+
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: integration-logs
+        path: '**/*.log'
