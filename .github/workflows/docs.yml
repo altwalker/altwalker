@@ -6,9 +6,12 @@ on:
       - 'altwalker/**'
       - 'docs/**'
       - 'docs8.ini'
+      - 'requirement.txt'
+      - 'requirements-dev.txt'
+      - 'setup.py'
 
 jobs:
-  docs:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,13 +21,28 @@ jobs:
       with:
         python-version: '3.10'
 
+    - name: Install doc8
+      run: |
+        pip install docs8
+
+    - name: Lint docs with doc8
+      run: doc8 docs
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
     - name: Install dev dependencies
       run: |
         pip install -r requirements-dev.txt
         pip install --editable .
-
-    - name: Lint docs
-      run: doc8 docs
 
     - name: Build docs
       run: |
