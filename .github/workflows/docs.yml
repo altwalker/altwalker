@@ -23,7 +23,7 @@ jobs:
 
     - name: Install doc8
       run: |
-        pip install docs8
+        pip install doc8
 
     - name: Lint docs with doc8
       run: doc8 docs
