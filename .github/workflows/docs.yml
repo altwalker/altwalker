@@ -19,7 +19,14 @@ jobs:
         python-version: '3.10'
 
     - name: Install dev dependencies
-      run: pip install -r requirements-dev.txt
+      run: |
+        pip install -r requirements-dev.txt
+        pip install --editable .
 
     - name: Lint docs
       run: doc8 docs
+
+    - name: Build docs
+      run: |
+        cd docs
+        make html
