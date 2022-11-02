@@ -5,7 +5,7 @@ from altwalker.__version__ import VERSION
 
 NAME = 'altwalker'
 DESCRIPTION = 'AltWalker is an open source Model-Based Testing framework that supports running tests written in python3 and .NET/C#. You design your tests as a directed graph and AltWalker generates test cases from your graph (using GraphWalker) and executes them.'
-URL = 'https://gitlab.com/altom/altwalker/altwalker/'
+URL = 'https://github.com/altwalker/altwalker'
 EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'
 REQUIRES_PYTHON = '>=3.4.0'
@@ -29,9 +29,9 @@ setup(
     license=LICENSE,
     url=URL,
     project_urls={
-        "Bug Tracker": "https://gitlab.com/altom/altwalker/altwalker/issues?label_name=Bug",
-        "Documentation": "https://altom.gitlab.io/altwalker/altwalker/",
-        "Source": "https://gitlab.com/altom/altwalker/altwalker/",
+        "Bug Tracker": "https://github.com/altwalker/altwalker/labels/bug",
+        "Documentation": "https://altwalker.github.io/altwalker",
+        "Source": "https://github.com/altwalker/altwalker",
     },
 
     author=AUTHOR,
