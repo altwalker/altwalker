@@ -2,7 +2,7 @@
 
 AltWalker is an open source, Model-Based Testing framework.
 
-Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
+Read the documentation on https://altwalker.github.io/altwalker.
 
 Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
 
@@ -85,7 +85,7 @@ AltWalker has the following components:
     * .NET Executor
 
     And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
-    more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html)
+    more about the Http Executor on the [How to: Write your own executor](https://altwalker.github.io/altwalker/how-tos/custom-executor.html)
     page.
 
 * __Walker__: the test runner. Coordinates the execution of a test asking the `Planner`
@@ -163,10 +163,10 @@ $ altwalker --version
 If you want to work with the latest code before it’s released, install or update the code from the `develop` branch:
 
 ```
-$ pip3 install -U git+https://gitlab.com/altom/altwalker/altwalker
+$ pip3 install -U git+https://github.com/altwalker/altwalker
 ```
 
-For a more detailed tutorial read the [Installation](https://altom.gitlab.io/altwalker/altwalker/installation.html) section from the documentation.
+For a more detailed tutorial read the [Installation](https://altwalker.github.io/altwalker/installation.html) section from the documentation.
 
 ## Quickstart
 
@@ -213,7 +213,7 @@ Status:  PASS
 Clone the repository:
 
 ```
-$ git clone https://gitlab.com/altom/altwalker/altwalker/
+$ git clone https://github.com/altwalker/altwalker.git
 $ cd altwalker
 ```
 
