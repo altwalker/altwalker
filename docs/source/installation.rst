@@ -118,7 +118,7 @@ or update the code from the `develop` branch:
 
 .. code-block:: console
 
-    $ pip3 install -U git+https://gitlab.com/altom/altwalker/altwalker
+    $ pip3 install -U git+https://github.com/altwalker/altwalker
 
 
 Install .NET Core (Optional)

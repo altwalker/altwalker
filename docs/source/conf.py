@@ -100,12 +100,12 @@ html_css_files = [
 ]
 
 # If you want to integrate editing into your own theme.
-# For integrating Gitlab
+# For integrating GitHub
 html_context = {
-    "display_gitlab": True,
-    "gitlab_user": "altom/altwalker",
-    "gitlab_repo": "altwalker",
-    "gitlab_version": "master",
+    "display_github": True,
+    "github_user": "altwalker",
+    "github_repo": "altwalker",
+    "github": "main",
     "conf_py_path": "/docs/",
 }
 
