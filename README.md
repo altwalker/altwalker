@@ -4,7 +4,7 @@ AltWalker is an open source, Model-Based Testing framework.
 
 Read the documentation on https://altwalker.github.io/altwalker.
 
-Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
+Join our [Gitter chat room](https://gitter.im/altwalker/community) or our [Google Group](https://groups.google.com/g/altwalker) to chat with us or with other members of the community.
 
 ## Table of Contents
 
@@ -273,7 +273,7 @@ __Further Reading/Useful Links__:
 
 ## Support
 
-Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
+Join our [Gitter chat room](https://gitter.im/altwalker/community) or our [Google Group](https://groups.google.com/g/altwalker) to chat with us or with other members of the community.
 
 ## License
 

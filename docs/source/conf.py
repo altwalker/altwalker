@@ -105,7 +105,7 @@ html_context = {
     "display_github": True,
     "github_user": "altwalker",
     "github_repo": "altwalker",
-    "github_version"": "main",
+    "github_version": "main",
     "conf_py_path": "docs/",
 }
 
