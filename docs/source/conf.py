@@ -106,7 +106,7 @@ html_context = {
     "github_user": "altwalker",
     "github_repo": "altwalker",
     "github_version": "main",
-    "conf_py_path": "docs/",
+    "conf_py_path": "/docs/source/",
 }
 
 
