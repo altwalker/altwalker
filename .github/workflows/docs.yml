@@ -9,6 +9,9 @@ on:
       - 'requirement.txt'
       - 'requirements-dev.txt'
       - 'setup.py'
+      - 'CONTRIBUTING.rst'
+      - 'CHANGELOG.rst'
+      - 'LICENSE'
 
 jobs:
   lint:
