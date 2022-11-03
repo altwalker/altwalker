@@ -149,7 +149,7 @@ $ gw --version
 Use the following command to install AltWalker:
 
 ```
-$ pip3 install altwalker
+$ pip install altwalker
 ```
 
 AltWalker is now installed. Check that you correctly installed AltWalker by running:
@@ -163,7 +163,7 @@ $ altwalker --version
 If you want to work with the latest code before it’s released, install or update the code from the `develop` branch:
 
 ```
-$ pip3 install -U git+https://github.com/altwalker/altwalker
+$ pip install -U git+https://github.com/altwalker/altwalker
 ```
 
 For a more detailed tutorial read the [Installation](https://altwalker.github.io/altwalker/installation.html) section from the documentation.
@@ -220,8 +220,8 @@ $ cd altwalker
 Install python dependencies:
 
 ```
-$ pip3 install -r requirements.txt && \
-  pip3 install -r requirements-dev.txt
+$ pip install -r requirements.txt && \
+  pip install -r requirements-dev.txt
 ```
 
 ### Running Tests
@@ -241,7 +241,7 @@ $ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" altwalker/tests:to
 After you install the python dependencies to setup AltWalker CLI locally from code run:
 
 ```
-$ pip3 install --editable .
+$ pip install --editable .
 ```
 
 Then from any command line you can access:
@@ -263,7 +263,7 @@ $ cd docs && \
 To see the documentation run:
 
 ```
-$ open _build/html/index.html
+$ open build/html/index.html
 ```
 
 __Further Reading/Useful Links__:
