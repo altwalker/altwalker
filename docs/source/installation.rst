@@ -96,7 +96,7 @@ To install ``altwalker`` run the following command in your command line:
 
 .. code-block:: console
 
-    $ pip3 install -U altwalker
+    $ pip install -U altwalker
 
 Or:
 
@@ -117,7 +117,7 @@ or update the code from the `develop` branch:
 
 .. code-block:: console
 
-    $ pip3 install -U git+https://github.com/altwalker/altwalker
+    $ pip install -U git+https://github.com/altwalker/altwalker
 
 
 Install .NET Core (Optional)
