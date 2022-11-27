@@ -57,28 +57,27 @@ To install GraphWalker you can run the following command:
 
         .. code-block:: console
 
-            $ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.3.1/graphwalker-cli-4.3.1.jar && \
-              mkdir -p ~/.graphwalker && \
-              mv graphwalker-cli-4.3.1.jar ~/.graphwalker/ && \
-              echo -e '#!/bin/bash\njava -jar ~/.graphwalker/graphwalker-cli-4.3.1.jar "$@"' > ~/.graphwalker/graphwalker-cli.sh && \
-              chmod +x ~/.graphwalker/graphwalker-cli.sh && \
-              ln -s ~/.graphwalker/graphwalker-cli.sh /usr/local/bin/gw
+            $ wget -q -O - https://raw.githubusercontent.com/altwalker/graphwalker-installer/main/install-graphwalker.py
+            $ python install-graphwalker.py
 
-        Here is a more detailed `tutorial <https://github.com/GraphWalker/graphwalker-project/wiki/Command-Line-Tool#creating-a-script-facilitating-command-line-handling-on-a-linux-machine>`_ for macOS/linux.
+
+        or
+
+        .. code-block:: console
+
+            $ git clone https://github.com/altwalker/graphwalker-installer.git
+            $ cd graphwalker-installer
+            $ python install-graphwalker.py
 
     .. group-tab:: Windows
 
         .. code-block:: console
 
-            > setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
-              cd C:\
-              mkdir graphwalker
-              cd graphwalker
-              powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.3.1/graphwalker-cli-4.3.1.jar' -outfile 'graphwalker-cli-4.3.1.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
-              @echo off
-              @echo @echo off> gw.bat
-              @echo java -jar C:\graphwalker\graphwalker-cli-4.3.1.jar %*>> gw.bat
-              @echo on
+            > git clone https://github.com/altwalker/graphwalker-installer.git
+            > cd graphwalker-installer
+            > python install-graphwalker.py
+
+Checkout `graphwalker-installer <https://github.com/altwalker/graphwalker-installer>`_ for a more detailed tutorial.
 
 After installing GraphWalker check that you installed the correct version:
 
@@ -97,7 +96,7 @@ To install ``altwalker`` run the following command in your command line:
 
 .. code-block:: console
 
-    $ pip3 install -U altwalker
+    $ pip install -U altwalker
 
 Or:
 
@@ -118,7 +117,7 @@ or update the code from the `develop` branch:
 
 .. code-block:: console
 
-    $ pip3 install -U git+https://gitlab.com/altom/altwalker/altwalker
+    $ pip install -U git+https://github.com/altwalker/altwalker
 
 
 Install .NET Core (Optional)

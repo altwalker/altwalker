@@ -14,9 +14,6 @@ import os
 import sys
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
-from recommonmark.transform import AutoStructify
-
 
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -52,7 +49,6 @@ extensions = [
     'sphinx_tabs.tabs',
     'notfound.extension',
     'sphinxcontrib.programoutput',
-    'recommonmark'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -62,7 +58,6 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 source_suffix = {
     '.rst': 'restructuredtext',
-    '.md': 'markdown'
 }
 
 # List of patterns, relative to source directory, that match files and
@@ -105,13 +100,13 @@ html_css_files = [
 ]
 
 # If you want to integrate editing into your own theme.
-# For integrating Gitlab
+# For integrating GitHub
 html_context = {
-    "display_gitlab": True,
-    "gitlab_user": "altom/altwalker",
-    "gitlab_repo": "altwalker",
-    "gitlab_version": "master",
-    "conf_py_path": "/docs/",
+    "display_github": True,
+    "github_user": "altwalker",
+    "github_repo": "altwalker",
+    "github_version": "main",
+    "conf_py_path": "/docs/source/",
 }
 
 
@@ -141,9 +136,3 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 # True to prefix each section label with the name of the document it is in, followed by a colon.
 autosectionlabel_prefix_document = True
-
-
-# -- Configuration for AutoStructify -----------------------------------------
-
-def setup(app):
-    app.add_transform(AutoStructify)

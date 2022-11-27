@@ -44,11 +44,11 @@ usage patterns.
 .. toctree::
     :caption: Useful Links:
 
-    Source Code <https://gitlab.com/altom/altwalker/altwalker>
-    Issue Tracker <https://gitlab.com/altom/altwalker/altwalker/issues>
+    Source Code <https://github.com/altwalker/altwalker>
+    Issue Tracker <https://github.com/altwalker/altwalker/issues>
     PyPI Releases <https://pypi.org/project/altwalker/>
     Docker Hub <https://hub.docker.com/u/altwalker>
-    Model Editor <https://altom.gitlab.io/altwalker/model-editor>
+    Model Editor <https://altwalker.github.io/model-editor>
     VS Code Extension <https://marketplace.visualstudio.com/items?itemName=Altom.altwalker-model-visualizer>
 
 .. toctree::

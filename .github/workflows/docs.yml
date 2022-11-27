@@ -1,0 +1,78 @@
+name: Docs
+
+on:
+  push:
+    paths:
+      - 'altwalker/**'
+      - 'docs/**'
+      - 'docs8.ini'
+      - 'requirement.txt'
+      - 'requirements-dev.txt'
+      - 'setup.py'
+      - 'CONTRIBUTING.rst'
+      - 'CHANGELOG.rst'
+      - 'LICENSE'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install doc8
+      run: |
+        pip install doc8
+
+    - name: Lint docs with doc8
+      run: doc8 docs
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install dev dependencies
+      run: |
+        pip install -r requirements-dev.txt
+        pip install --editable .
+
+    - name: Build docs
+      run: |
+        cd docs
+        make html
+
+    - name: Upload artifact
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: "docs/build/html/"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

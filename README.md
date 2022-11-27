@@ -2,9 +2,9 @@
 
 AltWalker is an open source, Model-Based Testing framework.
 
-Read the documentation on https://altom.gitlab.io/altwalker/altwalker.
+Read the documentation on https://altwalker.github.io/altwalker.
 
-Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
+Join our [Gitter chat room](https://gitter.im/altwalker/community) or our [Google Group](https://groups.google.com/g/altwalker) to chat with us or with other members of the community.
 
 ## Table of Contents
 
@@ -85,7 +85,7 @@ AltWalker has the following components:
     * .NET Executor
 
     And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
-    more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html)
+    more about the Http Executor on the [How to: Write your own executor](https://altwalker.github.io/altwalker/how-tos/custom-executor.html)
     page.
 
 * __Walker__: the test runner. Coordinates the execution of a test asking the `Planner`
@@ -113,30 +113,30 @@ Prerequisites:
 
 ### Install GraphWalker
 
-* MacOS/Linux:
+To install GraphWalker on:
 
-```bash
-$ wget https://github.com/GraphWalker/graphwalker-project/releases/download/4.3.0/graphwalker-cli-4.3.0.jar && \
-  mkdir -p ~/graphwalker && \
-  mv graphwalker-cli-4.3.0.jar ~/graphwalker/ && \
-  echo -e '#!/bin/bash\njava -jar ~/graphwalker/graphwalker-cli-4.3.0.jar "$@"' > ~/graphwalker/graphwalker-cli.sh && \
-  chmod +x ~/graphwalker/graphwalker-cli.sh && \
-  ln -s ~/graphwalker/graphwalker-cli.sh /usr/local/bin/gw
-```
+* **Linux/MacOS** you can run the following command:
 
-* Windows:
+  ```bash
+  $ wget -q -O - https://raw.githubusercontent.com/altwalker/graphwalker-installer/main/install-graphwalker.py
+  $ python install-graphwalker.py
+  ```
 
-```
-$ setx PATH "%PATH%;C:\graphwalker" & :: Adds graphwalker to current user PATH
-  cd C:\
-  mkdir graphwalker
-  cd graphwalker
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; Invoke-WebRequest -Uri 'https://github.com/GraphWalker/graphwalker-project/releases/download/4.0.1/graphwalker-cli-4.0.1.jar' -outfile 'graphwalker-cli-4.0.1.jar'" & :: Downloads graphwalker using powershell command Invoke-Request
-  @echo off
-  @echo @echo off> gw.bat
-  @echo java -jar C:\graphwalker\graphwalker-cli-4.0.1.jar %*>> gw.bat
-  @echo on
-```
+  or
+
+  ```bash
+  $ git clone https://github.com/altwalker/graphwalker-installer.git
+  $ cd graphwalker-installer
+  $ python install-graphwalker.py
+  ```
+
+* **Windows** you can run the following commands:
+
+  ```cmd
+  > git clone https://github.com/altwalker/graphwalker-installer.git
+  > cd graphwalker-installer
+  > python install-graphwalker.py
+  ```
 
 After running the command check that you correctly installed GraphWalker by running:
 
@@ -149,7 +149,7 @@ $ gw --version
 Use the following command to install AltWalker:
 
 ```
-$ pip3 install altwalker
+$ pip install altwalker
 ```
 
 AltWalker is now installed. Check that you correctly installed AltWalker by running:
@@ -163,10 +163,10 @@ $ altwalker --version
 If you want to work with the latest code before it’s released, install or update the code from the `develop` branch:
 
 ```
-$ pip3 install -U git+https://gitlab.com/altom/altwalker/altwalker
+$ pip install -U git+https://github.com/altwalker/altwalker
 ```
 
-For a more detailed tutorial read the [Installation](https://altom.gitlab.io/altwalker/altwalker/installation.html) section from the documentation.
+For a more detailed tutorial read the [Installation](https://altwalker.github.io/altwalker/installation.html) section from the documentation.
 
 ## Quickstart
 
@@ -213,15 +213,15 @@ Status:  PASS
 Clone the repository:
 
 ```
-$ git clone https://gitlab.com/altom/altwalker/altwalker/
+$ git clone https://github.com/altwalker/altwalker.git
 $ cd altwalker
 ```
 
 Install python dependencies:
 
 ```
-$ pip3 install -r requirements.txt && \
-  pip3 install -r requirements-dev.txt
+$ pip install -r requirements.txt && \
+  pip install -r requirements-dev.txt
 ```
 
 ### Running Tests
@@ -241,7 +241,7 @@ $ docker run  -it --rm -v "$(pwd):/altwalker" -w "/altwalker" altwalker/tests:to
 After you install the python dependencies to setup AltWalker CLI locally from code run:
 
 ```
-$ pip3 install --editable .
+$ pip install --editable .
 ```
 
 Then from any command line you can access:
@@ -263,7 +263,7 @@ $ cd docs && \
 To see the documentation run:
 
 ```
-$ open _build/html/index.html
+$ open build/html/index.html
 ```
 
 __Further Reading/Useful Links__:
@@ -273,8 +273,8 @@ __Further Reading/Useful Links__:
 
 ## Support
 
-Join our Gitter chat room [here](https://gitter.im/altwalker/community) to chat with us or with other members of the community.
+Join our [Gitter chat room](https://gitter.im/altwalker/community) or our [Google Group](https://groups.google.com/g/altwalker) to chat with us or with other members of the community.
 
 ## License
 
-AltWalker is licensed under the [GNU General Public License v3.0](https://gitlab.com/altom/altwalker/altwalker/-/blob/develop/LICENSE).
+This project is licensed under the [GNU General Public License v3.0](https://github.com/altwalker/altwalker/blob/main/LICENSE).
