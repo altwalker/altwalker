@@ -82,7 +82,7 @@ AltWalker has the following components:
   * Python Executor (Built-in)
   * `C#/.NET Executor`_
   * Http Executor that allows you to hook up your own executor via HTTP.
-    You can read more about the Http Executor on the [How to: Write your own executor](https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html) page.
+    You can read more about the Http Executor on the :doc:`how-tos/custom-executor` section.
 
 * **Walker**: the test runner. Coordinates the execution of a test asking the ``Planner``
   for the next step, executing the step using the ``Executor`` and reporting the progress
@@ -139,6 +139,6 @@ extension allows you to visualize your model while you are working on it.
 .. _GraphWalker: http://graphwalker.github.io/
 .. _Model-Based Testing: https://en.wikipedia.org/wiki/Model-based_testing/
 .. _`C#/.NET Executor`: https://www.nuget.org/packages/AltWalker.Executor/
-.. _Model-Editor: https://altom.gitlab.io/altwalker/model-editor/
+.. _Model-Editor: https://altwalker.github.io/model-editor/
 .. _VS Code: https://code.visualstudio.com/
 .. _`AltWalker's Model Visualizer Extension`: https://marketplace.visualstudio.com/items?itemName=Altom.altwalker-model-visualizer

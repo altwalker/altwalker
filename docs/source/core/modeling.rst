@@ -316,7 +316,7 @@ Further Reading/Useful Links
 ============================
 
 - For documentation about **json** format check `GraphWalker documentation <https://github.com/GraphWalker/graphwalker-project/wiki/JSON-file-format>`_.
-- For creating or modifying json models you can use `AltWalker's model editor <https://altom.gitlab.io/altwalker/model-editor>`_.
+- For creating or modifying json models you can use `AltWalker's model editor <https://altwalker.github.io/model-editor>`_.
 
 GraphML
 ~~~~~~~
@@ -373,7 +373,7 @@ Tooling
 Tools for JSON
 ~~~~~~~~~~~~~~
 
-For **JSON** you can check `AltWalker's Model-Editor <https://altom.gitlab.io/altwalker/model-editor>`_, the editor
+For **JSON** you can check `AltWalker's Model-Editor <https://altwalker.github.io/model-editor>`_, the editor
 allows you to visualize and edit your models.
 
 .. figure:: ../_static/img/model-editor.png

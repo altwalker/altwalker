@@ -30,7 +30,7 @@ How to suggest a feature or enhancement?
 If you find yourself wishing for a feature that doesn't exist in AltWalker:
 
 - Ensure the enhancement was not already reported by searching all `issues`_.
-- Open an issue on our `issues list <issues>`_ and label it with the enhancement label. Be sure to include a clear description of the feature you would like to see, as much relevant information as possible:
+- Open an issue on our `issues`_ list and label it with the enhancement label. Be sure to include a clear description of the feature you would like to see, as much relevant information as possible:
 
   - Why you need it?
   - How should it work?
@@ -41,7 +41,7 @@ You need your custom executor?
 
 You can implement your own custom test execution by implementing a server for the executor's http protocol.
 
-Check `How to: Write your own executor <https://altom.gitlab.io/altwalker/altwalker/how-tos/custom-executor.html>`_ section.
+Check `How to: Write your own executor <https://altwalker.github.io/altwalker/how-tos/custom-executor.html>`_ section.
 
 
 Submit an executor in another language?
@@ -50,4 +50,4 @@ Submit an executor in another language?
 If you've implemented your own custom test executor in a language that is not already supported by AltWalker `Contact us <altwalker@altom.com>`_ and will help you integrate it.
 
 
-.. _issues: https://gitlab.com/altom/altwalker/altwalker/issues/
+.. _issues: https://github.com/altwalker/altwalker/issues

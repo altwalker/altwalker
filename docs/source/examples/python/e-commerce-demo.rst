@@ -12,11 +12,11 @@ in your graph model. You will learn how to use AltWalker's ``online``,
 ``offline``, ``walk``, ``check`` and ``verify`` commands.
 
 The tests are written in python with Selenium_ and PyPOM_ (Python Page Object Model).
-You can find the tests source code `here <https://gitlab.com/altom/altwalker/altwalker-examples/tree/master/python-ecommerce>`_.
+You can find the tests source code `here <https://github.com/altwalker/altwalker-examples/tree/main/python-ecommerce>`_.
 
 The e-commerce website being tested is written in markdown and uses Jekyll_
 to generate static files. For cart and order management it uses Snipcart_.
-The website is hosted on `Gitlab Pages <https://altom.gitlab.io/altwalker/snipcart-jekyll-ecommerce-demo/>`_ and its
+The website is hosted on `GitHub Pages <https://altwalker.github.io/jekyll-ecommerce/>`_ and its
 forked from `Snipcart on GitHub <https://github.com/snipcart/snipcart-jekyll-integration>`_.
 
 .. contents:: Table of Contents
@@ -81,13 +81,13 @@ For this Demo we used geckodriver_ to launch the Firefox browser.
 
         .. code-block:: console
 
-            $ git clone git@gitlab.com:altom/altwalker/altwalker-examples.git
+            $ git clone git@github.com:altwalker/altwalker-examples.git
 
     .. tab:: HTTPS
 
         .. code-block:: console
 
-            $ git clone https://gitlab.com/altom/altwalker/altwalker-examples.git
+            $ git clone https://github.com/altwalker/altwalker-examples.git
 
 
 * Go into the e-commerce demo directory:
@@ -380,7 +380,7 @@ steps into ``steps.json``.
 
 Executes (walks on) the steps from the ``steps.json`` file.
 
-.. _Model-Editor: https://altom.gitlab.io/altwalker/model-editor
+.. _Model-Editor: https://github.com/altwalker/model-editor
 .. _Selenium: https://docs.seleniumhq.org
 .. _Selenium with Python: https://selenium-python.readthedocs.io
 .. _geckodriver: https://github.com/mozilla/geckodriver/releases

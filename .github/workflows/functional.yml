@@ -1,0 +1,182 @@
+name: Functional Tests
+
+on:
+  push:
+    paths:
+      - 'altwalker/**'
+      - 'setup.py'
+
+jobs:
+  build-dotnet-executor:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: altwalker/dotnet-executor
+        ref: develop
+
+    - name: Setup .NET Core SDK 2.1
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '2.1'
+
+    - name: Build
+      run: dotnet pack AltwalkerExecutor
+
+    - name: Upload the build
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-executor-build
+        path: 'AltwalkerExecutor/bin/Debug/AltWalker.Executor.*.nupkg'
+
+  remote-graphwalker:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Start GraphWalker REST server
+      run: |
+        gw --debug ALL online --service RESTFUL --port 8080 --verbose &
+
+    - name: Run tests
+      run: |
+        altwalker --version
+        altwalker init python-example -l python --no-git
+        cd python-example
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests -m models/default.json
+        altwalker online tests -m models/default.json "random(vertex_coverage(100))" --gw-host localhost --gw-port 8080
+
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: remote-graphwalker-logs
+        path: '**/*.log'
+
+  python:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Run tests
+      run: |
+        altwalker --version
+        altwalker init python-example -l python --no-git
+        cd python-example
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests -m models/default.json
+        altwalker online tests -m models/default.json "random(vertex_coverage(100))" --report-xml-file report.xml
+        altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+        altwalker walk tests steps.json
+
+  dotnet:
+    runs-on: ubuntu-latest
+    needs: build-dotnet-executor
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download .Net Executor build
+      uses: actions/download-artifact@v3
+      with:
+        name: dotnet-executor-build
+
+    - name: Display structure of downloaded files
+      run: ls -R
+
+    - name: Setup .NET Core SDK 2.1
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '2.1'
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Run tests
+      run: |
+        altwalker -v
+        altwalker init dotnet-example -l c# --no-git
+        dotnet restore dotnet-example/tests/tests.csproj -s . -s https://api.nuget.org/v3/index.json
+        cd dotnet-example
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests/ -m models/default.json -x c# --executor-url http://localhost:4200/
+        altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x c# --executor-url http://localhost:4200/
+        altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+        altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
+
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: dotnet-logs
+        path: '**/*.log'
+
+  http:
+    runs-on: ubuntu-latest
+    needs: build-dotnet-executor
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core SDK 2.1
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '2.1'
+
+    - uses: altwalker/setup-graphwalker@v1
+      with:
+        python-version: '3.10'
+
+    - name: Download .NET Executor build
+      uses: actions/download-artifact@v3
+      with:
+        name: dotnet-executor-build
+
+    - name: Install AltWalker
+      run: |
+        pip install --editable .
+
+    - name: Run tests
+      run: |
+        altwalker init dotnet-example -l c# --no-git
+        dotnet restore dotnet-example/tests/tests.csproj -s . -s https://api.nuget.org/v3/index.json
+        cd dotnet-example
+        dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
+        sleep 10
+        altwalker check -m models/default.json "random(vertex_coverage(100))"
+        altwalker verify tests/ -m models/default.json -x http --executor-url http://localhost:4200/
+        altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/
+        altwalker offline -m models/default.json "random(vertex_coverage(100))" --output-file steps.json
+        altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
+
+    - name: Upload log files
+      uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: http-logs
+        path: '**/*.log'

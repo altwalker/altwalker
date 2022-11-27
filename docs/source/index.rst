@@ -12,7 +12,8 @@ the :doc:`quickstart`. There is also a list of :doc:`how-tos` and a list
 of runnable :doc:`examples`. The rest of the documentation describes
 how to use each feature of AltWalker in more details.
 
-Join our `Gitter chat room  <https://gitter.im/altwalker/community>`_ to chat
+Join our `Gitter chat room <https://gitter.im/altwalker/community>`_ or
+our `Google Group <https://groups.google.com/g/altwalker>`_ to chat
 with us or with other members of the community.
 
 .. image:: _static/img/demo.gif
@@ -33,9 +34,9 @@ usage patterns.
    core
    examples
    how-tos
-   faq
    cli
    api
+   faq
    contributing
    changelog
    license
@@ -43,11 +44,11 @@ usage patterns.
 .. toctree::
     :caption: Useful Links:
 
-    Source Code <https://gitlab.com/altom/altwalker/altwalker>
-    Issue Tracker <https://gitlab.com/altom/altwalker/altwalker/issues>
+    Source Code <https://github.com/altwalker/altwalker>
+    Issue Tracker <https://github.com/altwalker/altwalker/issues>
     PyPI Releases <https://pypi.org/project/altwalker/>
     Docker Hub <https://hub.docker.com/u/altwalker>
-    Model Editor <https://altom.gitlab.io/altwalker/model-editor>
+    Model Editor <https://altwalker.github.io/model-editor>
     VS Code Extension <https://marketplace.visualstudio.com/items?itemName=Altom.altwalker-model-visualizer>
 
 .. toctree::
@@ -58,6 +59,7 @@ usage patterns.
 .. toctree::
     :caption: Community:
 
+    Google Group <https://groups.google.com/g/altwalker>
     Gitter <https://gitter.im/altwalker/community>
     Libraries.io <https://libraries.io/pypi/altwalker>
 
