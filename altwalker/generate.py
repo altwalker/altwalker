@@ -12,7 +12,6 @@ from jinja2 import Environment
 from altwalker.__version__ import VERSION
 from altwalker._utils import get_resource, has_git, Factory
 from altwalker.code import get_methods
-from altwalker.exceptions import AltWalkerException
 
 
 logger = logging.getLogger(__name__)
@@ -117,7 +116,7 @@ class Generator(metaclass=abc.ABCMeta):
         pass
 
     def init_package(self):
-        self.generate_tests(get_methods(self.model_paths)) 
+        self.generate_tests(get_methods(self.model_paths))
 
     def init_project(self):
         if os.path.exists(self.output_path):
@@ -162,7 +161,7 @@ class PythonGenerator(Generator):
     METHODS_TEMPLATE = get_resource("data/templates/generate/python/methods.jinja")
     CLASS_TEMPLATE = get_resource("data/templates/generate/python/class.jinja")
     PYTHON_GITIGNORE = get_resource("data/templates/generate/gitignore/python.txt")
-    
+
     REQUIREMENTS = get_resource("data/templates/generate/python/requirements.txt")
 
     @property
@@ -282,7 +281,7 @@ def generate_class(class_name, methods, language=None):
 
 def generate_code(model_paths=None, language=None):
     cls = GeneratorFactory.get(language)
-    return generator.generate_code(model_paths=model_paths)
+    return cls.generate_code(model_paths=model_paths)
 
 
 def generate_tests(output_path, model_paths=None, language=None):
