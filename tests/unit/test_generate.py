@@ -12,6 +12,7 @@ class TestPythonGenerator:
     def test_generate_methods(self):
         code = self.generator.generate_methods(methods=["vertex_A", "edge_A", "vertex_B"])
         expected = [
+            "",
             "def vertex_A(self):",
             "    pass",
             "",
@@ -20,11 +21,11 @@ class TestPythonGenerator:
             "",
             "def vertex_B(self):",
             "    pass",
-            ""
+            "",
         ]
 
         print(code)
-        # assert code == "\n".join(expected)
+        assert code == "\n".join(expected)
 
     def test_generate_class(self):
         code = self.generator.generate_class(class_name="DefaultModel", methods=["vertex_A", "edge_A", "vertex_B"])
@@ -40,10 +41,11 @@ class TestPythonGenerator:
             "    def vertex_B(self):",
             "        pass",
             "",
+            ""
         ]
 
         print(code)
-        # assert code == "\n".join(expected)
+        assert code == "\n".join(expected)
 
     def test_generate_code(self):
         pass
