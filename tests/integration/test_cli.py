@@ -71,7 +71,7 @@ class TestInit(unittest.TestCase):
 
     def _assert_git_repo(self, repo_path):
         repo = Repo(repo_path)
-        commits = list(repo.iter_commits('main'))
+        commits = list(repo.iter_commits(repo.active_branch))
 
         assert len(commits) == 1, "Tests repo should have one commit"
         assert "Initial commit" in commits[0].summary, "Commit summary should be 'Initial commit'"
