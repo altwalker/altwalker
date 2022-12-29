@@ -162,7 +162,9 @@ class PythonGenerator(Generator):
     CLASS_TEMPLATE = get_resource("data/templates/generate/python/class.jinja")
     PYTHON_GITIGNORE = get_resource("data/templates/generate/gitignore/python.txt")
 
-    REQUIREMENTS = get_resource("data/templates/generate/python/requirements.txt")
+    REQUIREMENTS = [
+        "altwalker"
+    ]
 
     @property
     def gitignore(self):
@@ -187,7 +189,7 @@ class PythonGenerator(Generator):
 
     def generate_requirements(self):
         with open(os.path.join(self.output_path, "requirements.txt"), "w") as fp:
-            fp.write(self.REQUIREMENTS)
+            fp.write("\n".join(self.REQUIREMENTS))
 
     def generate_tests(self, classes, package_name="tests"):
         self.generate_requirements()
