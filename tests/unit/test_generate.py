@@ -102,7 +102,6 @@ class TestPythonGenerator:
             }
         )
         expected = [
-            "",
             "class ModelA:",
             "",
             "    def vertex_A(self):",
@@ -115,7 +114,6 @@ class TestPythonGenerator:
             "        pass",
             "",
             "",
-            "",
             "class ModelB:",
             "",
             "    def vertex_C(self):",
@@ -126,6 +124,7 @@ class TestPythonGenerator:
             "",
             "    def vertex_E(self):",
             "        pass",
+            "",
             "",
             ""
         ]
@@ -162,6 +161,7 @@ class TestDotnetGenerator:
     def test_generate_methods(self):
         code = self.generator.generate_methods(methods=["vertex_A", "edge_A", "vertex_B"])
         expected = [
+            "",
             "        public void vertex_A()",
             "        {",
             "        }",
@@ -197,7 +197,6 @@ class TestDotnetGenerator:
             "        }",
             "",
             "    }",
-            ""
         ]
 
         assert code == "\n".join(expected)
@@ -232,7 +231,6 @@ class TestDotnetGenerator:
             "",
             "    }",
             "",
-            "",
             "    public class ModelB",
             "    {",
             "",
@@ -252,7 +250,6 @@ class TestDotnetGenerator:
             "",
             "    public class Program",
             "    {",
-            "",
             "        public static void Main(string[] args)",
             "        {",
             "            ExecutorService service = new ExecutorService();",
@@ -261,9 +258,7 @@ class TestDotnetGenerator:
             "            service.Run(args);",
             "        }",
             "    }",
-            "",
             "}",
-            ""
         ]
 
         assert code == "\n".join(expected)

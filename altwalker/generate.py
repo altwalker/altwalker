@@ -160,6 +160,7 @@ class PythonGenerator(Generator):
 
     METHODS_TEMPLATE = get_resource("data/templates/generate/python/methods.jinja")
     CLASS_TEMPLATE = get_resource("data/templates/generate/python/class.jinja")
+    CODE_TEMPLATE = get_resource("data/templates/generate/python/code.jinja")
     PYTHON_GITIGNORE = get_resource("data/templates/generate/gitignore/python.txt")
 
     REQUIREMENTS = [
@@ -184,8 +185,9 @@ class PythonGenerator(Generator):
 
     @classmethod
     def generate_code(cls, classes):
-        code = [cls.generate_class(class_name, methods) for class_name, methods in classes.items()]
-        return "\n{}".format("\n\n".join(code))
+        env = Environment(trim_blocks=True)
+        template = env.from_string(cls.CODE_TEMPLATE)
+        return template.render(classes=classes.items())
 
     def generate_requirements(self):
         with open(os.path.join(self.output_path, "requirements.txt"), "w") as fp:
@@ -209,10 +211,9 @@ class DotnetGenerator(Generator):
     VERSION_WILDCARD = ".".join(VERSION.split(".")[:2]) + ".*"
     CSPROJ_TEMPLATE = get_resource("data/templates/generate/dotnet/csproj.jinja")
 
-    METHOD_TEMPLATE = get_resource("data/templates/generate/dotnet/method.txt")
-    CLASS_TEMPLATE = get_resource("data/templates/generate/dotnet/class.txt")
-    NAMESPACE_TEMPLATE = get_resource("data/templates/generate/dotnet/namespace.txt")
-    MAIN_TEMPLATE = get_resource("data/templates/generate/dotnet/main.txt")
+    METHODS_TEMPLATE = get_resource("data/templates/generate/dotnet/methods.jinja")
+    CLASS_TEMPLATE = get_resource("data/templates/generate/dotnet/class.jinja")
+    CODE_TEMPLATE = get_resource("data/templates/generate/dotnet/code.jinja")
 
     DOTNET_GITIGNORE = get_resource("data/templates/generate/gitignore/dotnet.txt")
 
@@ -222,29 +223,27 @@ class DotnetGenerator(Generator):
 
     @classmethod
     def generate_methods(cls, methods):
-        code = [cls.METHOD_TEMPLATE.format(name) for name in methods]
-        return "\n".join(code)
+        env = Environment(trim_blocks=True)
+        template = env.from_string(cls.METHODS_TEMPLATE)
+        return template.render(methods=methods)
 
     @classmethod
     def generate_class(cls, class_name, methods):
-        return cls.CLASS_TEMPLATE.format(class_name, cls.generate_methods(methods))
+        env = Environment(trim_blocks=True)
+        template = env.from_string(cls.CLASS_TEMPLATE)
+        return template.render(class_name=class_name, methods=methods)
 
     @classmethod
     def generate_csproj(cls):
-        env = Environment()
+        env = Environment(trim_blocks=True)
         template = env.from_string(cls.CSPROJ_TEMPLATE)
         return template.render(version=cls.VERSION_WILDCARD)
 
     @classmethod
     def generate_code(cls, classes, namespace="Tests"):
-        code = [cls.generate_class(class_name, methods) for class_name, methods in classes.items()]
-        code = "\n{}\n".format("\n\n".join(code))
-
-        code += cls.MAIN_TEMPLATE.format(
-            "\n".join(["            service.RegisterModel<{}>();".format(name) for name in classes.keys()])
-        )
-
-        return cls.NAMESPACE_TEMPLATE.format(namespace, code)
+        env = Environment(trim_blocks=True)
+        template = env.from_string(cls.CODE_TEMPLATE)
+        return template.render(classes=classes.items(), namespace=namespace)
 
     def generate_tests(self, classes, package_name="tests"):
         base_path = os.path.join(self.output_path, package_name)
