@@ -1,0 +1,10 @@
+{% for class_name, methods in classes %}
+class {{ class_name }}:
+
+{% for method in methods %}
+    def {{ method }}(self):
+        pass
+
+{% endfor %}
+
+{% endfor %}

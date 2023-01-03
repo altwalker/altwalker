@@ -277,4 +277,4 @@ Join our [Gitter chat room](https://gitter.im/altwalker/community) or our [Googl
 
 ## License
 
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
+This project is licensed under the [GNU General Public License v3.0](https://github.com/altwalker/altwalker/blob/main/LICENSE).
