@@ -107,14 +107,14 @@ class TestInit(unittest.TestCase):
             self._assert_python_file_structure(self.packagename)
 
             expected_code = (
-                "\n"
+                # "\n"
                 "class ModelName:\n\n"
                 "    def vertex_A(self):\n"
                 "        pass\n\n"
                 "    def vertex_B(self):\n"
                 "        pass\n\n"
                 "    def edge_A(self):\n"
-                "        pass\n\n"
+                "        pass\n\n\n"
             )
 
             with open("{}/tests/test.py".format(self.packagename), "r") as fp:
@@ -152,15 +152,15 @@ class TestInit(unittest.TestCase):
                 "        }\n\n"
                 "    }\n\n"
                 "    public class Program\n"
-                "    {\n\n"
+                "    {\n"
                 "        public static void Main(string[] args)\n"
                 "        {\n"
                 "            ExecutorService service = new ExecutorService();\n"
                 "            service.RegisterModel<ModelName>();\n"
                 "            service.Run(args);\n"
                 "        }\n"
-                "    }\n\n"
-                "}\n"
+                "    }\n"
+                "}"
             )
 
             with open("{}/tests/Program.cs".format(self.packagename), "r") as fp:
