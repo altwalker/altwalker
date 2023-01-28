@@ -39,6 +39,16 @@ def _git_init(path):
         warnings.warn("Git is not installed.")
 
 
+def _render_jinja_template(template, data=None, trim_blocks=True, keep_trailing_newline=False):
+    if not data:
+        data = dict()
+
+    env = Environment(trim_blocks=trim_blocks, keep_trailing_newline=keep_trailing_newline)
+    template = env.from_string(template)
+
+    return template.render(**data)
+
+
 class Generator(metaclass=abc.ABCMeta):
     """Abstract base class for generating a new AltWalker project.
 
@@ -173,21 +183,27 @@ class PythonGenerator(Generator):
 
     @classmethod
     def generate_methods(cls, methods):
-        env = Environment()
-        template = env.from_string(cls.METHODS_TEMPLATE)
-        return template.render(methods=methods)
+        return _render_jinja_template(
+            cls.METHODS_TEMPLATE,
+            data={"methods": methods},
+            trim_blocks=False
+        )
 
     @classmethod
     def generate_class(cls, class_name, methods):
-        env = Environment(trim_blocks=True)
-        template = env.from_string(cls.CLASS_TEMPLATE)
-        return template.render(class_name=class_name, methods=methods)
+        return _render_jinja_template(
+            cls.CLASS_TEMPLATE,
+            data={"class_name": class_name, "methods": methods},
+            trim_blocks=True
+        )
 
     @classmethod
     def generate_code(cls, classes):
-        env = Environment(trim_blocks=True)
-        template = env.from_string(cls.CODE_TEMPLATE)
-        return template.render(classes=classes.items())
+        return _render_jinja_template(
+            cls.CODE_TEMPLATE,
+            data={"classes": classes.items()},
+            trim_blocks=True
+        )
 
     def generate_requirements(self):
         with open(os.path.join(self.output_path, "requirements.txt"), "w") as fp:
@@ -223,27 +239,35 @@ class DotnetGenerator(Generator):
 
     @classmethod
     def generate_methods(cls, methods):
-        env = Environment(trim_blocks=True)
-        template = env.from_string(cls.METHODS_TEMPLATE)
-        return template.render(methods=methods)
+        return _render_jinja_template(
+            cls.METHODS_TEMPLATE,
+            data={"methods": methods},
+            trim_blocks=True
+        )
 
     @classmethod
     def generate_class(cls, class_name, methods):
-        env = Environment(trim_blocks=True)
-        template = env.from_string(cls.CLASS_TEMPLATE)
-        return template.render(class_name=class_name, methods=methods)
+        return _render_jinja_template(
+            cls.CLASS_TEMPLATE,
+            data={"class_name": class_name, "methods": methods},
+            trim_blocks=True
+        )
 
     @classmethod
     def generate_csproj(cls):
-        env = Environment(trim_blocks=True)
-        template = env.from_string(cls.CSPROJ_TEMPLATE)
-        return template.render(version=cls.VERSION_WILDCARD)
+        return _render_jinja_template(
+            cls.CSPROJ_TEMPLATE,
+            data={"version": cls.VERSION_WILDCARD},
+            trim_blocks=True
+        )
 
     @classmethod
     def generate_code(cls, classes, namespace="Tests"):
-        env = Environment(trim_blocks=True)
-        template = env.from_string(cls.CODE_TEMPLATE)
-        return template.render(classes=classes.items(), namespace=namespace)
+        return _render_jinja_template(
+            cls.CODE_TEMPLATE,
+            data={"classes": classes.items(), "namespace": namespace},
+            trim_blocks=True
+        )
 
     def generate_tests(self, classes, package_name="tests"):
         base_path = os.path.join(self.output_path, package_name)
