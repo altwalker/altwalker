@@ -1,0 +1,30 @@
+using Altom.AltWalker;
+
+namespace {{ namespace }}
+{
+
+{% for class_name, methods in classes %}
+    public class {{ class_name }}
+    {
+
+{% for method in methods %}
+        public void {{ method }}()
+        {
+        }
+
+{% endfor %}
+    }
+
+{% endfor %}
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            ExecutorService service = new ExecutorService();
+{% for class_name, methods in classes %}
+            service.RegisterModel<{{ class_name }}>();
+{% endfor %}
+            service.Run(args);
+        }
+    }
+}

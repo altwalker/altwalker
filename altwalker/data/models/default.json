@@ -1,0 +1,28 @@
+{
+    "name": "Default model",
+    "models": [
+        {
+            "name": "ModelName",
+            "generator": "random(edge_coverage(100) && vertex_coverage(100))",
+            "startElementId": "v0",
+            "vertices": [
+                {
+                    "id": "v0",
+                    "name": "vertex_A"
+                },
+                {
+                    "id": "v1",
+                    "name": "vertex_B"
+                }
+            ],
+            "edges": [
+                {
+                    "id": "e0",
+                    "name": "edge_A",
+                    "sourceVertexId": "v0",
+                    "targetVertexId": "v1"
+                }
+            ]
+        }
+    ]
+}

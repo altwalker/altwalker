@@ -6,21 +6,19 @@ import pytest
 from altwalker._utils import prefix_command, url_join, has_command, has_git
 
 
-class TestUrlJoin:
-
-    @pytest.mark.parametrize(
-        "base, url, expected",
-        [
-            ("http://localhost:5000", "altwalker", "http://localhost:5000/altwalker"),
-            ("http://localhost:5000", "/altwalker", "http://localhost:5000/altwalker"),
-            ("http://localhost:5000", "/altwalker/", "http://localhost:5000/altwalker"),
-            ("http://localhost:5000/", "altwalker", "http://localhost:5000/altwalker"),
-            ("http://localhost:5000/", "/altwalker", "http://localhost:5000/altwalker"),
-            ("http://localhost:5000/", "/altwalker/", "http://localhost:5000/altwalker")
-        ]
-    )
-    def test_url_join(self, base, url, expected):
-        assert url_join(base, url) == expected
+@pytest.mark.parametrize(
+    "base, url, expected",
+    [
+        ("http://localhost:5000", "altwalker", "http://localhost:5000/altwalker"),
+        ("http://localhost:5000", "/altwalker", "http://localhost:5000/altwalker"),
+        ("http://localhost:5000", "/altwalker/", "http://localhost:5000/altwalker"),
+        ("http://localhost:5000/", "altwalker", "http://localhost:5000/altwalker"),
+        ("http://localhost:5000/", "/altwalker", "http://localhost:5000/altwalker"),
+        ("http://localhost:5000/", "/altwalker/", "http://localhost:5000/altwalker")
+    ]
+)
+def test_url_join(base, url, expected):
+    assert url_join(base, url) == expected
 
 
 class TestPrefixCommand:

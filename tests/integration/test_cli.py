@@ -71,17 +71,17 @@ class TestInit(unittest.TestCase):
 
     def _assert_git_repo(self, repo_path):
         repo = Repo(repo_path)
-        commits = list(repo.iter_commits('master'))
+        commits = list(repo.iter_commits(repo.active_branch))
 
-        self.assertEqual(len(commits), 1, "Tests repo should have one commit")
-        self.assertEqual(commits[0].summary, "Initial commit", "Commit summary should be 'Initial commit'")
+        assert len(commits) == 1, "Tests repo should have one commit"
+        assert "Initial commit" in commits[0].summary, "Commit summary should be 'Initial commit'"
 
     def test_git(self):
         with run_isolation(self.runner, self.files):
             packagename = "example"
             result = self.runner.invoke(init, [packagename, "--git"])
 
-            self.assertIsNone(result.exception, msg=result.exception)
+            self.assertIsNone(result.exception, msg=str(result.exception) + "\n" + result.output)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
             self._assert_git_repo(packagename)
@@ -107,18 +107,22 @@ class TestInit(unittest.TestCase):
             self._assert_python_file_structure(self.packagename)
 
             expected_code = (
-                "\n"
                 "class ModelName:\n\n"
                 "    def vertex_A(self):\n"
                 "        pass\n\n"
                 "    def vertex_B(self):\n"
                 "        pass\n\n"
                 "    def edge_A(self):\n"
-                "        pass\n\n"
+                "        pass\n\n\n"
             )
 
             with open("{}/tests/test.py".format(self.packagename), "r") as fp:
-                self.assertEqual(fp.read(), expected_code)
+                code = fp.read()
+                print()
+                print(code)
+                print()
+
+                assert code == expected_code
 
     def test_dotnet(self):
         with run_isolation(self.runner, self.files):
@@ -147,15 +151,15 @@ class TestInit(unittest.TestCase):
                 "        }\n\n"
                 "    }\n\n"
                 "    public class Program\n"
-                "    {\n\n"
+                "    {\n"
                 "        public static void Main(string[] args)\n"
                 "        {\n"
                 "            ExecutorService service = new ExecutorService();\n"
                 "            service.RegisterModel<ModelName>();\n"
                 "            service.Run(args);\n"
                 "        }\n"
-                "    }\n\n"
-                "}\n"
+                "    }\n"
+                "}"
             )
 
             with open("{}/tests/Program.cs".format(self.packagename), "r") as fp:
@@ -175,7 +179,7 @@ class TestInit(unittest.TestCase):
             packagename = "example"
             result = self.runner.invoke(init, ["-m", "simple.json", packagename])
 
-            self.assertIsNone(result.exception, msg=result.exception)
+            self.assertIsNone(result.exception, msg=str(result.exception) + "\n" + result.output)
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
             self._assert_models_files(packagename, ["simple.json"])

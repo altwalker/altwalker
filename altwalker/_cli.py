@@ -102,10 +102,10 @@ def _echo_suggestions(language, methods, missing_methods):
             break
         elif elements == methods[model]:
             click.secho("# Append the following class to your test file.\n")
-            click.secho(generate_class(language, model, elements), fg="cyan")
+            click.secho(generate_class(model, elements, language=language), fg="cyan")
         else:
             click.secho("# Append the following methods to your '{}' class.\n".format(model))
-            click.secho(generate_methods(language, elements), fg="cyan")
+            click.secho(generate_methods(elements, language=language), fg="cyan")
 
 
 @handle_errors
