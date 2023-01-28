@@ -107,7 +107,6 @@ class TestInit(unittest.TestCase):
             self._assert_python_file_structure(self.packagename)
 
             expected_code = (
-                # "\n"
                 "class ModelName:\n\n"
                 "    def vertex_A(self):\n"
                 "        pass\n\n"
