@@ -4,7 +4,10 @@ on:
   push:
     paths:
       - 'altwalker/**'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
       - 'setup.py'
+      - 'MANIFEST.in'
 
 jobs:
   build-dotnet-executor:

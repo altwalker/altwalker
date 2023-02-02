@@ -5,6 +5,11 @@ on:
     paths:
       - 'altwalker/**'
       - 'tests/**'
+      - 'requirements.txt'
+      - 'requirements-dev.txt'
+      - 'MANIFEST.in'
+      - '.flake8'
+      - 'tox.ini'
 
 jobs:
   lint:
