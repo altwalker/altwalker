@@ -8,7 +8,7 @@ DESCRIPTION = 'AltWalker is an open source Model-Based Testing framework that su
 URL = 'https://github.com/altwalker/altwalker'
 EMAIL = 'altwalker@altom.com'
 AUTHOR = 'Altom Consulting'
-REQUIRES_PYTHON = '>=3.4.0'
+REQUIRES_PYTHON = '>=3.7.0'
 LICENSE = 'GNU GPLv3'
 
 
