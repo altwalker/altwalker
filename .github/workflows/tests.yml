@@ -58,8 +58,13 @@ jobs:
         path: '**/*.log'
 
   integration:
-    runs-on: ubuntu-latest
     needs: lint
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
