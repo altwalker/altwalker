@@ -1,10 +1,11 @@
 """Utility functions and classes used by AltWalker internally."""
 
+import os
+import signal
 import platform
 import subprocess
 
 import pkg_resources
-import psutil
 
 
 def get_resource(path):
@@ -85,7 +86,7 @@ class Command:
         self.file_handler = open(self.output_file, "w")
 
         try:
-            self.process = psutil.Popen(
+            self.process = subprocess.Popen(
                 command,
                 stdout=self.file_handler,
                 stderr=self.file_handler,
@@ -117,19 +118,7 @@ class Command:
         """Kill the process and all its children."""
 
         if self.process and self.process.poll() is None:
-            for child in self.process.children(recursive=True):
-                try:
-                    child.kill()
-                except psutil.NoSuchProcess:
-                    pass
-                finally:
-                    child.wait(1)
-
-            try:
-                self.process.kill()
-            except psutil.NoSuchProcess:
-                pass
-            finally:
-                self.process.wait(1)
+            os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
+            self.process.wait(1)
 
         self.clear()
