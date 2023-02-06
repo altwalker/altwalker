@@ -119,6 +119,6 @@ class Command:
 
         if self.process and self.process.poll() is None:
             os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
-            self.process.wait(1)
+            self.process.wait(timeout=None)
 
         self.clear()
