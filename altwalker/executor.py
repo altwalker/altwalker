@@ -27,7 +27,7 @@ def get_step_result(callable, *args, **kwargs):
 
     Args:
         callable: The callable object to call.
-        *args: The list of args for the calable.
+        *args: The list of args for the callable.
         **kwargs: The dict of kwargs for the callable.
 
     Returns:
