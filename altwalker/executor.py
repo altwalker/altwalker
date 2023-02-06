@@ -91,7 +91,8 @@ def load(path, package, module):
     """Load a module from a package at a given path."""
 
     if not package:
-        raise ValueError("Package to load is required")
+        logger.debug("Package: {!r}".format(package))
+        raise ValueError("Package to load is required.")
 
     _pop_previously_loaded_modules(path, package)
 
