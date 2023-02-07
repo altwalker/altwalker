@@ -224,13 +224,13 @@ class TestVerify(unittest.TestCase):
 
         with run_isolation(self.runner, files):
             result = self.runner.invoke(
-                verify, ["tests/", "-m", "models/simple.json"])
+                verify, ["tests", "-m", "models/simple.json"])
 
             self.assertEqual(result.exit_code, 0, msg=result.output)
             self.assertIn("No issues found with the code.", result.output)
 
     def test_for_invalid_code(self):
-        expected_error_messges = [
+        expected_error_messages = [
             "Expected to find method 'edge_a' in class 'Simple'.",
             "Expected to find method 'edge_b' in class 'Simple'.",
             "Expected to find method 'vertex_a' in class 'Simple'.",
@@ -249,7 +249,7 @@ class TestVerify(unittest.TestCase):
 
             self.assertEqual(result.exit_code, 4, msg=result.output)
 
-            for error_message in expected_error_messges:
+            for error_message in expected_error_messages:
                 self.assertIn(error_message, result.output)
 
 
