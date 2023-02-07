@@ -618,7 +618,12 @@ def create_python_executor(path, *args, **kwargs):
         :obj:`PythonExecutor`: A Python executor.
     """
 
+    logger.debug("Path: {}".format(path))
+
     path, package = os.path.split(path.rstrip(os.path.sep))
+    logger.debug("Path: {}".format(path))
+    logger.debug("Package: {}".format(package))
+
     module = load(path, package, "test")
 
     return PythonExecutor(module)
