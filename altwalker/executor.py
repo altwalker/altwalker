@@ -91,7 +91,6 @@ def load(path, package, module):
     """Load a module from a package at a given path."""
 
     if not package:
-        logger.debug("Package: {!r}".format(package))
         raise ValueError("Package to load is required.")
 
     _pop_previously_loaded_modules(path, package)
@@ -618,12 +617,7 @@ def create_python_executor(path, *args, **kwargs):
         :obj:`PythonExecutor`: A Python executor.
     """
 
-    logger.debug("Path: {}".format(path))
-
     path, package = os.path.split(path.rstrip(os.path.sep))
-    logger.debug("Path: {}".format(path))
-    logger.debug("Package: {}".format(package))
-
     module = load(path, package, "test")
 
     return PythonExecutor(module)

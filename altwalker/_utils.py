@@ -118,7 +118,14 @@ class Command:
         """Kill the process and all its children."""
 
         if self.process and self.process.poll() is None:
-            os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
-            self.process.wait(timeout=None)
+            if platform.system() != "Windows":
+                os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
+                self.process.wait(timeout=None)
+
+            try:
+                self.process.terminate()
+                self.process.wait(timeout=None)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
 
         self.clear()
