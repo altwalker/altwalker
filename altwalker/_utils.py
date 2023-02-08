@@ -121,7 +121,7 @@ class Command:
             if platform.system() != "Windows":
                 os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
             else:
-                os.kill(self.process.pid, signal.SIGINT)
+                os.kill(self.process.pid, signal.CTRL_C_EVENT)
 
             self.process.wait(timeout=None)
 
