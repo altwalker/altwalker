@@ -120,12 +120,9 @@ class Command:
         if self.process and self.process.poll() is None:
             if platform.system() != "Windows":
                 os.killpg(os.getpgid(self.process.pid), signal.SIGINT)
-                self.process.wait(timeout=None)
+            else:
+                os.kill(self.process.pid, signal.SIGINT)
 
-            try:
-                self.process.terminate()
-                self.process.wait(timeout=None)
-            except subprocess.TimeoutExpired:
-                self.process.kill()
+            self.process.wait(timeout=None)
 
         self.clear()
