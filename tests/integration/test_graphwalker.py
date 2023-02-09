@@ -131,7 +131,6 @@ class TestGraphWalkerClient:
 
         assert data[key] == expected
 
-    @pytest.mark.skip(reason="Global attributes are broken in GraphWalker 4.3.1")
     @pytest.mark.parametrize(
         "key, value",
         [
