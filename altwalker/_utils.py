@@ -13,6 +13,12 @@ def get_resource(path):
     return pkg_resources.resource_string(__name__, path).decode("utf-8")
 
 
+def get_resource_path(path):
+    """Return the content of a file from that is included in the package resources."""
+
+    return pkg_resources.resource_filename(__name__, path)
+
+
 def url_join(base, url):
     """Join a base with an url."""
 

@@ -9,7 +9,7 @@ import os
 
 import requests
 
-from altwalker._utils import url_join, execute_command, Command
+from altwalker._utils import url_join, execute_command, has_command, get_resource_path, Command
 from altwalker.exceptions import GraphWalkerException
 
 
@@ -80,7 +80,10 @@ def _create_command(command_name, model_path=None, models=None, port=None, servi
         list: A list containing the executable followed command and options.
     """
 
-    command = ["gw"]
+    if has_command(["gw", "--version"], timeout=1):
+        command = ["gw"]
+    else:
+        command = ["java", "-jar", get_resource_path("data/graphwalker/graphwalker-cli.jar")]
 
     if debug:
         command.extend(("--debug", _get_log_level(debug)))
@@ -226,7 +229,7 @@ def offline(models, start_element=None, verbose=False, unvisited=False, blocked=
 
 
 class GraphWalkerService:
-    """Starts and kills a proccess running the GraphWalker REST service.
+    """Starts and kills a process running the GraphWalker REST service.
 
     Will run the GraphWalker online command and start the GraphWalker REST service.
 
@@ -326,7 +329,7 @@ class GraphWalkerClient:
 
     Args:
         host (:obj:`str`): The host address of the GraphWalker REST service.
-        port (:obj:`int`): The port of the GraphWalker REST servie.
+        port (:obj:`int`): The port of the GraphWalker REST service.
         verbose (:obj:`bool`): If set will not filter out the ``data`` and ``properties``
             from the output of ``get_next``.
     """
