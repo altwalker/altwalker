@@ -16,7 +16,8 @@ class TestGetErrorMessage:
             "[HttpServer] Started"
         ]
     )
-    def test_no_error(self, logs):
+    @mock.patch("altwalker.graphwalker.has_command", return_value=True)
+    def test_no_error(self, has_command_mock, logs):
         assert _get_error_message(logs) is None
 
     @pytest.mark.parametrize(
@@ -27,7 +28,7 @@ class TestGetErrorMessage:
             "Address already in use."
         ]
     )
-    def test_for_erros(self, error_message):
+    def test_for_errors(self, error_message):
         base = "An error occurred when running command:\n{}\n"
         assert _get_error_message(base.format(error_message)) == error_message
 
