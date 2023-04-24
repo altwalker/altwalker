@@ -151,10 +151,13 @@ class TestCreateCommand:
 class TestExecuteCommand:
 
     def test_popen(self, execute_command_mock):
+        has_command_mock = mock.Mock(return_value=True)
         execute_command_mock.return_value = (b"output", None)
 
-        _execute_command("offline")
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            _execute_command("offline")
 
+        assert has_command_mock.called
         execute_command_mock.assert_called_once_with(["gw", "offline"])
 
     def test_error(self, execute_command_mock):
