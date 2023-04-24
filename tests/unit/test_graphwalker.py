@@ -4,7 +4,16 @@ import json
 import pytest
 
 from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, _create_command, \
-    _execute_command, _get_error_message, offline, methods, check
+    _execute_command, _get_error_message, get_version, offline, methods, check
+
+
+GW_VERSION_OUTPUT = """\
+org.graphwalker version: 4.3.3-SNAPSHOT-21bb711
+
+org.graphwalker is open source software licensed under MIT license
+The software (and it's source) can be downloaded from http://graphwalker.org
+For a complete list of this package software dependencies, see http://graphwalker.org/archive/site/graphwalker-cli/dependencies.html
+"""
 
 
 class TestGetErrorMessage:
@@ -173,6 +182,18 @@ class TestExecuteCommand:
 
         output = _execute_command("offline")
         assert output == "output"
+
+
+@mock.patch("altwalker.graphwalker._execute_command")
+class TestVersion:
+
+    def test_execute_command(self, command_mock):
+        command_mock.return_value = GW_VERSION_OUTPUT
+
+        output = get_version()
+
+        assert output == ('4', '3', '3', 'SNAPSHOT', '21bb711')
+        command_mock.assert_called_once_with("--version")
 
 
 @mock.patch("altwalker.graphwalker._execute_command")
