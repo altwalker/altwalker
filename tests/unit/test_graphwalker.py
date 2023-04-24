@@ -194,6 +194,21 @@ class TestVersion:
         assert output == ('4', '3', '3', 'SNAPSHOT', '21bb711')
         command_mock.assert_called_once_with("--version")
 
+    @pytest.mark.parametrize(
+        "version_string, version",
+        [
+            ("org.graphwalker version: 4.3.2-SNAPSHOT-21bb711", ('4', '3', '2', 'SNAPSHOT', '21bb711')),
+            ("org.graphwalker version: 4.3.2", ('4', '3', '2'))
+        ]
+    )
+    def test_get_version(self, command_mock, version_string, version):
+        command_mock.return_value = version_string
+
+        output = get_version()
+
+        assert output == version
+        command_mock.assert_called_once_with("--version")
+
 
 @mock.patch("altwalker.graphwalker._execute_command")
 class TestOffline:
