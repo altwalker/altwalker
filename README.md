@@ -113,13 +113,14 @@ Prerequisites:
 
 ### Install AltWalker
 
-Use the following command to install AltWalker:
+To install ``altwalker`` run the following command in your command line:
 
 ```
 $ pip install altwalker
 ```
 
-AltWalker is now installed. Check that you correctly installed AltWalker by running:
+To check that you have installed the correct version of AltWalker, run the
+following command:
 
 ```
 $ altwalker --version

@@ -34,6 +34,7 @@ usage patterns.
    core
    examples
    how-tos
+   advanced-usage
    cli
    api
    faq
