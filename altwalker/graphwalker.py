@@ -150,6 +150,10 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     return output.decode("utf-8")
 
 
+def get_version():
+    return _execute_command("--version")
+
+
 def check(models, blocked=None):
     """Execute the check command.
 
