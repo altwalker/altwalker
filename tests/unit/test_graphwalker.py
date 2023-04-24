@@ -43,9 +43,13 @@ class TestCreateCommand:
             "offline"
         ]
     )
-    @mock.patch("altwalker.graphwalker.has_command", return_value=True)
-    def test_command(self, has_command_mock, command):
-        result = _create_command(command)
+    def test_command(self, command):
+        has_command_mock = mock.Mock(return_value=True)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command(command)
+
+        assert has_command_mock.called
         assert ["gw", command] == result
 
     def test_debug(self):
