@@ -12,7 +12,6 @@ org.graphwalker version: 4.3.3-SNAPSHOT-21bb711
 
 org.graphwalker is open source software licensed under MIT license
 The software (and it's source) can be downloaded from http://graphwalker.org
-For a complete list of this package software dependencies, see http://graphwalker.org/archive/site/graphwalker-cli/dependencies.html
 """
 
 
