@@ -16,8 +16,7 @@ class TestGetErrorMessage:
             "[HttpServer] Started"
         ]
     )
-    @mock.patch("altwalker.graphwalker.has_command", return_value=True)
-    def test_no_error(self, has_command_mock, logs):
+    def test_no_error(self, logs):
         assert _get_error_message(logs) is None
 
     @pytest.mark.parametrize(
@@ -44,7 +43,8 @@ class TestCreateCommand:
             "offline"
         ]
     )
-    def test_command(self, command):
+    @mock.patch("altwalker.graphwalker.has_command", return_value=True)
+    def test_command(self, has_command_mock, command):
         result = _create_command(command)
         assert ["gw", command] == result
 
