@@ -53,38 +53,73 @@ class TestCreateCommand:
         assert ["gw", command] == result
 
     def test_debug(self):
-        result = _create_command("offline", debug="OFF")
+        has_command_mock = mock.Mock(return_value=True)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("offline", debug="OFF")
+
+        assert has_command_mock.called
         assert ["gw", "--debug", "OFF", "offline"] == result
 
     def test_model_path(self):
-        result = _create_command("online", model_path="model.json")
+        has_command_mock = mock.Mock(return_value=True)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", model_path="model.json")
+
+        assert has_command_mock.called
         assert ["gw", "online", "--model", "model.json"] == result
 
     def test_models(self):
+        has_command_mock = mock.Mock(return_value=True)
         models = [("model.json", "random(never)")]
-        result = _create_command("online", models=models)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", models=models)
+
+        assert has_command_mock.called
         assert ["gw", "online", "--model", "model.json", "random(never)"] == result
 
+    def test_multiple_models(self):
+        has_command_mock = mock.Mock(return_value=True)
         models = [("model_1", "stop_condition_1"), ("model_2", "stop_condition_2")]
-        result = _create_command("online", models=models)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", models=models)
+
+        assert has_command_mock.called
         assert [
             "gw", "online", "--model", "model_1", "stop_condition_1", "--model", "model_2", "stop_condition_2"
         ] == result
 
     def test_port(self):
+        has_command_mock = mock.Mock(return_value=True)
         port = 9999
-        result = _create_command("online", port=port)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", port=port)
+
+        assert has_command_mock.called
         assert ["gw", "online", "--port", str(port)] == result
 
     def test_service(self):
+        has_command_mock = mock.Mock(return_value=True)
         service = "RESTFUL"
-        result = _create_command("online", service=service)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", service=service)
+
+        assert has_command_mock.called
         assert ["gw", "online", "--service", service] == result
 
     def test_start_element(self):
+        has_command_mock = mock.Mock(return_value=True)
         start_element = "start_vertex"
-        result = _create_command("online", start_element=start_element)
 
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", start_element=start_element)
+
+        assert has_command_mock.called
         assert ["gw", "online", "--start-element", start_element] == result
 
     def test_verbose(self):
@@ -103,7 +138,12 @@ class TestCreateCommand:
         ]
     )
     def test_blocked(self, blocked):
-        result = _create_command("online", blocked=blocked)
+        has_command_mock = mock.Mock(return_value=True)
+
+        with mock.patch('altwalker.graphwalker.has_command', has_command_mock):
+            result = _create_command("online", blocked=blocked)
+
+        assert has_command_mock.called
         assert ["gw", "online", "--blocked", str(blocked)] == result
 
 
