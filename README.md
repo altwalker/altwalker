@@ -107,52 +107,20 @@ Prerequisites:
 
 * [Python3](https://www.python.org/) (with pip3)
 * [Java 8](https://openjdk.java.net/)
-* [GraphWalker CLI](http://graphwalker.github.io/)
+* [GraphWalker CLI](http://graphwalker.github.io/) (Optional)
 * [.NET Core](Optional) (Optional)
 * [git](https://git-scm.com/) (Optional)
 
-### Install GraphWalker
-
-To install GraphWalker on:
-
-* **Linux/MacOS** you can run the following command:
-
-  ```bash
-  $ wget -q -O - https://raw.githubusercontent.com/altwalker/graphwalker-installer/main/install-graphwalker.py
-  $ python install-graphwalker.py
-  ```
-
-  or
-
-  ```bash
-  $ git clone https://github.com/altwalker/graphwalker-installer.git
-  $ cd graphwalker-installer
-  $ python install-graphwalker.py
-  ```
-
-* **Windows** you can run the following commands:
-
-  ```cmd
-  > git clone https://github.com/altwalker/graphwalker-installer.git
-  > cd graphwalker-installer
-  > python install-graphwalker.py
-  ```
-
-After running the command check that you correctly installed GraphWalker by running:
-
-```
-$ gw --version
-```
-
 ### Install AltWalker
 
-Use the following command to install AltWalker:
+To install ``altwalker`` run the following command in your command line:
 
 ```
 $ pip install altwalker
 ```
 
-AltWalker is now installed. Check that you correctly installed AltWalker by running:
+To check that you have installed the correct version of AltWalker, run the
+following command:
 
 ```
 $ altwalker --version

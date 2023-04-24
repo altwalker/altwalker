@@ -55,7 +55,7 @@ class OnlinePlanner(Planner):
 
     Note:
         The planner requires the GraphWalker service to be started with
-        the ``verbouse`` flag.
+        the ``verbose`` flag.
     """
 
     def __init__(self, client, service=None):
@@ -213,7 +213,7 @@ def create_planner(models=None, steps=None, host=None, port=8887, start_element=
         and ``blocked`` have no effect.
 
     Note:
-        If you start a GraphWalker service start it with the ``verbouse`` flag.
+        If you start a GraphWalker service start it with the ``verbose`` flag.
     """
 
     if steps:
