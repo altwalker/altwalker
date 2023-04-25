@@ -198,7 +198,9 @@ class TestVersion:
         "version_string, version",
         [
             ("org.graphwalker version: 4.3.2-SNAPSHOT-21bb711", ('4', '3', '2', 'SNAPSHOT', '21bb711')),
-            ("org.graphwalker version: 4.3.2", ('4', '3', '2'))
+            ("org.graphwalker version: 4.3.2", ('4', '3', '2')),
+            ("org.graphwalker version: 4.1", ('4', '1')),
+            ("org.graphwalker version: 3.1.8", ('3', '1', '8'))
         ]
     )
     def test_get_version(self, command_mock, version_string, version):
