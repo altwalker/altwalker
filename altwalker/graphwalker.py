@@ -160,15 +160,16 @@ def get_version():
 
     Example:
         >>> get_version()
-        ('4', '3', '3', 'SNAPSHOT', '21bb711')
+        (4, 3, 3, 'SNAPSHOT', '21bb711')
 
     """
 
     output = _execute_command("--version").split("\n")[0]
     version_string = output.rpartition(":")[-1].strip()
     version, *suffix = version_string.split("-")
+    version = (int(x) for x in version.split("."))
 
-    return (*version.split("."), *suffix)
+    return (*version, *suffix)
 
 
 def check(models, blocked=None):
