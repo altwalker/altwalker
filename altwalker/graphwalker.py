@@ -140,7 +140,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
                               verbose=verbose, unvisited=unvisited, blocked=blocked)
 
-    logger.debug("Executed command {}".format(" ".join(command)))
+    logger.debug("Executed command: '{}'.".format(" ".join(command)))
     output, error = execute_command(command)
 
     if error:
@@ -148,6 +148,29 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
         raise GraphWalkerException(error)
 
     return output.decode("utf-8")
+
+
+def get_version():
+    """Retrieves the version of the GraphWalker command by executing the "gw --version" command.
+
+    Returns:
+        A tuple representing the version, where the first three elements are the major,
+        minor, and patch version numbers (as strings), and the remaining elements are any
+        additional version information (such as a release candidate or build number).
+
+    Example:
+        >>> get_version()
+        (4, 3, 3, 'SNAPSHOT', '21bb711')
+
+    """
+
+    output = _execute_command("--version").split("\n")[0]
+
+    version_string = output.rpartition(":")[-1].strip()
+    version, *suffix = version_string.split("-")
+    version = (int(x) for x in version.split("."))
+
+    return (*version, *suffix)
 
 
 def check(models, blocked=None):
