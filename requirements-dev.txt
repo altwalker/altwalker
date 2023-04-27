@@ -2,10 +2,10 @@ setuptools>=38.6.0
 wheel>=0.31.0
 twine>=1.11.0
 
+furo
 sphinx
-sphinx-rtd-theme
 sphinx-click
-sphinx-tabs
+sphinx_inline_tabs
 sphinx-notfound-page
 sphinxcontrib-programoutput
 
