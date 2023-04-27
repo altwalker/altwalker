@@ -12,11 +12,6 @@ AltWalker supports two ways or running tests:
 2. Offline Mode: With the ``offline`` and ``walk`` commands.
 
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
-
 Online Mode
 -----------
 
@@ -32,19 +27,17 @@ The online mode can be roughly described by de following algorithm:
 
 In order to run your tests in online mode you need to use the ``online`` command:
 
-.. tabs::
+.. tab:: Python
 
-    .. group-tab:: Python
+    .. code::
 
-        .. code::
+        $ altwalker online tests -m models/default.json "random(vertex_coverage)"
 
-            $ altwalker online tests -m models/default.json "random(vertex_coverage)"
+.. tab:: C#/.NET
 
-    .. group-tab:: C#/.NET
+    .. code::
 
-        .. code::
-
-            $ altwalker online tests -l dotnet -m models/default.json "random(vertex_coverage)"
+        $ altwalker online tests -l dotnet -m models/default.json "random(vertex_coverage)"
 
 
 **Example**
@@ -163,19 +156,17 @@ Running paths
 After you generated a test path and saved it to a file you can run it with the ``walk``
 command.
 
-.. tabs::
+.. tab:: Python
 
-    .. group-tab:: Python
+    .. code::
 
-        .. code::
+        $ altwalker walk tests steps.json
 
-            $ altwalker walk tests steps.json
+.. tab:: C#/.NET
 
-    .. group-tab:: C#/.NET
+    .. code::
 
-        .. code::
-
-            $ altwalker walk tests steps.json -l dotnet
+        $ altwalker walk tests steps.json -l dotnet
 
 The ``walk`` command will read the file and execute the steps.
 

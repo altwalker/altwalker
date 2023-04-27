@@ -5,9 +5,6 @@ Use shared states
 **Shared states** provide a way to split your models into smaller models that are linked together
 by one vertex from each model that have the same **shared state**.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
 
 Overview
 --------
@@ -111,35 +108,33 @@ or form both.
 
         And use the ``init`` command to generate a project from the model (for python or c#):
 
-        .. tabs::
+        .. tab:: Python
 
-            .. group-tab:: Python
+            .. code-block:: console
 
-                .. code-block:: console
+                $ altwalker init shared-states-example -m blog.json -l python
 
-                    $ altwalker init shared-states-example -m blog.json -l python
+            Or:
 
-                Or:
+            .. code-block:: console
 
-                .. code-block:: console
+                $ altwalker init shared-states-example -l python \
+                    -m blog-navigation.json \
+                    -m blog-post.json
 
-                    $ altwalker init shared-states-example -l python \
-                        -m blog-navigation.json \
-                        -m blog-post.json
+        .. tab:: C#/.NET
 
-            .. group-tab:: C#/.NET
+            .. code-block:: console
 
-                .. code-block:: console
+                $ altwalker init shared-states-example -m blog.json -l c#
 
-                    $ altwalker init shared-states-example -m blog.json -l c#
+            Or:
 
-                Or:
+            .. code-block:: console
 
-                .. code-block:: console
-
-                    $ altwalker init shared-states-example -l c# \
-                        -m blog-navigation.json \
-                        -m blog-post.json
+                $ altwalker init shared-states-example -l c# \
+                    -m blog-navigation.json \
+                    -m blog-post.json
 
         And then you can run the example.
 

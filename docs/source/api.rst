@@ -5,10 +5,6 @@ API Documentation
 This part of the documentation lists the full API reference of all
 public classes and functions.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
 .. module:: altwalker
 
 

@@ -8,10 +8,6 @@ a Python3 and C#/.NET executor by default. You can hook up your own executor via
 Your HTTP executor should be able to create a test execution context and execute tests.
 The context is initialized with path to tests provided via load route.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
 
 Executor Routes
 ===============

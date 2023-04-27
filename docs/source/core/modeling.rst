@@ -9,10 +9,6 @@ Modeling is the process of translating the behavior and functionalities of the
 be much smaller and simpler than the :term:`SUT` itself. It should focus on just
 the aspects that you want to test and should omit any other details of the :term:`SUT`.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
 
 Model Design
 ------------

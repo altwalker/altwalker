@@ -2,11 +2,6 @@
 Command Line Interface
 ======================
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
-
 ----------
 Invocation
 ----------

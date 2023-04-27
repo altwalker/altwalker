@@ -13,8 +13,6 @@
 import os
 import sys
 
-import sphinx_rtd_theme
-
 sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -24,7 +22,7 @@ from altwalker.__version__ import VERSION
 # -- Project information -----------------------------------------------------
 
 project = 'AltWalker'
-copyright = '2019, Altom Consulting'
+copyright = '2023, Altom Consulting'
 author = 'Altom Consulting'
 
 # The short X.Y version
@@ -44,11 +42,10 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosectionlabel',
-    'sphinx_rtd_theme',
-    'sphinx_click.ext',
-    'sphinx_tabs.tabs',
     'notfound.extension',
-    'sphinxcontrib.programoutput',
+    'sphinx_inline_tabs',
+    'sphinx_click.ext',
+    'sphinxcontrib.programoutput'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -75,7 +72,8 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+# html_theme = 'sphinx_rtd_theme'
+html_theme = "furo"
 
 # If given, this must be the name of an image file (path relative to the configuration
 # directory) that is the favicon of the docs. Modern browsers use this as the icon for
@@ -109,21 +107,17 @@ html_context = {
     "conf_py_path": "/docs/source/",
 }
 
-
 html_theme_options = {
-    'logo_only': True,
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': True,
-
-    # Toc options
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False
+    "sidebar_hide_name": True,
+    "light_css_variables": {
+        "color-brand-primary": "#166534",
+        "color-brand-content": "#166534",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#16a34a",
+        "color-brand-content": "#16a34a",
+    }
 }
-
 
 # -- Options for InterSphinx -------------------------------------------------
 
