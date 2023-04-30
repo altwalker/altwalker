@@ -71,9 +71,7 @@ exclude_patterns = [
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-# html_theme = 'sphinx_rtd_theme'
-html_theme = "furo"
+html_theme = 'furo'
 
 # If given, this must be the name of an image file (path relative to the configuration
 # directory) that is the favicon of the docs. Modern browsers use this as the icon for
@@ -88,35 +86,47 @@ html_logo = '_static/img/logo.svg'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/solid.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/brands.min.css',
     'css/custom.css',
 ]
 
-# If you want to integrate editing into your own theme.
-# For integrating GitHub
-html_context = {
-    "display_github": True,
-    "github_user": "altwalker",
-    "github_repo": "altwalker",
-    "github_version": "main",
-    "conf_py_path": "/docs/source/",
-}
-
 html_theme_options = {
-    "sidebar_hide_name": True,
-    "light_css_variables": {
-        "color-brand-primary": "#166534",
-        "color-brand-content": "#166534",
+    'sidebar_hide_name': True,
+    'navigation_with_keys': True,
+    'top_of_page_button': 'edit',
+    'source_repository': 'https://github.com/altwalker/altwalker',
+    'source_branch': 'main',
+    'source_directory': '/docs/source/',
+    'light_css_variables': {
+        'color-brand-primary': '#166534',
+        'color-brand-content': '#166534',
     },
-    "dark_css_variables": {
-        "color-brand-primary": "#16a34a",
-        "color-brand-content": "#16a34a",
-    }
+    'dark_css_variables': {
+        'color-brand-primary': '#16a34a',
+        'color-brand-content': '#16a34a',
+    },
+    'footer_icons': [
+        {
+            'name': 'Gitter',
+            'url': 'https://gitter.im/altwalker/community',
+            'html': '',
+            'class': 'mr-2 fa-brands fa-solid fa-gitter fa-lg',
+        },
+        {
+            'name': 'GitHub',
+            'url': 'https://github.com/altwalker/altwalker',
+            'html': '',
+            'class': 'fa-brands fa-solid fa-github fa-lg',
+        }
+    ]
 }
 
 # -- Options for InterSphinx -------------------------------------------------
