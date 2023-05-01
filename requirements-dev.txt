@@ -8,6 +8,7 @@ sphinx-click
 sphinx_inline_tabs
 sphinx-notfound-page
 sphinx-autobuild
+sphinx-copybutton
 sphinxcontrib-programoutput
 
 doc8
