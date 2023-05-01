@@ -7,6 +7,7 @@ sphinx
 sphinx-click
 sphinx_inline_tabs
 sphinx-notfound-page
+sphinx-autobuild
 sphinxcontrib-programoutput
 
 doc8
