@@ -1,5 +1,6 @@
-E-Commerce Demo
-===============
+======================
+Python E-Commerce Demo
+======================
 
 .. meta::
    :description: How to run model-based tests in Python with PyPOM and Selenium for an e-commerce site

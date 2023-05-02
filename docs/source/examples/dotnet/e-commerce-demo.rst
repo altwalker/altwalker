@@ -1,5 +1,6 @@
-E-Commerce Demo
-===============
+=======================
+.NET/C# E-Commerce Demo
+=======================
 
 .. meta::
    :description: How to run model-based tests in C#/.NET with Selenium for an e-commerce site
