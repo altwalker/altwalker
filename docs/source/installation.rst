@@ -8,9 +8,8 @@ Installation
 
 .. sidebar:: For Docker Users
 
-    If you want to use AltWalker with Docker you can skip this section.
-
-    Read more in the: :doc:`how-tos/run-tests-with-docker` section.
+    If you plan to use AltWalker with Docker, you can skip this section and
+    proceed to the :doc:`how-tos/run-tests-with-docker` section for more information."
 
 
 Prerequisites
@@ -45,7 +44,7 @@ To install ``altwalker`` run the following command in your command line:
 
 .. code-block:: console
 
-    $ pip install -U altwalker
+    pip install -U altwalker
 
 
 Alternatively, if you have multiple Python versions installed, you can use the
@@ -53,7 +52,7 @@ following command to specify the Python version:
 
 .. code-block:: console
 
-    $ python<version> -m pip install -U altwalker
+    python<version> -m pip install -U altwalker
 
 
 To check that you have installed the correct version of AltWalker, run the
@@ -66,11 +65,11 @@ Living on the edge
 ------------------
 
 If you want to work with the latest code before it’s released, install
-or update the code from the `develop` branch:
+or update the code from the ``develop`` branch:
 
 .. code-block:: console
 
-    $ pip install -U git+https://github.com/altwalker/altwalker
+    pip install -U git+https://github.com/altwalker/altwalker
 
 
 Install .NET Core (Optional)
@@ -90,7 +89,7 @@ under a different path. In this case create a symbolic link:
 
 .. code-block:: console
 
-    $ ln -s /path/to/dotnet /usr/bin/dotnet
+    ln -s /path/to/dotnet /usr/bin/dotnet
 
 
 Install GraphWalker (Optional)
