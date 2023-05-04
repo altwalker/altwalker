@@ -20,24 +20,24 @@ Run the following commands to install GraphWalker:
 
         .. code-block:: console
 
-            $ wget -q -O - https://raw.githubusercontent.com/altwalker/graphwalker-installer/main/install-graphwalker.py
-            $ python install-graphwalker.py
+            wget -q -O - https://raw.githubusercontent.com/altwalker/graphwalker-installer/main/install-graphwalker.py
+            python install-graphwalker.py
 
     .. tab:: git
 
         .. code-block:: console
 
-            $ git clone https://github.com/altwalker/graphwalker-installer.git
-            $ cd graphwalker-installer
-            $ python install-graphwalker.py
+            git clone https://github.com/altwalker/graphwalker-installer.git
+            cd graphwalker-installer
+            python install-graphwalker.py
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        > git clone https://github.com/altwalker/graphwalker-installer.git
-        > cd graphwalker-installer
-        > python install-graphwalker.py
+        git clone https://github.com/altwalker/graphwalker-installer.git
+        cd graphwalker-installer
+        python install-graphwalker.py
 
 
 After installing GraphWalker, verify that you have installed the correct

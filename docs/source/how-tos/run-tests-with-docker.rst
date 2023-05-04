@@ -49,16 +49,16 @@ You can then build and run the Docker image:
 
 .. code-block:: console
 
-    $ docker build -t my-tests .
-    $ docker run -it my-tests altwalker online [...]
+    docker build -t my-tests .
+    docker run -it my-tests altwalker online [...]
 
 
 Example:
 
 .. code-block:: console
 
-    $ docker build -t my-tests .
-    $ docker run -it my-tests altwalker \
+    docker build -t my-tests .
+    docker run -it my-tests altwalker \
         online tests -m models/default.json "random(vertex_coverage(100))"
 
 
@@ -73,21 +73,21 @@ using the AltWalker Docker image directly:
 
     .. code-block:: console
 
-        $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
             /bin/bash -c 'python3 -m pip install -r requirements.txt && altwalker online [...]'
 
     If you don't have any python dependencies you can remove the ``python3 -m pip install -r requirements.txt``.
 
     .. code-block:: console
 
-        $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
             altwalker online [...]
 
 .. tab:: C#/.NET
 
     .. code-block:: console
 
-        $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
             altwalker online [...]
 
 
@@ -97,12 +97,12 @@ Example:
 
     .. code-block:: console
 
-        $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
             /bin/bash -c 'python3 -m pip install -r requirements.txt && altwalker online tests -m models/default.json "random(vertex_coverage(100))"'
 
 .. tab:: C#/.NET
 
     .. code-block:: console
 
-        $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
             altwalker online tests -m models/default.json "random(vertex_coverage(100))"

@@ -12,15 +12,15 @@ Setting environment variable:
 
     .. code-block:: console
 
-        $ export TESTS_CONF_FILE="conf.production.json"
-        $ altwalker online tests -m models/models.json "random(vertex_coverage(30))"
+        export TESTS_CONF_FILE="conf.production.json"
+        altwalker online tests -m models/models.json "random(vertex_coverage(30))"
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        > set TESTS_CONF_FILE="conf.production.json"
-        > altwalker online tests -m models/models.json "random(vertex_coverage(30))"
+        set TESTS_CONF_FILE="conf.production.json"
+        altwalker online tests -m models/models.json "random(vertex_coverage(30))"
 
 
 Accessing environment variable in your tests:

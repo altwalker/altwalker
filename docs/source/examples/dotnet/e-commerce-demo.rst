@@ -56,25 +56,25 @@ Setup
 
     .. code-block:: console
 
-        $ git clone git@github.com:altwalker/altwalker-examples.git
+        git clone git@github.com:altwalker/altwalker-examples.git
 
 .. tab:: HTTPS
 
     .. code-block:: console
 
-        $ git clone https://github.com/altwalker/altwalker-examples.git
+        git clone https://github.com/altwalker/altwalker-examples.git
 
 * Go into the e-commerce demo directory:
 
 .. code-block:: console
 
-    $ cd altwalker-examples/dotnet-ecommerce
+    cd altwalker-examples/dotnet-ecommerce
 
 * Install nuget packages:
 
 .. code-block:: console
 
-    $ dotnet restore
+    dotnet restore
 
 
 Modeling
@@ -274,7 +274,7 @@ Checking the Models
 
 .. code-block:: console
 
-    $ altwalker check -m models/navigation.json "random(edge_coverage(100))"
+    altwalker check -m models/navigation.json "random(edge_coverage(100))"
 
 Checks the integrity of the model(s).
 
@@ -283,7 +283,7 @@ reached.
 
 .. code-block:: console
 
-    $ altwalker check -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(vertex_coverage(100))"
+    altwalker check -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(vertex_coverage(100))"
 
 
 Verifying the Code
@@ -291,7 +291,7 @@ Verifying the Code
 
 .. code-block:: console
 
-    $ altwalker verify -l c# -m models/navigation.json tests
+    altwalker verify -l c# -m models/navigation.json tests
 
 Verifies that your model and tests are valid, and that all names
 referred in the model are implemented in ``tests`` package.
@@ -313,7 +313,7 @@ Online Mode
 
 .. code-block:: console
 
-    $ altwalker online -l c# -m models/navigation.json "quick_random(edge_coverage(100))" tests
+    altwalker online -l c# -m models/navigation.json "quick_random(edge_coverage(100))" tests
 
 Walks randomly through the graph until all edges have been passed.
 
@@ -321,14 +321,14 @@ You can also run tests with two models.
 
 .. code-block:: console
 
-    $ altwalker online -l c# -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(edge_coverage(100))" tests
+    altwalker online -l c# -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(edge_coverage(100))" tests
 
 Offline Mode
 ~~~~~~~~~~~~
 
 .. code-block:: console
 
-    $ altwalker offline -m models/navigation.json "random(length(15))" -f steps.json
+    altwalker offline -m models/navigation.json "random(length(15))" -f steps.json
 
 Generates a valid path through the test graph and saves the list of
 steps into ``steps.json``.
@@ -339,7 +339,7 @@ steps into ``steps.json``.
 
 .. code-block:: console
 
-    $ altwalker walk -l c# tests steps.json
+    altwalker walk -l c# tests steps.json
 
 Executes (walks on) the steps from the ``steps.json`` file.
 

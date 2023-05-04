@@ -31,13 +31,13 @@ In order to run your tests in online mode you need to use the ``online`` command
 
     .. code::
 
-        $ altwalker online tests -m models/default.json "random(vertex_coverage)"
+        altwalker online tests -m models/default.json "random(vertex_coverage)"
 
 .. tab:: C#/.NET
 
     .. code::
 
-        $ altwalker online tests -l dotnet -m models/default.json "random(vertex_coverage)"
+        altwalker online tests -l dotnet -m models/default.json "random(vertex_coverage)"
 
 
 **Example**
@@ -137,7 +137,7 @@ You can use the ``offline`` command to generate a test path (test case).
 
 .. code::
 
-    $ altwalker offline -m models/default.json "random(vertex_coverage)" -f steps.json
+    altwalker offline -m models/default.json "random(vertex_coverage)" -f steps.json
 
 .. note::
 
@@ -160,13 +160,13 @@ command.
 
     .. code::
 
-        $ altwalker walk tests steps.json
+        altwalker walk tests steps.json
 
 .. tab:: C#/.NET
 
     .. code::
 
-        $ altwalker walk tests steps.json -l dotnet
+        altwalker walk tests steps.json -l dotnet
 
 The ``walk`` command will read the file and execute the steps.
 

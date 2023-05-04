@@ -128,13 +128,13 @@ And from here there are two paths:
 
             .. code-block:: console
 
-                $ altwalker init action-example -m login.json -l python
+                altwalker init action-example -m login.json -l python
 
         .. tab:: C#/.NET
 
             .. code-block:: console
 
-                $ altwalker init action-example -m login.json -l c#
+                altwalker init action-example -m login.json -l c#
 
         And then you can run the example.
 
