@@ -2,8 +2,8 @@
 API Documentation
 =================
 
-This part of the documentation lists the full API reference of all
-public classes and functions.
+This section of the documentation provides a complete API reference for
+all public classes and functions.
 
 .. module:: altwalker
 
@@ -141,8 +141,9 @@ for different events:
       :class:`FileReporter` don't generate any report, they only log data).
       It's not called by the :class:`~altwalker.walker.Walker`.
 
-Every reporter should have all this methods, you can inherit them from
-:class:`Reporter` and overwrite only the methods you want.
+Every reporter should have all of these methods. You can inherit them
+from :class:`Reporter` and overwrite only the methods you want.
+
 
 .. autoclass:: Reporter
     :members:
@@ -178,7 +179,7 @@ GraphWalker
 REST Service
 ------------
 
-For more informations check out the `GraphWalker REST API Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Rest-API-overview>`_.
+For more information check out the `GraphWalker REST API Documentation <https://github.com/GraphWalker/graphwalker-project/wiki/Rest-API-overview>`_.
 
 .. autoclass:: GraphWalkerService
     :members:
@@ -263,14 +264,8 @@ display of :class:`GraphWalkerException` and :class:`AltWalkerException`.
 .. autoexception:: FailedTestsError
     :members:
 
-    .. autoattribute:: exit_code
-
 .. autoexception:: GraphWalkerError
     :members:
 
-    .. autoattribute:: exit_code
-
 .. autoexception:: AltWalkerError
     :members:
-
-    .. autoattribute:: exit_code

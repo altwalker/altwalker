@@ -1,6 +1,6 @@
-=================
-Use shared states
-=================
+=========================
+How to: Use shared states
+=========================
 
 **Shared states** provide a way to split your models into smaller models that are linked together
 by one vertex from each model that have the same **shared state**.

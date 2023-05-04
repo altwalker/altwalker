@@ -9,3 +9,4 @@ patterns and configuration options of AltWalker.
     :maxdepth: 1
 
     advanced-usage/install-graphwalker
+    advanced-usage/custom-executor

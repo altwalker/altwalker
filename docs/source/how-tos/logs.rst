@@ -1,6 +1,6 @@
-========================
-Log data from your tests
-========================
+================================
+How to: Log data from your tests
+================================
 
 Logging information is critical to the development and maintenance of your tests. AltWalker
 collects stdout and returned data from your tests.

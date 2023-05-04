@@ -1,5 +1,6 @@
-Pass environment variables to your tests
-----------------------------------------
+================================================
+How to: Pass environment variables to your tests
+================================================
 
 Running your tests may require different test context based on your
 environment. You may want to have different configurations options which

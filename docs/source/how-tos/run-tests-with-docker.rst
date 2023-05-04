@@ -1,6 +1,6 @@
-=====================
-Run tests with Docker
-=====================
+=============================
+How to: Run tests with Docker
+=============================
 
 .. meta::
    :keywords: AltWalker, Model-Based Testing, C#, .NET, Docker
