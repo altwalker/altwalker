@@ -7,19 +7,8 @@ if you need more examples or have questions.
 
 The source code for all examples can be found `here <https://github.com/altwalker/altwalker-examples>`_.
 
-Python
-======
-
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     examples/python/e-commerce-demo
-
-
-C#/.NET
-=======
-
-.. toctree::
-    :maxdepth: 2
-
     examples/dotnet/e-commerce-demo

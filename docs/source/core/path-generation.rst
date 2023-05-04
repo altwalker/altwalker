@@ -8,9 +8,6 @@ AltWalker relies on GraphWalker to generate paths through your graph. Both use
 **generators** and **stop conditions** to decide how to walk through the models
 (directed graphs) and when the path (test sequence) is completed.
 
-.. contents:: Table of Contents
-    :local:
-
 
 Generators
 ----------

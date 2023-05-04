@@ -1,5 +1,6 @@
-E-Commerce Demo
-===============
+=======================
+.NET/C# E-Commerce Demo
+=======================
 
 .. meta::
    :description: How to run model-based tests in C#/.NET with Selenium for an e-commerce site
@@ -19,9 +20,6 @@ to generate static files. For cart and order management it uses Snipcart_.
 The website is hosted on `GitHub Pages <https://altwalker.github.io/jekyll-ecommerce/>`_ and its
 forked from `Snipcart on GitHub <https://github.com/snipcart/snipcart-jekyll-integration>`_.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
 
 Page Object Pattern
 -------------------
@@ -54,31 +52,29 @@ Setup
 
 *  Clone the examples repository, with SSH:
 
-.. tabs::
+.. tab:: SSH
 
-    .. tab:: SSH
+    .. code-block:: console
 
-        .. code-block:: console
+        git clone git@github.com:altwalker/altwalker-examples.git
 
-            $ git clone git@github.com:altwalker/altwalker-examples.git
+.. tab:: HTTPS
 
-    .. tab:: HTTPS
+    .. code-block:: console
 
-        .. code-block:: console
-
-            $ git clone https://github.com/altwalker/altwalker-examples.git
+        git clone https://github.com/altwalker/altwalker-examples.git
 
 * Go into the e-commerce demo directory:
 
 .. code-block:: console
 
-    $ cd altwalker-examples/dotnet-ecommerce
+    cd altwalker-examples/dotnet-ecommerce
 
 * Install nuget packages:
 
 .. code-block:: console
 
-    $ dotnet restore
+    dotnet restore
 
 
 Modeling
@@ -102,7 +98,7 @@ The ``models/navigation.json`` contains **NavigationModel** and the
 ``models/checkout.json`` **CheckoutModel**:
 
 * **NavigationModel** contains edges and vertices that verify homepage and
-  product page behaviour.
+  product page behavior.
 
 .. figure:: ../../_static/img/ecommerce-navigation-model.png
 
@@ -133,8 +129,8 @@ states:
 
 If GraphWalker reaches ``v_cart_open_and_not_empty`` from *NavigationModel*
 model, it will continue on ``v_cart_open_and_not_empty`` in *CheckoutModel*,
-and if reaches ``v_hompage`` from *CheckoutModel* it will continue on with
-``v_homplage`` from *NavigationModel*.
+and if reaches ``v_homepage`` from *CheckoutModel* it will continue on with
+``v_homepage`` from *NavigationModel*.
 
 Separating the model in two smaller models it makes the model and the code
 more maintainable. This makes also easy to run tests with only one model
@@ -278,7 +274,7 @@ Checking the Models
 
 .. code-block:: console
 
-    $ altwalker check -m models/navigation.json "random(edge_coverage(100))"
+    altwalker check -m models/navigation.json "random(edge_coverage(100))"
 
 Checks the integrity of the model(s).
 
@@ -287,15 +283,15 @@ reached.
 
 .. code-block:: console
 
-    $ altwalker check -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(vertex_coverage(100))"
+    altwalker check -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(vertex_coverage(100))"
 
 
-Verifing the Code
------------------
+Verifying the Code
+------------------
 
 .. code-block:: console
 
-    $ altwalker verify -l c# -m models/navigation.json tests
+    altwalker verify -l c# -m models/navigation.json tests
 
 Verifies that your model and tests are valid, and that all names
 referred in the model are implemented in ``tests`` package.
@@ -317,7 +313,7 @@ Online Mode
 
 .. code-block:: console
 
-    $ altwalker online -l c# -m models/navigation.json "quick_random(edge_coverage(100))" tests
+    altwalker online -l c# -m models/navigation.json "quick_random(edge_coverage(100))" tests
 
 Walks randomly through the graph until all edges have been passed.
 
@@ -325,14 +321,14 @@ You can also run tests with two models.
 
 .. code-block:: console
 
-    $ altwalker online -l c# -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(edge_coverage(100))" tests
+    altwalker online -l c# -m models/navigation.json "random(edge_coverage(100))" -m models/checkout.json "random(edge_coverage(100))" tests
 
 Offline Mode
 ~~~~~~~~~~~~
 
 .. code-block:: console
 
-    $ altwalker offline -m models/navigation.json "random(length(15))" -f steps.json
+    altwalker offline -m models/navigation.json "random(length(15))" -f steps.json
 
 Generates a valid path through the test graph and saves the list of
 steps into ``steps.json``.
@@ -343,7 +339,7 @@ steps into ``steps.json``.
 
 .. code-block:: console
 
-    $ altwalker walk -l c# tests steps.json
+    altwalker walk -l c# tests steps.json
 
 Executes (walks on) the steps from the ``steps.json`` file.
 

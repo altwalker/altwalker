@@ -1,6 +1,6 @@
-=====================
-Run tests with Docker
-=====================
+=============================
+How to: Run tests with Docker
+=============================
 
 .. meta::
    :keywords: AltWalker, Model-Based Testing, C#, .NET, Docker
@@ -8,9 +8,6 @@ Run tests with Docker
 If you want to skip the installation of AltWalker you could use one of
 `our docker images <https://hub.docker.com/r/altwalker/altwalker>`_.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
 
 Create a ``Dockerfile`` for your project
 ----------------------------------------
@@ -18,52 +15,50 @@ Create a ``Dockerfile`` for your project
 To use altwalker with docker add the following ``Dockerfile`` in the root
 of your project.
 
-.. tabs::
+.. tab:: Python
 
-    .. group-tab:: Python
+    .. code-block:: docker
+        :caption: Dockerfile
 
-        .. code-block:: docker
-            :caption: Dockerfile
+        FROM altwalker/altwalker:latest
 
-            FROM altwalker/altwalker:latest
+        COPY . /test-project
+        WORKDIR  /test-project
 
-            COPY . /test-project
-            WORKDIR  /test-project
+        RUN touch requirements.txt
+        RUN python3 -m pip install -r requirements.txt
 
-            RUN touch requirements.txt
-            RUN python3 -m pip install -r requirements.txt
+        # If you have other dependencies you can install them here.
 
-            # If you have other dependencies you can install them here.
+.. tab:: C#/.NET
 
-    .. group-tab:: C#/.NET
+    .. code-block:: docker
+        :caption: Dockerfile
 
-        .. code-block:: docker
-            :caption: Dockerfile
+        FROM altwalker/altwalker:latest-dotnet-2.1
 
-            FROM altwalker/altwalker:latest-dotnet-2.1
+        COPY . /my-tests
+        WORKDIR  /my-tests
 
-            COPY . /my-tests
-            WORKDIR  /my-tests
+        # If you have other dependencies you can install them here.
 
-            # If you have other dependencies you can install them here.
-
-            RUN dotnet build tests
+        RUN dotnet build tests
 
 
 You can then build and run the Docker image:
 
 .. code-block:: console
 
-    $ docker build -t my-tests .
-    $ docker run -it my-tests altwalker online [...]
+    docker build -t my-tests .
+    docker run -it my-tests altwalker online [...]
 
 
 Example:
 
 .. code-block:: console
 
-    $ docker build -t my-tests .
-    $ docker run -it my-tests altwalker \
+    docker build -t my-tests .
+    docker run -it my-tests altwalker \
         online tests -m models/default.json "random(vertex_coverage(100))"
 
 
@@ -74,44 +69,40 @@ For many projects you may find it inconvenient to write a complete
 ``Dockerfile``. In such cases, you can run you tests as a script by
 using the AltWalker Docker image directly:
 
-.. tabs::
+.. tab:: Python
 
-    .. group-tab:: Python
+    .. code-block:: console
 
-        .. code-block:: console
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
+            /bin/bash -c 'python3 -m pip install -r requirements.txt && altwalker online [...]'
 
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
-                /bin/bash -c 'python3 -m pip install -r requirements.txt && altwalker online [...]'
+    If you don't have any python dependencies you can remove the ``python3 -m pip install -r requirements.txt``.
 
-        If you don't have any python dependencies you can remove the ``python3 -m pip install -r requirements.txt``.
+    .. code-block:: console
 
-        .. code-block:: console
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
+            altwalker online [...]
 
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
-               altwalker online [...]
+.. tab:: C#/.NET
 
-    .. group-tab:: C#/.NET
+    .. code-block:: console
 
-        .. code-block:: console
-
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
-                altwalker online [...]
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
+            altwalker online [...]
 
 
 Example:
 
-.. tabs::
+.. tab:: Python
 
-    .. group-tab:: Python
+    .. code-block:: console
 
-        .. code-block:: console
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
+            /bin/bash -c 'python3 -m pip install -r requirements.txt && altwalker online tests -m models/default.json "random(vertex_coverage(100))"'
 
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest \
-                /bin/bash -c 'python3 -m pip install -r requirements.txt && altwalker online tests -m models/default.json "random(vertex_coverage(100))"'
+.. tab:: C#/.NET
 
-    .. group-tab:: C#/.NET
+    .. code-block:: console
 
-        .. code-block:: console
-
-            $ docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
-                altwalker online tests -m models/default.json "random(vertex_coverage(100))"
+        docker run -it -v "$(pwd):/test-project" -w "/test-project" altwalker/altwalker:latest-dotnet-2.1 \
+            altwalker online tests -m models/default.json "random(vertex_coverage(100))"

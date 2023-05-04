@@ -2,25 +2,20 @@
 Command Line Interface
 ======================
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
-
 ----------
 Invocation
 ----------
 
 .. code-block:: console
 
-    $ altwalker [...]
+    altwalker [...]
 
 You can also invoke the command through the Python interpreter from the
 command line:
 
 .. code-block:: console
 
-    $ python -m altwalker [...]
+    python -m altwalker [...]
 
 
 ----
@@ -101,7 +96,7 @@ If you don't want ``test-project`` to be git repository run the command with
 
 .. code-block:: console
 
-    $ altwalker init test-project -l python --no-git
+    altwalker init test-project -l python --no-git
 
 .. note::
     If you don't have ``git`` installed on your machine use the ``--no-git`` flag.
@@ -112,7 +107,7 @@ with all the classes and methods needed for the models:
 
 .. code-block:: console
 
-    $ altwalker init test-project -m ./first.json -m ./second.json -l python
+    altwalker init test-project -m ./first.json -m ./second.json -l python
 
 The ``test-project`` directory will have the following structure::
 
@@ -142,7 +137,7 @@ The ``test-project`` directory will have the following structure::
 
 .. code-block:: console
 
-    $ altwalker generate . -m models/models.json
+    altwalker generate . -m models/models.json
 
 The command will create a directory named ``test`` with the following
 structure::
@@ -397,7 +392,7 @@ If you want to save the steps in a ``.json`` file you can use the
 
 .. code-block:: console
 
-    $ altwalker offline -m models/login.json "random(length(5))" --output-file steps.json
+    altwalker offline -m models/login.json "random(length(5))" --output-file steps.json
 
 If you use the ``-o/--verbose`` flag, the command will add for each step
 ``data`` (the data for the current module), ``actions`` (the actions

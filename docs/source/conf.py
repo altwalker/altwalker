@@ -13,8 +13,6 @@
 import os
 import sys
 
-import sphinx_rtd_theme
-
 sys.path.insert(0, os.path.abspath('.'))
 
 
@@ -24,7 +22,7 @@ from altwalker.__version__ import VERSION
 # -- Project information -----------------------------------------------------
 
 project = 'AltWalker'
-copyright = '2019, Altom Consulting'
+copyright = '2023, Altom Consulting'
 author = 'Altom Consulting'
 
 # The short X.Y version
@@ -44,11 +42,11 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosectionlabel',
-    'sphinx_rtd_theme',
-    'sphinx_click.ext',
-    'sphinx_tabs.tabs',
     'notfound.extension',
-    'sphinxcontrib.programoutput',
+    'sphinx_copybutton',
+    'sphinx_inline_tabs',
+    'sphinx_click.ext',
+    'sphinxcontrib.programoutput'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -74,8 +72,7 @@ exclude_patterns = [
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
 
 # If given, this must be the name of an image file (path relative to the configuration
 # directory) that is the favicon of the docs. Modern browsers use this as the icon for
@@ -90,40 +87,48 @@ html_logo = '_static/img/logo.svg'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# so a file named 'default.css' will overwrite the builtin 'default.css'.
 html_static_path = ['_static']
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/fontawesome.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/solid.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/brands.min.css',
     'css/custom.css',
 ]
 
-# If you want to integrate editing into your own theme.
-# For integrating GitHub
-html_context = {
-    "display_github": True,
-    "github_user": "altwalker",
-    "github_repo": "altwalker",
-    "github_version": "main",
-    "conf_py_path": "/docs/source/",
-}
-
-
 html_theme_options = {
-    'logo_only': True,
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': True,
-
-    # Toc options
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False
+    'sidebar_hide_name': True,
+    'navigation_with_keys': True,
+    'top_of_page_button': 'edit',
+    'source_repository': 'https://github.com/altwalker/altwalker',
+    'source_branch': 'main',
+    'source_directory': '/docs/source/',
+    'light_css_variables': {
+        'color-brand-primary': '#166534',
+        'color-brand-content': '#166534',
+    },
+    'dark_css_variables': {
+        'color-brand-primary': '#16a34a',
+        'color-brand-content': '#16a34a',
+    },
+    'footer_icons': [
+        {
+            'name': 'Gitter',
+            'url': 'https://gitter.im/altwalker/community',
+            'html': '',
+            'class': 'mr-2 fa-brands fa-solid fa-gitter fa-lg',
+        },
+        {
+            'name': 'GitHub',
+            'url': 'https://github.com/altwalker/altwalker',
+            'html': '',
+            'class': 'fa-brands fa-solid fa-github fa-lg',
+        }
+    ]
 }
-
 
 # -- Options for InterSphinx -------------------------------------------------
 

@@ -1,15 +1,11 @@
-======================
-Use actions and guards
-======================
+==============================
+How to: Use actions and guards
+==============================
 
 **Actions** and **Guards** provide a way to split the test based on the data which you use. That
 approach allows you to reuse/combine/change the data for each test separately. It lets you
 to test login with different credentials, or iteration through boundary values and
 equivalent classes.
-
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
 
 
 Overview
@@ -128,19 +124,17 @@ And from here there are two paths:
 
         And use the ``init`` command to generate a project from the model (for python or c#):
 
-        .. tabs::
+        .. tab:: Python
 
-            .. group-tab:: Python
+            .. code-block:: console
 
-                .. code-block:: console
+                altwalker init action-example -m login.json -l python
 
-                    $ altwalker init action-example -m login.json -l python
+        .. tab:: C#/.NET
 
-            .. group-tab:: C#/.NET
+            .. code-block:: console
 
-                .. code-block:: console
-
-                    $ altwalker init action-example -m login.json -l c#
+                altwalker init action-example -m login.json -l c#
 
         And then you can run the example.
 

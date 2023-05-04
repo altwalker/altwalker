@@ -1,5 +1,6 @@
-Pass environment variables to your tests
-----------------------------------------
+================================================
+How to: Pass environment variables to your tests
+================================================
 
 Running your tests may require different test context based on your
 environment. You may want to have different configurations options which
@@ -7,34 +8,31 @@ you pass as environment variables, or you write them in a configuration file.
 
 Setting environment variable:
 
-.. tabs::
+.. tab:: MacOS/Linux
 
-    .. group-tab:: MacOS/Linux
+    .. code-block:: console
 
-        .. code-block:: console
+        export TESTS_CONF_FILE="conf.production.json"
+        altwalker online tests -m models/models.json "random(vertex_coverage(30))"
 
-            $ export TESTS_CONF_FILE="conf.production.json"
-            $ altwalker online tests -m models/models.json "random(vertex_coverage(30))"
+.. tab:: Windows
 
-    .. group-tab:: Windows
+    .. code-block:: console
 
-        .. code-block:: console
-
-            > set TESTS_CONF_FILE="conf.production.json"
-            > altwalker online tests -m models/models.json "random(vertex_coverage(30))"
+        set TESTS_CONF_FILE="conf.production.json"
+        altwalker online tests -m models/models.json "random(vertex_coverage(30))"
 
 
 Accessing environment variable in your tests:
 
-.. tabs::
-    .. group-tab:: Python
+.. tab:: Python
 
-        .. code-block:: py
+    .. code-block:: py
 
-            config_file = os.environ.get("TESTS_CONF_FILE", "conf.development.json")
+        config_file = os.environ.get("TESTS_CONF_FILE", "conf.development.json")
 
-    .. group-tab:: C#
+.. tab:: C#
 
-        .. code-block:: c#
+    .. code-block:: c#
 
-            var configFile = Environment.GetEnvironmentVariable("TESTS_CONF_FILE") ?? "conf.development.json";
+        var configFile = Environment.GetEnvironmentVariable("TESTS_CONF_FILE") ?? "conf.development.json";

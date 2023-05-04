@@ -234,6 +234,15 @@ To see the documentation run:
 $ open build/html/index.html
 ```
 
+To rebuild the documentation on changes, with live-reload in the browser run:
+
+```
+$ sphinx-autobuild docs/source docs/build/html
+```
+
+Navigate to the documentation at http://127.0.0.1:8000.
+
+
 __Further Reading/Useful Links__:
 
 * [Google Style Docstring Example](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html#example-google)

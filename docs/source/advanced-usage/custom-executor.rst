@@ -8,10 +8,6 @@ a Python3 and C#/.NET executor by default. You can hook up your own executor via
 Your HTTP executor should be able to create a test execution context and execute tests.
 The context is initialized with path to tests provided via load route.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
-
 
 Executor Routes
 ===============
@@ -50,7 +46,7 @@ argument given to the ``verify``, ``online`` and ``walk`` commands.
 
   .. code-block:: console
 
-    $ curl -X POST -d '{"path": "path/to/my/tests"}}' -H 'Content-Type: application/json'  http://localhost:4200/altwalker/load
+    curl -X POST -d '{"path": "path/to/my/tests"}}' -H 'Content-Type: application/json'  http://localhost:4200/altwalker/load
 
 
 Reset
@@ -74,7 +70,7 @@ Should reset the current execution context.
 
   .. code-block:: console
 
-    $ curl -X PUT http://localhost:4200/altwalker/reset
+    curl -X PUT http://localhost:4200/altwalker/reset
 
 
 Has Model
@@ -106,7 +102,7 @@ Should check if a model exists. Is used by the ``verify`` command.
 
   .. code-block:: console
 
-    $ curl http://localhost:4200/altwalker/hasModel?name="ModelName"
+    curl http://localhost:4200/altwalker/hasModel?name="ModelName"
 
 
 Has Step
@@ -141,11 +137,11 @@ Should checks if a step exists. Is used by the ``verify`` command.
 
   .. code-block:: console
 
-    $ curl http://localhost:4200/altwalker/hasStep?name="setUpRun"
+    curl http://localhost:4200/altwalker/hasStep?name="setUpRun"
 
   .. code-block:: console
 
-    $ curl http://localhost:4200/altwalker/hasStep?name="setUpModel"&modelName="ModelName"
+    curl http://localhost:4200/altwalker/hasStep?name="setUpModel"&modelName="ModelName"
 
 
 Execute Step
@@ -215,7 +211,7 @@ Should executes the step. Is used by the ``online`` and ``walk`` commands.
 
   .. code-block:: console
 
-    $ curl -X POST -d '{"data": {"key": "value"}}' -H 'Content-Type: application/json'  http://localhost:4200/altwalker/hasStep?name="setUpModel"&modelName="ModelName"
+    curl -X POST -d '{"data": {"key": "value"}}' -H 'Content-Type: application/json'  http://localhost:4200/altwalker/hasStep?name="setUpModel"&modelName="ModelName"
 
 
 Error Status Codes

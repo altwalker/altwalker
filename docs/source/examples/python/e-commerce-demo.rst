@@ -1,5 +1,6 @@
-E-Commerce Demo
-===============
+======================
+Python E-Commerce Demo
+======================
 
 .. meta::
    :description: How to run model-based tests in Python with PyPOM and Selenium for an e-commerce site
@@ -19,9 +20,6 @@ to generate static files. For cart and order management it uses Snipcart_.
 The website is hosted on `GitHub Pages <https://altwalker.github.io/jekyll-ecommerce/>`_ and its
 forked from `Snipcart on GitHub <https://github.com/snipcart/snipcart-jekyll-integration>`_.
 
-.. contents:: Table of Contents
-    :local:
-    :backlinks: none
 
 Page Object Pattern
 -------------------
@@ -58,36 +56,32 @@ For this Demo we used geckodriver_ to launch the Firefox browser.
   make sure you set the path to the geckodriver executable in the ``Path``
   variable to make other programs aware of its location.
 
-.. tabs::
+.. tab:: Windows
 
-    .. group-tab:: Windows
+    .. code::
 
-        .. code::
+        > set PATH=%PATH%;C:\bin\geckodriver
 
-            > set PATH=%PATH%;C:\bin\geckodriver
+.. tab:: Linux/MacOS
 
-    .. group-tab:: Linux/MacOS
+    .. code-block:: console
 
-        .. code-block:: console
-
-            $  ln -s /path/to/geckodriver /urs/local/bin/geckodriver
+        $  ln -s /path/to/geckodriver /urs/local/bin/geckodriver
 
 
 *  Clone the examples repository:
 
-.. tabs::
+.. tab:: SSH
 
-    .. tab:: SSH
+    .. code-block:: console
 
-        .. code-block:: console
+        $ git clone git@github.com:altwalker/altwalker-examples.git
 
-            $ git clone git@github.com:altwalker/altwalker-examples.git
+.. tab:: HTTPS
 
-    .. tab:: HTTPS
+    .. code-block:: console
 
-        .. code-block:: console
-
-            $ git clone https://github.com/altwalker/altwalker-examples.git
+        $ git clone https://github.com/altwalker/altwalker-examples.git
 
 
 * Go into the e-commerce demo directory:
@@ -98,21 +92,19 @@ For this Demo we used geckodriver_ to launch the Firefox browser.
 
 * (**Optional**) Create a python virtual environment:
 
-.. tabs::
+.. tab:: Windows
 
-    .. group-tab:: Windows
+    .. code::
 
-        .. code::
+        > python3 -m venv .virtualenv
+        > .virtualenv\Scripts\activate
 
-            > python3 -m venv .virtualenv
-            > .virtualenv\Scripts\activate
+.. tab:: Linux/MacOS
 
-    .. group-tab:: Linux/MacOS
+    .. code-block:: console
 
-        .. code-block:: console
-
-            $ python3 -m venv .virtualenv
-            $ source .virtualenv/bin/activate
+        $ python3 -m venv .virtualenv
+        $ source .virtualenv/bin/activate
 
 * Install the python dependencies:
 
