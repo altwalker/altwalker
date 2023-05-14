@@ -1,4 +1,3 @@
-import os
 import re
 
 import altwalker.graphwalker as graphwalker
@@ -125,7 +124,7 @@ def _run_tests(test_package, *args, executor_type=None, executor_url=None, model
     try:
         planner = create_planner(models=models, steps=steps, host=gw_host, port=gw_port, start_element=start_element,
                                  verbose=verbose, unvisited=unvisited, blocked=blocked)
-        executor = create_executor(os.path.abspath(test_package), executor_type, url=executor_url)
+        executor = create_executor(test_package, executor_type, url=executor_url)
 
         walker = create_walker(planner, executor, reporter=reporter)
         walker.run()

@@ -1,24 +1,21 @@
 import os
 import io
-import sys
 import abc
 import time
 import copy
 import traceback
 import logging
-import importlib
-import importlib.util
 from contextlib import redirect_stdout
 from inspect import signature
 
 import requests
 
 from altwalker._utils import url_join, Command
+from altwalker._loader import load
 from altwalker.exceptions import AltWalkerException, ExecutorException
 
 
 logger = logging.getLogger(__name__)
-_PREV_LOADED_PACKAGE_PATH = None
 
 
 def get_step_result(callable, *args, **kwargs):
@@ -27,7 +24,7 @@ def get_step_result(callable, *args, **kwargs):
 
     Args:
         callable: The callable object to call.
-        *args: The list of args for the calable.
+        *args: The list of args for the callable.
         **kwargs: The dict of kwargs for the callable.
 
     Returns:
@@ -62,55 +59,6 @@ def get_step_result(callable, *args, **kwargs):
     output.close()
 
     return step_result
-
-
-def _is_parent_path(parent, child):
-    parent = os.path.abspath(parent)
-    if not parent.endswith(os.sep):
-        parent = parent + os.sep
-    child = os.path.abspath(child)
-    commonprefix = os.path.commonprefix([parent, child])
-    return commonprefix == parent
-
-
-def _pop_previously_loaded_modules(path, package):
-    global _PREV_LOADED_PACKAGE_PATH
-
-    if _PREV_LOADED_PACKAGE_PATH is not None:
-        for module_key in list(sys.modules):
-            if module_key.startswith(package + ".") and \
-                    hasattr(sys.modules[module_key], "__file__") and \
-                    sys.modules[module_key].__file__ and \
-                    _is_parent_path(_PREV_LOADED_PACKAGE_PATH, sys.modules[module_key].__file__):
-                sys.modules.pop(module_key)
-
-    _PREV_LOADED_PACKAGE_PATH = os.path.abspath(os.path.join(path, package, ""))
-
-
-def load(path, package, module):
-    """Load a module from a package at a given path."""
-
-    if not package:
-        raise ValueError("Package to load is required")
-
-    _pop_previously_loaded_modules(path, package)
-
-    importlib.invalidate_caches()
-
-    # load package
-    spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
-    loaded_module = spec.loader.load_module()
-    spec.loader.exec_module(loaded_module)
-
-    sys.modules[spec.name] = loaded_module
-
-    # load module
-    spec = importlib.util.spec_from_file_location(
-        "{}.{}".format(package, module),
-        os.path.join(path, package, "{}.py".format(module)))
-    loaded_module = spec.loader.load_module()
-
-    return loaded_module
 
 
 class Executor(metaclass=abc.ABCMeta):
@@ -617,9 +565,9 @@ def create_python_executor(path, *args, **kwargs):
         :obj:`PythonExecutor`: A Python executor.
     """
 
-    path, package = os.path.split(path.rstrip(os.path.sep))
-    module = load(path, package, "test")
+    # load_module(path + "/pages", ".")
 
+    module = load(path + "/test.py", ".")
     return PythonExecutor(module)
 
 
