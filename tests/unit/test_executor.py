@@ -4,8 +4,7 @@ import unittest
 import unittest.mock as mock
 
 from altwalker.exceptions import ExecutorException, AltWalkerException
-from altwalker.executor import _pop_previously_loaded_modules, _is_parent_path, \
-    get_step_result, load, create_executor, create_python_executor, \
+from altwalker.executor import get_step_result, create_executor, create_python_executor, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
@@ -56,32 +55,6 @@ class TestGetStepResult(unittest.TestCase):
         get_step_result(func, key="value")
 
         func.assert_called_once_with(key="value")
-
-
-class TestLoad(unittest.TestCase):
-
-    def test_load(self):
-        module = load("tests/common/", "python", "simple")
-        self.assertTrue(hasattr(module, "Simple"))
-
-    def test_load_submodule(self):
-        module = load("tests/common/", "python", "complex")
-        self.assertTrue(hasattr(module, "ComplexA"))
-        self.assertTrue(hasattr(module, "ComplexB"))
-        self.assertTrue(hasattr(module, "Base"))
-
-    def test_pop_previously_loaded_modules(self):
-        load("tests/common/", "python", "simple")
-        self.assertTrue("python.simple" in sys.modules)
-        _pop_previously_loaded_modules("tests/common/", "python")
-        self.assertFalse("python.simple" in sys.modules)
-
-    def test_is_parent_path(self):
-        self.assertTrue(_is_parent_path("/a/b/c", "/a/b/c/d"))
-        self.assertTrue(_is_parent_path("./tests", "./tests/unit/test_cli.py"))
-
-        self.assertFalse(_is_parent_path("/a/b/test", "/a/b/test.py"))
-        self.assertFalse(_is_parent_path("./tests/integration", "./tests/unit"))
 
 
 class TestHttpExecutor(unittest.TestCase):
