@@ -84,14 +84,17 @@ def load_module(p, root):
 
 
 def load(p, root):
-    """ """
+    """Import and return a module from the given path, which can be a file (a module) or a directory (a package).
 
-    done = False
-    while not done:
+    This function tries to import a module and if it fails due to a `ModuleNotFoundError`, it will try to import
+    the missing module and retry importing the original module.
+    """
+
+    while True:
         try:
-            mod = load_module(p, root)
-            return mod
+            return load_module(p, root)
         except ModuleNotFoundError as error:
             error_message = str(error)
             module_name = error_message[error_message.find("'") + 1:error_message.rfind("'")]
+
             load(module_name, root)
