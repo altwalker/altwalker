@@ -1,4 +1,3 @@
-import os.path
 import unittest.mock as mock
 
 import pytest
