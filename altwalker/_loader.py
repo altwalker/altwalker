@@ -3,6 +3,7 @@
 import sys
 import importlib
 import importlib.util
+from types import ModuleType
 from pathlib import Path
 
 
@@ -48,13 +49,12 @@ def insert_missing_modules(modules, module_name):
                     raise ModuleNotFoundError
                 importlib.import_module(module_name)
             except ModuleNotFoundError:
-                print("HERE")
-                raise
-                # module = ModuleType(
-                #     module_name,
-                #     doc="Empty module created by altwalker's load_module.",
-                # )
-                # modules[module_name] = module
+                module = ModuleType(
+                    module_name,
+                    doc="Empty module created by altwalker.",
+                )
+                modules[module_name] = module
+
         module_parts.pop(-1)
         module_name = ".".join(module_parts)
 

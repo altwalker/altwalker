@@ -327,8 +327,8 @@ class PythonExecutor(Executor):
 
         self.reset()
 
-        path, package = os.path.split(path)
-        self._module = load(path, package, "test")
+        # path, package = os.path.split(path)
+        self._module = load(os.path.join(path, "test.py"), path)
         self.reset()
 
     def reset(self):
