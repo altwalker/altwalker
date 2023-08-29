@@ -13,7 +13,3 @@ def test_load_submodule():
     assert hasattr(module, "ComplexA")
     assert hasattr(module, "ComplexB")
     assert hasattr(module, "Base")
-
-
-def test_load_submodule():
-    pass
