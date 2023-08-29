@@ -385,8 +385,12 @@ class TestCreatePythonExecutor(unittest.TestCase):
 
     @mock.patch("altwalker.executor.load")
     def test_load(self, load_mock):
-        create_python_executor(os.sep.join(["base", "path", "tests"]))
-        load_mock.assert_called_once_with(os.sep.join(["base", "path"]), "tests", "test")
+        base = os.sep.join(["base", "path", "tests"])
+
+        create_python_executor(base)
+
+        load_mock.assert_called_once()
+        load_mock.assert_called_once_with(os.path.join(base, "test.py"), base)
 
 
 class TestCreateExecutor(unittest.TestCase):

@@ -328,6 +328,7 @@ class PythonExecutor(Executor):
         self.reset()
 
         # path, package = os.path.split(path)
+        # self._module = load(os.path.join(path, "test.py"), ".")
         self._module = load(os.path.join(path, "test.py"), path)
         self.reset()
 
@@ -567,8 +568,9 @@ def create_python_executor(path, *args, **kwargs):
 
     # load_module(path + "/pages", ".")
 
-    module = load(path + "/test.py", ".")
-    return PythonExecutor(module)
+    executor = PythonExecutor()
+    executor.load(path)
+    return executor
 
 
 def create_dotnet_executor(path, *args, url="http://localhost:5000/", **kwargs):

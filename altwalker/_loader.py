@@ -1,10 +1,12 @@
 """Import and return a module from the given path, which can be a file (a module) or a directory (a package)."""
 
-import sys
+import abc
 import importlib
 import importlib.util
-from types import ModuleType
+import sys
+from enum import Enum, unique
 from pathlib import Path
+from types import ModuleType
 
 
 def module_name_from_path(path, root):
@@ -94,7 +96,58 @@ def load(p, root):
         try:
             return load_module(p, root)
         except ModuleNotFoundError as error:
+            print("HERE")
+
             error_message = str(error)
             module_name = error_message[error_message.find("'") + 1:error_message.rfind("'")]
-
             load(module_name, root)
+
+
+# -----------------
+
+
+class Loader(metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def load(module, root):
+        while True:
+            try:
+                return load_module(p, root)
+            except ModuleNotFoundError as error:
+                error_message = str(error)
+                module_name = error_message[error_message.find("'") + 1:error_message.rfind("'")]
+
+                load(module_name, root)
+
+
+class ImportlibLoader(Loader):
+
+    def load(module, root):
+        return {}
+
+
+class RecursiveImporter(Loader):
+    pass
+
+
+class PrependLoader(Loader):
+
+    def load(module, root):
+        return {}
+
+
+class AppendLoader(Loader):
+
+    def load(module, root):
+        return {}
+
+
+@unique
+class ImportingModes(Enum):
+    IMPORTLIB = "importlib"
+    PREPEND = "prepend"
+    APPEND = "append"
+
+
+def create_loader(mode):
+    pass

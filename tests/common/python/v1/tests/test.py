@@ -1,1 +1,1 @@
-from tests.module import test_method  # noqa: F401
+from .module import test_method  # noqa: F401

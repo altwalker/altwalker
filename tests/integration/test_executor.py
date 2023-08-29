@@ -15,8 +15,8 @@ def test_dotnet_executor_service():
 
 
 def test_load_same_module_from_different_paths():
-    test_module = load("./tests/common/python/v1", "tests", "test")
+    test_module = load("./tests/common/python/v1/tests/test.py", ".")
     assert not test_module.test_method()
 
-    test_module = load("./tests/common/python/v2", "tests", "test")
+    test_module = load("./tests/common/python/v2/tests/test.py", ".")
     assert test_module.test_method()
