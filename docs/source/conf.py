@@ -42,7 +42,6 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosectionlabel',
-    'notfound.extension',
     'sphinx_copybutton',
     'sphinx_inline_tabs',
     'sphinx_click.ext',
