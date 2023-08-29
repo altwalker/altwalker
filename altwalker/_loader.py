@@ -110,14 +110,7 @@ class Loader(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def load(module, root):
-        while True:
-            try:
-                return load_module(p, root)
-            except ModuleNotFoundError as error:
-                error_message = str(error)
-                module_name = error_message[error_message.find("'") + 1:error_message.rfind("'")]
-
-                load(module_name, root)
+        pass
 
 
 class ImportlibLoader(Loader):
