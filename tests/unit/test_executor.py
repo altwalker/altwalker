@@ -1,9 +1,11 @@
-import os
+# import os
 import unittest
 import unittest.mock as mock
 
 from altwalker.exceptions import ExecutorException, AltWalkerException
-from altwalker.executor import get_step_result, create_executor, create_python_executor, \
+# from altwalker.executor import get_step_result, create_executor, create_python_executor, \
+#     PythonExecutor, HttpExecutor, DotnetExecutorService
+from altwalker.executor import get_step_result, create_executor, \
     PythonExecutor, HttpExecutor, DotnetExecutorService
 
 
