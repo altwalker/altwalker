@@ -11,7 +11,7 @@ from inspect import signature
 import requests
 
 from altwalker._utils import url_join, Command
-from altwalker._loader import ImportlibLoader
+from altwalker._loader import create_loader
 from altwalker.exceptions import AltWalkerException, ExecutorException
 
 
@@ -288,7 +288,8 @@ class HttpExecutor(Executor):
 class PythonExecutor(Executor):
     """Execute methods or functions from a model like object."""
 
-    def __init__(self, module=None):
+    def __init__(self, module=None, loader=None):
+        self._loader = loader or create_loader()
         self._module = module
         self._instances = {}
 
@@ -327,10 +328,7 @@ class PythonExecutor(Executor):
 
         self.reset()
 
-        # path, package = os.path.split(path)
-        # self._module = load(os.path.join(path, "test.py"), ".")
-
-        self._module = ImportlibLoader.load(os.path.join(path, "test.py"), path)
+        self._module = self._loader.load(os.path.join(path, "test.py"), path)
         self.reset()
 
     def reset(self):

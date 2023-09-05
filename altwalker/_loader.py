@@ -132,6 +132,7 @@ class ImportlibLoader(Loader):
 
 class PrependLoader(Loader):
 
+    @staticmethod
     def load(p, root):
         path = Path(p)
 
@@ -160,6 +161,7 @@ class PrependLoader(Loader):
 
 class AppendLoader(Loader):
 
+    @staticmethod
     def load(p, root):
         path = Path(p)
 
@@ -194,4 +196,14 @@ class ImportingModes(Enum):
 
 
 def create_loader(mode=ImportingModes.IMPORTLIB):
-    pass
+    """ """
+
+    if mode not in ImportingModes:
+        raise ValueError()
+
+    if mode == ImportingModes.IMPORTLIB:
+        return ImportlibLoader
+    elif mode == ImportingModes.APPEND:
+        return AppendLoader
+    elif mode == ImportingModes.PREPEND:
+        return PrependLoader

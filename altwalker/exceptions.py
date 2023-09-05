@@ -63,7 +63,7 @@ class AltWalkerError(click.ClickException):
 
 
 def handle_errors(func):
-    """Handle errors for the commnad line commands."""
+    """Handle errors for the command line commands."""
 
     @functools.wraps(func)
     def wrap(*args, **kwargs):
