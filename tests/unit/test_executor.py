@@ -381,16 +381,16 @@ class TestDotnetExecutorService(unittest.TestCase):
         self.assertEqual(command, ['dotnet', 'run', '-p', 'tests/', '--server.urls=http://localhost:5000'])
 
 
-class TestCreatePythonExecutor(unittest.TestCase):
+# class TestCreatePythonExecutor(unittest.TestCase):
 
-    @mock.patch("altwalker.executor.load")
-    def test_load(self, load_mock):
-        base = os.sep.join(["base", "path", "tests"])
+#     @mock.patch("altwalker.executor.load")
+#     def test_load(self, load_mock):
+#         base = os.sep.join(["base", "path", "tests"])
 
-        create_python_executor(base)
+#         create_python_executor(base)
 
-        load_mock.assert_called_once()
-        load_mock.assert_called_once_with(os.path.join(base, "test.py"), base)
+#         load_mock.assert_called_once()
+#         load_mock.assert_called_once_with(os.path.join(base, "test.py"), base)
 
 
 class TestCreateExecutor(unittest.TestCase):

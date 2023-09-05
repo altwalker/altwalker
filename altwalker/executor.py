@@ -11,7 +11,7 @@ from inspect import signature
 import requests
 
 from altwalker._utils import url_join, Command
-from altwalker._loader import load
+from altwalker._loader import ImportlibLoader
 from altwalker.exceptions import AltWalkerException, ExecutorException
 
 
@@ -329,7 +329,8 @@ class PythonExecutor(Executor):
 
         # path, package = os.path.split(path)
         # self._module = load(os.path.join(path, "test.py"), ".")
-        self._module = load(os.path.join(path, "test.py"), path)
+
+        self._module = ImportlibLoader.load(os.path.join(path, "test.py"), path)
         self.reset()
 
     def reset(self):

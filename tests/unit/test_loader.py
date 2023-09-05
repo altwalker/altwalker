@@ -1,14 +1,18 @@
-from altwalker._loader import load
+import pytest
+
+from altwalker._loader import ImportlibLoader, AppendLoader, PrependLoader
 
 
-def test_load():
-    module = load("tests/data/python/simple.py", ".")
+@pytest.mark.parametrize("loader", [ImportlibLoader, AppendLoader, PrependLoader])
+def test_load(loader):
+    module = loader.load("tests/data/python/simple.py", ".")
 
     assert hasattr(module, "Simple")
 
 
-def test_load_submodule():
-    module = load("tests/data/python/complex.py", ".")
+@pytest.mark.parametrize("loader", [ImportlibLoader, AppendLoader, PrependLoader])
+def test_load_submodule(loader):
+    module = loader.load("tests/data/python/complex.py", ".")
 
     assert hasattr(module, "ComplexA")
     assert hasattr(module, "ComplexB")
