@@ -10,6 +10,9 @@ on:
       - 'setup.py'
       - 'MANIFEST.in'
 
+env:
+  GRAPHWALKER_VERSION: 4.3.2
+
 jobs:
   build-dotnet-executor:
     runs-on: ubuntu-latest
@@ -78,6 +81,7 @@ jobs:
     - uses: altwalker/setup-graphwalker@v1
       with:
         python-version: '3.10'
+        graphwalker-version: ${{ env.GRAPHWALKER_VERSION }}
 
     - name: Install AltWalker
       run: |
@@ -112,6 +116,7 @@ jobs:
     - uses: altwalker/setup-graphwalker@v1
       with:
         python-version: '3.10'
+        graphwalker-version: ${{ env.GRAPHWALKER_VERSION }}
 
     - name: Install AltWalker
       run: |
@@ -151,6 +156,7 @@ jobs:
     - uses: altwalker/setup-graphwalker@v1
       with:
         python-version: '3.10'
+        graphwalker-version: ${{ env.GRAPHWALKER_VERSION }}
 
     - name: Install AltWalker
       run: |
@@ -190,6 +196,7 @@ jobs:
     - uses: altwalker/setup-graphwalker@v1
       with:
         python-version: '3.10'
+        graphwalker-version: ${{ env.GRAPHWALKER_VERSION }}
 
     - name: Download .NET Executor build
       uses: actions/download-artifact@v3
