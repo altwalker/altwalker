@@ -1,32 +1,32 @@
 """A collection of function and class that interact with the Graphwalker command and REST service."""
 
-import urllib.parse
-import logging
-import time
 import json
-import re
+import logging
 import os
+import re
+import time
+import urllib.parse
 
 import requests
 
-from altwalker._utils import url_join, execute_command, has_command, get_resource_path, Command
+from altwalker._utils import (Command, execute_command, get_resource_path,
+                              has_command, url_join)
 from altwalker.exceptions import GraphWalkerException
 
-
 logger = logging.getLogger(__name__)
+
+LOG_LEVEL_MAP = {
+    "NOTSET": "ALL",
+    "CRITICAL": "TRACE",
+    "ERROR": "ERROR",
+    "WARNING": "WARN",
+    "INFO": "INFO",
+    "DEBUG": "DEBUG",
+}
 
 
 def _get_log_level(level):
     """Map a Python log level to an equivalent GraphWalker log level."""
-
-    LOG_LEVEL_MAP = {
-        "NOTSET": "ALL",
-        "CRITICAL": "TRACE",
-        "ERROR": "ERROR",
-        "WARNING": "WARN",
-        "INFO": "INFO",
-        "DEBUG": "DEBUG",
-    }
 
     return LOG_LEVEL_MAP.get(level.upper(), "OFF")
 
@@ -44,20 +44,20 @@ def _get_error_message(logs):
 def _normalize_step(step, verbose=False):
     """Normalize the step returned by the ``getNext`` request or the offline command."""
 
-    if not verbose:
-        step.pop("data", None)
-        step.pop("properties", None)
+    normalized_step = {}
 
     if verbose:
-        step["data"] = {k: v for data in step["data"] for k, v in data.items()}
+        normalized_step["data"] = {k: v for data in step["data"] for k, v in data.items()}
+        normalized_step["properties"] = step.get("properties")
 
     if step.get("actions"):
-        step["actions"] = [action.get("Action") for action in step["actions"]]
+        normalized_step["actions"] = [action.get("Action") for action in step["actions"]]
 
-    step["id"] = step.pop("currentElementID")
-    step["name"] = step.pop("currentElementName")
+    normalized_step["id"] = step.get("currentElementID")
+    normalized_step["name"] = step.get("currentElementName")
+    normalized_step["modelName"] = step.get("modelName")
 
-    return step
+    return normalized_step
 
 
 def _create_command(command_name, model_path=None, models=None, port=None, service=None, start_element=None,
@@ -137,14 +137,14 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
         GraphWalkerException: If GraphWalker return an error.
     """
 
-    command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
+    full_command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
                               verbose=verbose, unvisited=unvisited, blocked=blocked)
 
-    logger.debug("Executed command: '{}'.".format(" ".join(command)))
-    output, error = execute_command(command)
+    logger.debug("Executed command: '{}'.".format(" ".join(full_command)))
+    output, error = execute_command(full_command)
 
-    logger.debug("Output: '{}'.".format(output))
-    logger.debug("Error: '{}'.".format(error))
+    logger.debug("Output: '{}'".format(output))
+    logger.debug("Error: '{}'".format(error))
 
     if error:
         error = error.decode("utf-8").strip()
@@ -296,6 +296,12 @@ class GraphWalkerService:
             self.kill()
             raise
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.kill()
+
     def _read_logs(self):
         """Read logs to check if the service started correctly."""
 
@@ -322,7 +328,7 @@ class GraphWalkerService:
     def _raise_error(self):
         error = self._get_error_message()
 
-        logger.error("Could not start GraphWalker Service on port: {}.".format(self.port))
+        logger.error("Could not start GraphWalker Service on port: {}".format(self.port))
         logger.error("Process exit code: {}".format(self._process.poll()))
         if error:
             logger.error("GraphWalker Service Error: {}".format(error))
@@ -341,7 +347,7 @@ class GraphWalkerService:
     def kill(self):
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
 
-        logger.debug("Kill the GraphWalker Service on port: {}".format(self.port))
+        logger.debug("Killing the GraphWalker Service on port: {}".format(self.port))
         self._process.kill()
 
 
@@ -363,11 +369,9 @@ class GraphWalkerClient:
     def __init__(self, host="127.0.0.1", port=8887, verbose=False):
         self.host = host
         self.port = port
-
         self.verbose = verbose
 
         self.base = "http://{}:{}/graphwalker".format(host, port)
-
         logger.debug("Initializing a GraphWalkerClient on host: {}".format(self.base))
 
     def _normalize_fail_message(self, message):
