@@ -11,10 +11,24 @@ from types import ModuleType
 
 
 def resolve_package_path(path):
-    """Return the Python package path by looking for the last
-    directory upwards which still contains an __init__.py.
+    """Return the path to the Python package containing the given module or package file.
 
-    Returns: None if it can not be determined.
+    This function looks for the last directory upwards from the provided path
+    that still contains an '__init__.py' file, indicating a Python package.
+
+    Args:
+        path (Path-like): The path to a Python module or package file.
+
+    Returns:
+        Path or None: The path to the Python package directory if found, or None if
+        it cannot be determined.
+
+    Example:
+        >>> resolve_package_path(Path("my_package/submodule.py"))
+        Path('my_package')
+
+        >>> resolve_package_path(Path("my_package/__init__.py"))
+        Path('my_package')
     """
 
     result = None
@@ -26,6 +40,39 @@ def resolve_package_path(path):
                 break
             result = parent
     return result
+
+
+def resolve_package_info(path):
+    """Resolve package information for a given Python module or package file.
+
+    Args:
+        path (Path-like): The path to the Python module or package file.
+
+    Returns:
+        Tuple[Path, str]: A tuple containing the package root directory (Path) and
+        the fully-qualified module name (str). If the provided path is a Python module,
+        the module name is derived from its relative location within the package.
+
+    Example:
+        >>> resolve_package_info(Path("my_package/submodule.py"))
+        (Path('my_package'), 'my_package.submodule')
+
+        >>> resolve_package_info(Path("my_package/__init__.py"))
+        (Path('my_package'), 'my_package')
+    """
+
+    pkg_path = resolve_package_path(path)
+    if pkg_path is not None:
+        pkg_root = pkg_path.parent
+        names = list(path.with_suffix("").relative_to(pkg_root).parts)
+        if names[-1] == "__init__":
+            names.pop()
+        module_name = ".".join(names)
+    else:
+        pkg_root = path.parent
+        module_name = path.stem
+
+    return pkg_root, module_name
 
 
 class Loader(metaclass=abc.ABCMeta):
@@ -139,16 +186,7 @@ class PrependLoader(Loader):
         if not path.exists():
             raise ImportError(path)
 
-        pkg_path = resolve_package_path(path)
-        if pkg_path is not None:
-            pkg_root = pkg_path.parent
-            names = list(path.with_suffix("").relative_to(pkg_root).parts)
-            if names[-1] == "__init__":
-                names.pop()
-            module_name = ".".join(names)
-        else:
-            pkg_root = path.parent
-            module_name = path.stem
+        pkg_root, module_name = resolve_package_info(path)
 
         if str(pkg_root) != sys.path[0]:
             sys.path.insert(0, str(pkg_root))
@@ -168,16 +206,7 @@ class AppendLoader(Loader):
         if not path.exists():
             raise ImportError(path)
 
-        pkg_path = resolve_package_path(path)
-        if pkg_path is not None:
-            pkg_root = pkg_path.parent
-            names = list(path.with_suffix("").relative_to(pkg_root).parts)
-            if names[-1] == "__init__":
-                names.pop()
-            module_name = ".".join(names)
-        else:
-            pkg_root = path.parent
-            module_name = path.stem
+        pkg_root, module_name = resolve_package_info(path)
 
         if str(pkg_root) not in sys.path:
             sys.path.append(str(pkg_root))
@@ -194,11 +223,22 @@ class ImportingModes(Enum):
     PREPEND = "prepend"
     APPEND = "append"
 
+    @classmethod
+    def names(cls):
+        return (x.name for x in cls)
+
+    @classmethod
+    def contains(cls, value):
+        return value in cls or value in cls.names()
+
+    def equals(self, value):
+        return self == value or self.value == value
+
 
 def create_loader(mode=ImportingModes.IMPORTLIB):
-    """ """
+    """Create a loader."""
 
-    if mode not in ImportingModes:
+    if not ImportingModes.contains(mode):
         raise ValueError()
 
     if mode == ImportingModes.IMPORTLIB:
