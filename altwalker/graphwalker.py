@@ -143,6 +143,9 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     logger.debug("Executed command: '{}'.".format(" ".join(command)))
     output, error = execute_command(command)
 
+    logger.debug("Output: '{}'.".format(output))
+    logger.debug("Error: '{}'.".format(error))
+
     if error:
         error = error.decode("utf-8").strip()
         raise GraphWalkerException(error)
