@@ -4,8 +4,8 @@ import os
 import pytest
 import requests
 
-from altwalker.graphwalker import check, methods, offline, GraphWalkerException, GraphWalkerClient, GraphWalkerService
-
+from altwalker.graphwalker import (GraphWalkerClient, GraphWalkerException,
+                                   GraphWalkerService, check, methods, offline)
 
 pytestmark = pytest.mark.graphwalker
 
@@ -197,7 +197,7 @@ class TestCheck:
     )
     def test_valid_input(self, models):
         output = check(models, blocked=False)
-        assert output == "No issues found with the model(s).\n"
+        assert output == "No issues found with the model(s)." + os.linesep
 
     @pytest.mark.parametrize(
         "models, error_message",
