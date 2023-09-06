@@ -167,7 +167,7 @@ def get_version():
 
     """
 
-    output = _execute_command("--version").split("\n")[0]
+    output = _execute_command("--version").split(os.linesep)[0]
 
     version_string = output.rpartition(":")[-1].strip()
     version, *suffix = version_string.split("-")
@@ -212,7 +212,7 @@ def methods(model_path, blocked=False):
     output = _execute_command("methods", model_path=model_path, blocked=blocked)
 
     if output:
-        return output.strip("\n").split("\n")
+        return output.strip(os.linesep).split(os.linesep)
 
     return []
 
@@ -221,7 +221,7 @@ def _parse_offline_output(output, verbose=False):
     """Parse the output of the offline command into a list of steps."""
 
     steps = []
-    for line in output.split("\n"):
+    for line in output.split(os.linesep):
         if line:
             step = json.loads(line)
             steps.append(_normalize_step(step, verbose=verbose))
