@@ -138,7 +138,7 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     """
 
     full_command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
-                              verbose=verbose, unvisited=unvisited, blocked=blocked)
+                                   verbose=verbose, unvisited=unvisited, blocked=blocked)
 
     logger.debug("Executed command: '{}'.".format(" ".join(full_command)))
     output, error = execute_command(full_command)
