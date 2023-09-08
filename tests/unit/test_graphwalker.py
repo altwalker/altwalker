@@ -1,11 +1,12 @@
-import unittest.mock as mock
 import json
+import unittest.mock as mock
 
 import pytest
 
-from altwalker.graphwalker import GraphWalkerException, GraphWalkerClient, _create_command, \
-    _execute_command, _get_error_message, get_version, offline, methods, check
-
+from altwalker.graphwalker import (GraphWalkerClient, GraphWalkerException,
+                                   _create_command, _execute_command,
+                                   _get_error_message, check, get_version,
+                                   methods, offline)
 
 GW_VERSION_OUTPUT = """\
 org.graphwalker version: 4.3.3-SNAPSHOT-21bb711

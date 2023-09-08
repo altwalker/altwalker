@@ -1,6 +1,6 @@
 import pytest
 
-from altwalker._loader import ImportlibLoader
+from altwalker.loader import ImportlibLoader
 from altwalker.executor import DotnetExecutorService
 
 
