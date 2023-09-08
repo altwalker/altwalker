@@ -1,19 +1,18 @@
-import os
-import io
 import abc
-import time
 import copy
-import traceback
+import io
 import logging
+import os
+import time
+import traceback
 from contextlib import redirect_stdout
 from inspect import signature
 
 import requests
 
-from altwalker._utils import url_join, Command
-from altwalker._loader import create_loader
+from altwalker._utils import Command, url_join
 from altwalker.exceptions import AltWalkerException, ExecutorException
-
+from altwalker.loader import create_loader
 
 logger = logging.getLogger(__name__)
 
@@ -328,7 +327,7 @@ class PythonExecutor(Executor):
 
         self.reset()
 
-        self._module = self._loader.load(os.path.join(path, "test.py"), path)
+        self._module = self._loader.load(os.path.join(path, "test.py"), ".")
         self.reset()
 
     def reset(self):
