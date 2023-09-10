@@ -4,12 +4,15 @@ import abc
 import importlib
 import importlib.util
 import itertools
+import logging
 import sys
 from pathlib import Path
 from types import ModuleType
 
 from ._utils import Factory
 from .exceptions import AltWalkerTypeError, AltWalkerValueError
+
+logger = logging.getLogger(__name__)
 
 
 def module_name_from_path(path, root):
@@ -228,7 +231,18 @@ class PrependLoader(Loader):
 
     @staticmethod
     def load(p, root):
-        """Import and return a module from the given path."""
+        """Import and return a module from the given path.
+
+        The directory path containing the module will be inserted into the beginning of ``sys.path`` if not already
+        there, and then imported with the ``__import__`` builtin.
+
+        Args:
+            p (str, Path): The path to the module or package to load.
+            root (str, Path): Not used.
+
+        Returns:
+            ModuleType: The loaded Python module.
+        """
 
         path = Path(p)
 
@@ -250,7 +264,18 @@ class AppendLoader(Loader):
 
     @staticmethod
     def load(p, root):
-        """Import and return a module from the given path."""
+        """Import and return a module from the given path.
+
+        The directory containing the module is appended to the end of ``sys.path`` if not already there, and then
+        imported with the ``__import__`` builtin.
+
+        Args:
+            p (str, Path): The path to the module or package to load.
+            root (str, Path): Not used.
+
+        Returns:
+            ModuleType: The loaded Python module.
+        """
 
         path = Path(p)
 
@@ -268,21 +293,34 @@ class AppendLoader(Loader):
         return mod
 
 
-class ImportingModes:
+class ImportModes:
+    """Possible values for ``mode`` parameter of ``create_loader``."""
+
     IMPORTLIB = "importlib"
     PREPEND = "prepend"
     APPEND = "append"
 
 
 LoaderFactory = Factory({
-    ImportingModes.IMPORTLIB: ImportlibLoader,
-    ImportingModes.PREPEND: PrependLoader,
-    ImportingModes.APPEND: AppendLoader
+    ImportModes.IMPORTLIB: ImportlibLoader,
+    ImportModes.PREPEND: PrependLoader,
+    ImportModes.APPEND: AppendLoader
 }, default=ImportlibLoader)
 
 
+def get_supported_loaders():
+    return LoaderFactory.keys()
+
+
 def create_loader(mode=None):
-    """Create a loader."""
+    """Create a loader for AltWalker.
+
+    Args:
+        mode (str): The importing mode (e.g., 'importlib', 'prepend', 'append').
+
+    Raises:
+        AltWalkerException: If the executor_type is not supported.
+    """
 
     if mode is None:
         return LoaderFactory.default
@@ -296,4 +334,5 @@ def create_loader(mode=None):
             mode, LoaderFactory.keys()
         ))
 
+    logger.info("Created loader with mode: {}".format(mode_lower_case))
     return LoaderFactory.get(mode_lower_case)
