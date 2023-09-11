@@ -15,7 +15,7 @@ from .exceptions import AltWalkerTypeError, AltWalkerValueError
 logger = logging.getLogger(__name__)
 
 
-def module_name_from_path(path, root):
+def _module_name_from_path(path, root):
     """Return a dotted module name based on the given path, anchored on root.
 
     Args:
@@ -44,7 +44,7 @@ def module_name_from_path(path, root):
     return ".".join(path_parts)
 
 
-def resolve_package_path(path):
+def _resolve_package_path(path):
     """Return the path to the Python package containing the given module or package file.
 
     This function looks for the last directory upwards from the provided path
@@ -76,7 +76,7 @@ def resolve_package_path(path):
     return result
 
 
-def resolve_package_info(path):
+def _resolve_package_info(path):
     """Resolve package information for a given Python module or package file.
 
     Args:
@@ -95,7 +95,7 @@ def resolve_package_info(path):
         (Path('my_package'), 'my_package')
     """
 
-    pkg_path = resolve_package_path(path)
+    pkg_path = _resolve_package_path(path)
     if pkg_path is not None:
         pkg_root = pkg_path.parent
         names = list(path.with_suffix("").relative_to(pkg_root).parts)
@@ -132,7 +132,7 @@ class Loader(metaclass=abc.ABCMeta):
 class ImportlibLoader(Loader):
 
     @staticmethod
-    def insert_missing_modules(modules, module_name):
+    def _insert_missing_modules(modules, module_name):
         """Used by ``load`` to create intermediate modules.
 
         When we want to import a module as "src.tests.test_foo" for example, we need
@@ -168,7 +168,7 @@ class ImportlibLoader(Loader):
             module_name = ".".join(module_parts)
 
     @staticmethod
-    def load_module(p, root):
+    def _load_module(p, root):
         """Import and return a module from the given path, which can be a file (a module) or a directory (a package).
 
         Args:
@@ -183,7 +183,7 @@ class ImportlibLoader(Loader):
         """
 
         path = Path(p)
-        module_name = module_name_from_path(path, root)
+        module_name = _module_name_from_path(path, root)
 
         for meta_importer in sys.meta_path:
             spec = meta_importer.find_spec(module_name, [str(path.parent)])
@@ -198,9 +198,30 @@ class ImportlibLoader(Loader):
         mod = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = mod
         spec.loader.exec_module(mod)
-        ImportlibLoader.insert_missing_modules(sys.modules, module_name)
+        ImportlibLoader._insert_missing_modules(sys.modules, module_name)
 
         return mod
+
+    @staticmethod
+    def _load(p, root, tried_modules=None):
+        if not tried_modules:
+            tried_modules = set()
+
+        if (p, root) in tried_modules:
+            raise ImportError("Can't import module at location '{}'.".format(p))
+
+        while True:
+            try:
+                logger.debug(
+                    "Importing module from path: '{}', root: '{}', tried module: {}.".format(p, root, tried_modules)
+                )
+
+                tried_modules.add((p, root))
+                return ImportlibLoader._load_module(p, root)
+            except ModuleNotFoundError as error:
+                error_message = str(error)
+                module_name = error_message[error_message.find("'") + 1:error_message.rfind("'")]
+                ImportlibLoader._load(module_name, root)
 
     @staticmethod
     def load(p, root):
@@ -218,13 +239,7 @@ class ImportlibLoader(Loader):
             ModuleType: The loaded Python module.
         """
 
-        while True:
-            try:
-                return ImportlibLoader.load_module(p, root)
-            except ModuleNotFoundError as error:
-                error_message = str(error)
-                module_name = error_message[error_message.find("'") + 1:error_message.rfind("'")]
-                ImportlibLoader.load(module_name, root)
+        return ImportlibLoader._load(p, root)
 
 
 class PrependLoader(Loader):
@@ -249,7 +264,7 @@ class PrependLoader(Loader):
         if not path.exists():
             raise ImportError(path)
 
-        pkg_root, module_name = resolve_package_info(path)
+        pkg_root, module_name = _resolve_package_info(path)
 
         if str(pkg_root) != sys.path[0]:
             sys.path.insert(0, str(pkg_root))
@@ -282,7 +297,7 @@ class AppendLoader(Loader):
         if not path.exists():
             raise ImportError(path)
 
-        pkg_root, module_name = resolve_package_info(path)
+        pkg_root, module_name = _resolve_package_info(path)
 
         if str(pkg_root) not in sys.path:
             sys.path.append(str(pkg_root))
