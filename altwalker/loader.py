@@ -326,12 +326,12 @@ def create_loader(mode=None):
         return LoaderFactory.default
 
     if not isinstance(mode, str):
-        raise AltWalkerTypeError("Supported importing modes are: {}.".format(LoaderFactory.keys()))
+        raise AltWalkerTypeError("Supported importing modes are: {}.".format(", ".join(LoaderFactory.keys())))
 
     mode_lower_case = mode.lower()
     if mode_lower_case not in LoaderFactory.keys():
         raise AltWalkerValueError("Importing mode '{}' is not supported. Supported importing modes are: {}.".format(
-            mode, LoaderFactory.keys()
+            mode, ", ".join(LoaderFactory.keys())
         ))
 
     logger.info("Created loader with mode: {}".format(mode_lower_case))
