@@ -520,7 +520,7 @@ class DotnetExecutor(HttpExecutor):
         url: The url for the service to listen (e.g. http://localhost:5000/).
     """
 
-    def __init__(self, path=None, url="http://localhost:5000/"):
+    def __init__(self, path=None, url="http://localhost:5000/", **kwargs):
         super().__init__(url=url)
         self._service = None
 
