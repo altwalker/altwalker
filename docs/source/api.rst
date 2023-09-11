@@ -68,6 +68,41 @@ There are two Planners:
 .. autofunction:: create_planner
 
 
+Loader
+======
+
+.. module:: altwalker.loader
+
+.. currentmodule:: altwalker.loader
+
+
+.. autoclass:: ImportlibLoader
+
+    .. automethod:: load
+
+
+.. autoclass:: PrependLoader
+
+    .. automethod:: load
+
+
+.. autoclass:: AppendLoader
+
+    .. automethod:: load
+
+
+.. autoclass:: ImportModes
+
+    .. autoattribute:: IMPORTLIB
+
+    .. autoattribute:: PREPEND
+
+    .. autoattribute:: APPEND
+
+
+.. autofunction:: create_loader
+
+
 Executor
 ========
 
