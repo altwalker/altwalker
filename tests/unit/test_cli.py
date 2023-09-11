@@ -5,8 +5,9 @@ import pytest
 from click.testing import CliRunner
 
 from tests.common.utils import run_isolation
+from altwalker.loader import ImportModes
 from altwalker.generate import get_supported_languages
-from altwalker.executor import SUPPORTED_EXECUTORS
+from altwalker.executor import get_supported_executors
 from altwalker.cli import check, verify, init, generate, online, offline, walk
 
 
@@ -121,6 +122,7 @@ class TestVerify:
                 "tests", ("models.json", ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=True,
             )
 
@@ -137,6 +139,7 @@ class TestVerify:
                 "tests", ("models.json", ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=True,
             )
 
@@ -151,12 +154,13 @@ class TestVerify:
                 "tests", ("modelA.json", "modelB.json", ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=True,
             )
 
     @pytest.mark.parametrize(
         "executor_type_option, executor_type",
-        itertools.product(EXECUTOR_TYPE_OPTIONS, SUPPORTED_EXECUTORS)
+        itertools.product(EXECUTOR_TYPE_OPTIONS, get_supported_executors())
     )
     def test_executor_type(self, cli_verify_mock, executor_type_option, executor_type):
         with run_isolation(self.runner, self.files, folders=self.folders):
@@ -168,6 +172,7 @@ class TestVerify:
                 "tests", ("models.json", ),
                 executor_type=executor_type,
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=True,
             )
 
@@ -182,6 +187,7 @@ class TestVerify:
                     "tests", ("models.json", ),
                     executor_type="python",
                     executor_url="http://127.0.0.1:5000/",
+                    import_mode=ImportModes.IMPORTLIB,
                     suggestions=True,
                 )
 
@@ -195,6 +201,7 @@ class TestVerify:
                 "tests", ("models.json", ),
                 executor_type="python",
                 executor_url="http://127.0.0.1:5000/",
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=True,
             )
 
@@ -208,6 +215,7 @@ class TestVerify:
                 "tests", ("models.json", ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=False,
             )
 
@@ -221,6 +229,7 @@ class TestVerify:
                 "tests", ("models.json", ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 suggestions=True,
             )
 
@@ -383,6 +392,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -408,6 +418,7 @@ class TestOnline:
                 "package", (("modelA.json", "random(never)"), ("modelB.json", "random(never)")),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -423,7 +434,7 @@ class TestOnline:
 
     @pytest.mark.parametrize(
         "executor_type_option, executor_type",
-        itertools.product(EXECUTOR_TYPE_OPTIONS, SUPPORTED_EXECUTORS)
+        itertools.product(EXECUTOR_TYPE_OPTIONS, get_supported_executors())
     )
     def test_executor_type(self, cli_online_mock, executor_type_option, executor_type):
         with run_isolation(self.runner, self.files, folders=self.folders):
@@ -437,6 +448,7 @@ class TestOnline:
                 "package", (("models.json", "random(never)"), ),
                 executor_type=executor_type,
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -463,6 +475,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element="start",
@@ -487,6 +500,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -511,6 +525,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -535,6 +550,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -560,6 +576,7 @@ class TestOnline:
                     "package", (("models.json", "random(vertex_coverage(100))"), ),
                     executor_type="python",
                     executor_url=None,
+                    import_mode=ImportModes.IMPORTLIB,
                     gw_host=None,
                     gw_port=8080,
                     start_element=None,
@@ -583,6 +600,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8080,
                 start_element=None,
@@ -608,6 +626,7 @@ class TestOnline:
                     "package", (("models.json", "random(vertex_coverage(100))"), ),
                     executor_type="python",
                     executor_url="http://localhost:8080",
+                    import_mode=ImportModes.IMPORTLIB,
                     gw_host=None,
                     gw_port=8887,
                     start_element=None,
@@ -632,6 +651,7 @@ class TestOnline:
                 "package", (("models.json", "random(never)"), ),
                 executor_type="python",
                 executor_url="http://localhost:8080",
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -655,6 +675,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -680,6 +701,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -705,6 +727,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -730,6 +753,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -755,6 +779,7 @@ class TestOnline:
                 "package", (("models.json", "random(vertex_coverage(100))"), ),
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 gw_host=None,
                 gw_port=8887,
                 start_element=None,
@@ -921,6 +946,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
@@ -930,7 +956,7 @@ class TestWalk:
 
     @pytest.mark.parametrize(
         "executor_type_option, executor_type",
-        itertools.product(EXECUTOR_TYPE_OPTIONS, SUPPORTED_EXECUTORS)
+        itertools.product(EXECUTOR_TYPE_OPTIONS, get_supported_executors())
     )
     def test_executor_type(self, cli_walk_mock, executor_type_option, executor_type):
         with run_isolation(self.runner, self.files, folders=self.folders):
@@ -942,6 +968,7 @@ class TestWalk:
                 "steps.json",
                 executor_type=executor_type,
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
@@ -960,6 +987,7 @@ class TestWalk:
                     "steps.json",
                     executor_type="python",
                     executor_url="http://localhost:8080/",
+                    import_mode=ImportModes.IMPORTLIB,
                     report_file=None,
                     report_path=False,
                     report_path_file=None,
@@ -977,6 +1005,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url="http://localhost:8080/",
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
@@ -994,6 +1023,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file="output.txt",
                 report_path=False,
                 report_path_file=None,
@@ -1011,6 +1041,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=True,
                 report_path_file=None,
@@ -1028,6 +1059,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=False,
                 report_path_file="new-steps.json",
@@ -1045,6 +1077,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=False,
                 report_path_file=None,
@@ -1062,6 +1095,7 @@ class TestWalk:
                 "steps.json",
                 executor_type="python",
                 executor_url=None,
+                import_mode=ImportModes.IMPORTLIB,
                 report_file=None,
                 report_path=False,
                 report_path_file=None,

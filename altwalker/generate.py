@@ -1,18 +1,17 @@
 """A collection of util classes and functions for generating code form model(s)."""
 
+import abc
+import logging
 import os
 import re
-import abc
 import shutil
-import logging
 import warnings
 
 from jinja2 import Environment
 
 from altwalker.__version__ import VERSION
-from altwalker._utils import get_resource, has_git, Factory
+from altwalker._utils import Factory, get_resource, has_git
 from altwalker.code import get_methods
-
 
 logger = logging.getLogger(__name__)
 
@@ -286,6 +285,7 @@ GeneratorFactory = Factory({
     "python": PythonGenerator,
     "py": PythonGenerator,
     "dotnet": DotnetGenerator,
+    "csharp": DotnetGenerator,
     "c#": DotnetGenerator,
 }, default=EmptyGenerator)
 

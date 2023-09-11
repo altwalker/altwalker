@@ -285,7 +285,7 @@ class TestCliVerify:
         status = cli_verify("test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/")
 
         verify_mock.assert_called_once_with(
-            "test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/")
+            "test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/", import_mode=None)
         issues_mock.assert_called_once_with(mock.sentinel.issues)
         assert not suggestions_mock.called
         assert status
@@ -299,7 +299,7 @@ class TestCliVerify:
         status = cli_verify("test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/")
 
         verify_mock.assert_called_once_with(
-            "test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/")
+            "test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/", import_mode=None)
         issues_mock.assert_called_once_with(mock.sentinel.issues)
         assert not suggestions_mock.called
         assert not status
@@ -317,7 +317,7 @@ class TestCliVerify:
             executor_url="https://localhost:8080/", suggestions=True)
 
         verify_mock.assert_called_once_with(
-            "test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/")
+            "test", ["models.json"], executor_type="python", executor_url="https://localhost:8080/", import_mode=None)
         issues_mock.assert_called_once_with(mock.sentinel.issues)
         suggestions_mock.assert_called_once_with("python", mock.sentinel.methods, mock.sentinel.missing)
         assert not status
@@ -396,7 +396,7 @@ class TestCliOnline:
 
         create_reporters_mock.assert_called_once_with()
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -412,7 +412,7 @@ class TestCliOnline:
 
         create_reporters_mock.assert_called_once_with()
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -427,7 +427,7 @@ class TestCliOnline:
             cli_online(".", self.models, executor_type="dotnet")
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type="dotnet", executor_url=None,
+            '.', self.models, executor_type="dotnet", executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -442,7 +442,7 @@ class TestCliOnline:
             cli_online(".", self.models, executor_url="http://localhost:8080/")
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url="http://localhost:8080/",
+            '.', self.models, executor_type=None, executor_url="http://localhost:8080/", import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -457,7 +457,7 @@ class TestCliOnline:
             cli_online(".", self.models, gw_host="localhost")
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host="localhost", gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -472,7 +472,7 @@ class TestCliOnline:
             cli_online(".", self.models, gw_port=8080)
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8080, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -487,7 +487,7 @@ class TestCliOnline:
             cli_online(".", self.models, start_element="v_start")
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element="v_start",
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -502,7 +502,7 @@ class TestCliOnline:
             cli_online(".", self.models, verbose=True)
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=True, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -517,7 +517,7 @@ class TestCliOnline:
             cli_online(".", self.models, unvisited=True)
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=True, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -532,7 +532,7 @@ class TestCliOnline:
             cli_online(".", self.models, blocked=True)
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=True,
             reporter=mock.sentinel.reporter)
@@ -556,7 +556,7 @@ class TestCliOnline:
             report_xml=True, report_xml_file="altwalker.xml")
 
         online_mock.assert_called_once_with(
-            '.', self.models, executor_type=None, executor_url=None,
+            '.', self.models, executor_type=None, executor_url=None, import_mode=None,
             gw_host=None, gw_port=8887, start_element=None,
             verbose=False, unvisited=False, blocked=False,
             reporter=mock.sentinel.reporter)
@@ -668,7 +668,7 @@ class TestCliWalk:
 
         create_reporters_mock.assert_called_once_with()
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reporter)
+            "tests", {}, executor_type=None, executor_url=None, import_mode=None, reporter=mock.sentinel.reporter)
 
     def test_error(self, create_reporters_mock, walk_mock, tmpdir):
         create_reporters_mock.return_value = mock.sentinel.reporter
@@ -686,7 +686,7 @@ class TestCliWalk:
 
         create_reporters_mock.assert_called_once_with()
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reporter)
+            "tests", {}, executor_type=None, executor_url=None, import_mode=None, reporter=mock.sentinel.reporter)
 
     def test_executor_type(self, create_reporters_mock, walk_mock, tmpdir):
         create_reporters_mock.return_value = mock.sentinel.reporter
@@ -702,7 +702,7 @@ class TestCliWalk:
         cli_walk("tests", steps_file, executor_type="dotnet")
 
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type="dotnet", executor_url=None, reporter=mock.sentinel.reporter)
+            "tests", {}, executor_type="dotnet", executor_url=None, import_mode=None, reporter=mock.sentinel.reporter)
 
     def test_executor_url(self, create_reporters_mock, walk_mock, tmpdir):
         create_reporters_mock.return_value = mock.sentinel.reporter
@@ -718,7 +718,9 @@ class TestCliWalk:
         cli_walk("tests", steps_file, executor_url="http://localhost:8080/")
 
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url="http://localhost:8080/", reporter=mock.sentinel.reporter)
+            "tests", {}, executor_type=None, executor_url="http://localhost:8080/", import_mode=None,
+            reporter=mock.sentinel.reporter
+        )
 
     def test_reporter(self, create_reporters_mock, walk_mock, tmpdir):
         create_reporters_mock.return_value = mock.sentinel.reporter
@@ -743,4 +745,4 @@ class TestCliWalk:
             report_xml=True, report_xml_file="altwalker.xml")
 
         walk_mock.assert_called_once_with(
-            "tests", {}, executor_type=None, executor_url=None, reporter=mock.sentinel.reporter)
+            "tests", {}, executor_type=None, executor_url=None, import_mode=None, reporter=mock.sentinel.reporter)

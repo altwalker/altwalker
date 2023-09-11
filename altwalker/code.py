@@ -1,12 +1,12 @@
 """A collection of util functions for validating code against model(s)."""
 
-import os
 import itertools
+import os
 
 import altwalker.graphwalker as graphwalker
 from altwalker.exceptions import ValidationException
-from altwalker.model import _read_json, validate_models
 from altwalker.executor import create_executor
+from altwalker.model import _read_json, validate_models
 
 
 def _is_element_blocked(element, blocked=False):
@@ -132,7 +132,7 @@ def verify_code(path, executor, model_paths, url):
         ValidationException: If the model(s) or the code are not a valid.
     """
 
-    executor = create_executor(path, executor, url)
+    executor = create_executor(executor, path, url=url)
     try:
         validate_models(model_paths)
         methods = get_methods(model_paths)

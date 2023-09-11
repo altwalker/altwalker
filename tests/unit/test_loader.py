@@ -1,6 +1,6 @@
 import pytest
 
-from altwalker.loader import (AppendLoader, ImportingModes, ImportlibLoader,
+from altwalker.loader import (AppendLoader, ImportModes, ImportlibLoader,
                               PrependLoader, create_loader)
 
 
@@ -21,9 +21,9 @@ def test_load_submodule(loader):
 
 
 @pytest.mark.parametrize("mode", [
-    ImportingModes.IMPORTLIB,
-    ImportingModes.APPEND,
-    ImportingModes.PREPEND,
+    ImportModes.IMPORTLIB,
+    ImportModes.APPEND,
+    ImportModes.PREPEND,
 ])
 def test_create_loader(mode):
     loader = create_loader(mode=mode)

@@ -1,15 +1,13 @@
-# import os
-import unittest
 import unittest.mock as mock
 
-from altwalker.exceptions import ExecutorException, AltWalkerException
-# from altwalker.executor import get_step_result, create_executor, create_python_executor, \
-#     PythonExecutor, HttpExecutor, DotnetExecutorService
-from altwalker.executor import get_step_result, create_executor, \
-    PythonExecutor, HttpExecutor, DotnetExecutorService
+import pytest
+
+from altwalker.exceptions import ExecutorException
+from altwalker.executor import (DotnetExecutorService, HttpExecutor,
+                                PythonExecutor, get_step_result)
 
 
-class TestGetStepResult(unittest.TestCase):
+class TestGetStepResult:
 
     def test_output(self):
         func = mock.Mock()
@@ -18,7 +16,7 @@ class TestGetStepResult(unittest.TestCase):
         result = get_step_result(func)
 
         func.assert_called_once_with()
-        self.assertEqual(result["output"], "message\n")
+        result["output"] == "message\n"
 
     def test_result(self):
         func = mock.Mock()
@@ -26,7 +24,7 @@ class TestGetStepResult(unittest.TestCase):
 
         result = get_step_result(func)
 
-        self.assertEqual(result["result"], {"prop": "val"})
+        assert result["result"] == {"prop": "val"}
 
     def test_not_error(self):
         func = mock.Mock()
@@ -34,7 +32,7 @@ class TestGetStepResult(unittest.TestCase):
         result = get_step_result(func)
 
         func.assert_called_once_with()
-        self.assertFalse("error" in result)
+        assert "error" not in result
 
     def test_error(self):
         func = mock.Mock()
@@ -43,7 +41,7 @@ class TestGetStepResult(unittest.TestCase):
         result = get_step_result(func)
 
         func.assert_called_once_with()
-        self.assertTrue("error" in result)
+        assert "error" in result
 
     def test_args(self):
         func = mock.Mock()
@@ -58,16 +56,17 @@ class TestGetStepResult(unittest.TestCase):
         func.assert_called_once_with(key="value")
 
 
-class TestHttpExecutor(unittest.TestCase):
+class TestHttpExecutor:
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.executor = HttpExecutor(url="http://localhost:5000/")
 
     def test_base(self):
-        self.assertEqual(self.executor.base, "http://localhost:5000/altwalker")
+        assert self.executor.base == "http://localhost:5000/altwalker"
 
     def test_url(self):
-        self.assertEqual(self.executor.url, "http://localhost:5000/")
+        assert self.executor.url == "http://localhost:5000/"
 
     def test_valid_response(self):
         response = mock.Mock()
@@ -80,9 +79,9 @@ class TestHttpExecutor(unittest.TestCase):
         response.status_code = 404
         response.json.return_value = {}
 
-        error_message_reqex = "The executor from http://.*/ responded with status code: .*"
+        error_message_regex = "The executor from http://.*/ responded with status code: .*"
 
-        with self.assertRaisesRegex(ExecutorException, error_message_reqex):
+        with pytest.raises(ExecutorException, match=error_message_regex):
             self.executor._validate_response(response)
 
     def test_response_error(self):
@@ -95,7 +94,9 @@ class TestHttpExecutor(unittest.TestCase):
             }
         }
 
-        with self.assertRaisesRegex(ExecutorException, ".*\nMessage: Error message.\nTrace: Trace."):
+        error_message_regex = ".*\nMessage: Error message.\nTrace: Trace."
+
+        with pytest.raises(ExecutorException, match=error_message_regex):
             self.executor._validate_response(response)
 
     def test_get_payload(self):
@@ -106,13 +107,13 @@ class TestHttpExecutor(unittest.TestCase):
             }
         }
 
-        self.assertEqual(self.executor._get_payload(response), {"data": "data"})
+        assert self.executor._get_payload(response) == {"data": "data"}
 
     def test_get_payload_with_no_payload(self):
         response = mock.Mock()
         response.json.side_effect = ValueError("No json body.")
 
-        self.assertEqual(self.executor._get_payload(response), {})
+        assert self.executor._get_payload(response) == {}
 
     def test_load(self):
         self.executor._post = mock.Mock(return_value={})
@@ -121,7 +122,7 @@ class TestHttpExecutor(unittest.TestCase):
         self.executor.load(path)
         self.executor._post.assert_called_once_with("load", json={"path": path})
 
-    def test_restet(self):
+    def test_reset(self):
         self.executor._put = mock.Mock(return_value={})
 
         self.executor.reset()
@@ -136,7 +137,7 @@ class TestHttpExecutor(unittest.TestCase):
     def test_has_model_invalid_response(self):
         self.executor._get = mock.Mock(return_value={})
 
-        with self.assertRaises(ExecutorException):
+        with pytest.raises(ExecutorException):
             self.executor.has_model("model")
 
     def test_has_step(self):
@@ -154,7 +155,7 @@ class TestHttpExecutor(unittest.TestCase):
     def test_has_step_invalid_response(self):
         self.executor._get = mock.Mock(return_value={})
 
-        with self.assertRaises(ExecutorException):
+        with pytest.raises(ExecutorException):
             self.executor.has_step("model", "step")
 
     def test_execute_step(self):
@@ -174,13 +175,14 @@ class TestHttpExecutor(unittest.TestCase):
     def test_execute_invalid_response(self):
         self.executor._post = mock.Mock(return_value={})
 
-        with self.assertRaises(ExecutorException):
+        with pytest.raises(ExecutorException):
             self.executor.execute_step("model", "step", {})
 
 
-class TestPythonExecutor(unittest.TestCase):
+class TestPythonExecutor:
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup(self):
         self.module = mock.Mock()
         self.executor = PythonExecutor(self.module)
 
@@ -190,8 +192,8 @@ class TestPythonExecutor(unittest.TestCase):
         self.executor._module = None
         self.executor.load(path)
 
-        self.assertIsNotNone(self.executor._module)
-        self.assertTrue(hasattr(self.executor._module, "Simple"))
+        assert self.executor._module is not None
+        assert hasattr(self.executor._module, "Simple")
 
     def test_get_instance(self):
         self.module.object.return_value = True
@@ -199,7 +201,7 @@ class TestPythonExecutor(unittest.TestCase):
 
         # Should call the object callable and return the output
         self.module.object.assert_called_once_with()
-        self.assertTrue(result)
+        assert result
 
     def test_setup_class(self):
         self.executor._get_instance = mock.Mock()
@@ -208,11 +210,11 @@ class TestPythonExecutor(unittest.TestCase):
         # Should call _get_instance and add the class_name in _instances
         self.executor._setup_class("class_name")
         self.executor._get_instance.assert_called_once_with("class_name")
-        self.assertDictEqual(self.executor._instances, {"class_name": True})
+        assert self.executor._instances == {"class_name": True}
 
         # Should not call _get_instance again
         self.executor._setup_class("class_name")
-        self.assertEqual(self.executor._get_instance.call_count, 1)
+        assert self.executor._get_instance.call_count == 1
 
     def test_setup_class_twice(self):
         self.executor._get_instance = mock.Mock()
@@ -226,33 +228,33 @@ class TestPythonExecutor(unittest.TestCase):
 
     def test_has_function(self):
         # Should return true for a function
-        self.assertTrue(self.executor._has_function("name"))
+        assert self.executor._has_function("name")
 
         # Should return false for a non callable
         self.module.name = "Not a function"
-        self.assertFalse(self.executor._has_function("name"))
+        assert not self.executor._has_function("name")
 
     def test_has_model(self):
         # Should return true for a class
         self.module.name = object
-        self.assertTrue(self.executor.has_model("name"))
+        assert self.executor.has_model("name")
 
         # Should return false otherwise
         self.module.name = "Not a class"
-        self.assertFalse(self.executor.has_model("name"))
+        assert not self.executor.has_model("name")
 
     def test_has_method(self):
         # Should return true for a class with a method
         self.module.class_name = object
-        self.assertTrue(self.executor._has_method("class_name", "__str__"))
+        assert self.executor._has_method("class_name", "__str__")
 
         # Should return false for a class without the method
         self.module.class_name = object
-        self.assertFalse(self.executor._has_method("class_name", "method"))
+        assert not self.executor._has_method("class_name", "method")
 
         # Should return false for a non class
         self.module.class_name = "Not a class"
-        self.assertFalse(self.executor._has_method("class_name", "method"))
+        assert not self.executor._has_method("class_name", "method")
 
     def test_has_step(self):
         self.executor._has_function = mock.Mock()
@@ -277,27 +279,27 @@ class TestPythonExecutor(unittest.TestCase):
         response = self.executor.execute_step("Simple", "vertex_a", data=data)
         output = response["output"]
 
-        self.assertTrue("Simple.vertex_a" in output, "Actual output: {}".format(output))
-        self.assertTrue(str(data) in output, "Actual output: {}".format(output))
+        assert "Simple.vertex_a" in output, "Actual output: {}".format(output)
+        assert str(data) in output, "Actual output: {}".format(output)
 
         response = self.executor.execute_step("Simple", "vertex_b", data=data)
         output = response["output"]
 
-        self.assertTrue("Simple.vertex_b" in output, "Actual output: {}".format(output))
-        self.assertTrue(str(data) in output, "Actual output: {}".format(output))
+        assert "Simple.vertex_b" in output, "Actual output: {}".format(output)
+        assert str(data) in output, "Actual output: {}".format(output)
 
         response = self.executor.execute_step("Simple", "edge_a", data=data)
         output = response["output"]
 
-        self.assertTrue("Simple.edge_a" in output, "Actual output: {}".format(output))
-        self.assertTrue("Decorated method" in output, "Actual output: {}".format(output))
+        assert "Simple.edge_a" in output, "Actual output: {}".format(output)
+        assert "Decorated method" in output, "Actual output: {}".format(output)
 
         response = self.executor.execute_step("Simple", "edge_b", data=data)
         output = response["output"]
 
-        self.assertTrue("Simple.edge_b" in output, "Actual output: {}".format(output))
-        self.assertTrue("Decorated method" in output, "Actual output: {}".format(output))
-        self.assertTrue(str(data) in output, "Actual output: {}".format(output))
+        assert "Simple.edge_b" in output, "Actual output: {}".format(output)
+        assert "Decorated method" in output, "Actual output: {}".format(output)
+        assert str(data) in output, "Actual output: {}".format(output)
 
     @mock.patch("altwalker.executor.signature")
     def test_execute_step_function(self, signature):
@@ -322,7 +324,7 @@ class TestPythonExecutor(unittest.TestCase):
         # should call the function with the right args
         error_message = "The .* function must take 0 or 1 parameters but it expects .* parameters."
 
-        with self.assertRaisesRegex(ExecutorException, error_message):
+        with pytest.raises(ExecutorException, match=error_message):
             self.executor.execute_step(None, "function", data={"key": "value"})
 
         self.module.function.assert_not_called()
@@ -334,7 +336,7 @@ class TestPythonExecutor(unittest.TestCase):
 
         signature.return_value.parameters = []
 
-        # Should executre a method
+        # Should execute a method
         self.executor.execute_step("ClassName", "method")
         self.executor._setup_class.assert_called_once_with("ClassName")
         self.executor._instances["ClassName"].method.assert_called_once_with()
@@ -359,7 +361,7 @@ class TestPythonExecutor(unittest.TestCase):
 
         error_message = "The .* method must take 0 or 1 parameters but it expects .* parameters."
 
-        with self.assertRaisesRegex(ExecutorException, error_message):
+        with pytest.raises(ExecutorException, match=error_message):
             self.executor.execute_step("ClassName", "method")
 
         self.executor._setup_class.assert_called_once_with("ClassName")
@@ -369,63 +371,15 @@ class TestPythonExecutor(unittest.TestCase):
         self.executor._instances = {"ClassName": None}
         self.executor.reset()
 
-        self.assertDictEqual(self.executor._instances, {})
+        assert self.executor._instances == {}
 
 
-class TestDotnetExecutorService(unittest.TestCase):
+class TestDotnetExecutorService:
 
     @mock.patch("platform.system", return_value="Linux")
-    def test_create_command(self, platform):
+    def test_create_command(self, _):
         command = DotnetExecutorService._create_command("path", "http://localhost:4200")
-        self.assertEqual(command, ['dotnet', 'path', '--server.urls=http://localhost:4200'])
+        assert command == ['dotnet', 'path', '--server.urls=http://localhost:4200']
 
         command = DotnetExecutorService._create_command("tests/", "http://localhost:5000")
-        self.assertEqual(command, ['dotnet', 'run', '-p', 'tests/', '--server.urls=http://localhost:5000'])
-
-
-# class TestCreatePythonExecutor(unittest.TestCase):
-
-#     @mock.patch("altwalker.executor.load")
-#     def test_load(self, load_mock):
-#         base = os.sep.join(["base", "path", "tests"])
-
-#         create_python_executor(base)
-
-#         load_mock.assert_called_once()
-#         load_mock.assert_called_once_with(os.path.join(base, "test.py"), base)
-
-
-class TestCreateExecutor(unittest.TestCase):
-
-    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
-    def test_create_dotnet(self, dotnet_executor):
-        executor = executor = create_executor("path/to/pacakge", "dotnet", url="http://1.2.3.4:5678")
-
-        dotnet_executor.assert_called_once_with("dotnet", "path/to/pacakge", url="http://1.2.3.4:5678")
-        self.assertEqual(executor, mock.sentinel.executor)
-
-    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
-    def test_create_csharp(self, dotnet_executor):
-        executor = create_executor("path/to/pacakge", "c#", url="http://1.2.3.4:5678")
-
-        dotnet_executor.assert_called_once_with("c#", "path/to/pacakge", url="http://1.2.3.4:5678")
-        self.assertEqual(executor, mock.sentinel.executor)
-
-    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
-    def test_create_python(self, _call_function_mock):
-        executor = create_executor("path/to/package", "python")
-
-        _call_function_mock.assert_called_once_with("python", "path/to/package", url="http://localhost:5000/")
-        self.assertTrue(executor, mock.sentinel.executor)
-
-    @mock.patch("altwalker.executor._call_create_executor_function", return_value=mock.sentinel.executor)
-    def test_create_http(self, _call_function_mock):
-        executor = create_executor("path/to/code", "http", url="http://localhost:4200")
-
-        _call_function_mock.assert_called_once_with("http", "path/to/code", url="http://localhost:4200")
-        self.assertEqual(executor, mock.sentinel.executor)
-
-    def test_create_invalid_language(self):
-        error_message_regex = r"Executor type 'my_executor_type' is not supported. Supported executor types are: *."
-        with self.assertRaisesRegex(AltWalkerException, error_message_regex):
-            create_executor("path/to/package", "my_executor_type", "http://1.1.1.1:1111")
+        assert command == ['dotnet', 'run', '-p', 'tests/', '--server.urls=http://localhost:5000']

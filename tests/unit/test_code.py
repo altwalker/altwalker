@@ -249,7 +249,7 @@ class TestVerifyCode(unittest.TestCase):
         executor = mock.MagicMock()
         create_executor_mock.return_value = executor
         verify_code("/path/to/package", "executorname", ["models.json"], None)
-        create_executor_mock.assert_called_once_with("/path/to/package", "executorname", None)
+        create_executor_mock.assert_called_once_with("executorname", "/path/to/package", url=None)
         validate_models_mock.assert_called_once_with(["models.json"])
         methods_mock.assert_called_once_with(["models.json"])
         executor.kill.assert_called_once_with()
