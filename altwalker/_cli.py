@@ -112,7 +112,12 @@ def _echo_suggestions(language, methods, missing_methods):
 def cli_verify(test_package, model_paths, executor_type=None, executor_url=None, import_mode=None, suggestions=False):
     click.secho("Verifying code against models:\n", bold=True, fg="green")
 
-    response = run.verify(test_package, model_paths, executor_type=executor_type, executor_url=executor_url, import_mode=import_mode)
+    response = run.verify(
+        test_package, model_paths,
+        executor_type=executor_type,
+        executor_url=executor_url,
+        import_mode=import_mode
+    )
     _echo_code_issues(response["issues"])
 
     if suggestions and not response["status"]:
@@ -190,7 +195,13 @@ def cli_walk(test_package, steps_file, executor_type=None, executor_url=None, im
         steps = json.load(fp)
 
     reporter = create_reporters(**kwargs)
-    response = run.walk(test_package, steps, executor_type=executor_type, executor_url=executor_url, import_mode=import_mode, reporter=reporter)
+    response = run.walk(
+        test_package, steps,
+        executor_type=executor_type,
+        executor_url=executor_url,
+        import_mode=import_mode,
+        reporter=reporter
+    )
 
     if not response["status"]:
         raise FailedTestsError()
