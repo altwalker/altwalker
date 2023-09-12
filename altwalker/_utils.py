@@ -1,5 +1,6 @@
 """Utility functions and classes used by AltWalker internally."""
 
+import sys
 import importlib.resources
 import platform
 import subprocess
@@ -23,12 +24,16 @@ def get_resource(path):
 def get_resource_path(path):
     """Return the absolute path of a file that is included in the package resources."""
 
-    resource_path = importlib.resources.files(__package__).joinpath(path)
+    if sys.version_info > (3, 8):
+        resource_path = importlib.resources.files(__package__).joinpath(path)
 
-    if resource_path.exists():
-        return str(resource_path)
+        if resource_path.exists():
+            return str(resource_path)
+        else:
+            raise FileNotFoundError(f"Resource '{path}' not found in package '{__package__}'.")
     else:
-        raise FileNotFoundError(f"Resource '{path}' not found in package '{__package__}'.")
+        import pkg_resources
+        return pkg_resources.resource_filename(__name__, path)
 
 
 def url_join(base, url):
