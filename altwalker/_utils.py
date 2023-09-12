@@ -24,7 +24,7 @@ def get_resource(path):
 def get_resource_path(path):
     """Return the absolute path of a file that is included in the package resources."""
 
-    if sys.version_info > (3, 8):
+    if sys.version_info >= (3, 9):
         resource_path = importlib.resources.files(__package__).joinpath(path)
 
         if resource_path.exists():
