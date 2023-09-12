@@ -11,15 +11,24 @@ def get_resource(path):
     """Return the content of a file that is included in the package resources."""
 
     resource_path = get_resource_path(path)
-    with open(resource_path, encoding="utf-8") as fp:
-        return fp.read()
+    try:
+        with open(resource_path, encoding="utf-8") as fp:
+            return fp.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Resource '{path}' not found in package '{__package__}'.")
+    except Exception as e:
+        raise RuntimeError(f"Error reading resource '{path}' in package '{__package__}': {str(e)}")
 
 
 def get_resource_path(path):
     """Return the absolute path of a file that is included in the package resources."""
 
     resource_path = importlib.resources.files(__package__).joinpath(path)
-    return str(resource_path)
+
+    if resource_path.exists():
+        return str(resource_path)
+    else:
+        raise FileNotFoundError(f"Resource '{path}' not found in package '{__package__}'.")
 
 
 def url_join(base, url):
