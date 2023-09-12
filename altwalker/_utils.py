@@ -1,8 +1,8 @@
 """Utility functions and classes used by AltWalker internally."""
 
+import importlib.resources
 import platform
 import subprocess
-import importlib.resources
 
 import psutil
 
@@ -18,7 +18,7 @@ def get_resource(path):
 def get_resource_path(path):
     """Return the absolute path of a file that is included in the package resources."""
 
-    resource_path = importlib.resources.files("altwalker").joinpath(path)
+    resource_path = importlib.resources.files(__package__).joinpath(path)
     return str(resource_path)
 
 
