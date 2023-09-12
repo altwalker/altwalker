@@ -1,17 +1,18 @@
+import logging
 import os
 import warnings
-import logging
 
 import click
-from click_help_colors import HelpColorsGroup, HelpColorsCommand
+from click_help_colors import HelpColorsCommand, HelpColorsGroup
 
+from altwalker._cli import (cli_check, cli_generate, cli_init, cli_offline,
+                            cli_online, cli_verify, cli_walk,
+                            click_formatwarning)
+from altwalker.executor import get_supported_executors
 from altwalker.generate import get_supported_languages
-from altwalker.executor import SUPPORTED_EXECUTORS
-from altwalker._cli import click_formatwarning, cli_init, cli_generate, cli_check, cli_verify, \
-    cli_offline, cli_online, cli_walk
+from altwalker.loader import get_supported_loaders
 
-
-warnings.formatwarning = click_formatwarning  # replace the default warning formating
+warnings.formatwarning = click_formatwarning  # replace the default warning formatting
 warnings.simplefilter("default")  # print the first occurrence of warnings
 
 
@@ -57,9 +58,16 @@ language_option = click.option(
 
 executor_option = click.option(
     "--executor", "-x", "--language", "-l", "executor_type",
-    type=click.Choice(SUPPORTED_EXECUTORS, case_sensitive=False),
+    type=click.Choice(get_supported_executors(), case_sensitive=False),
     default="python", show_default=True,
     help="Configure the executor to be used.")
+
+import_mode_option = click.option(
+    "--import-mode", "import_mode",
+    type=click.Choice(get_supported_loaders(), case_sensitive=False),
+    default="importlib", show_default=True, envvar="ALTWALKER_IMPORT_MODE",
+    help="Sets the importing mode for the Python language, which controls how modules are loaded and executed."
+)
 
 
 url_option = click.option(
@@ -153,7 +161,7 @@ def check(models, blocked):
 @click.argument("test_package", type=click.Path(exists=True))
 @click.option("--suggestions/--no-suggestions", "suggestions", default=True, is_flag=True,
               help="If set will print code suggestions for missing elements.", show_default=True)
-@add_options([model_file_option, executor_option, url_option, executor_url_option])
+@add_options([model_file_option, executor_option, url_option, executor_url_option, import_mode_option])
 def verify(test_package, model_paths, **options):
     """Verify and analyze test code for issues."""
 
@@ -165,7 +173,7 @@ def verify(test_package, model_paths, **options):
     status = cli_verify(
         test_package, model_paths,
         executor_type=options["executor_type"], executor_url=options["executor_url"],
-        suggestions=options["suggestions"])
+        suggestions=options["suggestions"], import_mode=options["import_mode"])
 
     if not status:
         exit(4)
@@ -204,7 +212,7 @@ def generate(output_dir, model_paths, language):
               model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
               verbose_option, unvisited_option, blocked_option,
               report_path_option, report_path_file_option, report_file_option,
-              report_xml_option, report_xml_file_option])
+              report_xml_option, report_xml_file_option, import_mode_option])
 def online(test_package, models, **options):
     """Generate and run a test path."""
 
@@ -220,6 +228,7 @@ def online(test_package, models, **options):
 
     cli_online(
         test_package, models, executor_type=options["executor_type"], executor_url=options["executor_url"],
+        import_mode=options["import_mode"],
         gw_host=options["gw_host"], gw_port=options["gw_port"], start_element=options["start_element"],
         verbose=options["verbose"], unvisited=options["unvisited"], blocked=options["blocked"],
         report_file=options["report_file"], report_path=options["report_path"],
@@ -244,7 +253,7 @@ def offline(models, **options):
     help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_file", type=click.Path(exists=True, dir_okay=False))
-@add_options([executor_option, url_option, executor_url_option,
+@add_options([executor_option, url_option, executor_url_option, import_mode_option,
               report_path_option, report_path_file_option, report_file_option,
               report_xml_option, report_xml_file_option])
 def walk(test_package, steps_file, executor_type, url, executor_url, **options):

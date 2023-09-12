@@ -4,7 +4,6 @@ import logging
 import click
 from click._compat import get_text_stderr
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -14,6 +13,18 @@ class GraphWalkerException(Exception):
 
 class AltWalkerException(Exception):
     """An internal exception that signals a AltWalker error."""
+
+
+class AltWalkerTypeError(AltWalkerException, TypeError):
+    """An internal exception raised when an operation or function is applied to an object of inappropriate type or when
+    passing arguments of the wrong type.
+    """
+
+
+class AltWalkerValueError(AltWalkerException, ValueError):
+    """An internal exception raised when an operation or function receives an argument that has the right type but an
+    inappropriate value.
+    """
 
 
 class ValidationException(AltWalkerException):
@@ -63,7 +74,7 @@ class AltWalkerError(click.ClickException):
 
 
 def handle_errors(func):
-    """Handle errors for the commnad line commands."""
+    """Handle errors for the command line commands."""
 
     @functools.wraps(func)
     def wrap(*args, **kwargs):

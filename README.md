@@ -85,7 +85,7 @@ AltWalker has the following components:
     * .NET Executor
 
     And an __Http Executor__ that allows you to hook up your own executor via HTTP. You can read
-    more about the Http Executor on the [How to: Write your own executor](https://altwalker.github.io/altwalker/how-tos/custom-executor.html)
+    more about the Http Executor on the [How to: Write your own executor](https://altwalker.github.io/altwalker/advanced-usage/custom-executor.html)
     page.
 
 * __Walker__: the test runner. Coordinates the execution of a test asking the `Planner`

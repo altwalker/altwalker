@@ -41,7 +41,7 @@ You need your custom executor?
 
 You can implement your own custom test execution by implementing a server for the executor's http protocol.
 
-Check `How to: Write your own executor <https://altwalker.github.io/altwalker/how-tos/custom-executor.html>`_ section.
+Check `How to: Write your own executor <https://altwalker.github.io/altwalker/advanced-usage/custom-executor.html>`_ section.
 
 
 Submit an executor in another language?

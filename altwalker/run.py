@@ -1,15 +1,14 @@
-import os
 import re
 
 import altwalker.graphwalker as graphwalker
+from altwalker.code import _validate_code, get_methods, get_missing_methods
 from altwalker.exceptions import AltWalkerException
-from altwalker.generate import init_project, generate_tests
-from altwalker.model import _validate_models, get_models, validate_models
-from altwalker.code import get_methods, get_missing_methods, _validate_code
-from altwalker.planner import create_planner
 from altwalker.executor import create_executor
-from altwalker.walker import create_walker
+from altwalker.generate import generate_tests, init_project
+from altwalker.model import _validate_models, get_models, validate_models
+from altwalker.planner import create_planner
 from altwalker.reporter import create_reporters
+from altwalker.walker import create_walker
 
 
 def validate(model_paths, *args):
@@ -35,13 +34,13 @@ def check(models, *args, blocked=False, **kwargs):
     }
 
 
-def verify(test_package, model_paths, *args, executor_type=None, executor_url=None, **kwargs):
+def verify(test_package, model_paths, *args, executor_type=None, executor_url=None, import_mode=None, **kwargs):
     """Verify and analyze test code for issues (missing classes or methods)."""
 
     validate_models(model_paths)
     methods = get_methods(model_paths)
 
-    executor = create_executor(test_package, executor_type, url=executor_url)
+    executor = create_executor(executor_type, test_package, url=executor_url, import_mode=import_mode)
 
     try:
         missing_methods = get_missing_methods(executor, methods)
@@ -116,7 +115,7 @@ def offline(models, *args, start_element=None, verbose=False, unvisited=False, b
 
 def _run_tests(test_package, *args, executor_type=None, executor_url=None, models=None, steps=None,
                gw_host=None, gw_port=8887, start_element=None, verbose=False, unvisited=False, blocked=False,
-               reporter=None, **kwargs):
+               reporter=None, import_mode=None, **kwargs):
 
     reporter = reporter or create_reporters()
     planner = None
@@ -125,7 +124,7 @@ def _run_tests(test_package, *args, executor_type=None, executor_url=None, model
     try:
         planner = create_planner(models=models, steps=steps, host=gw_host, port=gw_port, start_element=start_element,
                                  verbose=verbose, unvisited=unvisited, blocked=blocked)
-        executor = create_executor(os.path.abspath(test_package), executor_type, url=executor_url)
+        executor = create_executor(executor_type, test_package, url=executor_url, import_mode=import_mode)
 
         walker = create_walker(planner, executor, reporter=reporter)
         walker.run()
@@ -147,8 +146,8 @@ def online(test_package, models, *args, executor_type=None, executor_url=None, g
     """Generate and run a test sequence."""
 
     return _run_tests(test_package, *args, models=models, executor_type=executor_type, executor_url=executor_url,
-                      gw_port=gw_port, gw_host=gw_host, start_element=None,
-                      verbose=False, unvisited=False, blocked=False, reporter=reporter, **kwargs)
+                      gw_port=gw_port, gw_host=gw_host, start_element=start_element,
+                      verbose=verbose, unvisited=unvisited, blocked=blocked, reporter=reporter, **kwargs)
 
 
 def walk(test_package, steps, *args, executor_type=None, executor_url=None, reporter=None, **kwargs):

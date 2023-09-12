@@ -82,7 +82,7 @@ AltWalker has the following components:
   * Python Executor (Built-in)
   * `C#/.NET Executor`_
   * Http Executor that allows you to hook up your own executor via HTTP.
-    You can read more about the Http Executor on the :doc:`how-tos/custom-executor` section.
+    You can read more about the Http Executor on the :doc:`advanced-usage/custom-executor` section.
 
 * **Walker**: the test runner. Coordinates the execution of a test asking the ``Planner``
   for the next step, executing the step using the ``Executor`` and reporting the progress

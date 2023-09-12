@@ -1,4 +1,3 @@
-import os.path
 import unittest.mock as mock
 
 import pytest
@@ -213,7 +212,7 @@ class TestRunTests:
         create_planner_mock.assert_called_once_with(
             models=None, host=None, port=8887, steps=None, start_element=None,
             verbose=False, unvisited=False, blocked=False)
-        create_executor_mock.assert_called_once_with(os.path.abspath(self.test_package), None, url=None)
+        create_executor_mock.assert_called_once_with(None, self.test_package, url=None, import_mode=None)
         create_reporters_mock.assert_called_once_with()
         create_walker_mock.assert_called_once_with(
             create_planner_mock.return_value, create_executor_mock.return_value,

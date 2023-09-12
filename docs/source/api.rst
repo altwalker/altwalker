@@ -2,7 +2,7 @@
 API Documentation
 =================
 
-This section of the documentation provides a complete API reference for
+This section of the documentation provides a comprehensive API reference for
 all public classes and functions.
 
 .. module:: altwalker
@@ -46,21 +46,18 @@ the ``Executor``.
 
 There are two Planners:
 
-    * :class:`OnlinePlanner`:
+* :class:`OnlinePlanner`: Uses GraphWalker online mode to generate the test
+  path.
 
-        Uses GraphWalker online mode to generate the test path.
+  With this method, the test code can directly interact with GraphWalker and
+  modify the model data. A dictionary containing the model data is passed as
+  the first argument to any method or function from the test code by
+  the :class:`~altwalker.walker.Walker`` class.
 
-        This method allows the test code to directly interact with GraphWalker
-        and modify the model data. A dictionary with model data will be passed
-        as a the first argument to any method/function form the test code
-        by :class:`~altwalker.walker.Walker` class.
+* :class:`OfflinePlanner`: Uses a sequence of steps to generate the test path.
 
-    * :class:`OfflinePlanner`:
-
-        Uses a sequence of steps to generate the test path.
-
-        The sequence of path can be generated using
-        the :func:`~altwalker.graphwalker.offline` function.
+  The sequence of path can be generated using
+  the :func:`~altwalker.graphwalker.offline` function.
 
 .. autoclass:: OnlinePlanner
     :members:
@@ -69,6 +66,41 @@ There are two Planners:
     :members:
 
 .. autofunction:: create_planner
+
+
+Loader
+======
+
+.. module:: altwalker.loader
+
+.. currentmodule:: altwalker.loader
+
+
+.. autoclass:: ImportlibLoader
+
+    .. automethod:: load
+
+
+.. autoclass:: PrependLoader
+
+    .. automethod:: load
+
+
+.. autoclass:: AppendLoader
+
+    .. automethod:: load
+
+
+.. autoclass:: ImportModes
+
+    .. autoattribute:: IMPORTLIB
+
+    .. autoattribute:: PREPEND
+
+    .. autoattribute:: APPEND
+
+
+.. autofunction:: create_loader
 
 
 Executor
@@ -107,15 +139,6 @@ should have all the methods form the :class:`~altwalker.executor.Executor`.
 .. autoclass:: DotnetExecutor
     :members:
     :inherited-members:
-
-
-.. autofunction:: create_http_executor
-
-
-.. autofunction:: create_python_executor
-
-
-.. autofunction:: create_dotnet_executor
 
 
 .. autofunction:: create_executor

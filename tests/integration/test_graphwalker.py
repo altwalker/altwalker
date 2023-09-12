@@ -4,10 +4,10 @@ import os
 import pytest
 import requests
 
-from altwalker.graphwalker import check, methods, offline, GraphWalkerException, GraphWalkerClient, GraphWalkerService
+from altwalker.graphwalker import (GraphWalkerClient, GraphWalkerException,
+                                   GraphWalkerService, check, methods, offline)
 
-
-pytestmark = pytest.mark.graphwalker
+pytestmark = pytest.mark.graphwalker  # Mark all tests from this module
 
 os.environ["GRAPHWALKER_LOG_LEVEL"] = "DEBUG"
 
@@ -28,21 +28,32 @@ class TestGraphWalkerService:
 
     def test_kill(self):
         service = GraphWalkerService(port=9001)
+
+        response = requests.get(
+            "http://127.0.0.1:9001/graphwalker/getStatistics")
+        assert response.status_code == 200
+
         service.kill()
 
         with pytest.raises(requests.exceptions.ConnectionError):
             requests.get("http://127.0.0.1:9001/graphwalker/getStatistics")
 
+    def test_context_manager(self):
+        with GraphWalkerService(port=9001):
+            response = requests.get(
+                "http://127.0.0.1:9001/graphwalker/getStatistics")
+            assert response.status_code == 200
+
+        with pytest.raises(requests.exceptions.ConnectionError):
+            requests.get("http://127.0.0.1:9001/graphwalker/getStatistics")
+
     def test_address_already_in_use(self):
-        service = GraphWalkerService(port=9001)
+        with GraphWalkerService(port=9001):
+            with pytest.raises(GraphWalkerException) as excinfo:
+                GraphWalkerService(port=9001)
 
-        with pytest.raises(GraphWalkerException) as excinfo:
-            GraphWalkerService(port=9001)
-
-        assert "An error occurred while trying to start the GraphWalker Service on port" in str(excinfo.value)
-        assert "Address already in use" in str(excinfo.value)
-
-        service.kill()
+            assert "An error occurred while trying to start the GraphWalker Service on port" in str(excinfo.value)
+            assert "Address already in use" in str(excinfo.value)
 
     def test_invalid_generator(self):
         with pytest.raises(GraphWalkerException) as excinfo:
@@ -197,7 +208,7 @@ class TestCheck:
     )
     def test_valid_input(self, models):
         output = check(models, blocked=False)
-        assert output == "No issues found with the model(s).\n"
+        assert output == "No issues found with the model(s)." + os.linesep
 
     @pytest.mark.parametrize(
         "models, error_message",

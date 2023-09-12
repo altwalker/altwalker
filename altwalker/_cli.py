@@ -109,10 +109,15 @@ def _echo_suggestions(language, methods, missing_methods):
 
 
 @handle_errors
-def cli_verify(test_package, model_paths, executor_type=None, executor_url=None, suggestions=False):
+def cli_verify(test_package, model_paths, executor_type=None, executor_url=None, import_mode=None, suggestions=False):
     click.secho("Verifying code against models:\n", bold=True, fg="green")
 
-    response = run.verify(test_package, model_paths, executor_type=executor_type, executor_url=executor_url)
+    response = run.verify(
+        test_package, model_paths,
+        executor_type=executor_type,
+        executor_url=executor_url,
+        import_mode=import_mode
+    )
     _echo_code_issues(response["issues"])
 
     if suggestions and not response["status"]:
@@ -157,11 +162,11 @@ def cli_generate(dest_dir, model_paths, language="python"):
 
 @handle_errors
 def cli_online(test_package, models, *args, executor_type=None, executor_url=None, gw_host=None, gw_port=8887,
-               start_element=None, verbose=False, unvisited=False, blocked=False, **kwargs):
+               start_element=None, verbose=False, unvisited=False, blocked=False, import_mode=None, **kwargs):
     reporter = create_reporters(**kwargs)
     response = run.online(
         test_package, models,
-        executor_type=executor_type, executor_url=executor_url,
+        executor_type=executor_type, executor_url=executor_url, import_mode=import_mode,
         gw_port=gw_port, gw_host=gw_host, start_element=start_element,
         verbose=verbose, unvisited=unvisited, blocked=blocked,
         reporter=reporter)
@@ -185,12 +190,18 @@ def cli_offline(models, output_file=None, start_element=None, verbose=False, unv
 
 
 @handle_errors
-def cli_walk(test_package, steps_file, executor_type=None, executor_url=None, **kwargs):
+def cli_walk(test_package, steps_file, executor_type=None, executor_url=None, import_mode=None, **kwargs):
     with open(steps_file) as fp:
         steps = json.load(fp)
 
     reporter = create_reporters(**kwargs)
-    response = run.walk(test_package, steps, executor_type=executor_type, executor_url=executor_url, reporter=reporter)
+    response = run.walk(
+        test_package, steps,
+        executor_type=executor_type,
+        executor_url=executor_url,
+        import_mode=import_mode,
+        reporter=reporter
+    )
 
     if not response["status"]:
         raise FailedTestsError()

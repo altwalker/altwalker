@@ -1,24 +1,21 @@
-import os
-import io
-import sys
 import abc
-import time
 import copy
-import traceback
+import io
 import logging
-import importlib
-import importlib.util
+import os
+import time
+import traceback
 from contextlib import redirect_stdout
 from inspect import signature
 
 import requests
 
-from altwalker._utils import url_join, Command
-from altwalker.exceptions import AltWalkerException, ExecutorException
-
+from altwalker._utils import Command, Factory, url_join
+from altwalker.exceptions import (AltWalkerException, AltWalkerTypeError,
+                                  AltWalkerValueError, ExecutorException)
+from altwalker.loader import create_loader
 
 logger = logging.getLogger(__name__)
-_PREV_LOADED_PACKAGE_PATH = None
 
 
 def get_step_result(callable, *args, **kwargs):
@@ -27,12 +24,12 @@ def get_step_result(callable, *args, **kwargs):
 
     Args:
         callable: The callable object to call.
-        *args: The list of args for the calable.
+        *args: The list of args for the callable.
         **kwargs: The dict of kwargs for the callable.
 
     Returns:
-        A dict containing the output of the callable, and the error message with the trace
-        if an error occurred::
+        dict: A dict containing the output of the callable, and the error message with the trace
+            if an error occurred::
 
             {
                 "result": Any
@@ -62,55 +59,6 @@ def get_step_result(callable, *args, **kwargs):
     output.close()
 
     return step_result
-
-
-def _is_parent_path(parent, child):
-    parent = os.path.abspath(parent)
-    if not parent.endswith(os.sep):
-        parent = parent + os.sep
-    child = os.path.abspath(child)
-    commonprefix = os.path.commonprefix([parent, child])
-    return commonprefix == parent
-
-
-def _pop_previously_loaded_modules(path, package):
-    global _PREV_LOADED_PACKAGE_PATH
-
-    if _PREV_LOADED_PACKAGE_PATH is not None:
-        for module_key in list(sys.modules):
-            if module_key.startswith(package + ".") and \
-                    hasattr(sys.modules[module_key], "__file__") and \
-                    sys.modules[module_key].__file__ and \
-                    _is_parent_path(_PREV_LOADED_PACKAGE_PATH, sys.modules[module_key].__file__):
-                sys.modules.pop(module_key)
-
-    _PREV_LOADED_PACKAGE_PATH = os.path.abspath(os.path.join(path, package, ""))
-
-
-def load(path, package, module):
-    """Load a module from a package at a given path."""
-
-    if not package:
-        raise ValueError("Package to load is required")
-
-    _pop_previously_loaded_modules(path, package)
-
-    importlib.invalidate_caches()
-
-    # load package
-    spec = importlib.util.spec_from_file_location(package, os.path.join(path, package, "__init__.py"))
-    loaded_module = spec.loader.load_module()
-    spec.loader.exec_module(loaded_module)
-
-    sys.modules[spec.name] = loaded_module
-
-    # load module
-    spec = importlib.util.spec_from_file_location(
-        "{}.{}".format(package, module),
-        os.path.join(path, package, "{}.py".format(module)))
-    loaded_module = spec.loader.load_module()
-
-    return loaded_module
 
 
 class Executor(metaclass=abc.ABCMeta):
@@ -206,11 +154,11 @@ class HttpExecutor(Executor):
         465: "Test Code Not Loaded"
     }
 
-    def __init__(self, url="http://localhost:5000"):
+    def __init__(self, url="http://localhost:5000", **kwargs):
         self.url = url or "http://localhost:5000"
         self.base = url_join(self.url, "altwalker/")
 
-        logging.debug("Initate an HttpExecutor to connect to {} service".format(self.url))
+        logging.debug("Initiate an HttpExecutor to connect to {} service".format(self.url))
 
     def _validate_response(self, response):
         if not response.status_code == 200:
@@ -340,7 +288,8 @@ class HttpExecutor(Executor):
 class PythonExecutor(Executor):
     """Execute methods or functions from a model like object."""
 
-    def __init__(self, module=None):
+    def __init__(self, module=None, loader=None, import_mode=None, **kwargs):
+        self._loader = loader or create_loader(import_mode)
         self._module = module
         self._instances = {}
 
@@ -379,8 +328,7 @@ class PythonExecutor(Executor):
 
         self.reset()
 
-        path, package = os.path.split(path)
-        self._module = load(path, package, "test")
+        self._module = self._loader.load(os.path.join(path, "test.py"), ".")
         self.reset()
 
     def reset(self):
@@ -397,6 +345,7 @@ class PythonExecutor(Executor):
         Returns:
             bool: True if the module has a class named `name`, False otherwise.
         """
+
         cls = getattr(self._module, name, None)
 
         if isinstance(cls, type):
@@ -501,7 +450,7 @@ class DotnetExecutorService:
 
         self._process = Command(command, self.output_file)
 
-        logger.debug("Dotnet Executor Service started from {} on {}".format(path, self.server_url))
+        logger.debug("Dotnet Executor Service started from '{}' on {}".format(path, self.server_url))
         logger.debug("Dotnet Executor Service started with command: {}".format(" ".join(command)))
         logger.debug("Dotnet Executor Service running with pid: {}".format(self._process.pid))
 
@@ -571,104 +520,111 @@ class DotnetExecutor(HttpExecutor):
         url: The url for the service to listen (e.g. http://localhost:5000/).
     """
 
-    def __init__(self, path, url="http://localhost:5000/"):
+    def __init__(self, path=None, url="http://localhost:5000/", **kwargs):
         super().__init__(url=url)
+        self._service = None
 
-        self._service = DotnetExecutorService(path, server_url=url)
+        if path:
+            self._service = DotnetExecutorService(path, server_url=url)
+
+    def _ensure_service_is_running(self):
+        if not self._service:
+            raise AltWalkerException("Make sure you call the load method first to start the DotnetExecutorService.")
 
     def load(self, path):
-        """Kill the executor service and start a new one with the given path."""
+        """Starts the executor service with the given project path, if a service is already running it will kill it
+        before starting the new one.
+        """
 
-        logger.debug("Restart the .NET Executor service from {} on {}".format(path, self.url))
+        logger.debug("Starting the .NET Executor service from {} on {}".format(path, self.url))
 
-        self._service.kill()
+        if self._service:
+            logger.debug("Killing the old .NET Executor service.")
+            self._service.kill()
+
         self._service = DotnetExecutorService(path, server_url=self.url)
 
     def kill(self):
         """Kill the executor service."""
 
         self._service.kill()
+        self._service = None
+
+    def reset(self):
+        """Reset the current execution."""
+
+        self._ensure_service_is_running()
+        return super().reset()
+
+    def has_model(self, name):
+        """Check if the module has a class named ``name``."""
+
+        self._ensure_service_is_running()
+        return super().has_model(name)
+
+    def has_step(self, model_name, name):
+        """Check if the module has a class named ``model_name`` with a method named."""
+
+        self._ensure_service_is_running()
+        return super().has_step(model_name, name)
+
+    def execute_step(self, model_name, name, data=None):
+        """Execute a step from a model."""
+
+        self._ensure_service_is_running()
+        return super().execute_step(model_name, name, data)
 
 
-def create_http_executor(path, *args, url="http://localhost:5000/", **kwargs):
-    """Creates a HTTP executor.
+ExecutorFactory = Factory({
+    "http": HttpExecutor,
+    "python": PythonExecutor,
+    "py": PythonExecutor,
+    "dotnet": DotnetExecutor,
+    "csharp": DotnetExecutor,
+    "c#": DotnetExecutor,
+}, default=PythonExecutor)
+
+
+def get_supported_executors():
+    return ExecutorFactory.keys()
+
+
+def create_executor(executor_type, tests_path, **kwargs):
+    """Create and initialize an executor for AltWalker.
 
     Args:
-        path: The path to the tests.
-        url: The url for the executor service (e.g. http://localhost:5000/).
+        executor_type (str): The type of the executor (e.g., 'http', 'python', 'dotnet').
+        tests_path (str): The path to the tests.
+        **kwargs: Additional keyword arguments passed to the executor constructor.
 
     Returns:
-        :obj:`HttpExecutor`: A HTTP executor.
-    """
-
-    executor = HttpExecutor(url)
-    executor.load(path)
-
-    return executor
-
-
-def create_python_executor(path, *args, **kwargs):
-    """Creates a Python executor.
-
-    Args:
-        path: The path to the tests.
-
-    Returns:
-        :obj:`PythonExecutor`: A Python executor.
-    """
-
-    path, package = os.path.split(path.rstrip(os.path.sep))
-    module = load(path, package, "test")
-
-    return PythonExecutor(module)
-
-
-def create_dotnet_executor(path, *args, url="http://localhost:5000/", **kwargs):
-    """Creates a C#/.NET executor.
-
-    Args:
-        path: The path to the tests.
-        url: The url for the service to listen (e.g. http://localhost:5000/).
-
-    Returns:
-        :obj:`DotnetExecutor`: A C#/.NET executor.
-    """
-
-    return DotnetExecutor(path, url=url)
-
-
-_CREATE_EXECUTOR_FUNCTIONS = {
-    "http": create_http_executor,
-    "python": create_python_executor,
-    "dotnet": create_dotnet_executor,
-    "c#": create_dotnet_executor,
-}
-
-SUPPORTED_EXECUTORS = _CREATE_EXECUTOR_FUNCTIONS.keys()
-
-
-def _call_create_executor_function(executor_type, *args, **kwargs):
-    try:
-        generate_func = _CREATE_EXECUTOR_FUNCTIONS[executor_type.lower()]
-    except KeyError:
-        raise AltWalkerException(
-            "Executor type '{}' is not supported. Supported executor types are: {}."
-            .format(executor_type, ", ".join(SUPPORTED_EXECUTORS))
-        )
-
-    return generate_func(*args, **kwargs)
-
-
-def create_executor(path, executor_type, *args, url="http://localhost:5000/", **kwargs):
-    """Creates an executor.
-
-    Args:
-        path: The path to the tests.
-        executor_type: The type of the executor (e.g. http, python, dotnet).
-        url: The url for the executor service (e.g. http://localhost:5000/).
+        Executor: An initialized executor instance.
 
     Raises:
-        AltWalkerException: If the ``executor_type`` is not supported.
+        AltWalkerException: If the executor_type is not supported.
     """
 
-    return _call_create_executor_function(executor_type, path, *args, url=url, **kwargs)
+    if executor_type is not None and not isinstance(executor_type, str):
+        raise AltWalkerTypeError("Supported executor types are: {}.".format(", ".join(ExecutorFactory.keys())))
+
+    if executor_type is None:
+        executor_cls = ExecutorFactory.default
+    else:
+        executor_type_lower_case = executor_type.lower()
+        if executor_type_lower_case not in ExecutorFactory.keys():
+            raise AltWalkerValueError(
+                "Executor type '{}' is not supported. Supported executor types are: {}.".format(
+                    executor_type,
+                    ", ".join(ExecutorFactory.keys())
+                )
+            )
+        executor_cls = ExecutorFactory.get(executor_type_lower_case)
+
+    try:
+        executor = executor_cls(**kwargs)
+        executor.load(tests_path)
+
+        logger.info("Created executor '{}' with tests path: '{}'".format(executor_type, tests_path))
+        return executor
+    except Exception as e:
+        raise AltWalkerException("Failed to create executor: {}".format(e))
