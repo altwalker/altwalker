@@ -17,7 +17,6 @@ MODELS_OPTIONS = ["--model", "-m"]
 EXECUTOR_TYPE_OPTIONS = ["--executor", "-x", "--language", "-l"]
 LANGUAGE_OPTIONS = ["--language", "-l"]
 NO_GIT_OPTIONS = ["--no-git", "-n"]
-PORT_OPTIONS = ["--port", "-p"]
 START_ELEMENT_OPTIONS = ["--start-element", "-e"]
 VERBOSE_OPTIONS = ["--verbose", "-o"]
 UNVISITED_OPTIONS = ["--unvisited", "-u"]
@@ -176,22 +175,7 @@ class TestVerify:
                 suggestions=True,
             )
 
-    def test_url(self, cli_verify_mock):
-        with run_isolation(self.runner, self.files, folders=self.folders):
-            with pytest.warns(DeprecationWarning):
-                result = self.runner.invoke(
-                    verify, ["--url", "http://127.0.0.1:5000/", "tests", "-m", "models.json"])
-
-                assert result.exit_code == 0, result.output
-                cli_verify_mock.assert_called_once_with(
-                    "tests", ("models.json", ),
-                    executor_type="python",
-                    executor_url="http://127.0.0.1:5000/",
-                    import_mode=ImportModes.IMPORTLIB,
-                    suggestions=True,
-                )
-
-    def test_execuort_url(self, cli_verify_mock):
+    def test_executor_url(self, cli_verify_mock):
         with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
                 verify, ["--executor-url", "http://127.0.0.1:5000/", "tests", "-m", "models.json"])
@@ -564,32 +548,6 @@ class TestOnline:
                 report_xml_file=None
             )
 
-    @pytest.mark.parametrize("port_option", PORT_OPTIONS)
-    def test_port(self, cli_online_mock, port_option):
-        with run_isolation(self.runner, self.files, folders=self.folders):
-            with pytest.warns(DeprecationWarning):
-                result = self.runner.invoke(
-                    online, ["package", "-m", "models.json", "random(vertex_coverage(100))", port_option, 8080])
-
-                assert result.exit_code == 0, result.output
-                cli_online_mock.assert_called_once_with(
-                    "package", (("models.json", "random(vertex_coverage(100))"), ),
-                    executor_type="python",
-                    executor_url=None,
-                    import_mode=ImportModes.IMPORTLIB,
-                    gw_host=None,
-                    gw_port=8080,
-                    start_element=None,
-                    blocked=False,
-                    unvisited=False,
-                    verbose=False,
-                    report_file=None,
-                    report_path=False,
-                    report_path_file=None,
-                    report_xml=False,
-                    report_xml_file=None
-                )
-
     def test_gw_port(self, cli_online_mock):
         with run_isolation(self.runner, self.files, folders=self.folders):
             result = self.runner.invoke(
@@ -613,32 +571,6 @@ class TestOnline:
                 report_xml=False,
                 report_xml_file=None
             )
-
-    def test_url(self, cli_online_mock):
-        with run_isolation(self.runner, self.files, folders=self.folders):
-            with pytest.warns(DeprecationWarning):
-                result = self.runner.invoke(
-                    online,
-                    ["package", "-m", "models.json", "random(vertex_coverage(100))", "--url", "http://localhost:8080"])
-
-                assert result.exit_code == 0, result.output
-                cli_online_mock.assert_called_once_with(
-                    "package", (("models.json", "random(vertex_coverage(100))"), ),
-                    executor_type="python",
-                    executor_url="http://localhost:8080",
-                    import_mode=ImportModes.IMPORTLIB,
-                    gw_host=None,
-                    gw_port=8887,
-                    start_element=None,
-                    blocked=False,
-                    unvisited=False,
-                    verbose=False,
-                    report_file=None,
-                    report_path=False,
-                    report_path_file=None,
-                    report_xml=False,
-                    report_xml_file=None
-                )
 
     def test_executor_url(self, cli_online_mock):
         with run_isolation(self.runner, self.files, folders=self.folders):
@@ -975,25 +907,6 @@ class TestWalk:
                 report_xml=False,
                 report_xml_file=None
             )
-
-    def test_url(self, cli_walk_mock):
-        with run_isolation(self.runner, self.files, folders=self.folders):
-            with pytest.warns(DeprecationWarning):
-                result = self.runner.invoke(walk, ["package", "steps.json", "--url", "http://localhost:8080/"])
-
-                assert result.exit_code == 0, result.output
-                cli_walk_mock.assert_called_once_with(
-                    "package",
-                    "steps.json",
-                    executor_type="python",
-                    executor_url="http://localhost:8080/",
-                    import_mode=ImportModes.IMPORTLIB,
-                    report_file=None,
-                    report_path=False,
-                    report_path_file=None,
-                    report_xml=False,
-                    report_xml_file=None
-                )
 
     def test_executor_url(self, cli_walk_mock):
         with run_isolation(self.runner, self.files, folders=self.folders):
