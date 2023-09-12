@@ -62,6 +62,9 @@ executor_option = click.option(
     default="python", show_default=True,
     help="Configure the executor to be used.")
 
+executor_url_option = click.option(
+    "--executor-url", help="Sets the url for the executor.")
+
 import_mode_option = click.option(
     "--import-mode", "import_mode",
     type=click.Choice(get_supported_loaders(), case_sensitive=False),
@@ -70,20 +73,9 @@ import_mode_option = click.option(
 )
 
 
-url_option = click.option(
-    "--url", help="This option is deprecated, use --executor-url instead. [deprecated]")
-
-executor_url_option = click.option(
-    "--executor-url", help="Sets the url for the executor.")
-
-
 graphwalker_host_option = click.option(
     "--gw-host",
     help="Sets the host of the GraphWalker REST service.")
-
-port_option = click.option(
-    "--port", "-p", type=int,
-    help="This option is deprecated, use --gw-port instead. [deprecated]")
 
 graphwalker_port_option = click.option(
     "--gw-port", default=8887, show_default=True,
@@ -161,14 +153,9 @@ def check(models, blocked):
 @click.argument("test_package", type=click.Path(exists=True))
 @click.option("--suggestions/--no-suggestions", "suggestions", default=True, is_flag=True,
               help="If set will print code suggestions for missing elements.", show_default=True)
-@add_options([model_file_option, executor_option, url_option, executor_url_option, import_mode_option])
+@add_options([model_file_option, executor_option, executor_url_option, import_mode_option])
 def verify(test_package, model_paths, **options):
     """Verify and analyze test code for issues."""
-
-    if options["url"]:
-        warnings.warn("The --url option is deprecated, use --executor-url instead.", DeprecationWarning)
-
-    options["executor_url"] = options["url"] or options["executor_url"]
 
     status = cli_verify(
         test_package, model_paths,
@@ -208,23 +195,13 @@ def generate(output_dir, model_paths, language):
     cls=HelpColorsCommand,
     help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("test_package", type=click.Path(exists=True))
-@add_options([graphwalker_host_option, port_option, graphwalker_port_option,
-              model_and_generator_option, start_element_option, executor_option, url_option, executor_url_option,
+@add_options([graphwalker_host_option, graphwalker_port_option,
+              model_and_generator_option, start_element_option, executor_option, executor_url_option,
               verbose_option, unvisited_option, blocked_option,
               report_path_option, report_path_file_option, report_file_option,
               report_xml_option, report_xml_file_option, import_mode_option])
 def online(test_package, models, **options):
     """Generate and run a test path."""
-
-    if options["port"]:
-        warnings.warn("The --port/-p option is deprecated, use --gw-port instead.", DeprecationWarning)
-
-    options["gw_port"] = options["port"] or options["gw_port"]
-
-    if options["url"]:
-        warnings.warn("The --url option is deprecated, use --executor-url instead.", DeprecationWarning)
-
-    options["executor_url"] = options["url"] or options["executor_url"]
 
     cli_online(
         test_package, models, executor_type=options["executor_type"], executor_url=options["executor_url"],
@@ -253,15 +230,10 @@ def offline(models, **options):
     help_options_custom_colors=HELP_OPTIONS_CUSTOM_COLORS)
 @click.argument("test_package", type=click.Path(exists=True))
 @click.argument("steps_file", type=click.Path(exists=True, dir_okay=False))
-@add_options([executor_option, url_option, executor_url_option, import_mode_option,
+@add_options([executor_option, executor_url_option, import_mode_option,
               report_path_option, report_path_file_option, report_file_option,
               report_xml_option, report_xml_file_option])
-def walk(test_package, steps_file, executor_type, url, executor_url, **options):
+def walk(test_package, steps_file, executor_type, executor_url, **options):
     """Run the tests with steps from a file."""
-
-    if url:
-        warnings.warn("The --url option is deprecated, use --executor-url instead.", DeprecationWarning)
-
-    executor_url = url or executor_url
 
     cli_walk(test_package, steps_file, executor_type=executor_type, executor_url=executor_url, **options)
