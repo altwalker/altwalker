@@ -40,6 +40,7 @@ setup(
     python_requires=REQUIRES_PYTHON,
     setup_requires=REQUIRED,
     install_requires=REQUIRED,
+    include_package_data=True,
     packages=find_packages(exclude=['tests']),
     entry_points='''
         [console_scripts]
