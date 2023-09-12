@@ -65,7 +65,7 @@ executor_option = click.option(
 import_mode_option = click.option(
     "--import-mode", "import_mode",
     type=click.Choice(get_supported_loaders(), case_sensitive=False),
-    default="importlib", show_default=True,
+    default="importlib", show_default=True, envvar="ALTWALKER_IMPORT_MODE",
     help="Sets the importing mode for the Python language, which controls how modules are loaded and executed."
 )
 
