@@ -1,7 +1,6 @@
 import itertools
 import json
 import os
-import unittest
 import unittest.mock as mock
 
 import pytest
@@ -489,7 +488,8 @@ class TestValidateEdge:
             "targetVertexId": "v0",
             "dependency": dependency
         }
-        error_message = f"Edge 'e0' has an invalid dependency of: {dependency}. The dependency must be a valid integer number."
+        error_message = (f"Edge 'e0' has an invalid dependency of: {dependency}. "
+                         f"The dependency must be a valid integer number.")
 
         assert _validate_edge(edge) == {error_message}
 
@@ -752,7 +752,7 @@ class TestValidateModel:
         assert _validate_model(model) == set()
 
 
-class TestValidateModels:
+class Test_ValidateModels:
 
     def test_no_models(self):
         issues = _validate_models(NO_MODELS)
