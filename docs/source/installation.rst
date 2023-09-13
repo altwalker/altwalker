@@ -2,7 +2,7 @@
 Installation
 ============
 
-* **Pythons**: Python 3.7, 3.8, 3.9, 3.10, 3.11, PyPy3
+* **Pythons**: Python 3.8, 3.9, 3.10, 3.11, PyPy3
 * **Platforms**: Unix/POSIX and Windows
 * **PyPI package name**: `altwalker <https://pypi.org/project/altwalker/>`_
 
