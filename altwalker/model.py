@@ -34,7 +34,7 @@ def _read_json(path):
         try:
             data = json.load(fp)
         except ValueError as error:
-            raise ValidationException("Invalid json file: {}: {}.".format(path, str(error)))
+            raise ValidationException(f"Invalid json file: {path}: {error}.")
 
     return data
 
@@ -85,10 +85,10 @@ def _validate_element_name(name):
     issues = set()
 
     if _is_keyword(name):
-        issues.add("Name '{}' is a reserve keyword.".format(name))
+        issues.add(f"Name '{name}' is a reserve keyword.")
 
     if not name.isidentifier():
-        issues.add("Name '{}' is not a valid identifier.".format(name))
+        issues.add(f"Name '{name}' is not a valid identifier.")
 
     return issues
 
@@ -97,23 +97,14 @@ def _validate_actions(element_id, actions_json):
     issues = set()
 
     if not isinstance(actions_json, list):
-        issues.add(
-            "Edge '{}' has invalid actions. Actions must be a list of strings."
-            .format(element_id)
-        )
+        issues.add(f"Edge '{element_id}' has invalid actions. Actions must be a list of strings.")
         return issues
 
     for action in actions_json:
         if not isinstance(action, str):
-            issues.add(
-                "Edge '{}' has an invalid action. Each action must be a string."
-                .format(element_id)
-            )
+            issues.add(f"Edge '{element_id}' has an invalid action. Each action must be a string.")
         elif not action:
-            issues.add(
-                "Edge '{}' has an invalid action. Action cannot be an empty string."
-                .format(element_id)
-            )
+            issues.add(f"Edge '{element_id}' has an invalid action. Action cannot be an empty string.")
 
     return issues
 
@@ -122,23 +113,14 @@ def _validate_requirements(element_id, requirements_json):
     issues = set()
 
     if not isinstance(requirements_json, list):
-        issues.add(
-            "Vertex '{}' has invalid requirements. Requirements must be a list of strings."
-            .format(element_id)
-        )
+        issues.add(f"Vertex '{element_id}' has invalid requirements. Requirements must be a list of strings.")
         return issues
 
     for requirement in requirements_json:
         if not isinstance(requirement, str):
-            issues.add(
-                "Vertex '{}' has an invalid requirement. Each requirements must be a string."
-                .format(element_id)
-            )
+            issues.add(f"Vertex '{element_id}' has an invalid requirement. Each requirements must be a string.")
         elif not requirement:
-            issues.add(
-                "Vertex '{}' has an invalid requirement. Requirement cannot be an empty string."
-                .format(element_id)
-            )
+            issues.add(f"Vertex '{element_id}' has an invalid requirement. Requirement cannot be an empty string.")
 
     return issues
 
@@ -148,8 +130,7 @@ def _validate_weight(element_id, weight):
 
     if weight and (not isinstance(weight, float) or weight < 0 or weight > 1):
         issues.add(
-            "Edge '{}' has an ivalid weight of: {}. The weight must be a value between 0 and 1."
-            .format(element_id, weight)
+            f"Edge '{element_id}' has an invalid weight of: {weight}. The weight must be a value between 0 and 1."
         )
 
     return issues
@@ -166,8 +147,8 @@ def _validate_dependency(element_id, dependency):
         return set()
 
     return {
-        "Edge '{}' has an ivalid dependency of: {}. The dependency must be a valid integer number."
-        .format(element_id, dependency)
+        f"Edge '{element_id}' has an invalid dependency of: {dependency}. "
+        "The dependency must be a valid integer number."
     }
 
 
@@ -181,13 +162,13 @@ def _validate_vertex(vertex_json):
 
     name = vertex_json.get("name", "")
     if not name:
-        issues.add("Vertex '{}' doesn't have a name.".format(id))
+        issues.add(f"Vertex '{id}' doesn't have a name.")
     else:
         issues.update(_validate_element_name(name))
 
     shared_state = vertex_json.get("sharedState", "")
     if not isinstance(shared_state, str):
-        issues.add("Vertex '{}' has an invalid sharedState. Shared states must be strings.".format(id))
+        issues.add(f"Vertex '{id}' has an invalid sharedState. Shared states must be strings.")
 
     return issues
 
@@ -205,17 +186,14 @@ def _validate_edge(edge_json, is_start_element=False):
         issues.update(_validate_element_name(name))
 
     if not is_start_element and not edge_json.get("sourceVertexId"):
-        issues.add(
-            "Edge '{}' is not a start element and it doesn't have a sourceVertexId."
-            .format(element_id)
-        )
+        issues.add(f"Edge '{element_id}' is not a start element and it doesn't have a sourceVertexId.")
 
     if not edge_json.get("targetVertexId"):
-        issues.add("Edge '{}' doesn't have a targetVertexId.".format(element_id))
+        issues.add(f"Edge '{element_id}' doesn't have a targetVertexId.")
 
     guard = edge_json.get("guard")
     if guard is not None and not isinstance(guard, str):
-        issues.add("Edge '{}' has an ivalid guard. The guard must be a string.".format(element_id))
+        issues.add(f"Edge '{element_id}' has an invalid guard. The guard must be a string.")
 
     issues.update(_validate_weight(element_id, edge_json.get("weight")))
     issues.update(_validate_dependency(element_id, edge_json.get("dependency")))
@@ -278,7 +256,7 @@ def _validate_model(model_json):
         issues.add("Model has neither a starting element nor a shared state.")
 
     if start_element_id and not start_element_found:
-        issues.add("Starting element '{}' was not found.".format(start_element_id))
+        issues.add(f"Starting element '{start_element_id}' was not found.")
 
     return issues
 
@@ -293,7 +271,7 @@ def _validate_models(models_json):
         issues["global"].add("No models found.")
 
     for model in models:
-        key = "{}::{}".format(model.get("sourceFile", "UnknownSourceFile"), model.get("name", "UnnamedModel"))
+        key = f"{model.get('sourceFile', 'UnknownSourceFile')}::{model.get('name', 'UnnamedModel')}"
         issues[key].update(_validate_model(model))
 
         for element in itertools.chain(model.get("edges", []), model.get("vertices", [])):
@@ -303,7 +281,7 @@ def _validate_models(models_json):
                 ids[element_id] += 1
 
             if element_id and ids[element_id] > 1:
-                issues[key].add("Id '{}' is not unique.".format(element_id))
+                issues[key].add(f"Id '{element_id}' is not unique.")
 
     return issues
 

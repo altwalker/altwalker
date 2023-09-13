@@ -93,8 +93,9 @@ def _validate_stop_conditions(stop_conditions):
 
         if "never" in normalized_stop_condition or "timeduration" in normalized_stop_condition:
             raise AltWalkerException(
-                "Invalid stop condition: '{}'. 'never' and 'time_duration' are not allowed in offline mode."
-                .format(stop_condition))
+                f"Invalid stop condition: '{stop_condition}'. "
+                "The 'never' and 'time_duration' stop conditions are not allowed in offline mode."
+            )
 
 
 def offline(models, *args, start_element=None, verbose=False, unvisited=False, blocked=False, **kwargs):

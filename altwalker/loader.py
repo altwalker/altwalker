@@ -193,7 +193,7 @@ class ImportlibLoader(Loader):
             spec = importlib.util.spec_from_file_location(module_name, str(path))
 
         if spec is None:
-            raise ImportError("Can't find module '{}' at location '{}'.".format(module_name, path))
+            raise ImportError(f"Can't find module '{module_name}' at location '{path}'.")
 
         mod = importlib.util.module_from_spec(spec)
         sys.modules[module_name] = mod
@@ -208,13 +208,11 @@ class ImportlibLoader(Loader):
             tried_modules = set()
 
         if (p, root) in tried_modules:
-            raise ImportError("Can't import module at location '{}'.".format(p))
+            raise ImportError(f"Can't import module at location '{p}'.")
 
         while True:
             try:
-                logger.debug(
-                    "Importing module from path: '{}', root: '{}', tried module: {}.".format(p, root, tried_modules)
-                )
+                logger.debug(f"Importing module from path: '{p}', root: '{root}', tried module: {tried_modules}.")
 
                 tried_modules.add((p, root))
                 return ImportlibLoader._load_module(p, root)
@@ -341,13 +339,14 @@ def create_loader(mode=None):
         return LoaderFactory.default
 
     if not isinstance(mode, str):
-        raise AltWalkerTypeError("Supported importing modes are: {}.".format(", ".join(LoaderFactory.keys())))
+        raise AltWalkerTypeError(f"Supported importing modes are: {', '.join(LoaderFactory.keys())}.")
 
     mode_lower_case = mode.lower()
     if mode_lower_case not in LoaderFactory.keys():
-        raise AltWalkerValueError("Importing mode '{}' is not supported. Supported importing modes are: {}.".format(
-            mode, ", ".join(LoaderFactory.keys())
-        ))
+        raise AltWalkerValueError(
+            f"Importing mode '{mode}' is not supported. "
+            f"Supported importing modes are: {', '.join(LoaderFactory.keys())}."
+        )
 
-    logger.info("Created loader with mode: {}".format(mode_lower_case))
+    logger.info(f"Created loader with mode: {mode_lower_case}")
     return LoaderFactory.get(mode_lower_case)

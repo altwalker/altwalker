@@ -1,3 +1,4 @@
+from pathlib import Path
 import unittest.mock as mock
 
 import pytest
@@ -193,7 +194,7 @@ class TestEchoCodeIssues:
 
         for error_messages in self.issues.values():
             for error_message in error_messages:
-                secho_mock.assert_any_call("    {}".format(error_message), fg="red")
+                secho_mock.assert_any_call(f"    {error_message}", fg="red")
 
         secho_mock.assert_any_call("[PASSED]", fg="green")
 
@@ -659,7 +660,7 @@ class TestCliWalk:
             "status": True
         }
 
-        steps_file = "{}/steps.json".format(tmpdir)
+        steps_file = Path(tmpdir, "steps.json")
 
         with open(steps_file, "w+") as fp:
             fp.write("{}")
@@ -676,7 +677,7 @@ class TestCliWalk:
             "status": False
         }
 
-        steps_file = "{}/steps.json".format(tmpdir)
+        steps_file = Path(tmpdir, "steps.json")
 
         with open(steps_file, "w+") as fp:
             fp.write("{}")
@@ -694,7 +695,7 @@ class TestCliWalk:
             "status": True
         }
 
-        steps_file = "{}/steps.json".format(tmpdir)
+        steps_file = Path(tmpdir, "steps.json")
 
         with open(steps_file, "w+") as fp:
             fp.write("{}")
@@ -710,7 +711,7 @@ class TestCliWalk:
             "status": True
         }
 
-        steps_file = "{}/steps.json".format(tmpdir)
+        steps_file = Path(tmpdir, "steps.json")
 
         with open(steps_file, "w+") as fp:
             fp.write("{}")
@@ -728,7 +729,7 @@ class TestCliWalk:
             "status": True
         }
 
-        steps_file = "{}/steps.json".format(tmpdir)
+        steps_file = Path(tmpdir, "steps.json")
 
         with open(steps_file, "w+") as fp:
             fp.write("{}")

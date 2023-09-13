@@ -37,8 +37,8 @@ class TestGetErrorMessage:
         ]
     )
     def test_for_errors(self, error_message):
-        base = "An error occurred when running command:\n{}\n"
-        assert _get_error_message(base.format(error_message)) == error_message
+        output = f"An error occurred when running command:\n{error_message}\n"
+        assert _get_error_message(output) == error_message
 
 
 class TestCreateCommand:
@@ -258,7 +258,7 @@ class TestOffline:
             "properties": []
         })
 
-        command_mock.return_value = "{0}\n{0}\n".format(output)
+        command_mock.return_value = f"{output}\n{output}\n"
 
         step = {
             "id": "v0",

@@ -1,11 +1,12 @@
-import os
 import json
+import os
 import unittest.mock as mock
+from pathlib import Path
 
 import pytest
 
-from altwalker.reporter import Reporter, Reporting, ClickReporter, FileReporter, \
-    PathReporter
+from altwalker.reporter import (ClickReporter, FileReporter, PathReporter,
+                                Reporter, Reporting)
 
 
 class TestReporting:
@@ -294,7 +295,7 @@ class TestPathReporter:
         assert report == []
 
     def test_file(self, tmpdir):
-        report_file = "{}/path.json".format(tmpdir)
+        report_file = Path(tmpdir, "path.json")
         self.reporter._file = report_file
 
         step_a = {
@@ -319,7 +320,7 @@ class TestPathReporter:
     @pytest.mark.parametrize("verbose", [True, False])
     @mock.patch("click.secho")
     def test_verbose(self, secho_mock, verbose, tmpdir):
-        report_file = "{}/path.json".format(tmpdir)
+        report_file = Path(tmpdir, "path.json")
         self.reporter._file = report_file
         self.reporter._verbose = verbose
 

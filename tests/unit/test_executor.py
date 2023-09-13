@@ -279,27 +279,27 @@ class TestPythonExecutor:
         response = self.executor.execute_step("Simple", "vertex_a", data=data)
         output = response["output"]
 
-        assert "Simple.vertex_a" in output, "Actual output: {}".format(output)
-        assert str(data) in output, "Actual output: {}".format(output)
+        assert "Simple.vertex_a" in output, f"Actual output: {output}"
+        assert str(data) in output, f"Actual output: {output}"
 
         response = self.executor.execute_step("Simple", "vertex_b", data=data)
         output = response["output"]
 
-        assert "Simple.vertex_b" in output, "Actual output: {}".format(output)
-        assert str(data) in output, "Actual output: {}".format(output)
+        assert "Simple.vertex_b" in output, f"Actual output: {output}"
+        assert str(data) in output, f"Actual output: {output}"
 
         response = self.executor.execute_step("Simple", "edge_a", data=data)
         output = response["output"]
 
-        assert "Simple.edge_a" in output, "Actual output: {}".format(output)
-        assert "Decorated method" in output, "Actual output: {}".format(output)
+        assert "Simple.edge_a" in output, f"Actual output: {output}"
+        assert "Decorated method" in output, f"Actual output: {output}"
 
         response = self.executor.execute_step("Simple", "edge_b", data=data)
         output = response["output"]
 
-        assert "Simple.edge_b" in output, "Actual output: {}".format(output)
-        assert "Decorated method" in output, "Actual output: {}".format(output)
-        assert str(data) in output, "Actual output: {}".format(output)
+        assert "Simple.edge_b" in output, f"Actual output: {output}"
+        assert "Decorated method" in output, f"Actual output: {output}"
+        assert str(data) in output, f"Actual output: {output}"
 
     @mock.patch("altwalker.executor.signature")
     def test_execute_step_function(self, signature):

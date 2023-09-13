@@ -158,7 +158,7 @@ class HttpExecutor(Executor):
         self.url = url or "http://localhost:5000"
         self.base = url_join(self.url, "altwalker/")
 
-        logging.debug("Initiate an HttpExecutor to connect to {} service".format(self.url))
+        logging.debug(f"Initiate an HttpExecutor to connect to {self.url} service")
 
     def _validate_response(self, response):
         if not response.status_code == 200:
@@ -166,11 +166,10 @@ class HttpExecutor(Executor):
             error = response.json().get("error")
 
             error_type = self.ERROR_CODES.get(status_code, "Unknown Error")
-            error_message = "The executor from {} responded with status code: {} {}.".format(
-                self.url, status_code, error_type)
+            error_message = f"The executor from {self.url} responded with status code: {status_code} {error_type}."
 
             if error:
-                error_message += "\nMessage: {}\nTrace: {}".format(error["message"], error.get("trace"))
+                error_message += f"\nMessage: {error['message']}\nTrace: {error.get('trace')}"
 
             raise ExecutorException(error_message)
 
@@ -418,12 +417,11 @@ class PythonExecutor(Executor):
         elif nr_args == 1:
             step_result = get_step_result(func, data)
         else:
-            func_name = "{}.{}".format(model_name, name) if model_name else name
+            func_name = f"{model_name}.{name}" if model_name else name
             type_ = "method" if model_name else "function"
 
-            error_message = "The {} {} must take {} or {} parameters but it expects {} parameters."
-
-            raise ExecutorException(error_message.format(func_name, type_, 0, 1, nr_args))
+            error_message = f"The {func_name} {type_} must take 0 or 1 parameters but it expects {nr_args} parameters."
+            raise ExecutorException(error_message)
 
         step_result["data"] = data
         return step_result
@@ -450,9 +448,9 @@ class DotnetExecutorService:
 
         self._process = Command(command, self.output_file)
 
-        logger.debug("Dotnet Executor Service started from '{}' on {}".format(path, self.server_url))
-        logger.debug("Dotnet Executor Service started with command: {}".format(" ".join(command)))
-        logger.debug("Dotnet Executor Service running with pid: {}".format(self._process.pid))
+        logger.debug(f"Dotnet Executor Service started from '{self.path}' on {self.server_url}")
+        logger.debug(f"Dotnet Executor Service started with command: {' '.join(command)}")
+        logger.debug(f"Dotnet Executor Service running with pid: {self._process.pid}")
 
         # Ignore bare 'except' error because we re-raise the exception.
         try:
@@ -479,12 +477,13 @@ class DotnetExecutorService:
                     self._raise_error()
 
     def _raise_error(self):
-        logger.error("Could not start Dotnet Executor service from {} on {}".format(self.path, self.server_url))
-        logger.error("Process exit code: {}".format(self._process.poll()))
+        logger.error(f"Could not start Dotnet Executor service from {self.path} on {self.server_url}")
+        logger.error(f"Process exit code: {self._process.poll()}")
 
         raise ExecutorException(
-            "Could not start .NET Executor service from {} on {}\nCheck the log file at: {}"
-            .format(self.path, self.server_url, self.output_file))
+            f"Could not start .NET Executor service from {self.path} on {self.server_url}\n"
+            f"Check the log file at: {self.output_file}"
+        )
 
     @staticmethod
     def _create_command(path, url="http://localhost:5000/"):
@@ -495,7 +494,7 @@ class DotnetExecutorService:
             command.append("-p")
 
         command.append(path)
-        command.append("--server.urls={}".format(url))
+        command.append(f"--server.urls={url}")
 
         return command
 
@@ -508,7 +507,7 @@ class DotnetExecutorService:
             in a child process.
         """
 
-        logger.debug("Kill the .NET Executor Service from {} on {}".format(self.path, self.server_url))
+        logger.debug(f"Kill the .NET Executor Service from {self.path} on {self.server_url}")
         self._process.kill()
 
 
@@ -536,7 +535,7 @@ class DotnetExecutor(HttpExecutor):
         before starting the new one.
         """
 
-        logger.debug("Starting the .NET Executor service from {} on {}".format(path, self.url))
+        logger.debug(f"Starting the .NET Executor service from {path} on {self.url}")
 
         if self._service:
             logger.debug("Killing the old .NET Executor service.")
@@ -605,7 +604,7 @@ def create_executor(executor_type, tests_path, **kwargs):
     """
 
     if executor_type is not None and not isinstance(executor_type, str):
-        raise AltWalkerTypeError("Supported executor types are: {}.".format(", ".join(ExecutorFactory.keys())))
+        raise AltWalkerTypeError(f"Supported executor types are: {', '.join(ExecutorFactory.keys())}.")
 
     if executor_type is None:
         executor_cls = ExecutorFactory.default
@@ -613,18 +612,17 @@ def create_executor(executor_type, tests_path, **kwargs):
         executor_type_lower_case = executor_type.lower()
         if executor_type_lower_case not in ExecutorFactory.keys():
             raise AltWalkerValueError(
-                "Executor type '{}' is not supported. Supported executor types are: {}.".format(
-                    executor_type,
-                    ", ".join(ExecutorFactory.keys())
-                )
+                f"Executor type '{executor_type}' is not supported. "
+                f"Supported executor types are: {', '.join(ExecutorFactory.keys())}."
             )
+
         executor_cls = ExecutorFactory.get(executor_type_lower_case)
 
     try:
         executor = executor_cls(**kwargs)
         executor.load(tests_path)
 
-        logger.info("Created executor '{}' with tests path: '{}'".format(executor_type, tests_path))
+        logger.info(f"Created executor '{executor_type}' with tests path: '{tests_path}'")
         return executor
     except Exception as e:
-        raise AltWalkerException("Failed to create executor: {}".format(e))
+        raise AltWalkerException(f"Failed to create executor: {e}")

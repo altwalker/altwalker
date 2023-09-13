@@ -33,7 +33,7 @@ def _git_init(path):
 
         repo = Repo.init(path)
         repo.git.add("--all")
-        repo.index.commit("Initial commit from AltWalker CLI {}".format(VERSION))
+        repo.index.commit(f"Initial commit from AltWalker CLI {VERSION}")
     else:
         warnings.warn("Git is not installed.")
 
@@ -67,10 +67,7 @@ class Generator(metaclass=abc.ABCMeta):
         self.git = git
 
     def __repr__(self):
-        return '{}({!r}, {!r}, {!r})'.format(
-           self.__class__.__name__,
-           self.output_path, self.model_paths, self.git
-        )
+        return f"{self.__class__.__name__}({self.output_path!r}, {self.model_paths!r}, {self.git!r})"
 
     @property
     def project_name(self):
@@ -129,7 +126,7 @@ class Generator(metaclass=abc.ABCMeta):
 
     def init_project(self):
         if os.path.exists(self.output_path):
-            raise FileExistsError("The '{}' directory already exists.".format(self.output_path))
+            raise FileExistsError(f"The '{self.output_path}' directory already exists.")
 
         os.makedirs(self.output_path)
 
@@ -178,7 +175,7 @@ class PythonGenerator(Generator):
 
     @property
     def gitignore(self):
-        return "{}\n{}".format(super().gitignore, self.PYTHON_GITIGNORE)
+        return f"{super().gitignore}\n{self.PYTHON_GITIGNORE}"
 
     @classmethod
     def generate_methods(cls, methods):
@@ -234,7 +231,7 @@ class DotnetGenerator(Generator):
 
     @property
     def gitignore(self):
-        return "{}\n{}".format(super().gitignore, self.DOTNET_GITIGNORE)
+        return f"{super().gitignore}\n{self.DOTNET_GITIGNORE}"
 
     @classmethod
     def generate_methods(cls, methods):
@@ -270,11 +267,11 @@ class DotnetGenerator(Generator):
 
     def generate_tests(self, classes, package_name="tests"):
         base_path = os.path.join(self.output_path, package_name)
-        namespace = _normalize_namespace("{}.{}".format(self.project_name, package_name))
+        namespace = _normalize_namespace(f"{self.project_name}.{package_name}")
 
         os.makedirs(base_path)
 
-        with open(os.path.join(base_path, "{}.csproj".format(package_name)), "w") as fp:
+        with open(os.path.join(base_path, f"{package_name}.csproj"), "w") as fp:
             fp.write(self.generate_csproj())
 
         with open(os.path.join(base_path, "Program.cs"), "w") as fp:

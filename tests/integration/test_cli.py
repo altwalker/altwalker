@@ -56,18 +56,18 @@ class TestInit(unittest.TestCase):
         models = models if models else []
 
         for model in models:
-            self.assertTrue(Path("{}/models/{}".format(repo_path, model)).exists())
+            self.assertTrue(Path(repo_path, "models", model).exists())
 
     def _assert_empty_file_structure(self, repo_path):
-        self.assertTrue(Path("{}/tests/".format(repo_path)).exists())
+        self.assertTrue(Path(repo_path, "tests").exists())
 
     def _assert_python_file_structure(self, repo_path):
-        self.assertTrue(Path("{}/tests/__init__.py".format(repo_path)).exists())
-        self.assertTrue(Path("{}/tests/test.py".format(repo_path)).exists())
+        self.assertTrue(Path(repo_path, "tests", "__init__.py").exists())
+        self.assertTrue(Path(repo_path, "tests", "test.py").exists())
 
     def _assert_dotnet_file_structure(self, repo_path):
-        self.assertTrue(Path("{}/tests/tests.csproj".format(repo_path)).exists())
-        self.assertTrue(Path("{}/tests/Program.cs".format(repo_path)).exists())
+        self.assertTrue(Path(repo_path, "tests", "tests.csproj").exists())
+        self.assertTrue(Path(repo_path, "tests", "Program.cs").exists())
 
     def _assert_git_repo(self, repo_path):
         repo = Repo(repo_path)
@@ -116,7 +116,7 @@ class TestInit(unittest.TestCase):
                 "        pass\n\n\n"
             )
 
-            with open("{}/tests/test.py".format(self.packagename), "r") as fp:
+            with open(Path(self.packagename, "tests", "test.py"), "r") as fp:
                 code = fp.read()
                 print()
                 print(code)
@@ -162,7 +162,7 @@ class TestInit(unittest.TestCase):
                 "}"
             )
 
-            with open("{}/tests/Program.cs".format(self.packagename), "r") as fp:
+            with open(Path(self.packagename, "tests", "Program.cs"), "r") as fp:
                 self.assertEqual(fp.read(), expected_code)
 
     def test_no_language(self):
@@ -183,7 +183,7 @@ class TestInit(unittest.TestCase):
             self.assertEqual(result.exit_code, 0, msg=result.output)
 
             self._assert_models_files(packagename, ["simple.json"])
-            self.assertTrue(filecmp.cmp("{}/models/simple.json".format(packagename), "simple.json"))
+            self.assertTrue(filecmp.cmp(Path(packagename, "models", "simple.json"), "simple.json"))
 
 
 class TestCheck(unittest.TestCase):
