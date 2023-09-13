@@ -140,11 +140,11 @@ def _execute_command(command, model_path=None, models=None, start_element=None, 
     full_command = _create_command(command, model_path=model_path, models=models, start_element=start_element,
                                    verbose=verbose, unvisited=unvisited, blocked=blocked)
 
-    logger.debug("Executed command: '{}'.".format(" ".join(full_command)))
+    logger.debug(f"Executed command: '{' '.join(full_command)}'.")
     output, error = execute_command(full_command)
 
-    logger.debug("Output: '{}'".format(output))
-    logger.debug("Error: '{}'".format(error))
+    logger.debug(f"Output: '{output}'")
+    logger.debug(f"Error: '{error}'")
 
     if error:
         error = error.decode("utf-8").strip()
@@ -285,9 +285,9 @@ class GraphWalkerService:
 
         self._process = Command(command, self.output_file)
 
-        logger.debug("GraphWalker Service started with command: {}".format(" ".join(command)))
-        logger.debug("GraphWalker Service running on port: {}".format(self.port))
-        logger.debug("GraphWalker Service running with pid: {}".format(self._process.pid))
+        logger.debug(f"GraphWalker Service started with command: {' '.join(command)}")
+        logger.debug(f"GraphWalker Service running on port: {self.port}")
+        logger.debug(f"GraphWalker Service running with pid: {self._process.pid}")
 
         # Ignore bare 'except' error because we re-raise the exception.
         try:
@@ -328,26 +328,25 @@ class GraphWalkerService:
     def _raise_error(self):
         error = self._get_error_message()
 
-        logger.error("Could not start GraphWalker Service on port: {}".format(self.port))
-        logger.error("Process exit code: {}".format(self._process.poll()))
+        logger.error(f"Could not start GraphWalker Service on port: {self.port}")
+        logger.error(f"Process exit code: {self._process.poll()}")
         if error:
-            logger.error("GraphWalker Service Error: {}".format(error))
+            logger.error(f"GraphWalker Service Error: {error}")
 
-        more_info = "For more information check the log file at: {}".format(self.output_file)
+        more_info = f"For more information check the log file at: {self.output_file}"
 
         if error:
             raise GraphWalkerException(
-                "An error occurred while trying to start the GraphWalker Service on port: {}\n{}\n\n{}"
-                .format(self.port, error, more_info))
+                f"An error occurred while trying to start the GraphWalker Service on port: {self.port}\n{error}\n\n"
+                f"{more_info}"
+            )
 
-        raise GraphWalkerException(
-            "Could not start the GraphWalker Service on port: {}\n\n{}"
-            .format(self.port, more_info))
+        raise GraphWalkerException(f"Could not start the GraphWalker Service on port: {self.port}\n\n{more_info}")
 
     def kill(self):
         """Send the SIGINT signal to the GraphWalker service to kill the process and free the port."""
 
-        logger.debug("Killing the GraphWalker Service on port: {}".format(self.port))
+        logger.debug(f"Killing the GraphWalker Service on port: {self.port}")
         self._process.kill()
 
 
@@ -371,8 +370,8 @@ class GraphWalkerClient:
         self.port = port
         self.verbose = verbose
 
-        self.base = "http://{}:{}/graphwalker".format(host, port)
-        logger.debug("Initializing a GraphWalkerClient on host: {}".format(self.base))
+        self.base = f"http://{host}:{port}/graphwalker"
+        logger.debug(f"Initializing a GraphWalkerClient on host: {self.base}")
 
     def _normalize_fail_message(self, message):
         """Make fail message safe for use a port of an URL."""
@@ -389,7 +388,7 @@ class GraphWalkerClient:
             # convert python boolean value to javascript boolean value
             normalized_value = "true" if value else "false"
         elif isinstance(value, str):
-            normalized_value = "\"{}\"".format(value)
+            normalized_value = f"\"{value}\""
         else:
             normalized_value = str(value)
 
@@ -400,8 +399,7 @@ class GraphWalkerClient:
 
     def _validate_response(self, response):
         if not response.status_code == 200:
-            raise GraphWalkerException(
-                "GraphWalker responded with status code: {}.".format(response.status_code))
+            raise GraphWalkerException(f"GraphWalker responded with status code: {response.status_code}.")
 
     def _get_body(self, response):
         body = response.json()
@@ -411,8 +409,7 @@ class GraphWalkerClient:
             return body
 
         if "error" in body:
-            raise GraphWalkerException(
-                "GraphWalker responded with the error: {}.".format(body["error"]))
+            raise GraphWalkerException(f"GraphWalker responded with the error: {body['error']}.")
 
         if body["result"] == "nok":
             raise GraphWalkerException(
@@ -446,7 +443,7 @@ class GraphWalkerClient:
             model (:obj:`dict`): The JSON model.
         """
 
-        logger.debug("Host {} loads a new model".format(self.base))
+        logger.debug(f"Host {self.base} loads a new model")
         self._post("/load", data=json.dumps(model))
 
     def has_next(self):
@@ -517,10 +514,10 @@ class GraphWalkerClient:
             value (:obj:`str`, :obj:`int`, :obj:`bool`): The value to set.
         """
 
-        logger.debug("Host {} sets {} = {}".format(self.base, key, value))
+        logger.debug(f"Host {self.base} sets {key} = {value}")
 
         normalize_key, normalize_value = self._normalize_data(key, value)
-        self._put("/setData/{}={}".format(normalize_key, normalize_value))
+        self._put(f"/setData/{normalize_key}={normalize_value}")
 
     def restart(self):
         """Reset the currently loaded model(s) to it’s initial state.
@@ -539,10 +536,10 @@ class GraphWalkerClient:
             message (:obj:`str`): The error message.
         """
 
-        logger.debug("Host {} failed with message: {}".format(self.base, message))
+        logger.debug(f"Host {self.base} failed with message: {message}")
 
         normalized_message = self._normalize_fail_message(message)
-        response = requests.put("{}/fail/{}".format(self.base, normalized_message))
+        response = requests.put(f"{self.base}/fail/{normalized_message}")
         self._validate_response(response)
 
     def get_statistics(self):

@@ -47,10 +47,10 @@ def xml_safe(value):
     ]
 
     illegal_ranges = [
-        "{}-{}".format(chr(low), chr(high)) for (low, high) in illegal_characters if low < sys.maxunicode
+        f"{chr(low)}-{chr(high)}" for (low, high) in illegal_characters if low < sys.maxunicode
     ]
 
-    illegal_regex = re.compile("[{}]".format("".join(illegal_ranges)))
+    illegal_regex = re.compile(f"[{''.join(illegal_ranges)}]")
     return illegal_regex.sub("?", value)
 
 
@@ -479,7 +479,7 @@ class JUnitGenerator:
 
         if title:
             title = title.center(80, "-")
-            return "{}\n\n{}".format(title, content)
+            return f"{title}\n\n{content}"
 
         return content
 
@@ -523,7 +523,7 @@ class JUnitGenerator:
         elapsed_seconds = elapsed_seconds.total_seconds()
 
         test_case = TestCase(
-            "#{:05d} - {}".format(self.index, format_step_name(step)),
+            f"#{self.index:05d} - {format_step_name(step)}",
             classname=step.get("modelName"),
             stdout=self._format_content(result.get("output"), title="Output"),
             timestamp=self.test_case_timestamp,
@@ -545,7 +545,7 @@ class JUnitGenerator:
         name = format_step_name(step) if step else "Unexpected Error."
 
         test_case = TestCase(
-            "#{:05d} - {}".format(self.index, name),
+            f"#{self.index:05d} - {name}",
             classname=step.get("modelName"),
         )
 

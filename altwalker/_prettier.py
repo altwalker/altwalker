@@ -31,7 +31,7 @@ class NumberFormatter:
         if percentage < 50:
             color = "red"
 
-        return click.style("{}%".format(percentage), fg=color, bold=True)
+        return click.style(f"{percentage}%", fg=color, bold=True)
 
     @staticmethod
     def format_passed(number):
@@ -78,7 +78,7 @@ class TableFormatter:
         key = key.ljust(30, fillchar)
         value = str(value).rjust(30, fillchar)
 
-        return "{}{}\n".format(key, value)
+        return f"{key}{value}\n"
 
     @classmethod
     def format(cls, items, prefix=None, fillchar=None):
@@ -108,9 +108,9 @@ class UnvisitedElementsFormatter:
         element_name = element.get("vertexName") or element.get("edgeName") or element.get("elementName")
 
         if model_name:
-            return click.style("{} - {}.{}".format(element_id, model_name, element_name), fg="yellow")
+            return click.style(f"{element_id} - {model_name}.{element_name}", fg="yellow")
         else:
-            return click.style("{} - {}".format(element_id, element_name), fg="yellow")
+            return click.style(f"{element_id} - {element_name}", fg="yellow")
 
     @classmethod
     def _normalize_elements(cls, elements):
@@ -332,11 +332,11 @@ def format_json(data, title=None, prefix=None):
     text = ""
 
     if title:
-        text += "{}\n\n".format(title)
+        text += f"{title}\n\n"
 
     text += click.style(json.dumps(data, sort_keys=True, indent=2), fg="bright_magenta")
 
-    return textwrap.indent(text + "\n", prefix=prefix)
+    return textwrap.indent(f"{text}\n", prefix=prefix)
 
 
 def format_table(data, prefix=None, fillchar=None):
@@ -357,7 +357,7 @@ def format_inline_list(iterable, title=None, prefix=None, glue=None):
     text = ""
 
     if title:
-        text += "{}: ".format(title)
+        text += f"{title}: "
 
     text += glue.join(iterable)
 
@@ -375,10 +375,10 @@ def format_unordered_list(iterable, title=None, prefix=None, delimiter=None):
     text = ""
 
     if title:
-        text += "{}\n\n".format(title)
+        text += f"{title}\n\n"
 
     for item in iterable:
-        text += textwrap.indent("{} {}\n".format(delimiter, item), prefix="  " if title else "")
+        text += textwrap.indent(f"{delimiter} {item}\n", prefix="  " if title else "")
 
     return textwrap.indent(text, prefix=prefix) + "\n"
 
@@ -387,9 +387,9 @@ def format_step_name(step):
     """Formats an step name into a “pretty” string."""
 
     if step.get("modelName"):
-        text = "{}.{}".format(step["modelName"], step["name"])
+        text = f"{step['modelName']}.{step['name']}"
     else:
-        text = "{}".format(step["name"])
+        text = f"{step['name']}"
 
     return text
 
@@ -428,7 +428,7 @@ def format_output(output, prefix=None):
     title = click.style("Output:", fg="bright_black")
     content = click.style(output.strip(" \n"), fg="cyan")
 
-    text = "{}\n\n{}\n".format(title, content)
+    text = f"{title}\n\n{content}\n"
 
     return textwrap.indent(text, prefix=prefix)
 
@@ -455,9 +455,9 @@ def format_error(error, prefix=None):
     content = click.style(error["message"], fg="red", bold=True)
 
     if error.get("trace"):
-        content += "\n\n{}".format(click.style(error["trace"], fg="red"))
+        content += f"\n\n{click.style(error['trace'], fg='red')}"
 
-    text = "{} {}\n".format(title, content)
+    text = f"{title} {content}\n"
     text = fill(text, width=width - len(prefix))
 
     return textwrap.indent(text, prefix=prefix)
@@ -505,6 +505,5 @@ def format_run_status(status):
     message = "PASSED" if status else "FAILED"
     color = "green" if status else "red"
 
-    text = click.style(" {} ".format(message), bg=color, bold=True)
-
-    return "Status: {}\n".format(text)
+    text = click.style(f" {message} ", bg=color, bold=True)
+    return f"Status: {text}\n"

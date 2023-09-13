@@ -74,8 +74,8 @@ def test_format_step_status(status, expected):
     "status, expected",
     [
         (None, ""),
-        (True, "Status: {}\n".format(click.style(" PASSED ", bg="green", bold=True))),
-        (False, "Status: {}\n".format(click.style(" FAILED ", bg="red", bold=True)))
+        (True, f"Status: {click.style(' PASSED ', bg='green', bold=True)}\n"),
+        (False, f"Status: {click.style(' FAILED ', bg='red', bold=True)}\n")
     ]
 )
 def test_format_run_status(status, expected):
@@ -161,7 +161,7 @@ class TestFormatJson:
         title = "JSON Data"
         data = {"key": 1}
 
-        assert prettier.format_json(data, title=title).startswith("{}\n\n".format(title))
+        assert prettier.format_json(data, title=title).startswith(f"{title}\n\n")
 
     def test_format(self):
         data = {
@@ -245,7 +245,7 @@ class TestFormatData:
         title = click.style("Data:", fg="bright_black")
         data = {"key": 1}
 
-        assert prettier.format_data(data).startswith("{}\n\n".format(title))
+        assert prettier.format_data(data).startswith(f"{title}\n\n")
 
     def test_format(self):
         data = {
@@ -272,7 +272,7 @@ class TestFormatOutput:
         title = click.style("Output:", fg="bright_black")
         output = "Sample text"
 
-        assert prettier.format_output(output).startswith("{}\n\n".format(title))
+        assert prettier.format_output(output).startswith(f"{title}\n\n")
 
     def test_format(self):
         output = "Sample text"
@@ -289,7 +289,7 @@ class TestFormatResult:
         title = click.style("Result:", fg="bright_black")
         result = {"key": 1}
 
-        assert prettier.format_result(result).startswith("{}\n\n".format(title))
+        assert prettier.format_result(result).startswith(f"{title}\n\n")
 
     def test_format(self):
         result = {

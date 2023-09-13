@@ -39,7 +39,7 @@ def get_resource_path(path):
 def url_join(base, url):
     """Join a base with an url."""
 
-    return "{}/{}".format(base.strip("/"), url.strip("/"))
+    return f"{base.strip('/')}/{url.strip('/')}"
 
 
 def prefix_command(command):

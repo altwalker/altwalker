@@ -57,7 +57,7 @@ class GraphWalkerError(click.ClickException):
             file = get_text_stderr()
 
         click.secho("GraphWalker Error: ", file=file, bold=True, fg="red", nl=False)
-        click.secho("{}\n".format(self.format_message()), file=file, fg="red")
+        click.secho(f"{self.format_message()}\n", file=file, fg="red")
 
 
 class AltWalkerError(click.ClickException):
@@ -70,7 +70,7 @@ class AltWalkerError(click.ClickException):
             file = get_text_stderr()
 
         click.secho("AltWalker Error: ", file=file, bold=True, fg="red", nl=False)
-        click.secho("{}\n".format(self.format_message()), file=file, fg="red")
+        click.secho(f"{self.format_message()}\n", file=file, fg="red")
 
 
 def handle_errors(func):

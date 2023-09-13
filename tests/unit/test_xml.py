@@ -115,7 +115,7 @@ class TestTestSuite:
 
     def test_assetions(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x), assertions=x) for x in range(10)
+            xml.TestCase(f"Test Case #{x}", assertions=x) for x in range(10)
         ]
         test_suite = xml.TestSuite("Test Suite", test_cases)
 
@@ -123,7 +123,7 @@ class TestTestSuite:
 
     def test_disabled(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x)) for x in range(10)
+            xml.TestCase(f"Test Case #{x}") for x in range(10)
         ]
         test_suite = xml.TestSuite("Test Suite", test_cases)
 
@@ -131,7 +131,7 @@ class TestTestSuite:
 
     def test_errors(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x)) for x in range(10)
+            xml.TestCase(f"Test Case #{x}") for x in range(10)
         ]
 
         for test_case in test_cases:
@@ -143,7 +143,7 @@ class TestTestSuite:
 
     def test_failure(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x)) for x in range(10)
+            xml.TestCase(f"Test Case #{x}") for x in range(10)
         ]
 
         for test_case in test_cases:
@@ -155,7 +155,7 @@ class TestTestSuite:
 
     def test_skipped(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x)) for x in range(10)
+            xml.TestCase(f"Test Case #{x}") for x in range(10)
         ]
 
         for test_case in test_cases:
@@ -167,7 +167,7 @@ class TestTestSuite:
 
     def test_tests(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x)) for x in range(10)
+            xml.TestCase(f"Test Case #{x}") for x in range(10)
         ]
         test_suite = xml.TestSuite("Test Suite", test_cases)
 
@@ -175,7 +175,7 @@ class TestTestSuite:
 
     def test_time(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x), elapsed_seconds=x) for x in range(10)
+            xml.TestCase(f"Test Case #{x}", elapsed_seconds=x) for x in range(10)
         ]
         test_suite = xml.TestSuite("Test Suite", test_cases)
 
@@ -183,7 +183,7 @@ class TestTestSuite:
 
     def test_empty_attributes(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x), assertions=x, elapsed_seconds=x) for x in range(10)
+            xml.TestCase(f"Test Case #{x}", assertions=x, elapsed_seconds=x) for x in range(10)
         ]
         test_suite = xml.TestSuite("Test Suite", test_cases)
 
@@ -238,7 +238,7 @@ class TestTestReporter:
 
     def test_attributes(self):
         test_cases = [
-            xml.TestCase("Test Case #{}".format(x)) for x in range(10)
+            xml.TestCase(f"Test Case #{x}") for x in range(10)
         ]
 
         for test_case in test_cases:
@@ -247,7 +247,7 @@ class TestTestReporter:
             test_case.add_skipped(message="Skip Message.")
 
         test_suites = [
-            xml.TestSuite("Test Suite #{}".format(x), test_cases) for x in range(10)
+            xml.TestSuite(f"Test Suite #{x}", test_cases) for x in range(10)
         ]
         test_reporter = xml.TestReporter(test_suites)
 

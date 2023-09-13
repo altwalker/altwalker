@@ -91,11 +91,11 @@ def _validate_code(executor, methods):
         issues[model] = set()
 
         if not executor.has_model(model):
-            issues[model].add("Expected to find class '{}'.".format(model))
+            issues[model].add(f"Expected to find class '{model}'.")
 
         for element in elements:
             if not executor.has_step(model, element):
-                issues[model].add("Expected to find method '{}' in class '{}'.".format(element, model))
+                issues[model].add(f"Expected to find method '{element}' in class '{model}'.")
 
     return issues
 

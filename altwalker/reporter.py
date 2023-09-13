@@ -82,7 +82,7 @@ class Reporting:
         """
 
         if key in self._reporters:
-            raise ValueError("A reporter with the key: {} is already registered.".format(key))
+            raise ValueError(f"A reporter with the key: {key} is already registered.")
 
         self._reporters[key] = reporter
 
@@ -176,7 +176,7 @@ class ClickReporter(Reporter):
         return click.style(str(datetime.datetime.now()), fg="bright_black", bold=True)
 
     def _add_timestamp(self, message):
-        return "[{timestamp}] {message}".format(timestamp=self._timestamp(), message=message)
+        return f"[{self._timestamp()}] {message}"
 
     def _log(self, string):
         """Prints the string using the :func:`click.echo` function."""
@@ -200,19 +200,14 @@ class ClickReporter(Reporter):
         data = step.get("data")
         unvisited_elements = step.get("unvisitedElements")
 
-        text = "{step_name} - {status}".format(
-            step_name=prettier.format_step_name(step),
-            status=prettier.format_step_status(prettier.Status.RUNNING),
-        )
+        text = f"{prettier.format_step_name(step)} - {prettier.format_step_status(prettier.Status.RUNNING)}"
 
         if data:
-            text += "\n{}".format(prettier.format_data(step.get("data"), prefix="  "))
+            text += f"\n{prettier.format_data(step.get('data'), prefix='  ')}"
 
         if unvisited_elements:
             title = click.style("Unvisited Elements:", fg="bright_black", underline=True)
-            text += "\n{}".format(
-                prettier.format_unvisited_elements(unvisited_elements, title=title, prefix="  ")
-            )
+            text += f"\n{prettier.format_unvisited_elements(unvisited_elements, title=title, prefix='  ')}"
 
         self._log(self._add_timestamp(text))
 
@@ -230,19 +225,16 @@ class ClickReporter(Reporter):
 
         status = prettier.Status.FAILED if error else prettier.Status.PASSED
 
-        text = "{step_name} - {status}".format(
-            step_name=prettier.format_step_name(step),
-            status=prettier.format_step_status(status)
-        )
+        text = f"{prettier.format_step_name(step)} - {prettier.format_step_status(status)}"
 
         if output:
-            text += "\n{}\n".format(prettier.format_output(output, prefix="  "))
+            text += f"\n{prettier.format_output(output, prefix='  ')}\n"
 
         if result:
-            text += "\n{}\n".format(prettier.format_result(result, prefix="  "))
+            text += f"\n{prettier.format_result(result, prefix='  ')}\n"
 
         if error:
-            text += "\n{}\n".format(prettier.format_error(error, prefix="  "))
+            text += f"\n{prettier.format_error(error, prefix='  ')}\n"
 
         self._log(self._add_timestamp(text))
 
@@ -256,14 +248,11 @@ class ClickReporter(Reporter):
         """
 
         if step:
-            error_message = "Unexpected error occurred while running {}.".format(prettier.format_step_name(step))
+            error_message = f"Unexpected error occurred while running {prettier.format_step_name(step)}."
         else:
             error_message = "Unexpected error occurred."
 
-        message = "{message}{error}".format(
-            message=error_message,
-            error=prettier.format_error({"message": message, "trace": trace}, prefix="  ")
-        )
+        message = f"{error_message}{prettier.format_error({'message': message, 'trace': trace}, prefix='  ')}"
 
         self._log(self._add_timestamp(message))
 
@@ -321,10 +310,7 @@ class PathReporter(Reporter):
             fp.write(steps)
 
         if self._verbose:
-            click.secho(
-                "Execution path written to file: {}.\n".format(click.style(self._file, fg="green")),
-                bold=True
-            )
+            click.secho(f"Execution path written to file: {click.style(self._file, fg='green')}.\n", bold=True)
 
     def report(self):
         """Return a list of all executed steps.
@@ -361,10 +347,7 @@ class JUnitXMLReporter(Reporter):
         self._generator.write(filename=self._file)
 
         if self._verbose:
-            click.secho(
-                "JUnit XML written to file: {}.\n".format(click.style(self._file, fg="green")),
-                bold=True
-            )
+            click.secho(f"JUnit XML written to file: {click.style(self._file, fg='green')}.\n", bold=True)
 
     def step_start(self, step):
         self._generator.step_start()

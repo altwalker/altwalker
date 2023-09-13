@@ -14,7 +14,7 @@ from altwalker.reporter import create_reporters
 def click_formatwarning(message, category, filename, lineno, file=None, line=None):
     """Format a warning on a single line and style the text."""
 
-    return click.style("{}: {}\n".format(category.__name__, message), fg="yellow")
+    return click.style(f"{category.__name__}: {message}\n", fg="yellow")
 
 
 def _echo_model_issues(issues):
@@ -24,7 +24,7 @@ def _echo_model_issues(issues):
 
     if global_issues:
         for error_message in global_issues:
-            click.secho("  {}".format(error_message), fg="red")
+            click.secho(f"  {error_message}", fg="red")
 
         click.echo()
         return
@@ -32,7 +32,7 @@ def _echo_model_issues(issues):
     line_width = len(max(issues.keys(), key=len, default=""))
 
     for key, error_messages in issues.items():
-        click.secho("  * {} ".format(key.ljust(line_width)), nl=False)
+        click.secho(f"  * {key.ljust(line_width)} ", nl=False)
 
         if error_messages:
             click.secho("[FAILED]\n", fg="red")
@@ -40,7 +40,7 @@ def _echo_model_issues(issues):
             click.secho("[PASSED]", fg="green")
 
         for error_message in error_messages:
-            click.secho("      {}".format(error_message), fg="red")
+            click.secho(f"      {error_message}", fg="red")
 
         click.echo()
 
@@ -59,7 +59,7 @@ def _cli_check_models(models, blocked=False):
 
     response = run.check(models, blocked=blocked)
 
-    click.secho("  {}".format(response["output"]), fg="red" if not response["status"] else "")
+    click.secho(f"  {response['output']}", fg="red" if not response["status"] else "")
     return response["status"]
 
 
@@ -77,7 +77,7 @@ def _echo_code_issues(issues):
     status = True
 
     for model, error_messages in issues.items():
-        click.secho("  * {} ".format(model), nl=False)
+        click.secho(f"  * {model} ", nl=False)
 
         if error_messages:
             status = False
@@ -86,7 +86,7 @@ def _echo_code_issues(issues):
             click.secho("[PASSED]", fg="green")
 
         for error_message in error_messages:
-            click.secho("    {}".format(error_message), fg="red")
+            click.secho(f"    {error_message}", fg="red")
 
         click.secho()
 
@@ -104,7 +104,7 @@ def _echo_suggestions(language, methods, missing_methods):
             click.secho("# Append the following class to your test file.\n")
             click.secho(generate_class(model, elements, language=language), fg="cyan")
         else:
-            click.secho("# Append the following methods to your '{}' class.\n".format(model))
+            click.secho(f"# Append the following methods to your '{model}' class.\n")
             click.secho(generate_methods(elements, language=language), fg="cyan")
 
 
@@ -132,14 +132,14 @@ def cli_init(dest_dir, model_paths=None, language="python", git=True):
 
     _, project_name = os.path.split(dest_dir)
 
-    click.secho("  Name: {}".format(click.style(project_name, fg="yellow")))
-    click.secho("  Language: {}".format(click.style(language if language else "none", fg="yellow")))
-    click.secho("  Git: {}".format(click.style("yes" if git else "no", fg="yellow")))
+    click.secho(f"  Name: {click.style(project_name, fg='yellow')}")
+    click.secho(f"  Language: {click.style(language if language else 'none', fg='yellow')}")
+    click.secho(f"  Git: {click.style('yes' if git else 'no', fg='yellow')}")
     click.secho()
 
     try:
         run.init(dest_dir, model_paths=model_paths, language=language, git=git)
-        click.secho("Successfully created project: {}.\n".format(project_name), fg="green")
+        click.secho(f"Successfully created project: {project_name}.\n", fg="green")
     except FileExistsError as ex:
         raise AltWalkerException(str(ex))
 
@@ -150,7 +150,7 @@ def cli_generate(dest_dir, model_paths, language="python"):
 
     click.secho("Generating tests...\n", bold=True, fg="green")
 
-    click.secho("  Language: {}".format(click.style(language if language else "none", fg="yellow")))
+    click.secho(f"  Language: {click.style(language if language else 'none', fg='yellow')}")
     click.secho()
 
     try:
