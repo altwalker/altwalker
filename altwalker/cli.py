@@ -119,7 +119,7 @@ def add_options(options):
 @click.version_option(None, "--version", "-v", prog_name="AltWalker")
 @click.option("--log-level",
               type=click.Choice(["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], case_sensitive=False),
-              default="CRITICAL", show_default=True, envvar="ALTWALKER_LOG_LEVEL",
+              default=None, show_default=True, envvar="ALTWALKER_LOG_LEVEL",
               help="Sets the AltWalker logger level to the specified level.")
 @click.option("--log-file", type=click.Path(exists=False, dir_okay=False), envvar="ALTWALKER_LOG_FILE",
               help="Sends logging output to a file.")
@@ -131,7 +131,17 @@ def cli(log_level, log_file, graphwalker_log_level):
     """A command line tool for running Model-Based Tests."""
 
     os.environ["GRAPHWALKER_LOG_LEVEL"] = graphwalker_log_level.upper()
-    logging.basicConfig(filename=log_file, level=log_level.upper())
+
+    logger = logging.getLogger(__package__)
+
+    if log_level:
+        logger.setLevel(log_level.upper())
+
+    if log_file:
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        handler = logging.FileHandler(filename=log_file)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
 
 @cli.command(
