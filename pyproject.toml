@@ -11,18 +11,14 @@ description = "AltWalker is an open source Model-Based Testing framework that su
 license = {text = "GNU GPLv3"}
 readme = "README.md"
 requires-python = ">=3.8"
-keywords = ["model-based-testing", "testing", "test"]
+keywords = ["model-based-testing", "testing", "tests", "testing-framework"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Development Status :: 5 - Production/Stable",
-
     "Intended Audience :: Developers",
     "Intended Audience :: Other Audience",
-
     "Environment :: Console",
-
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-
     "Programming Language :: C#",
     "Programming Language :: Cython",
     "Programming Language :: Python :: Implementation",
@@ -33,9 +29,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-
     "Operating System :: OS Independent",
-
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Testing :: Acceptance",
