@@ -7,7 +7,7 @@ on:
       - 'altwalker/**'
       - 'requirements.txt'
       - 'requirements-dev.txt'
-      - 'setup.py'
+      - 'pyproject.toml'
       - 'MANIFEST.in'
 
 env:
@@ -213,7 +213,7 @@ jobs:
         dotnet restore dotnet-example/tests/tests.csproj -s . -s https://api.nuget.org/v3/index.json
         cd dotnet-example
         dotnet run --project tests/tests.csproj --server.urls=http://localhost:4200/ &
-        sleep 10
+        sleep 15
         altwalker check -m models/default.json "random(vertex_coverage(100))"
         altwalker verify tests/ -m models/default.json -x http --executor-url http://localhost:4200/
         altwalker online tests/ -m models/default.json "random(vertex_coverage(100))" -x http --executor-url http://localhost:4200/

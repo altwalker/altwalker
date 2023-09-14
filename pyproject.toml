@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "altwalker"
+authors = [
+  { name="Altom Consulting", email="altwalker@altom.com" },
+  { name="Dezmerean Robert", email="dezmereanrobert@gmail.com" }
+]
+description = "AltWalker is an open source Model-Based Testing framework that supports running tests written in python3 and .NET/C#. You design your tests as a directed graph and AltWalker generates test cases from your graph (using GraphWalker) and executes them."
+license = {text = "GNU GPLv3"}
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["model-based-testing", "testing", "tests", "testing-framework"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Other Audience",
+    "Environment :: Console",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: C#",
+    "Programming Language :: Cython",
+    "Programming Language :: Python :: Implementation",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Acceptance",
+]
+
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+"Homepage" = "https://github.com/altwalker/altwalker"
+"Repository" = "https://github.com/altwalker/altwalker.git"
+"Bug Tracker" = "https://github.com/altwalker/altwalker/issues"
+
+[project.scripts]
+altwalker = "altwalker.cli:cli"
+
+[tool.setuptools.dynamic]
+version = {attr = "altwalker.__version__.VERSION"}
+dependencies = {file = "requirements.txt"}
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "docs*"]
