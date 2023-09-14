@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "altwalker"
 authors = [
   { name="Altom Consulting", email="altwalker@altom.com" },
+  { name="Dezmerean Robert", email="dezmereanrobert@gmail.com" }
 ]
 description = "AltWalker is an open source Model-Based Testing framework that supports running tests written in python3 and .NET/C#. You design your tests as a directed graph and AltWalker generates test cases from your graph (using GraphWalker) and executes them."
 license = {text = "GNU GPLv3"}
