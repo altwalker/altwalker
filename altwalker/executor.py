@@ -276,7 +276,7 @@ class HttpExecutor(Executor):
                 }
         """
 
-        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, json={"data": data})
+        payload = self._post("executeStep", params={"modelName": model_name, "name": name}, json={"data": data, "step": None})
 
         if payload.get("output") is None:
             raise ExecutorException("Invalid response. The payload must include the key: output.")
