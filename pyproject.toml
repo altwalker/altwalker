@@ -48,7 +48,7 @@ dynamic = ["version", "dependencies"]
 "Bug Tracker" = "https://github.com/altwalker/altwalker/issues"
 
 [project.scripts]
-altwalker-cli = "altwalker.cli:cli"
+altwalker = "altwalker.cli:cli"
 
 [tool.setuptools.dynamic]
 version = {attr = "altwalker.__version__.VERSION"}
