@@ -39,6 +39,7 @@ dynamic = ["version", "dependencies"]
 
 [project.urls]
 "Homepage" = "https://github.com/altwalker/altwalker"
+"Repository" = "https://github.com/altwalker/altwalker.git"
 "Bug Tracker" = "https://github.com/altwalker/altwalker/issues"
 
 [project.scripts]
