@@ -8,7 +8,7 @@ on:
       - 'docs8.ini'
       - 'requirements.txt'
       - 'requirements-dev.txt'
-      - 'setup.py'
+      - 'pyproject.toml'
       - 'MANIFEST.in'
       - 'CONTRIBUTING.rst'
       - 'CHANGELOG.rst'
