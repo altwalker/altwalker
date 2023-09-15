@@ -426,8 +426,9 @@ class PythonExecutor(Executor):
             func_name = f"{model_name}.{name}" if model_name else name
             type_ = "method" if model_name else "function"
 
-            error_message = f"The {func_name} {type_} must take 0, 1 or 2 parameters but it expects {nr_args} parameters."
-            raise ExecutorException(error_message)
+            raise ExecutorException(
+                f"The {func_name} {type_} must take 0, 1 or 2 parameters but it expects {nr_args} parameters."
+            )
 
         step_result["data"] = data
         return step_result
