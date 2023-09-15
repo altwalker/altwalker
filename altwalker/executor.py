@@ -107,7 +107,7 @@ class Executor(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def execute_step(self, model_name, name, data=None):
+    def execute_step(self, model_name, name, data=None, step=None):
         """Execute a step from a model.
 
         Args:
@@ -254,7 +254,7 @@ class HttpExecutor(Executor):
 
         return has_step
 
-    def execute_step(self, model_name, name, data=None):
+    def execute_step(self, model_name, name, data=None, step=None):
         """Makes a POST request at ``/executeStep?modelName=<model_name>&name=<name>``.
 
         Args:
@@ -279,7 +279,7 @@ class HttpExecutor(Executor):
         payload = self._post(
             "executeStep",
             params={"modelName": model_name, "name": name},
-            json={"data": data, "step": None}
+            json={"data": data, "step": step}
         )
 
         if payload.get("output") is None:
@@ -375,7 +375,7 @@ class PythonExecutor(Executor):
 
         return self._has_method(model_name, name)
 
-    def execute_step(self, model_name, name, data=None):
+    def execute_step(self, model_name, name, data=None, step=None):
         """Execute a step from a model.
 
         Args:
@@ -420,11 +420,13 @@ class PythonExecutor(Executor):
             step_result = get_step_result(func)
         elif nr_args == 1:
             step_result = get_step_result(func, data)
+        elif nr_args == 2:
+            step_result = get_step_result(func, data, step)
         else:
             func_name = f"{model_name}.{name}" if model_name else name
             type_ = "method" if model_name else "function"
 
-            error_message = f"The {func_name} {type_} must take 0 or 1 parameters but it expects {nr_args} parameters."
+            error_message = f"The {func_name} {type_} must take 0, 1 or 2 parameters but it expects {nr_args} parameters."
             raise ExecutorException(error_message)
 
         step_result["data"] = data
@@ -571,11 +573,11 @@ class DotnetExecutor(HttpExecutor):
         self._ensure_service_is_running()
         return super().has_step(model_name, name)
 
-    def execute_step(self, model_name, name, data=None):
+    def execute_step(self, model_name, name, data=None, step=None):
         """Execute a step from a model."""
 
         self._ensure_service_is_running()
-        return super().execute_step(model_name, name, data)
+        return super().execute_step(model_name, name, data=data, step=step)
 
 
 ExecutorFactory = Factory({
