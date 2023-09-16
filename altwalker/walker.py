@@ -92,16 +92,6 @@ class Walker:
             if key not in data_before or data_before[key] != value:
                 self._planner.set_data(key, value)
 
-    def _execute_fixture(self, fixture_name, model_name=None, data=None, step=None):
-        step = {"type": "fixture", "name": fixture_name}
-        if model_name:
-            step["modelName"] = model_name
-
-        if not self._executor.has_step(step.get("modelName"), step.get("name")):
-            return True
-
-        return self._executor.execute_step(step.get("modelName"), step.get("name"), data=data, step=step)
-
     def _execute_step(self, step):
         data_before = self._planner.get_data()
 
@@ -118,29 +108,26 @@ class Walker:
 
         return error is None
 
-    def _execute_test_step(self, step):
-        if not step.get("name"):
-            # A step without name is added into the model only for convenience
-            pass
+    def _run_step(self, step, optional=False):
+        if not self._executor.has_step(step.get("modelName"), step.get("name")):
+            if not optional:
+                self._planner.fail("Step not found.")
+                self._reporter.error(
+                    step,
+                    "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
+                )
 
-        self._status = self._before_step()
-        if not self._status:
+            return optional
+
+        try:
+            status = self._execute_step(step)
+
+            return status
+        except Exception as e:
+            self._planner.fail(str(e))
+            self._reporter.error(step, str(e), trace=str(traceback.format_exc()))
+
             return False
-
-        self._status = self._before_step(step["modelName"])
-        if not self._status:
-            return False
-
-        self._status = self._execute_step(step)
-        step["status"] = self._status
-
-        self._status = self._after_step(step["modelName"])
-        if not self._status:
-            return
-
-        self._status = self._after_step()
-        if not self._status:
-            return
 
     def _setUpRun(self):
         step = {
@@ -215,43 +202,6 @@ class Walker:
         status = self._run_step(step, optional=True)
 
         return status
-
-    def _execute_step(self, step):
-        data_before = self._planner.get_data()
-
-        self._reporter.step_start(step)
-        step_result = self._executor.execute_step(step.get("modelName"), step.get("name"), data_before)
-        self._reporter.step_end(step, step_result)
-
-        data_after = step_result.get("data")
-        self._update_data(data_before, data_after)
-
-        error = step_result.get("error")
-        if error:
-            self._planner.fail(error["message"])
-
-        return error is None
-
-    def _run_step(self, step, optional=False):
-        if not self._executor.has_step(step.get("modelName"), step.get("name")):
-            if not optional:
-                self._planner.fail("Step not found.")
-                self._reporter.error(
-                    step,
-                    "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
-                )
-
-            return optional
-
-        try:
-            status = self._execute_step(step)
-
-            return status
-        except Exception as e:
-            self._planner.fail(str(e))
-            self._reporter.error(step, str(e), trace=str(traceback.format_exc()))
-
-            return False
 
     def run(self):
         """Run tests."""
