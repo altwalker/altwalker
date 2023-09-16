@@ -11,6 +11,9 @@ class Walker:
     """Coordinates the execution of a test asking a ``Planner`` for the next step,
     executing the step using an ``Executor``, if needed passing a ``dict`` object
     to the test code, and reporting the progress using a ``Reporter``.
+
+    Args:
+
     """
 
     def __init__(self, planner, executor, reporter):
@@ -18,7 +21,7 @@ class Walker:
         self._executor = executor
         self._reporter = reporter
         self._status = None
-        self._models = []  # a list of models to tearDown
+        self._models = list()  # a list of models to tearDown
 
     def __iter__(self):
         self._reporter.start()
@@ -49,24 +52,8 @@ class Walker:
             if not step.get("name"):
                 continue
 
-            self._status = self._beforeStep()
-            if not self._status:
-                break
-
-            self._status = self._beforeStep(step["modelName"])
-            if not self._status:
-                break
-
             self._status = self._run_step(step)
             step["status"] = self._status
-
-            self._status = self._afterStep(step["modelName"])
-            if not self._status:
-                break
-
-            self._status = self._afterStep()
-            if not self._status:
-                break
 
             yield step
 
@@ -76,7 +63,7 @@ class Walker:
         status = self._tearDownRun()
         self._status = self._status & status
 
-        self._reporter.end(statistics=self._planner.get_statistics(), status=self._status)
+        self._reporter.end(statistics=self._planner.get_statistics(), status=self.status)
 
     @property
     def status(self):
@@ -89,14 +76,17 @@ class Walker:
             return
 
         for key, value in data_after.items():
-            if key not in data_before or data_before[key] != value:
+            if key not in data_before or data_after[key] != value:
                 self._planner.set_data(key, value)
 
-    def _execute_step(self, step):
+    def _execute_step(self, step, current_step=None):
+        if not current_step:
+            current_step = step
+
         data_before = self._planner.get_data()
 
         self._reporter.step_start(step)
-        step_result = self._executor.execute_step(step.get("modelName"), step.get("name"), data=data_before, step=step)
+        step_result = self._executor.execute_step(step.get("modelName"), step.get("name"), data=data_before, step=current_step)
         self._reporter.step_end(step, step_result)
 
         data_after = step_result.get("data")
@@ -108,98 +98,83 @@ class Walker:
 
         return error is None
 
-    def _run_step(self, step, optional=False):
-        if not self._executor.has_step(step.get("modelName"), step.get("name")):
-            if not optional:
-                self._planner.fail("Step not found.")
-                self._reporter.error(
-                    step,
-                    "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
-                )
+    def _execute_fixture(self, fixture_name, model_name=None, current_step=None):
+        """Run a fixture."""
 
-            return optional
+        fixture = {"type": "fixture", "name": fixture_name}
+        if model_name:
+            fixture["modelName"] = model_name
+
+        if not self._executor.has_step(fixture.get("modelName"), fixture.get("name")):
+            return True
 
         try:
-            status = self._execute_step(step)
+            return self._execute_step(fixture, current_step=current_step)
+        except Exception as e:
+            self._planner.fail(str(e))
+            self._reporter.error(fixture, str(e), trace=str(traceback.format_exc()))
 
-            return status
+            return False
+
+    def _execute_test(self, step):
+        try:
+            return self._execute_step(step, current_step=step)
         except Exception as e:
             self._planner.fail(str(e))
             self._reporter.error(step, str(e), trace=str(traceback.format_exc()))
 
             return False
 
-    def _setUpRun(self):
-        step = {
-            "type": "fixture",
-            "name": "setUpRun"
-        }
+    def _run_step(self, step):
+        if not step.get("name"):
+            return True
 
-        return self._run_step(step, optional=True)
+        fixture_status = self._execute_fixture("beforeStep", current_step=step)
+        if not fixture_status:
+            return False
+
+        fixture_status = self._execute_fixture("beforeStep", model_name=step["modelName"], current_step=step)
+        if not fixture_status:
+            return False
+
+        step_status = self._execute_test(step)
+        step["status"] = step_status
+
+        fixture_status = self._execute_fixture("afterStep", model_name=step["modelName"], current_step=step)
+        if not fixture_status:
+            return False
+
+        fixture_status = self._execute_fixture("afterStep", current_step=step)
+        if not fixture_status:
+            return False
+
+        return step_status
+
+    def _setUpRun(self):
+        return self._execute_fixture("setUpRun")
 
     def _tearDownRun(self):
-        step = {
-            "type": "fixture",
-            "name": "tearDownRun"
-        }
+        return self._execute_fixture("tearDownRun")
 
-        return self._run_step(step, optional=True)
-
-    def _setUpModel(self, model):
-        step = {
-            "type": "fixture",
-            "name": "setUpModel",
-            "modelName": model
-        }
-
-        status = self._run_step(step, optional=True)
+    def _setUpModel(self, model_name):
+        status = self._execute_fixture("setUpModel", model_name=model_name)
 
         if status:
-            self._models.append(model)
+            self._models.append(model_name)
 
         return status
 
-    def _tearDownModel(self, model):
-        step = {
-            "type": "fixture",
-            "name": "tearDownModel",
-            "modelName": model
-        }
-
-        return self._run_step(step, optional=True)
+    def _tearDownModel(self, model_name):
+        return self._execute_fixture("tearDownModel", model_name=model_name)
 
     def _tearDownModels(self):
         status = True
 
-        for model in self._models:
-            temp = self._tearDownModel(model)
+        for model_name in self._models:
+            temp = self._tearDownModel(model_name)
             status = status and temp
 
         self._models = []
-
-        return status
-
-    def _beforeStep(self, model=None, step=None):
-        step = {
-            "type": "fixture",
-            "name": "beforeStep",
-        }
-        if model:
-            step["modelName"] = model
-
-        status = self._run_step(step, optional=True)
-
-        return status
-
-    def _afterStep(self, model=None, step=None):
-        step = {
-            "type": "fixture",
-            "name": "afterStep",
-        }
-        if model:
-            step["modelName"] = model
-
-        status = self._run_step(step, optional=True)
 
         return status
 
