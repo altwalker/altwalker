@@ -86,7 +86,12 @@ class Walker:
         data_before = self._planner.get_data()
 
         self._reporter.step_start(step)
-        step_result = self._executor.execute_step(step.get("modelName"), step.get("name"), data=data_before, step=current_step)
+        step_result = self._executor.execute_step(
+            step.get("modelName"),
+            step.get("name"),
+            data=data_before,
+            step=current_step
+        )
         self._reporter.step_end(step, step_result)
 
         data_after = step_result.get("data")
