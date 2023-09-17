@@ -162,15 +162,21 @@ class TestHttpExecutor:
         self.executor._post = mock.Mock({"output": ""})
 
         self.executor.execute_step("model", "step", {"key": "value"})
-        self.executor._post.assert_called_once_with("executeStep", params=(
-            {"modelName": "model", "name": "step"}), json={"data": {"key": "value"}})
+        self.executor._post.assert_called_once_with(
+            "executeStep",
+            params=({"modelName": "model", "name": "step"}),
+            json={"data": {"key": "value"}, "step": None}
+        )
 
     def test_execute_setup_step(self):
         self.executor._post = mock.Mock({"output": ""})
 
         self.executor.execute_step(None, "step", {})
         self.executor._post.assert_called_once_with(
-            "executeStep", params=({"modelName": None, "name": "step"}), json={"data": {}})
+            "executeStep",
+            params=({"modelName": None, "name": "step"}),
+            json={"data": {}, "step": None}
+        )
 
     def test_execute_invalid_response(self):
         self.executor._post = mock.Mock(return_value={})
@@ -319,10 +325,10 @@ class TestPythonExecutor:
 
     @mock.patch("altwalker.executor.signature")
     def test_execute_step_function_invalid_args(self, signature):
-        signature.return_value.parameters = ["data", "extra"]
+        signature.return_value.parameters = ["data", "step", "extra"]
 
         # should call the function with the right args
-        error_message = "The .* function must take 0 or 1 parameters but it expects .* parameters."
+        error_message = "The .* function must take 0, 1 or 2 parameters but it expects .* parameters."
 
         with pytest.raises(ExecutorException, match=error_message):
             self.executor.execute_step(None, "function", data={"key": "value"})
@@ -357,9 +363,9 @@ class TestPythonExecutor:
         self.executor._setup_class = mock.Mock()
         self.executor._instances["ClassName"] = mock.Mock()
 
-        signature.return_value.parameters = ["data", "extra"]
+        signature.return_value.parameters = ["data", "step", "extra"]
 
-        error_message = "The .* method must take 0 or 1 parameters but it expects .* parameters."
+        error_message = "The .* method must take 0, 1 or 2 parameters but it expects .* parameters."
 
         with pytest.raises(ExecutorException, match=error_message):
             self.executor.execute_step("ClassName", "method")
