@@ -13,7 +13,9 @@ class Walker:
     to the test code, and reporting the progress using a ``Reporter``.
 
     Args:
-
+        planner (Planner): The test planner responsible for determining the next step.
+        executor (Executor): The test executor responsible for executing steps.
+        reporter (Reporter): The reporter to record and report test progress.
     """
 
     def __init__(self, planner, executor, reporter):
@@ -24,10 +26,16 @@ class Walker:
         self._models = list()  # a list of models to tearDown
 
     def __iter__(self):
+        """Iterate over the test steps and execute them.
+
+        Yields:
+            dict: A dictionary representing each executed test step.
+        """
+
         self._reporter.start()
         self._planner.restart()
         self._executor.reset()
-        self._status = self._setUpRun()
+        self._status = self._setup_run()
 
         # if setUpRun failed stop
         if not self._status:
@@ -43,43 +51,61 @@ class Walker:
                 break
 
             if step["modelName"] not in self._models:
-                self._status = self._setUpModel(step["modelName"])
+                self._status = self._setup_model(step["modelName"])
 
-                # if setUpModel failed stop executing steps
+                # If setUpModel failed stop the run
                 if not self._status:
                     break
-
-            if not step.get("name"):
-                continue
 
             self._status = self._run_step(step)
             step["status"] = self._status
 
             yield step
 
-        status = self._tearDownModels()
+        status = self._teardown_models()
         self._status = self._status & status
 
-        status = self._tearDownRun()
+        status = self._teardown_run()
         self._status = self._status & status
 
-        self._reporter.end(statistics=self._planner.get_statistics(), status=self.status)
+        self._reporter.end(statistics=self._planner.get_statistics(), status=self._status)
 
     @property
     def status(self):
-        """The status of the current run."""
+        """The status of the current test run.
+
+        Returns:
+            bool: True if the test run is successful, False otherwise.
+        """
 
         return self._status
 
     def _update_data(self, data_before, data_after):
-        if not data_after:
+        """Update test data after step execution.
+
+        Args:
+            data_before (dict): Data before step execution.
+            data_after (dict): Data after step execution.
+        """
+
+        if not data_after or data_before == data_after:
             return
 
         for key, value in data_after.items():
-            if key not in data_before or data_after[key] != value:
+            if key not in data_before or data_before[key] != value:
                 self._planner.set_data(key, value)
 
     def _execute_step(self, step, current_step=None):
+        """Execute a test step.
+
+        Args:
+            step (dict): The test step to execute.
+            current_step (dict, optional): The current test step being executed (default: None).
+
+        Returns:
+            bool: True if the step is executed successfully, False otherwise.
+        """
+
         if not current_step:
             current_step = step
 
@@ -104,7 +130,16 @@ class Walker:
         return error is None
 
     def _execute_fixture(self, fixture_name, model_name=None, current_step=None):
-        """Run a fixture."""
+        """Execute a test fixture.
+
+        Args:
+            fixture_name (str): The name of the fixture to execute.
+            model_name (str, optional): The name of the test model (default: None).
+            current_step (dict, optional): The current test step being executed (default: None).
+
+        Returns:
+            bool: True if the fixture is executed successfully, False otherwise.
+        """
 
         fixture = {"type": "fixture", "name": fixture_name}
         if model_name:
@@ -122,6 +157,23 @@ class Walker:
             return False
 
     def _execute_test(self, step):
+        """Execute a test step.
+
+        Args:
+            step (dict): The test step to execute.
+
+        Returns:
+            bool: True if the step is executed successfully, False otherwise.
+        """
+
+        if not self._executor.has_step(step.get("modelName"), step.get("name")):
+            self._planner.fail("Step not found.")
+            self._reporter.error(
+                step,
+                "Step not found.\nUse the 'verify' command to validate the test code against the model(s)."
+            )
+            return False
+
         try:
             return self._execute_step(step, current_step=step)
         except Exception as e:
@@ -132,6 +184,7 @@ class Walker:
 
     def _run_step(self, step):
         if not step.get("name"):
+            # Skip vertices and edges without names
             return True
 
         fixture_status = self._execute_fixture("beforeStep", current_step=step)
@@ -155,13 +208,34 @@ class Walker:
 
         return step_status
 
-    def _setUpRun(self):
+    def _setup_run(self):
+        """Setup a test run before execution.
+
+        Returns:
+            bool: True if the fixture is executed successfully, False otherwise.
+        """
+
         return self._execute_fixture("setUpRun")
 
-    def _tearDownRun(self):
+    def _teardown_run(self):
+        """Teardown a test run after execution.
+
+        Returns:
+            bool: True if the fixture is executed successfully, False otherwise.
+        """
+
         return self._execute_fixture("tearDownRun")
 
-    def _setUpModel(self, model_name):
+    def _setup_model(self, model_name):
+        """Setup a test model before execution.
+
+        Args:
+            model_name (str): The name of the test model to set up.
+
+        Returns:
+            bool: True if model setup is successful, False otherwise.
+        """
+
         status = self._execute_fixture("setUpModel", model_name=model_name)
 
         if status:
@@ -169,14 +243,29 @@ class Walker:
 
         return status
 
-    def _tearDownModel(self, model_name):
+    def _teardown_model(self, model_name):
+        """Teardown a test model after execution.
+
+        Args:
+            model_name (str): The name of the test model to set up.
+
+        Returns:
+            bool: True if model teardown is successful, False otherwise.
+        """
+
         return self._execute_fixture("tearDownModel", model_name=model_name)
 
-    def _tearDownModels(self):
+    def _teardown_models(self):
+        """Teardown all test models after execution.
+
+        Returns:
+            bool: True if teardown is successful for all models, False otherwise.
+        """
+
         status = True
 
         for model_name in self._models:
-            temp = self._tearDownModel(model_name)
+            temp = self._teardown_model(model_name)
             status = status and temp
 
         self._models = []
@@ -184,7 +273,11 @@ class Walker:
         return status
 
     def run(self):
-        """Run tests."""
+        """Run tests.
+
+        Returns:
+            bool: True if all tests are executed successfully, False otherwise.
+        """
 
         for _ in self:
             pass
@@ -193,8 +286,15 @@ class Walker:
 
 
 def create_walker(planner, executor, reporter=None):
-    """Create a Walker object, and if no ``reporter`` is provided
-    initialize it with the default options.
+    """Create a Walker object, and if no ``reporter`` is provided initialize it with the default options.
+
+    Args:
+        planner (Planner): The test planner responsible for determining the next step.
+        executor (Executor): The test executor responsible for executing steps.
+        reporter (Reporter, optional): The reporter to record and report test progress (default: None).
+
+    Returns:
+        Walker: An instance of the Walker class.
     """
 
     if not reporter:

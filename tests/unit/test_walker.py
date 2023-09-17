@@ -1,132 +1,144 @@
-import unittest
 import unittest.mock as mock
 
+import pytest
+
 from altwalker.exceptions import GraphWalkerException
-from altwalker.planner import Planner
 from altwalker.executor import Executor
+from altwalker.planner import Planner
 from altwalker.reporter import Reporter
 from altwalker.walker import Walker, create_walker
 
 
-class WalkerTestCase(unittest.TestCase):
+class WalkerTestCase:
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def walker(self):
         self.planner = mock.Mock(spec_set=Planner)
         self.executor = mock.Mock(spec_set=Executor)
         self.reporter = mock.Mock(spec_set=Reporter)
-
         self.walker = Walker(self.planner, self.executor, self.reporter)
+
+        yield self.walker
 
 
 class TestWalker(WalkerTestCase):
 
-    def test_setUpRun(self):
-        self.walker._run_step = mock.Mock()
+    def test_setup_run(self):
+        self.walker._execute_step = mock.Mock()
 
-        self.walker._setUpRun()
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
+        self.walker._setup_run()
+        self.walker._execute_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, current_step=None)
 
-    def test_setUpRun_fail(self):
-        self.walker._run_step = mock.Mock()
-        self.walker._run_step.return_value = False
+    def test_setup_run_fail(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_step.return_value = False
 
-        status = self.walker._setUpRun()
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
-        self.assertFalse(status)
+        status = self.walker._setup_run()
+        self.walker._execute_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, current_step=None)
+        assert not status
 
-    def test_setUpRun_fail_reporter_end(self):
-        self.walker._run_step = mock.Mock()
-        self.walker._run_step.return_value = False
+    def test_setup_run_fail_reporter_end(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_step.return_value = False
         self.reporter.end = mock.Mock()
 
-        for step in self.walker:
-            self.assertTrue(False, "setUpRun should fail")
+        for _ in self.walker:
+            assert False, "The setUpRun fixture should fail"
 
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, optional=True)
+        self.walker._execute_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, current_step=None)
         self.reporter.end.assert_called_once_with(statistics=mock.ANY, status=False)
 
-    def test_tearDownRun(self):
-        self.walker._run_step = mock.Mock()
+    def test_teardown_run(self):
+        self.walker._execute_step = mock.Mock()
 
-        self.walker._tearDownRun()
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "tearDownRun"}, optional=True)
+        self.walker._teardown_run()
+        self.walker._execute_step.assert_called_once_with({"type": "fixture", "name": "tearDownRun"}, current_step=None)
 
-    def test_tearDownRun_fail(self):
-        self.walker._run_step = mock.Mock()
-        self.walker._run_step.return_value = False
+    def test_teardown_run_fail(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_step.return_value = False
 
-        status = self.walker._tearDownRun()
+        status = self.walker._teardown_run()
 
-        self.assertFalse(status)
-        self.walker._run_step.assert_called_once_with({"type": "fixture", "name": "tearDownRun"}, optional=True)
+        self.walker._execute_step.assert_called_once_with({"type": "fixture", "name": "tearDownRun"}, current_step=None)
+        assert not status
 
-    def test_setUpModel(self):
-        self.walker._run_step = mock.Mock()
+    def test_setup_model(self):
+        self.walker._execute_step = mock.Mock()
 
-        self.walker._setUpModel("modelName")
+        self.walker._setup_model("modelName")
 
-        self.walker._run_step.assert_called_once_with(
+        self.walker._execute_step.assert_called_once_with(
             {"type": "fixture", "name": "setUpModel", "modelName": "modelName"},
-            optional=True)
-        self.assertListEqual(self.walker._models, ["modelName"])
+            current_step=None
+        )
+        assert self.walker._models == ["modelName"]
 
-    def test_setUpModel_fail(self):
-        self.walker._run_step = mock.Mock()
-        self.walker._run_step.return_value = False
+    def test_setup_model_fail(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_step.return_value = False
 
-        status = self.walker._setUpModel("modelName")
+        status = self.walker._setup_model("modelName")
 
-        self.walker._run_step.assert_called_once_with(
+        self.walker._execute_step.assert_called_once_with(
             {"type": "fixture", "name": "setUpModel", "modelName": "modelName"},
-            optional=True)
-        self.assertListEqual(self.walker._models, [])
-        self.assertFalse(status)
+            current_step=None
+        )
+        assert self.walker._models == []
+        assert not status
 
-    def test_tearDownModel(self):
-        self.walker._run_step = mock.Mock()
-        self.walker._run_step.return_value = False
+    def test_teardown_model(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_step.return_value = False
 
-        self.walker._tearDownModel("modelName")
-        self.walker._run_step.assert_called_once_with(
+        self.walker._teardown_model("modelName")
+
+        self.walker._execute_step.assert_called_once_with(
             {"type": "fixture", "name": "tearDownModel", "modelName": "modelName"},
-            optional=True)
+            current_step=None
+        )
 
-    def test_tearDownModel_fail(self):
-        self.walker._run_step = mock.Mock()
-        self.walker._run_step.return_value = False
+    def test_teardown_model_fail(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_step.return_value = False
 
-        status = self.walker._tearDownModel("modelName")
+        status = self.walker._teardown_model("modelName")
 
-        self.assertFalse(status)
-        self.walker._run_step.assert_called_once_with(
+        self.walker._execute_step.assert_called_once_with(
             {"type": "fixture", "name": "tearDownModel", "modelName": "modelName"},
-            optional=True)
+            current_step=None
+        )
+        assert not status
 
-    def test_tearDownModels(self):
-        self.walker._tearDownModel = mock.Mock()
-        self.walker._tearDownModel.return_value = True
+    def test_teardown_models(self):
+        self.walker._teardown_model = mock.Mock()
+        self.walker._teardown_model.return_value = True
 
-        # Should not call _tearDownModel if _models is empty
-        self.walker._tearDownModels()
-        self.walker._tearDownModel.assert_not_called()
-        self.assertListEqual(self.walker._models, [])
-
-        # Should call _tearDownModel for models in _models
+        # It should call _teardown_model for models in _models
         self.walker._models = ["modelName"]
-        status = self.walker._tearDownModels()
+        status = self.walker._teardown_models()
 
-        self.walker._tearDownModel.assert_called_once_with("modelName")
-        self.assertTrue(status)
+        self.walker._teardown_model.assert_called_once_with("modelName")
+        assert status
 
-    def test_tearDownModels_fail(self):
-        self.walker._tearDownModel = mock.Mock()
-        self.walker._tearDownModel.side_effect = [True, False, True]
+    def test_teardown_models_empty(self):
+        self.walker._teardown_model = mock.Mock()
+        self.walker._teardown_model.return_value = True
+
+        # It should not call _teardown_model if _models is empty
+        self.walker._teardown_models()
+        self.walker._teardown_model.assert_not_called()
+        assert self.walker._models == []
+
+    def test_teardown_models_fail(self):
+        self.walker._teardown_model = mock.Mock()
+        self.walker._teardown_model.side_effect = [True, False, True]
 
         self.walker._models = ["modelName", "modelName", "modelName"]
-        status = self.walker._tearDownModels()
+        status = self.walker._teardown_models()
 
-        self.assertEqual(self.walker._tearDownModel.call_count, 3)
-        self.assertFalse(status)
+        assert self.walker._teardown_model.call_count == 3
+        assert not status
 
     def test_update_data(self):
         data_before = {
@@ -144,7 +156,7 @@ class TestWalker(WalkerTestCase):
 
         self.planner.set_data.assert_any_call("B", "3")
         self.planner.set_data.assert_any_call("C", "4")
-        self.assertEqual(2, self.planner.set_data.call_count)
+        assert self.planner.set_data.call_count == 2
 
     def test_update_data_with_no_changes(self):
         data = {
@@ -161,9 +173,8 @@ class TestWalker(WalkerTestCase):
 
 class TestExecuteStep(WalkerTestCase):
 
-    def setUp(self):
-        super().setUp()
-
+    @pytest.fixture(autouse=True)
+    def setup_step(self):
         self.step = {
             "name": "step_name",
             "modelName": "ModelName"
@@ -179,18 +190,23 @@ class TestExecuteStep(WalkerTestCase):
 
         self.walker._execute_step(self.step)
 
-        self.executor.execute_step.assert_called_once_with("ModelName", "step_name", data)
+        self.executor.execute_step.assert_called_once_with(
+            "ModelName",
+            "step_name",
+            data=data,
+            step=self.step
+        )
 
     def test_result(self):
-        result = {
+        return_value = {
             "data": {}
         }
 
         self.planner.get_data.return_value = {}
-        self.executor.execute_step.return_value = result
+        self.executor.execute_step.return_value = return_value
 
         result = self.walker._execute_step(self.step)
-        self.assertTrue(result)
+        assert result
 
     def test_error(self):
         data = {
@@ -233,7 +249,7 @@ class TestExecuteStep(WalkerTestCase):
 
         self.walker._update_data.assert_called_once_with(before_data, after_data)
 
-    def test_without_after(self):
+    def test_without_after_data(self):
         data = {
             "A": "0"
         }
@@ -247,40 +263,31 @@ class TestExecuteStep(WalkerTestCase):
         self.walker._update_data.assert_called_once_with(data, None)
 
 
-class TestRunStep(WalkerTestCase):
+class TestExecuteFixture(WalkerTestCase):
+    pass
 
-    def setUp(self):
-        super().setUp()
 
+class TestExecuteTest(WalkerTestCase):
+
+    @pytest.fixture(autouse=True)
+    def setup_step(self):
         self.step = {
             "id": "id",
             "name": "name",
             "modelName": "ModelName"
         }
 
-    def test_optional(self):
-        self.executor.has_step.return_value = False
-
-        status = self.walker._run_step(self.step, optional=True)
-        self.assertTrue(status)
-
-    def test_not_optional(self):
-        self.executor.has_step.return_value = False
-
-        status = self.walker._run_step(self.step, optional=False)
-        self.assertFalse(status)
-
     def test_not_found(self):
         self.executor.has_step.return_value = False
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
         self.planner.fail.assert_called_once_with("Step not found.")
 
     def test_not_found_report(self):
         self.executor.has_step.return_value = False
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
         self.reporter.error.assert_called_once_with(
             self.step,
@@ -291,15 +298,15 @@ class TestRunStep(WalkerTestCase):
         self.executor.has_step.return_value = True
         self.walker._execute_step = mock.Mock(return_value={"output": ""})
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
-        self.walker._execute_step.assert_called_once_with(self.step)
+        self.walker._execute_step.assert_called_once_with(self.step, current_step=self.step)
 
     def test_report_status(self):
         self.executor.has_step.return_value = True
         self.executor.execute_step.return_value = {"output": ""}
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
         self.reporter.step_end.assert_called_once_with(self.step, {"output": ""})
 
@@ -312,16 +319,16 @@ class TestRunStep(WalkerTestCase):
         self.executor.has_step.return_value = True
         self.walker._execute_step = mock.Mock(return_value={"output": "", "error": error})
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
-        self.walker._execute_step.assert_called_once_with(self.step)
+        self.walker._execute_step.assert_called_once_with(self.step, current_step=self.step)
 
     def test_error_status(self):
         self.executor.has_step.return_value = True
         self.walker._execute_step = mock.Mock(return_value=False)
 
-        status = self.walker._run_step(self.step, optional=False)
-        self.assertFalse(status)
+        status = self.walker._execute_test(self.step)
+        assert not status
 
     def test_error_planner(self):
         error_message = "Error message."
@@ -329,7 +336,7 @@ class TestRunStep(WalkerTestCase):
         self.executor.has_step.return_value = True
         self.walker._execute_step = mock.Mock(side_effect=Exception(error_message))
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
         self.planner.fail.assert_called_once_with(error_message)
 
@@ -339,7 +346,7 @@ class TestRunStep(WalkerTestCase):
         self.executor.has_step.return_value = True
         self.walker._execute_step = mock.Mock(side_effect=Exception(error_message))
 
-        self.walker._run_step(self.step, optional=False)
+        self.walker._execute_test(self.step)
 
         self.reporter.error.assert_called_once_with(self.step, error_message, trace=mock.ANY)
 
@@ -347,7 +354,7 @@ class TestRunStep(WalkerTestCase):
         self.executor.has_step.return_value = True
         self.executor.execute_step.side_effect = Exception("Error message.")
 
-        self.walker._run_step(self.step)
+        self.walker._execute_test(self.step)
 
         self.reporter.error.assert_called_once_with(self.step, "Error message.", trace=mock.ANY)
 
@@ -355,14 +362,14 @@ class TestRunStep(WalkerTestCase):
         self.executor.has_step.return_value = True
         self.executor.execute_step.side_effect = Exception("Error message.")
 
-        status = self.walker._run_step(self.step)
-        self.assertFalse(status)
+        status = self.walker._execute_test(self.step)
+        assert not status
 
     def test_exception_planner(self):
         self.executor.has_step.return_value = True
         self.executor.execute_step.side_effect = Exception("Error message.")
 
-        self.walker._run_step(self.step)
+        self.walker._execute_test(self.step)
 
         self.planner.fail.assert_called_once_with("Error message.")
 
@@ -372,20 +379,19 @@ class TestRunStep(WalkerTestCase):
         self.executor.execute_step.side_effect = Exception("Error message.")
         trace_mock.return_value = "Trace."
 
-        self.walker._run_step(self.step)
+        self.walker._execute_test(self.step)
 
         self.reporter.error.assert_called_once_with(self.step, "Error message.", trace="Trace.")
 
 
 class TestItter(WalkerTestCase):
 
-    def setUp(self):
-        super().setUp()
-
-        self.walker._setUpRun = mock.MagicMock()
-        self.walker._setUpModel = mock.MagicMock()
-        self.walker._tearDownModels = mock.MagicMock()
-        self.walker._tearDownRun = mock.MagicMock()
+    @pytest.fixture(autouse=True)
+    def setup_mocks(self, walker):
+        walker._setup_run = mock.MagicMock()
+        walker._setup_model = mock.MagicMock()
+        walker._teardown_models = mock.MagicMock()
+        walker._teardown_run = mock.MagicMock()
 
     def test_fixtures(self):
         self.planner.has_next.return_value = False
@@ -393,47 +399,47 @@ class TestItter(WalkerTestCase):
         for _ in self.walker:
             pass
 
-        self.walker._setUpRun.assert_called_once_with()
-        self.walker._tearDownModels.assert_called_once_with()
-        self.walker._tearDownRun.assert_called_once_with()
+        self.walker._setup_run.assert_called_once_with()
+        self.walker._teardown_models.assert_called_once_with()
+        self.walker._teardown_run.assert_called_once_with()
 
-    def test_setUpRun_fail(self):
-        self.walker._setUpRun.return_value = False
+    def test_setup_run_fail(self):
+        self.walker._setup_run.return_value = False
         self.planner.has_next.return_value = False
 
         for _ in self.walker:
             pass
 
-        self.walker._setUpRun.assert_called_once_with()
-        self.walker._tearDownRun.assert_not_called()
-        self.assertFalse(self.walker.status)
+        self.walker._setup_run.assert_called_once_with()
+        self.walker._teardown_run.assert_not_called()
+        assert not self.walker.status
 
-    def test_setUpModel(self):
-        self.walker._setUpRun.return_value = True
+    def test_setup_model(self):
+        self.walker._setup_run.return_value = True
         self.planner.has_next.side_effect = [True, False]
         self.planner.get_next.return_value = {"name": "name", "modelName": "modelName"}
 
         for _ in self.walker:
             pass
 
-        self.walker._setUpModel.assert_called_once_with("modelName")
+        self.walker._setup_model.assert_called_once_with("modelName")
 
-    def test_setUpModel_not_called_twice(self):
+    def test_setup_model_not_called_twice(self):
         self.walker._models = ["modelName"]
-        self.walker._setUpRun.return_value = True
+        self.walker._setup_run.return_value = True
         self.planner.has_next.side_effect = [True, False]
         self.planner.get_next.return_value = {"name": "name", "modelName": "modelName"}
 
         for _ in self.walker:
             pass
 
-        self.walker._setUpModel.assert_not_called()
+        self.walker._setup_model.assert_not_called()
 
-    def test_setUpModel_fails(self):
-        self.walker._setUpRun.return_value = True
-        self.walker._setUpModel.return_value = False
-        self.walker._tearDownModels.return_value = True
-        self.walker._tearDownRun.return_value = True
+    def test_setup_model_fails(self):
+        self.walker._setup_run.return_value = True
+        self.walker._setup_model.return_value = False
+        self.walker._teardown_models.return_value = True
+        self.walker._teardown_run.return_value = True
 
         self.planner.has_next.return_value = True
         self.planner.get_next.return_value = {"name": "name", "modelName": "modelName"}
@@ -441,45 +447,45 @@ class TestItter(WalkerTestCase):
         for _ in self.walker:
             pass
 
-        self.walker._setUpModel.assert_called_once_with("modelName")
-        self.assertFalse(self.walker.status)
+        self.walker._setup_model.assert_called_once_with("modelName")
+        assert not self.walker.status
 
-    def test_tearDownModels_fails(self):
-        self.walker._setUpRun.return_value = True
-        self.walker._setUpModel.return_value = True
-        self.walker._tearDownModels.return_value = True
-        self.walker._tearDownRun.return_value = False
-
-        self.planner.has_next.return_value = False
-
-        for _ in self.walker:
-            pass
-
-        self.assertFalse(self.walker.status)
-
-    def test_tearDownRun_fails(self):
-        self.walker._setUpRun.return_value = True
-        self.walker._setUpModel.return_value = True
-        self.walker._tearDownModels.return_value = False
-        self.walker._tearDownRun.return_value = True
+    def test_teardown_models_fails(self):
+        self.walker._setup_run.return_value = True
+        self.walker._setup_model.return_value = True
+        self.walker._teardown_models.return_value = True
+        self.walker._teardown_run.return_value = False
 
         self.planner.has_next.return_value = False
 
         for _ in self.walker:
             pass
 
-        self.assertFalse(self.walker.status)
+        assert not self.walker.status
+
+    def test_teardown_run_fails(self):
+        self.walker._setup_run.return_value = True
+        self.walker._setup_model.return_value = True
+        self.walker._teardown_models.return_value = False
+        self.walker._teardown_run.return_value = True
+
+        self.planner.has_next.return_value = False
+
+        for _ in self.walker:
+            pass
+
+        assert not self.walker.status
 
     def test_yield(self):
         self.walker._run_step = mock.MagicMock()
         self.walker._run_step.return_value = True
 
-        self.walker._setUpRun.return_value = True
+        self.walker._setup_run.return_value = True
         self.planner.has_next.side_effect = [True, False]
         self.planner.get_next.return_value = {"name": "name", "modelName": "modelName"}
 
         for step in self.walker:
-            self.assertDictEqual(step,  {"name": "name", "modelName": "modelName", "status": True})
+            assert step == {"name": "name", "modelName": "modelName", "status": True}
 
     def test_report(self):
         self.planner.has_next.return_value = False
@@ -491,10 +497,10 @@ class TestItter(WalkerTestCase):
         self.reporter.end.assert_called_once_with(statistics=mock.ANY, status=mock.ANY)
 
     def test_get_next_fail(self):
-        self.walker._setUpRun.return_value = True
-        self.walker._setUpModel.return_value = True
-        self.walker._tearDownModels.return_value = True
-        self.walker._tearDownRun.return_value = True
+        self.walker._setup_run.return_value = True
+        self.walker._setup_model.return_value = True
+        self.walker._teardown_models.return_value = True
+        self.walker._teardown_run.return_value = True
 
         self.planner.has_next.return_value = True
         self.planner.get_next.side_effect = GraphWalkerException("Fail get_next")
@@ -502,34 +508,34 @@ class TestItter(WalkerTestCase):
         for _ in self.walker:
             pass
 
-        self.assertFalse(self.walker.status)
         self.reporter.error.assert_called_with(None, "Fail get_next")
+        assert not self.walker.status
 
     def test_should_skip_edge_without_name(self):
-        self.walker._run_step = mock.MagicMock()
-        self.walker._run_step.return_value = True
+        self.walker._execute_test = mock.MagicMock()
+        self.walker._execute_fixture = mock.MagicMock()
 
-        self.walker._setUpRun.return_value = True
-        self.planner.has_next.side_effect = [True, True, False]
+        self.planner.has_next.side_effect = [True, False]
         self.planner.get_next.side_effect = [
-            {"modelName": "modelName"},
-            {"name": "name", "modelName": "modelName"}
+            {"modelName": "modelName"}
         ]
 
         for step in self.walker:
-            self.assertDictEqual(step,  {"name": "name", "modelName": "modelName", "status": True})
+            pass
+
+        self.walker._execute_fixture.assert_not_called()
+        self.walker._execute_test.assert_not_called()
 
 
 class TestRun(WalkerTestCase):
 
-    def setUp(self):
-        super().setUp()
-
-        self.walker._run_step = mock.MagicMock()
-        self.walker._setUpRun = mock.MagicMock()
-        self.walker._setUpModel = mock.MagicMock()
-        self.walker._tearDownModels = mock.MagicMock()
-        self.walker._tearDownRun = mock.MagicMock()
+    @pytest.fixture(autouse=True)
+    def setup_mocks(self, walker):
+        walker._run_step = mock.MagicMock()
+        walker._setup_run = mock.MagicMock()
+        walker._setup_model = mock.MagicMock()
+        walker._teardown_models = mock.MagicMock()
+        walker._teardown_run = mock.MagicMock()
 
     def test_success(self):
         self.walker._run_step.return_value = True
@@ -538,23 +544,23 @@ class TestRun(WalkerTestCase):
         self.planner.get_next.return_value = {"name": "name", "modelName": "modelName"}
 
         status = self.walker.run()
-        self.assertTrue(status)
+        assert status
 
     def test_fail(self):
-        self.walker._setUpRun.return_value = True
-        self.walker._setUpModel.return_value = True
-        self.walker._tearDownModels.return_value = True
-        self.walker._tearDownRun.return_value = True
+        self.walker._setup_run.return_value = True
+        self.walker._setup_model.return_value = True
+        self.walker._teardown_models.return_value = True
+        self.walker._teardown_run.return_value = True
         self.walker._run_step.return_value = False
 
         self.planner.has_next.side_effect = [True, False]
         self.planner.get_next.return_value = {"name": "name", "modelName": "modelName"}
 
         status = self.walker.run()
-        self.assertFalse(status)
+        assert not status
 
 
-class TestCreateWalker(unittest.TestCase):
+class TestCreateWalker:
 
     def test_planner(self):
         planner = mock.sentinel.planner
@@ -562,7 +568,7 @@ class TestCreateWalker(unittest.TestCase):
 
         walker = create_walker(planner, executor)
 
-        self.assertEqual(walker._planner, planner)
+        assert walker._planner == planner
 
     def test_executor(self):
         planner = mock.sentinel.planner
@@ -570,7 +576,7 @@ class TestCreateWalker(unittest.TestCase):
 
         walker = create_walker(planner, executor)
 
-        self.assertEqual(walker._executor, executor)
+        assert walker._executor == executor
 
     def test_reporter(self):
         planner = mock.sentinel.planner
@@ -579,4 +585,4 @@ class TestCreateWalker(unittest.TestCase):
 
         walker = create_walker(planner, executor, reporter=reporter)
 
-        self.assertEqual(walker._reporter, reporter)
+        assert walker._reporter == reporter
