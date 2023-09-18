@@ -75,7 +75,7 @@ class Walker:
         """The status of the current test run.
 
         Returns:
-            bool: True if the test run is successful, False otherwise.
+            bool: ``True`` if the test run is successful, ``False`` otherwise.
         """
 
         return self._status
@@ -138,7 +138,7 @@ class Walker:
             current_step (dict, optional): The current test step being executed (default: None).
 
         Returns:
-            bool: True if the fixture is executed successfully, False otherwise.
+            bool: ``True`` if the fixture is executed successfully, ``False`` otherwise.
         """
 
         fixture = {"type": "fixture", "name": fixture_name}
@@ -163,7 +163,7 @@ class Walker:
             step (dict): The test step to execute.
 
         Returns:
-            bool: True if the step is executed successfully, False otherwise.
+            bool: ``True`` if the step is executed successfully, ``False`` otherwise.
         """
 
         if not self._executor.has_step(step.get("modelName"), step.get("name")):
@@ -183,6 +183,15 @@ class Walker:
             return False
 
     def _run_step(self, step):
+        """Execute a test step along with all associated fixtures (e.g., 'beforeStep', 'afterStep').
+
+        Args:
+            step (dict): The test step to execute.
+
+        Returns:
+            bool: ``True`` the step and its fixtures were executed successfully; otherwise ``False``.
+        """
+
         if not step.get("name"):
             # Skip vertices and edges without names
             return True
@@ -212,7 +221,7 @@ class Walker:
         """Setup a test run before execution.
 
         Returns:
-            bool: True if the fixture is executed successfully, False otherwise.
+            bool: ``True`` if the fixture is executed successfully, ``False`` otherwise.
         """
 
         return self._execute_fixture("setUpRun")
@@ -221,7 +230,7 @@ class Walker:
         """Teardown a test run after execution.
 
         Returns:
-            bool: True if the fixture is executed successfully, False otherwise.
+            bool: ``True`` if the fixture is executed successfully, ``False`` otherwise.
         """
 
         return self._execute_fixture("tearDownRun")
@@ -233,7 +242,7 @@ class Walker:
             model_name (str): The name of the test model to set up.
 
         Returns:
-            bool: True if model setup is successful, False otherwise.
+            bool: ``True`` if model setup is successful, ``False`` otherwise.
         """
 
         status = self._execute_fixture("setUpModel", model_name=model_name)
@@ -250,7 +259,7 @@ class Walker:
             model_name (str): The name of the test model to set up.
 
         Returns:
-            bool: True if model teardown is successful, False otherwise.
+            bool: ``True`` if model teardown is successful, ``False`` otherwise.
         """
 
         return self._execute_fixture("tearDownModel", model_name=model_name)
@@ -259,7 +268,7 @@ class Walker:
         """Teardown all test models after execution.
 
         Returns:
-            bool: True if teardown is successful for all models, False otherwise.
+            bool: ``True`` if teardown is successful for all models, ``False`` otherwise.
         """
 
         status = True
@@ -276,7 +285,7 @@ class Walker:
         """Run tests.
 
         Returns:
-            bool: True if all tests are executed successfully, False otherwise.
+            bool: ``True`` if all tests are executed successfully, ``False`` otherwise.
         """
 
         for _ in self:
