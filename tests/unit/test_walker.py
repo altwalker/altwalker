@@ -264,7 +264,49 @@ class TestExecuteStep(WalkerTestCase):
 
 
 class TestExecuteFixture(WalkerTestCase):
-    pass
+
+    def test_not_found(self):
+        self.executor.has_step.return_value = False
+        self.walker._execute_step = mock.Mock(return_value={"output": ""})
+
+        status = self.walker._execute_fixture("setUpModel", model_name="BaseModel")
+
+        self.executor.has_step.assert_called_once_with("BaseModel", "setUpModel")
+        self.walker._execute_step.assert_not_called()
+        assert status
+
+    @pytest.mark.parametrize("fixture_name, model_name, current_step", [
+        ("setUpRun", None, None),
+        ("tearDownRun", None, None),
+        ("setUpModel", "BaseModel", None),
+        ("tearDownModel", "ModelName", None),
+        ("beforeStep", "BaseModel", mock.sentinel.STEP),
+        ("afterStep", "ModelName", mock.sentinel.STEP),
+    ])
+    def test_run_fixture(self, fixture_name, model_name, current_step):
+        self.executor.has_step.return_value = True
+        self.walker._execute_step = mock.Mock(return_value=True)
+
+        status = self.walker._execute_fixture(fixture_name, model_name=model_name, current_step=current_step)
+
+        fixture = {"type": "fixture", "name": fixture_name}
+        if model_name:
+            fixture["modelName"] = model_name
+
+        self.walker._execute_step.assert_called_once_with(fixture, current_step=current_step)
+        assert status
+
+    def test_error(self):
+        error_message = "Error message."
+        self.walker._execute_step = mock.Mock(side_effect=Exception(error_message))
+        self.executor.has_step.return_value = True
+
+        status = self.walker._execute_fixture("setUpRun")
+
+        self.walker._execute_step.assert_called_once_with({"type": "fixture", "name": "setUpRun"}, current_step=None)
+        self.walker._planner.fail.assert_called_once_with(error_message)
+        self.walker._reporter.error.assert_called_once()
+        assert not status
 
 
 class TestExecuteTest(WalkerTestCase):
@@ -382,6 +424,62 @@ class TestExecuteTest(WalkerTestCase):
         self.walker._execute_test(self.step)
 
         self.reporter.error.assert_called_once_with(self.step, "Error message.", trace="Trace.")
+
+
+class TestRunStep(WalkerTestCase):
+
+    @pytest.fixture(autouse=True)
+    def setup_step(self):
+        self.step = {
+            "id": "id",
+            "name": "name",
+            "modelName": "ModelName"
+        }
+
+    def test_step_without_name(self):
+        self.walker._execute_step = mock.Mock()
+        self.walker._execute_fixture = mock.Mock()
+
+        status = self.walker._run_step({"id": "id", "modelName": "BaseModel"})
+
+        self.walker._execute_step.assert_not_called()
+        self.walker._execute_fixture.assert_not_called()
+        assert status
+
+    def test_run_step(self):
+        self.walker._execute_test = mock.Mock(return_value=True)
+        self.walker._execute_fixture = mock.Mock(return_value=True)
+
+        status = self.walker._run_step(self.step)
+
+        self.walker._execute_test.assert_called_once_with(self.step)
+        self.walker._execute_fixture.assert_any_call("beforeStep", current_step=self.step)
+        self.walker._execute_fixture.assert_any_call("beforeStep", model_name=self.step["modelName"], current_step=self.step)
+        self.walker._execute_fixture.assert_any_call("afterStep", current_step=self.step)
+        self.walker._execute_fixture.assert_any_call("afterStep", model_name=self.step["modelName"], current_step=self.step)
+        assert status
+
+    def test_fail(self):
+        self.walker._execute_test = mock.Mock(return_value=False)
+        self.walker._execute_fixture = mock.Mock(return_value=True)
+
+        status = self.walker._run_step(self.step)
+
+        assert not status
+
+    @pytest.mark.parametrize("fixture_mock_side_effect", [
+        [False, True, True, True],
+        [True, False, True, True],
+        [True, True, False, True],
+        [True, True, True, False],
+    ])
+    def test_fixture_fail(self, fixture_mock_side_effect):
+        self.walker._execute_test = mock.Mock(return_value=True)
+        self.walker._execute_fixture = mock.Mock(side_effect=fixture_mock_side_effect)
+
+        status = self.walker._run_step(self.step)
+
+        assert not status
 
 
 class TestItter(WalkerTestCase):
