@@ -1,9 +1,24 @@
+#    Copyright(C) 2023 Altom Consulting
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import unittest
 import unittest.mock as mock
 
-from altwalker.code import ValidationException, _is_element_blocked, _graphml_methods, _json_methods, \
-    validate_code, get_methods, get_missing_methods, verify_code
-
+from altwalker.code import (ValidationException, _graphml_methods,
+                            _is_element_blocked, _json_methods, get_methods,
+                            get_missing_methods, validate_code, verify_code)
 
 MOCK_MODELS = {
     "models": [
