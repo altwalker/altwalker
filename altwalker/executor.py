@@ -114,6 +114,7 @@ class Executor(metaclass=abc.ABCMeta):
             model_name (:obj:`str`): The name of the model.
             name (:obj:`str`): The name of the step.
             data (:obj:`dict`): The current graph data.
+            step (:obj:`dict`): The current step.
 
         Note:
             If ``model_name`` is ``None`` the step is a fixture.
@@ -261,6 +262,7 @@ class HttpExecutor(Executor):
             model_name (:obj:`str`): The name of the model.
             name (:obj:`str`): The name of the step.
             data (:obj:`dict`): The current graph data.
+            step (:obj:`dict`): The current step.
 
         Returns:
             dict: The graph data, the output of the step, and the error message with the
@@ -382,6 +384,7 @@ class PythonExecutor(Executor):
             model_name (:obj:`str`): The name of the model.
             name (:obj:`str`): The name of the step.
             data (:obj:`dict`): The current graph data.
+            step (:obj:`dict`): The current step.
 
         Note:
             If ``model_name`` is ``None`` the step is a fixture.
