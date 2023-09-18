@@ -59,6 +59,9 @@ There are two Planners:
   The sequence of path can be generated using
   the :func:`~altwalker.graphwalker.offline` function.
 
+.. autoclass:: Planner
+    :members:
+
 .. autoclass:: OnlinePlanner
     :members:
 
@@ -75,21 +78,17 @@ Loader
 
 .. currentmodule:: altwalker.loader
 
-
 .. autoclass:: ImportlibLoader
 
     .. automethod:: load
-
 
 .. autoclass:: PrependLoader
 
     .. automethod:: load
 
-
 .. autoclass:: AppendLoader
 
     .. automethod:: load
-
 
 .. autoclass:: ImportModes
 
@@ -108,7 +107,6 @@ Executor
 
 .. module:: altwalker.executor
 
-
 .. currentmodule:: altwalker.executor
 
 The role of the executor is to handle the test execution. Every executor
@@ -117,7 +115,6 @@ should have all the methods form the :class:`~altwalker.executor.Executor`.
 
 .. autoclass:: Executor
     :members:
-
 
 .. autoclass:: HttpExecutor
 
@@ -131,15 +128,12 @@ should have all the methods form the :class:`~altwalker.executor.Executor`.
 
     .. automethod:: kill
 
-
 .. autoclass:: PythonExecutor
     :members:
-
 
 .. autoclass:: DotnetExecutor
     :members:
     :inherited-members:
-
 
 .. autofunction:: create_executor
 
@@ -151,21 +145,26 @@ Reporter
 
 .. currentmodule:: altwalker.reporter
 
-The role of the reporter is to report the results of a test run, a
-reporter method is called by the :class:`~altwalker.walker.Walker`
-for different events:
+The reporter plays a crucial role in capturing and presenting the results of a
+test run. It's responsible for handling various events during the test
+execution, and the following methods are called by the :class:`~altwalker.walker.Walker` class:
 
-    * :func:`~Reporter.start` - called at the beginning of each run.
-    * :func:`~Reporter.end` - called at the end of each run.
-    * :func:`~Reporter.step_start` - called before executing each step.
-    * :func:`~Reporter.step_end` - called after executing each step.
-    * :func:`~Reporter.report` - it should return a report if the reporter
-      generates on (e.g. the :class:`PrintReporter` or
-      :class:`FileReporter` don't generate any report, they only log data).
-      It's not called by the :class:`~altwalker.walker.Walker`.
+    * :func:`~Reporter.start`: Called at the beginning of each test run.
+    * :func:`~Reporter.end`: Called at the end of each test run.
+    * :func:`~Reporter.step_start`: Invoked before executing each step.
+    * :func:`~Reporter.step_end`: Invoked after executing each step.
+    * :func:`~Reporter.report`: This method should return report if the
+      reporter generates one. For example, reporters like :class:`PrintReporter`
+      or  :class:`FileReporter` might not generate reports but could log data.
 
-Every reporter should have all of these methods. You can inherit them
-from :class:`Reporter` and overwrite only the methods you want.
+It's important to note that the :func:`~Reporter.report` method is not called
+by the :class:`~altwalker.walker.Walker` class; its purpose is to provide a
+report when applicable.
+
+To create a custom reporter, you should implement all of these methods. You can
+inherit from the :class:`Reporter` class and override only the methods that you need to
+customize. This allows you to tailor the reporter's behavior to your specific
+requirements while maintaining consistency with the expected interface.
 
 
 .. autoclass:: Reporter
@@ -206,7 +205,6 @@ For more information check out the `GraphWalker REST API Documentation <https://
 
 .. autoclass:: GraphWalkerService
     :members:
-
 
 .. autoclass:: GraphWalkerClient
     :members:
@@ -281,8 +279,9 @@ Standard Exceptions
 Click Exceptions
 ----------------
 
-This exceptions are used in the cli to handle the ``exit_code`` and the
-display of :class:`GraphWalkerException` and :class:`AltWalkerException`.
+These exceptions are employed in the CLI to manage the ``exit_code`` and
+control the display of :class:`GraphWalkerException` and :class:`AltWalkerException`
+exceptions.
 
 .. autoexception:: FailedTestsError
     :members:
