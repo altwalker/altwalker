@@ -1,15 +1,29 @@
+#    Copyright(C) 2023 Altom Consulting
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import itertools
 import unittest.mock as mock
 
 import pytest
 from click.testing import CliRunner
 
-from tests.common.utils import run_isolation
-from altwalker.loader import ImportModes
-from altwalker.generate import get_supported_languages
+from altwalker.cli import check, generate, init, offline, online, verify, walk
 from altwalker.executor import get_supported_executors
-from altwalker.cli import check, verify, init, generate, online, offline, walk
-
+from altwalker.generate import get_supported_languages
+from altwalker.loader import ImportModes
+from tests.common.utils import run_isolation
 
 SUPPORTED_LANGUAGES = get_supported_languages()
 

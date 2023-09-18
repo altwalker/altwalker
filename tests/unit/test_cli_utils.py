@@ -1,11 +1,29 @@
-from pathlib import Path
+#    Copyright(C) 2023 Altom Consulting
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 import unittest.mock as mock
+from pathlib import Path
 
 import pytest
 
+from altwalker._cli import (_cli_check_models, _cli_validate_models,
+                            _echo_code_issues, _echo_model_issues,
+                            _echo_suggestions, cli_check, cli_generate,
+                            cli_init, cli_offline, cli_online, cli_verify,
+                            cli_walk)
 from altwalker.exceptions import AltWalkerError, FailedTestsError
-from altwalker._cli import _echo_model_issues, _cli_validate_models, _cli_check_models, _echo_code_issues, \
-    _echo_suggestions, cli_check, cli_verify, cli_init, cli_generate, cli_online, cli_offline, cli_walk
 
 
 @mock.patch("click.secho")
