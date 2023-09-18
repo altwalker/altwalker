@@ -454,9 +454,17 @@ class TestRunStep(WalkerTestCase):
 
         self.walker._execute_test.assert_called_once_with(self.step)
         self.walker._execute_fixture.assert_any_call("beforeStep", current_step=self.step)
-        self.walker._execute_fixture.assert_any_call("beforeStep", model_name=self.step["modelName"], current_step=self.step)
+        self.walker._execute_fixture.assert_any_call(
+            "beforeStep",
+            model_name=self.step["modelName"],
+            current_step=self.step
+        )
         self.walker._execute_fixture.assert_any_call("afterStep", current_step=self.step)
-        self.walker._execute_fixture.assert_any_call("afterStep", model_name=self.step["modelName"], current_step=self.step)
+        self.walker._execute_fixture.assert_any_call(
+            "afterStep",
+            model_name=self.step["modelName"],
+            current_step=self.step
+        )
         assert status
 
     def test_fail(self):
