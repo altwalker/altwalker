@@ -123,15 +123,23 @@ Fixtures
 --------
 
 AltWalker implements four test :term:`fixtures<Test Fixture>` inspired by JUnit and the python
-unittest module:
+``unittest`` module:
 
 - ``setUpRun``: Will be executed first, before anything else.
 - ``tearDownRun``: Will be executed last.
+- ``beforeStep``: Will be executed before every step.
+- ``afterStep``: Will be executed after every step.
 - ``setUpModel``: Will be executed before executing any step from this model.
 - ``tearDownModel``: Will be executed after executing all steps from this
   model.
 
 All fixtures are optional.
+
+When you define the ``beforeStep`` and ``afterStep`` fixtures within a model
+class, these fixtures will specifically apply to that particular model. In other
+words, they will only affect the steps executed within that model's context. This
+provides a way to encapsulate and customize individual models, allowing you to
+fine-tune the behavior of these fixtures for each model independently.
 
 .. tab::  Python
 
@@ -143,16 +151,28 @@ All fixtures are optional.
             """Will be executed first, before anything else."""
 
         def tearDownRun():
-            """Will be executed last."""
+            """Will be executed last, after anything else."""
+
+        def beforeStep():
+            """Will be executed before every step."""
+
+        def afterStep():
+            """Will be executed after every step."""
 
 
         class ModelA:
 
             def setUpModel(self):
-                """Will be executed before executing any step from this model."""
+                """Will be executed once before executing any step from this model."""
 
             def tearDownModel(self):
-                """Will be executed after executing all steps from this model."""
+                """Will be executed once after executing all steps from this model."""
+
+            def beforeStep():
+                """Will be executed before every step from this model."""
+
+            def afterStep():
+                """Will be executed after every step from this model."""
 
             def vertex_a(self):
                 pass
@@ -162,10 +182,10 @@ All fixtures are optional.
 
 .. tab::  C#/.NET
 
-    Define ``setUpRun`` and ``tearDownRun`` inside a ``Setup`` class, and
+    Define ``setUpRun``, ``tearDownRun``, ``beforeStep`` and ``afterStep`` inside a ``Setup`` class, and
     register it inside the executor service: ``ExecutorService.RegisterSetup<T>();``
 
-    Define ``setUpModel`` and ``tearDownModel`` inside the model class.
+    Define ``setUpModel``, ``tearDownModel``, ``beforeStep`` and ``afterStep`` inside the model class.
 
     .. code-block:: c#
 
@@ -179,18 +199,30 @@ All fixtures are optional.
                 /// Will be executed first, before anything else.
                 public void setUpRun() {}
 
-                /// Will be executed first, after anything else.
+                /// Will be executed last, after anything else.
                 public void tearDownRun() {}
+
+                /// Will be executed before every step.
+                public void beforeStep() {}
+
+                /// Will be executed after every step.
+                public void afterStep() {}
             }
 
             /// The implementation of the model named ModelA.
             public class ModelA
             {
-                /// Will be executed before executing all steps from this model
+                /// Will be executed once before executing any steps from this model
                 public void setUpModel() {}
 
-                /// Will be executed after executing all steps from this model
+                /// Will be executed once after executing all steps from this model
                 public void tearDownModel() {}
+
+                /// Will be executed before every step from this model.
+                public void beforeStep() {}
+
+                /// Will be executed after every step from this model.
+                public void afterStep() {}
             }
 
             public class Program
