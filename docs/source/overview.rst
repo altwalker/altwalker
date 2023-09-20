@@ -114,28 +114,43 @@ the output and saves it in a file as a list of steps.
 
 The ``check`` command from GraphWalker is used by AltWalker's ``check``.
 
-Model-Editor
+Model Editor
 ============
 
-The `Model-Editor`_ is a web based editor and visualizer for models written using
-the GraphWalker JSON format.
+The `Model Editor`_ is a web-based tool that serves as both an editor and visualizer
+for models written in the GraphWalker JSON format.
 
 .. figure:: _static/img/model-editor.png
 
-    Screenshot taken from the Model-Editor.
+    Screenshot taken from the Model Editor.
 
 
 VS Code Extension
 =================
 
-And if you are using `VS Code`_ you can check out the `AltWalker's Model Visualizer Extension`_, the
-extension allows you to visualize your model while you are working on it.
+If you're a `VS Code`_ user, you can explore the `AltWalker's Model Visualizer Extension`_, which
+enables you to visualize your model in real-time while you work on it.
 
 .. figure:: _static/img/vs-code-extension.png
 
     Screenshot taken from the AltWalker Model-Visualizer VS Code Extension.
 
 
+Live Viewer
+===========
+
+AltWalker's `Live Viewer`_ is a powerful tool designed to enhance your experience with AltWalker. This
+application provides real-time visualization and monitoring capabilities for your AltWalker test runs,
+allowing you to gain deeper insights into test execution, track progress, and identify potential issues
+with ease. With AltWalker's LiveViewer, you can effortlessly keep an eye on the execution of your test
+models and ensure the success of your testing endeavors.
+
+.. figure:: _static/img/live-viewer.png
+
+    Screenshot taken from the AltWalker LiveViewer.
+
+
+.. _Live Viewer: https://github.com/altwalker/live-viewer
 .. _GraphWalker: http://graphwalker.github.io/
 .. _Model-Based Testing: https://en.wikipedia.org/wiki/Model-based_testing/
 .. _`C#/.NET Executor`: https://www.nuget.org/packages/AltWalker.Executor/
