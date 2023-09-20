@@ -235,7 +235,7 @@ class PythonGenerator(Generator):
 class DotnetGenerator(Generator):
     """A class for generating an AltWalker project for dotnet."""
 
-    VERSION_WILDCARD = ".".join(VERSION.split(".")[:2]) + ".*"
+    VERSION_WILDCARD = "0.3.*"
     CSPROJ_TEMPLATE = get_resource("data/templates/generate/dotnet/csproj.jinja")
 
     METHODS_TEMPLATE = get_resource("data/templates/generate/dotnet/methods.jinja")
