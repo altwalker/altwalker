@@ -50,6 +50,7 @@ usage patterns.
     PyPI Releases <https://pypi.org/project/altwalker/>
     Docker Hub <https://hub.docker.com/u/altwalker>
     Model Editor <https://altwalker.github.io/model-editor>
+    Live Viewer <https://github.com/altwalker/live-viewer>
     VS Code Extension <https://marketplace.visualstudio.com/items?itemName=Altom.altwalker-model-visualizer>
 
 .. toctree::
