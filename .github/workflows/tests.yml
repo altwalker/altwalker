@@ -54,7 +54,7 @@ jobs:
         pytest tests/unit -x -s --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
 
     - name: Upload log files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: ${{ always() }}
       with:
         name: unit-logs
@@ -92,7 +92,7 @@ jobs:
         pytest tests/integration -x -s
 
     - name: Upload log files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: ${{ always() }}
       with:
         name: integration-logs
@@ -124,7 +124,7 @@ jobs:
         tox -e py
 
     - name: Upload log files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: ${{ always() }}
       with:
         name: tox-logs
