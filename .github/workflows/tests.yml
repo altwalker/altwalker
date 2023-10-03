@@ -3,6 +3,7 @@ name: Unit Tests & Integration Tests
 on:
   push:
     paths:
+      - '.github/workflows/tests.yml'
       - 'altwalker/**'
       - 'tests/**'
       - 'requirements.txt'
