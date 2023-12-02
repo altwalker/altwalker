@@ -9,16 +9,16 @@ and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0
 Version 0.4.0
 -------------
 
-- The `init` command should generate a `.gitignore` file. (`#4`_)
-- The `init` command should generate a `requirements.txt` file. (`#5`_)
+- The ``init`` command should generate a `.gitignore` file. (`#4`_)
+- The ``init`` command should generate a `requirements.txt` file. (`#5`_)
 - Drop support for python 3.5 and 3.6. (`#6`_)
-- The `load_module` method is deprecated and will be removed in Python 3.12. (`#9`)
-- Add the GraphWalker jar file as a resource file. (`#16`)
-- The `pkg_resources` module is deprecated. (`#23`)
-- Update the logging configuration to be more suited for a library. (`#24`)
-- Remove the deprecated `-p`, `--port` and `--url` options. (`#26`)
-- Drop support for python 3.7. (`#29`)
-- Add `beforeStep` and `afterStep` fixtures. (`#33`)
+- The ``load_module`` method is deprecated and will be removed in Python 3.12. (`#9`_)
+- Add the GraphWalker jar file as a resource file. (`#16`_)
+- The ``pkg_resources`` module is deprecated. (`#23`_)
+- Update the logging configuration to be more suited for a library. (`#24`_)
+- Remove the deprecated ``-p``, ``--port`` and ``--url`` options. (`#26`_)
+- Drop support for python 3.7. (`#29`_)
+- Add ``beforeStep`` and ``afterStep`` fixtures. (`#33`_)
 
 .. _#4: https://github.com/altwalker/altwalker/issues/4
 .. _#5: https://github.com/altwalker/altwalker/issues/5
