@@ -35,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dotnet-executor-build
-        path: 'AltwalkerExecutor/bin/Debug/AltWalker.Executor.*.nupkg'
+        path: 'AltwalkerExecutor/bin/Release/AltWalker.Executor.*.nupkg'
 
   no-graphwalker:
     runs-on: ubuntu-latest
