@@ -34,8 +34,9 @@ jobs:
     - name: Upload the build
       uses: actions/upload-artifact@v3
       with:
+        if-no-files-found: error
         name: dotnet-executor-build
-        path: 'AltwalkerExecutor/bin/Debug/AltWalker.Executor.*.nupkg'
+        path: 'AltwalkerExecutor/bin/Release/AltWalker.Executor.*.nupkg'
 
   no-graphwalker:
     runs-on: ubuntu-latest
@@ -47,7 +48,7 @@ jobs:
       with:
         python-version: '3.12'
 
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
