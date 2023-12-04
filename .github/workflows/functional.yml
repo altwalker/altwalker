@@ -34,6 +34,7 @@ jobs:
     - name: Upload the build
       uses: actions/upload-artifact@v3
       with:
+        if-no-files-found: error
         name: dotnet-executor-build
         path: 'AltwalkerExecutor/bin/Release/AltWalker.Executor.*.nupkg'
 
