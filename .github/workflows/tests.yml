@@ -52,7 +52,7 @@ jobs:
 
     - name: Run unit tests
       run: |
-        pytest tests/unit -x -s --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
+        pytest tests/unit -x -s --cov=altwalker --cov-fail-under 80 --cov-report term --cov-report html:coverage/ altwalker/
 
     - name: Add step summary
       run: |
