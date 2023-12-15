@@ -54,6 +54,10 @@ jobs:
       run: |
         pytest tests/unit -x -s --cov=altwalker --cov-report term --cov-report html:coverage/ altwalker/
 
+    - name: Add summary
+      run: |
+        python -m coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+
     - name: Upload log files
       uses: actions/upload-artifact@v3
       if: ${{ always() }}
