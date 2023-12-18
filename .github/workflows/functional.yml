@@ -32,7 +32,7 @@ jobs:
       run: dotnet pack AltwalkerExecutor
 
     - name: Upload the build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: dotnet-executor-build
@@ -67,7 +67,7 @@ jobs:
         altwalker online tests -m models/default.json "random(vertex_coverage(100))"
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: remote-graphwalker-logs
@@ -102,7 +102,7 @@ jobs:
         altwalker online tests -m models/default.json "random(vertex_coverage(100))" --gw-host localhost --gw-port 8080
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: remote-graphwalker-logs
@@ -176,7 +176,7 @@ jobs:
         altwalker walk tests/ steps.json -x c# --executor-url http://localhost:4200/
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: dotnet-logs
@@ -222,7 +222,7 @@ jobs:
         altwalker walk tests/ steps.json -x http --executor-url http://localhost:4200/
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: http-logs
