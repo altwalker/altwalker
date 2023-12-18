@@ -61,7 +61,7 @@ jobs:
         python -m coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: unit-logs
@@ -99,7 +99,7 @@ jobs:
         pytest tests/integration -x -s
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: integration-logs
@@ -131,7 +131,7 @@ jobs:
         tox -e py
 
     - name: Upload log files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: tox-logs
