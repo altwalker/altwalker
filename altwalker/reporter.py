@@ -415,26 +415,26 @@ class MarkdownReporter(Reporter):
                 statistics["totalNumberOfVertices"],
                 statistics["totalNumberOfVisitedVertices"],
                 statistics["totalNumberOfUnvisitedVertices"],
-                statistics["vertexCoverage"],
+                f"{statistics['vertexCoverage']}%"
             ],
             [
                 "Edges",
                 statistics["totalNumberOfEdges"],
                 statistics["totalNumberOfVisitedEdges"],
                 statistics["totalNumberOfUnvisitedEdges"],
-                statistics["edgeCoverage"]
+                f"{statistics['edgeCoverage']}%"
             ],
             [
                 "**Total**",
                 element_count,
                 visited_elements,
                 unvisited_elements,
-                visited_elements * 100 // element_count
+                f"{visited_elements * 100 // element_count}%"
             ]
         ]
 
         with open(self._file, "w") as fp:
-            fp.write("## AltWalker Report")
+            fp.write("## AltWalker Report\n")
             fp.write(generate_markdown_table(data))
 
         if self._verbose:
