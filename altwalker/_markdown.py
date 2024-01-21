@@ -33,7 +33,7 @@ def generate_markdown_table(data):
         row_markdown = []
 
         for cell in row:
-            if isinstance(cell, str):
+            if not isinstance(cell, dict):
                 row_markdown.append(wrap_tag("td", content=cell))
                 continue
 
