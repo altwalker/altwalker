@@ -392,7 +392,7 @@ class MarkdownReporter(Reporter):
         self._verbose = verbose
 
     def end(self, message=None, statistics=None, status=None):
-        with open(self._file) as fp:
+        with open(self._file, "w") as fp:
             fp.write(generate_markdown_table(statistics))
 
         if self._verbose:
@@ -426,6 +426,6 @@ def create_reporters(report_file=None, report_path=False, report_path_file=None,
     if report_path or report_path_file:
         reporting.register("path", PathReporter(file=report_path_file or "path.json", verbose=verbose))
 
-    reporting.register("markdown", MarkdownReporter(file= "" or "report.md", verbose=verbose))
+    reporting.register("markdown", MarkdownReporter(file="report.md", verbose=verbose))
 
     return reporting
