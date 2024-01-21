@@ -392,6 +392,9 @@ class MarkdownReporter(Reporter):
         self._verbose = verbose
 
     def end(self, message=None, statistics=None, status=None):
+        if statistics == {}:
+            return
+
         element_count = (int(statistics["totalNumberOfVertices"])
                          + int(statistics["totalNumberOfEdges"]))
         visited_elements = (int(statistics["totalNumberOfVisitedVertices"])
