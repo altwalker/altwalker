@@ -57,7 +57,7 @@ def wrap_tag(tag, content=None):
 
     """
 
-    if content:
+    if content is not None:
         return f"<{tag}>{content}</{tag}>"
 
     return f"<{tag}>"

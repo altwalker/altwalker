@@ -39,7 +39,8 @@ def test_generate_markdown_table(data, expected):
 
 @pytest.mark.parametrize("tag, content, expected", [
     ("td", None, "<td>"),
-    ("td", "Content", "<td>Content</td>")
+    ("span", "Content", "<span>Content</span>"),
+    ("td", 0, "<td>0</td>"),
 ])
 def test_wrap_tag(tag, content, expected):
     assert wrap_tag(tag, content=content) == expected
