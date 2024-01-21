@@ -392,8 +392,47 @@ class MarkdownReporter(Reporter):
         self._verbose = verbose
 
     def end(self, message=None, statistics=None, status=None):
+        element_count = (int(statistics["totalNumberOfVertices"])
+                         + int(statistics["totalNumberOfEdges"]))
+        visited_elements = (int(statistics["totalNumberOfVisitedVertices"])
+                            + int(statistics["totalNumberOfVisitedEdges"]))
+        unvisited_elements = (int(statistics["totalNumberOfUnvisitedVertices"])
+                              + int(statistics["totalNumberOfUnvisitedEdges"]))
+
+        data = [
+            [
+                {"data": "", "header": True},
+                {"data": "Count", "header": True},
+                {"data": "Visited", "header": True},
+                {"data": "Unvisited", "header": True},
+                {"data": "Coverage", "header": True},
+            ],
+            [
+                "Vertices",
+                statistics["totalNumberOfVertices"],
+                statistics["totalNumberOfVisitedVertices"],
+                statistics["totalNumberOfUnvisitedVertices"],
+                statistics["vertexCoverage"],
+            ],
+            [
+                "Edges",
+                statistics["totalNumberOfEdges"],
+                statistics["totalNumberOfVisitedEdges"],
+                statistics["totalNumberOfUnvisitedEdges"],
+                statistics["edgeCoverage"]
+            ],
+            [
+                "**Total**",
+                element_count,
+                visited_elements,
+                unvisited_elements,
+                visited_elements * 100 // element_count
+            ]
+        ]
+
         with open(self._file, "w") as fp:
-            fp.write(generate_markdown_table(statistics))
+            fp.write("## AltWalker Report")
+            fp.write(generate_markdown_table(data))
 
         if self._verbose:
             click.secho(f"Markdown report written to file: {click.style(self._file, fg='green')}.\n", bold=True)
