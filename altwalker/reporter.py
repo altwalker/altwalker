@@ -20,6 +20,7 @@ import click
 
 import altwalker._prettier as prettier
 import altwalker._xml as xml
+from altwalker._markdown import generate_markdown_table
 
 
 class Reporter:
@@ -341,7 +342,7 @@ class JUnitXMLReporter(Reporter):
     """This reporter generates a JUnit style XML.
 
     Args:
-        file (:obj:`str`): A path to a file to log execution path.
+        file (:obj:`str`): A path to a file to save the JUnit XML report.
         prettyxml (:obj:`bool`): Will generate a pretty-printed version of the document.
         verbose (:obj:`bool`): Will print more details to stdout.
 
@@ -377,8 +378,73 @@ class JUnitXMLReporter(Reporter):
         return self._generator.to_string()
 
 
+class MarkdownReporter(Reporter):
+    """This reporter generates a markdown report.
+
+    Args:
+        file (:obj:`str`): A path to a file to log execution path.
+        verbose (:obj:`bool`): Will print more details to stdout.
+
+    """
+
+    def __init__(self, file="report.md", verbose=False):
+        self._file = file
+        self._verbose = verbose
+
+    def end(self, message=None, statistics=None, status=None):
+        if statistics == {}:
+            return
+
+        element_count = (int(statistics["totalNumberOfVertices"])
+                         + int(statistics["totalNumberOfEdges"]))
+        visited_elements = (int(statistics["totalNumberOfVisitedVertices"])
+                            + int(statistics["totalNumberOfVisitedEdges"]))
+        unvisited_elements = (int(statistics["totalNumberOfUnvisitedVertices"])
+                              + int(statistics["totalNumberOfUnvisitedEdges"]))
+
+        data = [
+            [
+                {"data": "", "header": True},
+                {"data": "Count", "header": True},
+                {"data": "Visited", "header": True},
+                {"data": "Unvisited", "header": True},
+                {"data": "Coverage", "header": True},
+            ],
+            [
+                "Vertices",
+                statistics["totalNumberOfVertices"],
+                statistics["totalNumberOfVisitedVertices"],
+                statistics["totalNumberOfUnvisitedVertices"],
+                f"{statistics['vertexCoverage']}%"
+            ],
+            [
+                "Edges",
+                statistics["totalNumberOfEdges"],
+                statistics["totalNumberOfVisitedEdges"],
+                statistics["totalNumberOfUnvisitedEdges"],
+                f"{statistics['edgeCoverage']}%"
+            ],
+            [
+                "**Total**",
+                element_count,
+                visited_elements,
+                unvisited_elements,
+                f"{visited_elements * 100 // element_count}%"
+            ]
+        ]
+
+        with open(self._file, "w") as fp:
+            fp.write("## AltWalker Report\n")
+            fp.write(generate_markdown_table(data))
+
+        if self._verbose:
+            click.secho(f"Markdown report written to file: {click.style(self._file, fg='green')}.\n", bold=True)
+
+
 def create_reporters(report_file=None, report_path=False, report_path_file=None,
-                     report_xml=False, report_xml_file=None, verbose=True):
+                     report_xml=False, report_xml_file=None,
+                     report_markdown=False, report_markdown_file=None,
+                     verbose=True):
     """Create a reporter collection.
 
     Args:
@@ -401,5 +467,7 @@ def create_reporters(report_file=None, report_path=False, report_path_file=None,
 
     if report_path or report_path_file:
         reporting.register("path", PathReporter(file=report_path_file or "path.json", verbose=verbose))
+
+    reporting.register("markdown", MarkdownReporter(file="report.md", verbose=verbose))
 
     return reporting
