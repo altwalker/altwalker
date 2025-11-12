@@ -1,0 +1,17 @@
+[
+    {
+        "id": "v0",
+        "modelName": "ModelName",
+        "name": "vertex_A"
+    },
+    {
+        "id": "e0",
+        "modelName": "ModelName",
+        "name": "edge_A"
+    },
+    {
+        "id": "v1",
+        "modelName": "ModelName",
+        "name": "vertex_B"
+    }
+]
